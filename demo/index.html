@@ -1,0 +1,308 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>FortifID Demo</title>
+    <meta name="author" content="cisco@barbarians.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.9/spectre.min.css"
+        integrity="sha512-9RIcp1f4CE6dEuYX9085tXaEbYd1ap04d2Av1ub/dwuT33WbfbHStDdQ+shKrp5wzZzleh5DOg+7ABSnaQP/nQ=="
+        crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/styles/a11y-dark.min.css">
+    <style>
+        .modified {
+            text-align: center;
+            font-size: smaller;
+            color: rgb(32, 31, 31);
+        }
+    </style>
+</head>
+
+<body>
+    <br />
+    <div class="container grid-lg">
+        <div>
+            <strong>DirectID Income Verification Demo</strong>
+            <div class="form-group">
+                <label class="form-label" for="full_name">Full Name</label>
+                <input id="full_name" class="form-input" type="text" placeholder="Full Name (optional)" minlength="1"
+                    maxlength="64">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email_address">Email</label>
+                <input id="email_address" class="form-input" type="email" placeholder="Email"
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,14}$" maxlength="64" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="phone_number">Phone Number</label>
+                <input id="phone_number" class="form-input" type="tel" placeholder="Phone Number" minlength="10"
+                    maxlength="15" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="request_id">Request Id</label>
+                <input id="request_id" class="form-input" type="text" placeholder="Auto-generated." minlength="1"
+                    maxlength="64" readonly>
+            </div>
+            <div class="form-group">
+                <label class="form-switch">
+                    <input id="check-shorten_url" type="checkbox" checked>
+                    <i class="form-icon"></i> Shorten URL
+                </label>
+            </div>
+            <div id="div-url">&nbsp;</div>
+            <br />
+            <button id="btn-url" class="btn btn-primary">Send URL</button>
+            <br /><br />
+        </div>
+        <div id="output"></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.0.slim.min.js"
+        integrity="sha256-MlusDLJIP1GRgLrOflUQtshyP0TwT/RHXsI1wWGnQhs=" crossorigin="anonymous"></script>
+    <script>
+        (async () => {
+            "use strict";
+
+            let startTime = 0;
+            let requestId;
+
+            let checking = false;
+            let found = false;
+            let focused = false;
+            let dotCount = 0;
+
+            let resultsTimer;
+
+            let divOutput = $("#output");
+            //let divResults = $('#results');
+
+            $("#btn-main").hide();
+
+            const randomString = (len) => {
+                let s = '';
+                const randomchar = () => {
+                    var n = Math.floor(Math.random() * 62);
+                    if (n < 10) return n; //1-10
+                    if (n < 36) return String.fromCharCode(n + 55); //A-Z
+                    return String.fromCharCode(n + 61); //a-z
+                };
+                while (s.length < len)
+                    s += randomchar();
+                return s;
+            };
+
+            const setOutput = (str, mode = 1, br = true) => {
+                if (br)
+                    str += '<br/>';
+
+                switch (mode) {
+                    case 0:
+                        divOutput.html(str);
+                        break;
+                    case -1:
+                        divOutput.prepend(str);
+                        break;
+                    default:
+                        divOutput.append(str);
+                }
+            }
+
+
+            const outputResults = (data, mode = 1, br = true) => {
+                let isJSON = false;
+                let content;
+                let dataType = typeof (data);
+
+                if (dataType === 'object') {
+                    content = JSON.stringify(data, null, 2);
+                    isJSON = true;
+                } else if (dataType === 'string' && data.length > 1) {
+                    let firstChar = data.substring(0, 1);
+                    content = data;
+                    isJSON = (firstChar === '[' || firstChar === '{');
+                }
+
+                const MAX = 64 * 1024;
+                let noFormat = content.length > MAX;
+                if (noFormat) {
+                    isJSON = false;
+                    setOutput(
+                        `Results too long (${formatBytes(content.length)}). Limiting to first. ${formatBytes(MAX)} characters.`
+                    );
+                    content = content.substring(0, MAX);
+                }
+
+                let str = `<pre><code class="${(isJSON ?'json' : 'hljs')}">${content}</code></pre>`;
+
+                setOutput(str, mode, br);
+
+                if (isJSON) {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightBlock(block);
+                    });
+                }
+            }
+
+            const cancelTimer = () => {
+                if (resultsTimer) {
+                    try {
+                        clearTimeout(resultsTimer);
+                    } catch (error) {}
+                    resultsTimer = undefined;
+                }
+            }
+
+            const getAPIData = async (endpoint, params, method = 'get', responseType) => {
+                let headers = {};
+                let data;
+
+                if (!method) {
+                    method = 'get';
+                } else {
+                    method = method.toLowerCase();
+                }
+
+                let url = `https://dev.barbarians.com/fortifid/DirectID${endpoint}`;
+                let options = {
+                    method: method,
+                    headers: headers,
+                };
+
+                if (params) {
+                    if (method === 'post' || method === 'put' || method === 'patch') {
+                        options.body = JSON.stringify(params);
+                    } else {
+                        url = `${url}?${new URLSearchParams(params)}`;
+                    }
+                }
+
+                let response;
+                try {
+
+                    response = await fetch(url, options);
+                    if (response) {
+                        if (response.ok) {
+                            if (responseType === 'blob') {
+                                data = await response.blob();
+                            } else {
+                                data = await response.text();
+                                if (data && data.length > 1) {
+                                    try {
+                                        let firstChar = data.substring(0, 1);
+
+                                        if (firstChar === '[' || firstChar === '{') {
+                                            data = JSON.parse(data);
+                                        }
+                                    } catch (e) {}
+                                }
+                            }
+                        } else {
+                            data = await response.text();
+                        }
+                    }
+                } catch (error) {
+                    console.log(error.message);
+                }
+                return data;
+            }
+
+
+            const getRequestStatus = async () => {
+                if (checking || !focused || !requestId) {
+                    return;
+                }
+
+                let duration = Date.now() - startTime;
+                if (duration > 180000) {
+                    setOutput('Took too long. Please try again.', 0);
+                    requestId = undefined;
+                    return;
+                }
+
+                try {
+                    checking = true;
+                    let count = Math.round(duration / 1000);
+                    if (count > 0 && count % 2 === 0) {
+                        dotCount++;
+                        console.log(dotCount);
+                    }
+                    let line = '<img src="loader.gif"> Checking...' + ''.padEnd(dotCount, '.');
+                    setOutput(line, 0);
+
+                    let res = await fetch(
+                        `https://dev.barbarians.com/fortifid/directid/?request_id=${requestId}`);
+                    checking = false;
+                    if (res.ok) {
+                        let data = await res.json();
+                        if (data) {
+                            setOutput('Results:', 0);
+                            outputResults(data);
+                            requestId = undefined;
+                        }
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+
+                if (requestId) {
+                    cancelTimer();
+                    resultsTimer = setTimeout(() => {
+                        getRequestStatus();
+                    }, 2000);
+                }
+            }
+
+            $('#btn-url').on("click", async () => {
+                cancelTimer();
+                setOutput('Loading...', 0);
+                let data = {
+                    full_name: $('#full_name').val(),
+                    email_address: $('#email_address').val(),
+                    phone_number: $('#phone_number').val(),
+                    request_id: uuid.v4(),
+                    shorten_url: $('#check-shorten_url').is(':checked')
+                };
+
+                $('#request_id').val(data.request_id);
+                if (data.request_id && data.request_id.length > 0) {
+                    let results = await getAPIData('/generateIncomeUrl', data, 'post');
+                    setOutput('Results:', 0);
+                    $("#div-url").html(
+                        `<a href="${results.url}" rel="noopener noreferrer" target="_blank">${results.url}</a>`
+                    );
+
+                    outputResults(results);
+
+                    found = false;
+                    requestId = data.request_id;
+                    dotCount = 0;
+                    startTime = Date.now();
+                    //TODO!
+                    resultsTimer = setTimeout(() => {
+                        focused = true;
+                        getRequestStatus();
+                    }, 15000);
+                }
+            });
+
+            document.addEventListener('visibilitychange', (ev) => {
+                focused = document.visibilityState === 'visible';
+                if (focused) {
+                    //startTime = Date.now();
+                    getRequestStatus();
+                }
+            });
+        })();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.1/uuid.min.js"></script>
+    <div class="modified">modified: <span id="lastModified"></span></div>
+    <script>
+        document.getElementById("lastModified").innerHTML = document.lastModified;
+    </script>
+</body>
+
+</html>

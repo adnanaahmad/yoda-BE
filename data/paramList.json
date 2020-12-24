@@ -1,0 +1,132 @@
+[
+  {
+    "Name": "/config/directid/directid.api.connect_url",
+    "Type": "String",
+    "Value": "https://uk.connect.directid.co"
+  },
+  {
+    "Name": "/config/directid/directid.api.income_verification_url",
+    "Type": "String",
+    "Value": "https://uk.api.directid.co/income-verification/v1/consents/%CONSENT_ID%/verifications?includeFlags=true"
+  },
+  {
+    "Name": "/config/directid/directid.api.token_url",
+    "Type": "String",
+    "Value": "https://uk.api.directid.co/v1/oauth2/token"
+  },
+  {
+    "Name": "/config/directid/directid.credentials.client_secret",
+    "Type": "SecureString",
+    "Value": ""
+  },
+  {
+    "Name": "/config/directid/directid.service.api_port",
+    "Type": "String",
+    "Value": "8999"
+  },
+  {
+    "Name": "/config/directid/directid.service.ddb_partition_income",
+    "Type": "String",
+    "Value": "requestId"
+  },
+  {
+    "Name": "/config/directid/directid.service.email_text",
+    "Type": "String",
+    "Value": "From FortifID: please use the following link to complete the verification steps: %URL%"
+  },
+  {
+    "Name": "/config/directid/directid.service.incoming_webhook",
+    "Type": "String",
+    "Value": ""
+  },
+  {
+    "Name": "/config/directid/directid.service.request_bank_data",
+    "Type": "String",
+    "Value": "false"
+  },
+  {
+    "Name": "/config/directid/directid.service.sms_text",
+    "Type": "String",
+    "Value": "From FortifID: please use the following link to complete the verification steps: %URL%"
+  },
+  {
+    "Name": "/config/directid/directid.service.webhook_secret",
+    "Type": "SecureString",
+    "Value": ""
+  },
+  {
+    "Name": "/config/directid/directid.api.bank_data_url",
+    "Type": "String",
+    "Value": "https://uk.api.directid.co/data/v1/consents/%CONSENT_ID%/accounts"
+  },
+  {
+    "Name": "/config/directid/directid.credentials.client_id",
+    "Type": "SecureString",
+    "Value": ""
+  },
+  {
+    "Name": "/config/directid/directid.service.api_whitelist",
+    "Type": "SecureString",
+    "Value": ""
+  },
+  {
+    "Name": "/config/directid/directid.service.cache_tokens",
+    "Type": "String",
+    "Value": "false"
+  },
+  {
+    "Name": "/config/directid/directid.service.ddb_table_income",
+    "Type": "String",
+    "Value": "DIRECTID_INCOME"
+  },
+  {
+    "Name": "/config/directid/directid.service.email_subject",
+    "Type": "String",
+    "Value": "Verification steps"
+  },
+  {
+    "Name": "/config/directid/directid.service.match_name",
+    "Type": "String",
+    "Value": "false"
+  },
+  {
+    "Name": "/config/shared/bitly.access_token",
+    "Type": "SecureString",
+    "Value": ""
+  },
+  {
+    "Name": "/config/shared/email.ses.password",
+    "Type": "SecureString",
+    "Value": ""
+  },
+  {
+    "Name": "/config/shared/twilio.auth_token",
+    "Type": "SecureString",
+    "Value": ""
+  },
+  {
+    "Name": "/config/shared/email.ses.account",
+    "Type": "SecureString",
+    "Value": ""
+  },
+  {
+    "Name": "/config/shared/email.ses.from",
+    "Type": "String",
+    "Value": "Barbarians Dev <dev@barbarians.com>"
+  },
+  {
+    "Name": "/config/shared/email.ses.smtp_server",
+    "Type": "String",
+    "Value": "email-smtp.us-east-1.amazonaws.com"
+  },
+  {
+    "Name": "/config/shared/twilio.account_sid",
+    "Type": "SecureString",
+    "Value": ""
+  },
+  {
+    "Name": "/config/shared/twilio.phone_number",
+    "Type": "SecureString",
+    "Value": ""
+  }
+]
