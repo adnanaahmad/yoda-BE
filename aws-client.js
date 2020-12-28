@@ -18,7 +18,15 @@ const getParameter = async (name) => {
     const result = await ssm.getParameter(params).promise();
 
     if (result) {
-      return result.Parameter.Value;
+      let value = result.Parameter.Value;
+      //TODO
+      if (typeof (value) === 'string') {
+        value = value.trim();
+        if (value === 'REPLACE') { 
+          value = undefined;
+        }
+      }
+      return value;
     }
   } catch (error) {
     console.log(error.message);
@@ -60,9 +68,7 @@ const putDDBItem = async (table, data) => {
 })();
 
 module.exports = {
-  getParameter, 
+  getParameter,
   putParameter,
   putDDBItem
 };
-
-

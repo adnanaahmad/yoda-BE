@@ -18,8 +18,8 @@ let ready = false;
 let emailFrom;
 
 const sendEmailWrapper = async (email, subject, text, textHTML) => {
-    return new Promise((resolve, reject) => {
 
+    return new Promise((resolve, reject) => {
         const mailOptions = {
             from: emailFrom,
             to: email
@@ -57,6 +57,8 @@ const add = async(data)=> {
         //TODO: cache and retry (?)
         return;
     }
+
+
     let results;
     try {
         console.log(`[${data.email}] email process started`);
@@ -117,17 +119,19 @@ const loadParams = async () => {
     try {
         let results = await Promise.all(funcs);
         if(results) {
-            const sesAccount = encodeURIComponent(results[0]);
-            const sesPassword = encodeURIComponent(results[1]);
+            const sesAccount = results[0];
+            const sesPassword = results[1];
             const sesServer = results[2];
             emailFrom = results[3];
-
-            sesTransport = nodemailer.createTransport(`smtps://${sesAccount}:${sesPassword}@${sesServer}`);
-            const duration = utils.time() - start;
-            console.log(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
-            
+            if(sesAccount && sesPassword && sesServer && emailFrom) {
+                sesTransport = nodemailer.createTransport(`smtps://${encodeURIComponent(sesAccount)}:${encodeURIComponent(sesPassword)}@${sesServer}`);
+                const duration = utils.time() - start;
+                console.log(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+            } else {
+                console.log(`[${SCRIPT_INFO.name}] Email account information missing.`);
+            } 
         } else {
-            console.log(`[${SCRIPT_INFO.name}] Unable to retrieve parameters.`)
+            console.log(`[${SCRIPT_INFO.name}] Unable to retrieve parameters.`);
         }
     } catch (error) {
         console.log(error.message);

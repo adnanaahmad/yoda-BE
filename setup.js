@@ -2,14 +2,6 @@
 /*jshint esversion: 8 */
 
 const utils = require('./utils');
-const util = require('util');
-const execFile = util.promisify(require('child_process').execFile);
-
-// async function getVersion() {
-//   const { stdout } = await execFile('pm2', ['--version']);
-//   console.log(stdout);
-// }
-// getVersion();
 
 (async () => {
     let awsInstanceData = await utils.fetchData('http://169.254.169.254/latest/dynamic/instance-identity/document', undefined, false,{}, 'GET');

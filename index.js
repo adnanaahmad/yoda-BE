@@ -345,15 +345,13 @@ const startServer = () => {
                 let consentId;
                 let consent;
                 let returnData;
-
+                //TODO! AUTH!
                 switch (path) {
                     case '/restart': {
                         passed = true;
-                        restart();
                         break;
                     }
                     case '/update': {
-                        //TODO
                         passed = true;
                         break;
                     }
@@ -420,11 +418,21 @@ const startServer = () => {
                             if (fun) {
                                 passed = true;
                                 const start = utils.time();
-                                let results = fun(bodyData);
+                                let results;
+                                let error;
+                                try {
+                                    results = fun(bodyData);
+                                } catch (err) {
+                                    error = err;
+                                }
                                 const duration = utils.time() - start;
                                 returnData = {
                                     results: results,
                                     duration: duration
+                                }
+                                
+                                if(error) {
+                                    returnData.error = error;
                                 }
                                 //fun({a: 10, b: 20}).then(response => { console.log(response) });
                             }
@@ -475,6 +483,15 @@ const startServer = () => {
                     utils.sendData(res, returnData);
 
                     switch (path) {
+                        case '/restart': {
+                            restart();
+                            break;
+                        }
+                        case '/update': {
+                            const { stdout, stderr } = await utils.execFile('./update.sh');
+                            console.log(stdout, stderr);
+                            break;
+                        }
                         case '/directid/': {
                             if (consentId) {
                                 let customerReference = consent.customerReference;
@@ -570,7 +587,7 @@ const startServer = () => {
 
 
 const checkTokens = async () => {
-    
+    //TODO
     if(!PARAMS.token_url || PARAMS.token_url.indexOf('http') !== 0) {
         console.log('Invalid token_url parameter.');
         return;
@@ -627,14 +644,12 @@ const loadParams = async () => {
             let len = results.length;
             for (let index = 0; index < len; index++) {
                 let value = results[index];
-                //TODO
-                if (typeof (value) === 'string') {
-                    value = value.trim();
+                if(value) {
+                    PARAMS[paramKeys[index]] = value;
                 }
-                PARAMS[paramKeys[index]] = value;
             }
             const duration = utils.time() - start;
-            console.log(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+            console.log(`[${SCRIPT_INFO.name}] Loaded ${Object.keys(PARAMS).length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
 
             //TODO!
             if (typeof (PARAMS.api_port) !== 'undefined') {

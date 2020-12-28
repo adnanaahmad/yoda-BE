@@ -53,6 +53,14 @@ content-type: application/json
 GET https://dev.barbarians.com/fortifid/restart
 
 ###
+# This will update the DID service.
+GET https://dev.barbarians.com/fortifid/update
+
+################
+# Dynamic Code #
+################
+
+###
 # Submit Code #1 (add)
 # Just proof of concept
 POST https://dev.barbarians.com/fortifid/DirectID/codeSubmit?id=add
@@ -73,6 +81,41 @@ content-type: text/plain
 return data.a - data.b;
 
 ###
+# Submit Code #3 (did_1)
+POST https://dev.barbarians.com/fortifid/DirectID/codeSubmit?id=did_1
+content-type: text/plain
+
+'use strict';
+
+const validateInput =()=> {
+    //Do validation
+}
+
+const summary = data.summary;
+const meta = data.meta;
+
+let output;
+if(summary) {
+    output = {
+        estimatedIncome: summary.estimatedIncome,
+        confidenceScore: summary.confidenceScore,
+        confidenceScoreFlags: {...summary.confidenceScoreFlags},
+        requestStartX : 0,
+        requestComplete : Date.now(),
+        requestDuration: 0
+    }
+}
+
+if (meta) {
+    output = output || {};
+    output.requestStart = meta.request_timestamp;
+    output.requestDuration = output.requestComplete - output.requestStart;
+}
+
+return output;
+
+
+###
 # Run Code #1 (add)
 # Just proof of concept
 POST https://dev.barbarians.com/fortifid/DirectID/codeRun?id=add
@@ -84,7 +127,7 @@ content-type: application/json
 }
 
 ###
-# Run Code #1 (subtract)
+# Run Code #2 (subtract)
 # Just proof of concept
 POST https://dev.barbarians.com/fortifid/DirectID/codeRun?id=subtract
 content-type: application/json
@@ -94,6 +137,80 @@ content-type: application/json
     "b": 50
 }
 
+###
+# Run Code #3 (did_01)
+POST https://dev.barbarians.com/fortifid/DirectID/codeRun?id=did_1
+content-type: application/json
+
+{ "summary":
+    {
+      "month1": {
+        "income": 0,
+        "month": 1,
+        "year": 2020
+      },
+      "month2": {
+        "income": 0,
+        "month": 2,
+        "year": 2020
+      },
+      "month3": {
+        "income": 0,
+        "month": 3,
+        "year": 2020
+      },
+      "month4": {
+        "income": 0,
+        "month": 4,
+        "year": 2020
+      },
+      "month5": {
+        "income": 0,
+        "month": 5,
+        "year": 2020
+      },
+      "month6": {
+        "income": 0,
+        "month": 6,
+        "year": 2020
+      },
+      "month7": {
+        "income": 0,
+        "month": 7,
+        "year": 2020
+      },
+      "month8": {
+        "income": 0,
+        "month": 8,
+        "year": 2020
+      },
+      "month9": {
+        "income": 0,
+        "month": 9,
+        "year": 2020
+      },
+      "month10": {
+        "income": 6433.9,
+        "month": 10,
+        "year": 2020
+      },
+      "month11": {
+        "income": 3216.95,
+        "month": 11,
+        "year": 2020
+      },
+      "estimatedIncome": 0,
+      "confidenceScore": 7,
+      "confidenceScoreFlags": {
+        "incomeForLast3Months": false,
+        "varianceTolerance5Percent": true,
+        "varianceTolerance10Percent": true,
+        "mostRecentCheckValue": true,
+        "stabilityOverall": 3,
+        "stability6Months": 0
+      }
+    }
+}
 ###
 # Get EC2 instance meta for auto-configuration use
 GET http://169.254.169.254/latest/dynamic/instance-identity/document
