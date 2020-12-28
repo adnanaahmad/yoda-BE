@@ -48,11 +48,6 @@ The DirectID service has the ability to easily update itself. To do this do the 
 The api-v1.http file allows you to test the endpoints interactively.
 It requires the Rest Client (humao.rest-client) extension.
 
-## Notes
-This is designed to run many micro-services but for simplicity it is currently being run as one service.
-
-The other services have been written for dual-mode: As libraries and as stand-alone service mode. They can be switched very easily but they require a running Redis cluster. With the Redis cluster each service can have as many instances as needed without needing any coordination; that is handled automatically. 
-
 ## Dynamic Code
 We're able to also upload and execute code on the fly without any recompilation. 
 
@@ -85,6 +80,19 @@ When submitting code for evaluation we would have something similar in our datab
   "size": 589 //size of the original code
 }
 ``` 
-We can make this as complex as we want but for an initial version this would suffice. We can make parts of this similar to an issue tracking system.
+
+We can make this as complex as we want but for an initial version this would suffice. We can make parts of this similar to an issue tracking system and we can also incorporate version control functionality into this.
 
 
+## Notes
+This is designed to run many micro-services but for simplicity it is currently being run as one service.
+
+The other services have been written for dual-mode: As libraries and as stand-alone service mode. They can be switched very easily but they require a running Redis cluster. With the Redis cluster each service can have as many instances as needed without needing any coordination; that is handled automatically. 
+
+
+## Roadmap
+
+## TODO
+* Code documentation.
+* More logging.
+* 
