@@ -52,3 +52,39 @@ It requires the Rest Client (humao.rest-client) extension.
 This is designed to run many micro-services but for simplicity it is currently being run as one service.
 
 The other services have been written for dual-mode: As libraries and as stand-alone service mode. They can be switched very easily but they require a running Redis cluster. With the Redis cluster each service can have as many instances as needed without needing any coordination; that is handled automatically. 
+
+## Dynamic Code
+We're able to also upload and execute code on the fly without any recompilation. 
+
+We would then have an approval and evaluation process.
+
+The code is run in a sandbox so the code will only have access to built-in javascript functions which we can easily limit and to functions and data we give each script access to.
+
+See api-v1.http under # Dynamic Code # for proof-of-concept examples.
+
+When submitting code for evaluation we would have something similar in our database:
+```json
+{
+  "id": "uuid",
+  "replacing": "id_to_replace",
+  "replacing_version": "old_version",
+  "code": "J3VzZSBzdHJpY3QnOwoKY29uc3QgdmFsaWRhdGVJbnB1dCA9KCk9PiB7Cn3IH3N1bW1hcnkgPSBkYXRhLscPO8cebWV0YcgbxAw7CgpsZXQgb3V0cHV0OwppZijHMSkgewogICDHGiA9xw/EAWVzdGltYXRlZEluY29tZTrIcy7PGSzJMmNvbmZpZGVuY2VTY29yyzLPGdkyRmxhZ3M6IHsuLugA0dA7xSJ9ykFyZXF1ZXN0U3RhcnRYIDogMNEbQ29tcGxldGUgOiBEYXRlLm5vdygp0SZEdXJhdGlvbjogMMUbfeQBamlmICjkAT7xASXHCXx8IHt9O8sbLuwAjyA95QGHyBRfdGltZXN0YW1w1DLoAIDJXcgZ6QC/LdRkO+QAp3JldHVybscfOw==", //compressed and base-64 encoded version of the code
+  "hash": "XhJohTxpAMTYVn1vUylmZa7FkCqwj/Kq25XGuOnxZlA=", //sha256 of the original code
+  "author" : "user_id",
+  "author_notes": "", //Keep a history of these
+  "created": 1609155982515,
+  "reviewed_by" : "user_id",
+  "review_date": "date",
+  "review_notes": "", //We should keep a history of these
+  "approved_by" : "user_id", 
+  "approval_date": "date",
+  "test_data": "some valid test data", //We could make these arrays later for multiple tests and results
+  "test_results": "", //Expected results for validation that it works
+  "status": 0,
+  "service_group": "", //Which service(s) this belongs to
+  "size": 589 //size of the original code
+}
+``` 
+We can make this as complex as we want but for an initial version this would suffice. We can make parts of this similar to an issue tracking system.
+
+

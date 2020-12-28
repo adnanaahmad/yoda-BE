@@ -418,11 +418,21 @@ const startServer = () => {
                             if (fun) {
                                 passed = true;
                                 const start = utils.time();
-                                let results = fun(bodyData);
+                                let results;
+                                let error;
+                                try {
+                                    results = fun(bodyData);
+                                } catch (err) {
+                                    error = err;
+                                }
                                 const duration = utils.time() - start;
                                 returnData = {
                                     results: results,
                                     duration: duration
+                                }
+                                
+                                if(error) {
+                                    returnData.error = error;
                                 }
                                 //fun({a: 10, b: 20}).then(response => { console.log(response) });
                             }
