@@ -1,6 +1,6 @@
 # DirectID service
 ## Description
-Coming
+This is the DirectID micro-service. 
 
 ## Installation
 Make sure git is installed.
@@ -32,15 +32,23 @@ pm2 restart index
 ```
 ## No hassle updating (coming soon)
 The DirectID service has the ability to easily update itself. To do this do the following:
-1. Create a read-only account to the didservice repo.
+1. Create a read-only account to the didservice repo or create a read_repository access token here: https://gitlab.com/-/profile/personal_access_tokens.
 2. Store these credentials by enabling this:
    ```bash 
     git config credential.helper store
     ```
-3. Add the remote:
+4. Add the remote:
    ```bash 
     git remote add origin https://gitlab.com/fortifid/internal/engineering/didservice.git
     ```
-4. Then run *./update.sh* and enter the credentials from step 1.
-5. Now the service can be easily updated by hitting the */update/* endpoint.
+5. Then run *./update.sh* and enter the credentials from step 1.
+6. Now the service can be easily updated by hitting the */update/* endpoint.
 
+## Rest Command Test
+The api-v1.http file allows you to test the endpoints interactively.
+It requires the Rest Client (humao.rest-client) extension.
+
+## Notes
+This is designed to run many micro-services but for simplicity it is currently being run as one service.
+
+The other services have been written for dual-mode: As libraries and as stand-alone service mode. They can be switched very easily but they require a running Redis cluster. With the Redis cluster each service can have as many instances as needed without needing any coordination; that is handled automatically. 

@@ -53,6 +53,10 @@ content-type: application/json
 GET https://dev.barbarians.com/fortifid/restart
 
 ###
+# This will update the DID service.
+GET https://dev.barbarians.com/fortifid/update
+
+###
 # Submit Code #1 (add)
 # Just proof of concept
 POST https://dev.barbarians.com/fortifid/DirectID/codeSubmit?id=add

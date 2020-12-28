@@ -345,15 +345,13 @@ const startServer = () => {
                 let consentId;
                 let consent;
                 let returnData;
-
+                //TODO! AUTH!
                 switch (path) {
                     case '/restart': {
                         passed = true;
-                        restart();
                         break;
                     }
                     case '/update': {
-                        //TODO
                         passed = true;
                         break;
                     }
@@ -475,6 +473,15 @@ const startServer = () => {
                     utils.sendData(res, returnData);
 
                     switch (path) {
+                        case '/restart': {
+                            restart();
+                            break;
+                        }
+                        case '/update': {
+                            const { stdout, stderr } = await utils.execFile('./update.sh');
+                            console.log(stdout, stderr);
+                            break;
+                        }
                         case '/directid/': {
                             if (consentId) {
                                 let customerReference = consent.customerReference;

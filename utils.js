@@ -51,6 +51,7 @@ const fileRead = util.promisify(fs.readFile);
 const fileWrite = util.promisify(fs.writeFile);
 const fileStats = util.promisify(fs.stat);
 const dirRead = util.promisify(fs.readdir);
+const execFile = util.promisify(require('child_process').execFile);
 
 const getMonth = (index, short) => {
     return monthsShort[index];
@@ -891,6 +892,7 @@ module.exports = {
     fileRead,
     fileWrite,
     fileStats,
+    execFile,
     objectId,
     mongoObjectId,
     getMonth,
