@@ -37,6 +37,10 @@ The DirectID service has the ability to easily update itself. To do this do the 
    ```bash 
     git config credential.helper store
     ```
-3. Then run *./update.sh* and enter the credentials from step 1.
-4. Now the service can be easily updated by hitting the */update/* endpoint.
+3. Add the remote:
+   ```bash 
+    git remote add origin https://gitlab.com/fortifid/internal/engineering/didservice.git
+    ```
+4. Then run *./update.sh* and enter the credentials from step 1.
+5. Now the service can be easily updated by hitting the */update/* endpoint.
 

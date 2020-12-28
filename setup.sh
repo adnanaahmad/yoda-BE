@@ -36,7 +36,7 @@ if testcmd node; then
     log "Node already installed."
 else    
     log "Installing Node v$NODE..."
-    nvm install $NODE
+    nvm install $NODE > /dev/null 2>&1
 fi
 
 if [ -d ./node_modules -a ! -h ./node_modules ]; then
@@ -58,11 +58,12 @@ if [ -d ~/.pm2 -a ! -h ~/.pm2 ]; then
     log "PM2 already installed."
 else
     log "Installing PM2..."
-    npm i -g pm2@latest
-
+    npm i -g pm2@latest > /dev/null 2>&1
+    source ~/.bashrc
+    
     log "Installing pm2-logrotate..."
-    pm2 install pm2-logrotate
-    pm2 set pm2-logrotate:compress true
+    pm2 install pm2-logrotate > /dev/null 2>&1
+    pm2 set pm2-logrotate:compress true > /dev/null 2>&1
 
     log "Adding startup command."
     startup=$(pm2 startup systemd| tail -1)

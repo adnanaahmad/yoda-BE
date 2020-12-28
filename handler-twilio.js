@@ -91,11 +91,16 @@ const loadParams = async () => {
             const twilioAccountSid = results[0];
             const twilioAuthToken = results[1];
             TWILIO_NUMBER = results[2];
-            twilio = require('twilio')(twilioAccountSid, twilioAuthToken);
-            const duration = utils.time() - start;
-            console.log(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+            
+            if(twilioAccountSid && twilioAuthToken && TWILIO_NUMBER) {
+                twilio = require('twilio')(twilioAccountSid, twilioAuthToken);
+                const duration = utils.time() - start;
+                console.log(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+            } else {
+                console.log(`[${SCRIPT_INFO.name}] Twilio account information missing.`);
+            }
         } else {
-            console.log(`[${SCRIPT_INFO.name}] Unable to retrieve parameters.`)
+            console.log(`[${SCRIPT_INFO.name}] Unable to retrieve parameters.`);
         }
     } catch (error) {
         console.log(error.message);

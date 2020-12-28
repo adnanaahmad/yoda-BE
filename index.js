@@ -570,7 +570,7 @@ const startServer = () => {
 
 
 const checkTokens = async () => {
-    
+    //TODO
     if(!PARAMS.token_url || PARAMS.token_url.indexOf('http') !== 0) {
         console.log('Invalid token_url parameter.');
         return;
@@ -627,14 +627,12 @@ const loadParams = async () => {
             let len = results.length;
             for (let index = 0; index < len; index++) {
                 let value = results[index];
-                //TODO
-                if (typeof (value) === 'string') {
-                    value = value.trim();
+                if(value) {
+                    PARAMS[paramKeys[index]] = value;
                 }
-                PARAMS[paramKeys[index]] = value;
             }
             const duration = utils.time() - start;
-            console.log(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+            console.log(`[${SCRIPT_INFO.name}] Loaded ${Object.keys(PARAMS).length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
 
             //TODO!
             if (typeof (PARAMS.api_port) !== 'undefined') {
