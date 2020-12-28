@@ -241,6 +241,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                     requestComplete : Date.now(),
                     requestDuration: 0,
                     apiRequestDuration: Math.round(duration),
+                    status: incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess
                 }
 
                 if (meta) {
@@ -430,7 +431,7 @@ const startServer = () => {
                                     results: results,
                                     duration: duration
                                 }
-                                
+
                                 if(error) {
                                     returnData.error = error;
                                 }

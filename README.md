@@ -89,10 +89,28 @@ This is designed to run many micro-services but for simplicity it is currently b
 
 The other services have been written for dual-mode: As libraries and as stand-alone service mode. They can be switched very easily but they require a running Redis cluster. With the Redis cluster each service can have as many instances as needed without needing any coordination; that is handled automatically. 
 
+## Files
+* api-v1.http: 
+* aws-client.js:
+* create-params.js:
+* handler-email.js:
+* handler-twilio.js:
+* handler-webhook.js:
+* index.js:
+* params.json:
+* README.ms: This file.
+* setup.js:
+* setup.sh:
+* upaate.sh:
+* utils-q.js
+* utils.js
+* data/paramList.json:
+
 
 ## Roadmap
 
 ## TODO
 * Code documentation.
 * More logging.
-* 
+* Scheduled (cron) log uploader and cleanup.
+*  
