@@ -1,4 +1,5 @@
-# DirectID service
+# DirectID Service
+
 ## Description
 This is the DirectID micro-service. 
 
@@ -30,17 +31,46 @@ After the parameters have been changed, restart the service:
 ```bash
 pm2 restart index
 ```
+
+## Alternate Installation
+Without requiring any interaction with the server, this can be achieved by the following:
+
+1. Create a private and encrypted s3 object with the latest didservice source code (didservice-master.tar.gz).
+2. Make sure the IAM role used has proper access to the s3 object.
+3. When launching the instance, use the following User data (replace the s3 uri):
+  ```bash
+  #!/bin/bash
+
+  echo "didservice setup starting..."
+
+  cd /home/ec2-user
+
+  aws s3 cp s3://barb-dev/didservice-master.tar.gz didservice-master.tar.gz
+  tar -xvf didservice-master.tar.gz
+
+  mv didservice-master didservice
+  rm didservice-master.tar.gz
+
+  sudo chown -R ec2-user:ec2-user didservice
+
+  cd didservice
+
+  sudo -u ec2-user bash -c './setup.sh'
+  echo "didservice setup finished."
+  ```
+4. Done.
+  
 ## No hassle updating (coming soon)
 The DirectID service has the ability to easily update itself. To do this do the following:
 1. Create a read-only account to the didservice repo or create a read_repository access token here: https://gitlab.com/-/profile/personal_access_tokens.
 2. Store these credentials by enabling this:
-   ```bash 
-    git config credential.helper store
-    ```
+  ```bash 
+  git config credential.helper store
+  ```
 4. Add the remote:
-   ```bash 
-    git remote add origin https://gitlab.com/fortifid/internal/engineering/didservice.git
-    ```
+  ```bash 
+  git remote add origin https://gitlab.com/fortifid/internal/engineering/didservice.git
+  ```
 5. Then run *./update.sh* and enter the credentials from step 1.
 6. Now the service can be easily updated by hitting the */update/* endpoint.
 
