@@ -755,8 +755,7 @@ const shortenUrl = async (url, token, full = false)=> {
     const start = time();
     let results =  await fetchData('https://api-ssl.bitly.com/v4/shorten', data, false, headers);
     const duration = time() - start; 
-    console.log(results, token);
-
+    //console.log(results, token);
     console.log(`Url shortened to [${results.link}] in ${toFixedPlaces(duration, 2)}ms`);
     return full ? results : results.link;
 }
