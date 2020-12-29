@@ -20,6 +20,7 @@ chmod +x ./setup.sh
 ```
 This will install everything required and initialize the environment variables to the current AWS region.
 
+## Parameter Store
 To populate the AWS parameter store:
 ```bash
 node create-params.js
@@ -30,6 +31,12 @@ You can also edit the Values in the *./data/paramList.json* file. It's easier bu
 After the parameters have been changed, restart the service:
 ```bash
 pm2 restart index
+```
+
+## DynamoDB Table Creation
+To create the DynamoDB table:
+```bash
+node create-tables.js
 ```
 
 ## Alternate Installation

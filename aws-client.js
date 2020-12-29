@@ -6,6 +6,7 @@ AWS.config.update({
 });
 
 const ssm = new AWS.SSM();
+const ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 const DynamoDB = new AWS.DynamoDB.DocumentClient();
 
 const getParameter = async (name) => {
@@ -51,13 +52,33 @@ const putParameter = async (name, value, type = 'SecureString', dataType = 'text
 
 const putDDBItem = async (table, data) => {
   //TODO
-  var params = {
+  let params = {
     TableName: table,
     Item: data
   };
 
   try {
     return await DynamoDB.put(params).promise();
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+const describeTable = async (table) => {
+  let params = {
+    TableName: table
+  };
+
+  try {
+    return await ddb.describeTable(params).promise();
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+const createTable = async (params) => {
+  try {
+    return await ddb.createTable(params).promise();
   } catch (error) {
     console.log(error.message);
   }
@@ -70,5 +91,7 @@ const putDDBItem = async (table, data) => {
 module.exports = {
   getParameter,
   putParameter,
-  putDDBItem
+  putDDBItem,
+  describeTable,
+  createTable
 };
