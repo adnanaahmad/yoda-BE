@@ -102,5 +102,8 @@ dist
 
 # TernJS port file
 .tern-port
+# Just some local test files
 t.sh
 g.sh
+t.js
+

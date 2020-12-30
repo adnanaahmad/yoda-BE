@@ -49,9 +49,13 @@ npm install > /dev/null 2>&1
 if test -f "./.env"; then
     log ".env already exist."
 else
-    log "Running secondary setup script..." 
-    node setup.js
-    wait ./.env
+    #log "Running secondary setup script..." 
+    #node setup.js
+    #wait ./.env
+    log "Configuring AWS region data..."
+    REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | awk -F\" '{print $4}')
+    sudo -u ec2-user aws configure set region $REGION
+    echo "AWS_REGION=$REGION" > ./.env
 fi
 
 if [ -d ~/.pm2 -a ! -h ~/.pm2 ]; then
@@ -71,6 +75,16 @@ else
 
     pm2 start index.js
     pm2 save
+fi
+
+if [ "$1" == "params" ] || [ "$2" == "params" ] 
+then
+    node create-params.js
+fi
+
+if [ "$1" == "tables" ] || [ "$2" == "tables" ] 
+then
+    node create-tables.js
 fi
 
 log "Setting  execute permissions..."
