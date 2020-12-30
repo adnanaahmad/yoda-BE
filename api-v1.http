@@ -1,0 +1,216 @@
+
+# Most of these endpoints will be behind a firewall and only to be called directly from the API gateway.
+# We will need to secure them nevertheless.
+
+###
+# Generate URL for DirectID Connect 
+#
+@request_id={{$guid}}
+# @name income
+POST https://dev.barbarians.com/fortifid/DirectID/generateIncomeUrl
+content-type: application/json
+
+{
+    "full_name": "First Last",
+    "email_address": "cisco801@gmail.com",
+    "phone_number": "2066597857",
+    "request_id": "{{request_id}}",
+    "shorten_url": true     
+}
+
+###
+# DirectID incoming consent webhook
+# After a user authorizes access to their account 
+POST https://dev.barbarians.com/fortifid/directid/?key=kPgqykCWhR82ePaU4fWOufpcfSW3VqDrR
+content-type: application/json
+
+# For some reason this is not working in some environments.
+# < ./data/directid_consent.json
+# So inlining it.
+{
+    "consentId": "7c6d77fd-c3e5-4270-e9d4-08d879cd60e9",
+    "applicationId": "11e3cccb-5511-4e5f-adb6-e6ec82081f08",
+    "customerReference": "Test1123",
+    "providerAuthentication": "Error",
+    "dataAvailability": null,
+    "paymentConfirmation": null,
+    "reauthentication": false,
+    "errorMessage": null
+}
+
+###
+# Get request status
+#
+@income_id = {{income.response.body.$.request_id}}
+GET https://dev.barbarians.com/fortifid/directid/?request_id={{income_id}}
+content-type: application/json
+
+###
+# Service restart
+# This will restart the main DirectID service.
+# Later we can have a parameter to restart specific services and
+# a reload endpoint to just reload the parameters without restarting the service.
+GET https://dev.barbarians.com/fortifid/restart
+
+###
+# This will update the DID service.
+GET https://dev.barbarians.com/fortifid/update
+
+################
+# Dynamic Code #
+################
+
+###
+# Submit Code #1 (add)
+# Just proof of concept
+POST https://dev.barbarians.com/fortifid/DirectID/codeSubmit?id=add
+content-type: text/plain
+
+'use strict';
+
+return data.a + data.b;
+
+###
+# Submit Code #2 (subtract)
+# Just proof of concept
+POST https://dev.barbarians.com/fortifid/DirectID/codeSubmit?id=subtract
+content-type: text/plain
+
+'use strict';
+
+return data.a - data.b;
+
+###
+# Submit Code #3 (did_1)
+POST https://dev.barbarians.com/fortifid/DirectID/codeSubmit?id=did_1
+content-type: text/plain
+
+'use strict';
+
+const validateInput =()=> {
+    //Do validation
+}
+
+const summary = data.summary;
+const meta = data.meta;
+
+let output;
+if(summary) {
+    output = {
+        estimatedIncome: summary.estimatedIncome,
+        confidenceScore: summary.confidenceScore,
+        confidenceScoreFlags: {...summary.confidenceScoreFlags},
+        requestStartX : 0,
+        requestComplete : Date.now(),
+        requestDuration: 0
+    }
+}
+
+if (meta) {
+    output = output || {};
+    output.requestStart = meta.request_timestamp;
+    output.requestDuration = output.requestComplete - output.requestStart;
+}
+
+return output;
+
+
+###
+# Run Code #1 (add)
+# Just proof of concept
+POST https://dev.barbarians.com/fortifid/DirectID/codeRun?id=add
+content-type: application/json
+
+{
+    "a": 120,
+    "b": 50
+}
+
+###
+# Run Code #2 (subtract)
+# Just proof of concept
+POST https://dev.barbarians.com/fortifid/DirectID/codeRun?id=subtract
+content-type: application/json
+
+{
+    "a": 100,
+    "b": 50
+}
+
+###
+# Run Code #3 (did_01)
+POST https://dev.barbarians.com/fortifid/DirectID/codeRun?id=did_1
+content-type: application/json
+
+{ "summary":
+    {
+      "month1": {
+        "income": 0,
+        "month": 1,
+        "year": 2020
+      },
+      "month2": {
+        "income": 0,
+        "month": 2,
+        "year": 2020
+      },
+      "month3": {
+        "income": 0,
+        "month": 3,
+        "year": 2020
+      },
+      "month4": {
+        "income": 0,
+        "month": 4,
+        "year": 2020
+      },
+      "month5": {
+        "income": 0,
+        "month": 5,
+        "year": 2020
+      },
+      "month6": {
+        "income": 0,
+        "month": 6,
+        "year": 2020
+      },
+      "month7": {
+        "income": 0,
+        "month": 7,
+        "year": 2020
+      },
+      "month8": {
+        "income": 0,
+        "month": 8,
+        "year": 2020
+      },
+      "month9": {
+        "income": 0,
+        "month": 9,
+        "year": 2020
+      },
+      "month10": {
+        "income": 6433.9,
+        "month": 10,
+        "year": 2020
+      },
+      "month11": {
+        "income": 3216.95,
+        "month": 11,
+        "year": 2020
+      },
+      "estimatedIncome": 0,
+      "confidenceScore": 7,
+      "confidenceScoreFlags": {
+        "incomeForLast3Months": false,
+        "varianceTolerance5Percent": true,
+        "varianceTolerance10Percent": true,
+        "mostRecentCheckValue": true,
+        "stabilityOverall": 3,
+        "stability6Months": 0
+      }
+    }
+}
+###
+# Get EC2 instance meta for auto-configuration use
+GET http://169.254.169.254/latest/dynamic/instance-identity/document

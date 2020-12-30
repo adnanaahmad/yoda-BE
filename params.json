@@ -1,0 +1,22 @@
+{
+    "client_id": "/config/directid/directid.credentials.client_id",
+    "client_secret": "/config/directid/directid.credentials.client_secret",
+    "connect_url": "/config/directid/directid.api.connect_url",
+    "token_url": "/config/directid/directid.api.token_url",
+    "bank_data_url": "/config/directid/directid.api.bank_data_url",
+    "income_verification_url": "/config/directid/directid.api.income_verification_url",
+    "http_port": "/config/directid/directid.service.http_port",
+    "https_port": "/config/directid/directid.service.https_port",
+    "email_subject": "/config/directid/directid.service.email_subject",
+    "match_name": "/config/directid/directid.service.match_name",
+    "email_text": "/config/directid/directid.service.email_text",
+    "sms_text": "/config/directid/directid.service.sms_text",
+    "cache_tokens": "/config/directid/directid.service.cache_tokens",
+    "api_whitelist": "/config/directid/directid.service.api_whitelist",
+    "webhook_secret": "/config/directid/directid.service.webhook_secret",
+    "ddb_table_income": "/config/directid/directid.service.ddb_table_income",
+    "ddb_partition_income": "/config/directid/directid.service.ddb_partition_income",
+    "request_bank_data": "/config/directid/directid.service.request_bank_data",
+    "bitly": "/config/shared/bitly.access_token",
+    "apigw_cfg" : "/config/apigw/configuration/apigw.cfg"
+}
