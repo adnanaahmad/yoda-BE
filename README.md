@@ -44,27 +44,30 @@ Without requiring any interaction with the server, this can be achieved by the f
 
 1. Create a private and encrypted s3 object with the latest didservice source code (didservice-master.tar.gz).
 2. Make sure the IAM role used has proper access to the s3 object.
-3. When launching the instance, use the following User data (replace the s3 uri):
-  ```bash
-  #!/bin/bash
+3. When launching the instance, use the following **User data** (replace the s3 uri):
+```bash
+#!/bin/bash
 
-  echo "didservice setup starting..."
+echo "didservice setup starting..."
 
-  cd /home/ec2-user
+#CREATE_PARAMS=params
+#CREATE_TABLES=tables
 
-  aws s3 cp s3://barb-dev/didservice-master.tar.gz didservice-master.tar.gz
-  tar -xvf didservice-master.tar.gz
+cd /home/ec2-user
 
-  mv didservice-master didservice
-  rm didservice-master.tar.gz
+aws s3 cp s3://barb-dev/didservice-master.tar.gz didservice-master.tar.gz
+tar -xvf didservice-master.tar.gz
 
-  sudo chown -R ec2-user:ec2-user didservice
+mv didservice-master didservice
+rm didservice-master.tar.gz
 
-  cd didservice
+sudo chown -R ec2-user:ec2-user didservice
 
-  sudo -u ec2-user bash -c './setup.sh'
-  echo "didservice setup finished."
-  ```
+cd didservice
+
+sudo -u ec2-user bash -c "./setup.sh $CREATE_PARAMS $CREATE_TABLES"
+echo "didservice setup finished."
+```
 4. Done.
   
 ## No hassle updating (coming soon)
@@ -143,7 +146,6 @@ The other services have been written for dual-mode: As libraries and as stand-al
 * utils-q.js
 * utils.js
 * data/paramList.json:
-
 
 ## Roadmap
 
