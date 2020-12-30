@@ -232,7 +232,7 @@
                     setOutput(line, 0);
 
                     let res = await fetch(
-                        `https://dev.barbarians.com/fortifid/directid/?request_id=${requestId}`);
+                        `https://dev.barbarians.com/fortifid/DirectID/checkRequest?request_id=${requestId}`);
                     checking = false;
                     if (res.ok) {
                         let data = await res.json();

@@ -739,7 +739,7 @@ const loadTemplates = async (templates_dir, templates) => {
 
 const loadFile = async (file) => {
     try {
-        if (await fileExists(file)) {
+        if (file && await fileExists(file)) {
             return await fileRead(file, 'utf-8');
         }
     } catch (error) {}
