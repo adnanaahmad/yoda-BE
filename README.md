@@ -44,7 +44,7 @@ Without requiring any interaction with the server, this can be achieved by the f
 
 1. Create a private and encrypted s3 object with the latest didservice source code (didservice-master.tar.gz).
 2. Make sure the IAM role used has proper access to the s3 object.
-3. When launching the instance, use the following User data (replace the s3 uri):
+3. When launching the instance, use the following **User data** (replace the s3 uri):
 ```bash
 #!/bin/bash
 
