@@ -28,7 +28,7 @@ if [ -d ~/.nvm -a ! -h ~/.nvm ]; then
     log "Node Version Manager already installed."
 else
     log "Downloading and installing Node Version Manager..."
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+    curl -s -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
     source ~/.bashrc
 fi
 
@@ -51,7 +51,6 @@ if test -f "./.env"; then
 else
     #log "Running secondary setup script..." 
     #node setup.js
-    #wait ./.env
     log "Configuring AWS region data..."
     REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | awk -F\" '{print $4}')
     sudo -u ec2-user aws configure set region $REGION
@@ -79,11 +78,13 @@ fi
 
 if [ "$1" == "params" ] || [ "$2" == "params" ] 
 then
+    log "Creating parameters..."
     node create-params.js
 fi
 
 if [ "$1" == "tables" ] || [ "$2" == "tables" ] 
 then
+    log "Creating tables..."
     node create-tables.js
 fi
 
