@@ -130,6 +130,7 @@ The other services have been written for dual-mode: As libraries and as stand-al
 * api-v1.http: 
 * aws-client.js:
 * create-params.js:
+* create-tables.js:
 * handler-email.js:
 * handler-twilio.js:
 * handler-webhook.js:
