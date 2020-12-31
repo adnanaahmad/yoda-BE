@@ -13,7 +13,7 @@ console.info(SCRIPT_INFO);
 
 const url = require('url');
 const fetch = require("node-fetch");
-
+const sanitize = require("sanitize-filename");
 const awsClient = require('./aws-client');
 
 const TOKENS = {};
@@ -174,7 +174,6 @@ const requestBankData = async (consentId, customerReference) => {
         'authorization': `Bearer ${TOKENS[TOKEN_IDS.data].access_token}`
     };
 
-
     let start = utils.time();
 
     let response = await fetchData(utils.parseTemplate(PARAMS.bank_data_url, {
@@ -275,6 +274,37 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     return data;
 }
 
+const base_dir = `${__dirname}/demo/`
+const serve_http = true;
+//TODO: Just for testing and demos
+const WWW = {
+    '/': 'index.html',
+    '/favicon.ico': 'cropped-FortidID-logo-square-32x32.jpg',
+    '/loader.gif': '/loader.gif'
+}
+
+const sendFile = async (res, filename) => {
+    if (!serve_http) {
+        utils.sendText(res, 'HTTP Server not enabled.', 503);
+    } else {
+
+        filename = sanitize(filename);
+        let file = base_dir + filename;
+        if (await utils.fileExists(file)) {
+            let content = await utils.fileRead(file);
+
+            if (content) {
+                let ext = utils.geExtension(filename).toLowerCase();
+                utils.sendText(res, content, 200, utils.contentTypes[ext]);
+            } else {
+                utils.sendText(res, 'Not found.', 404);
+            }
+        } else {
+            utils.sendText(res, 'Not found.', 404);
+        }
+    }
+}
+
 const restart = () => {
     if (pm2Connected) {
         pm2.restart("index", (err, val) => {
@@ -286,7 +316,6 @@ const restart = () => {
         });
     }
 }
-
 
 const httpHander = async (req, res) => {
     try {
@@ -310,7 +339,12 @@ const httpHander = async (req, res) => {
             let parsed = url.parse(req.url, true);
             path = parsed.pathname;
             if (!path || path.length < 2) {
-                utils.sendText(res, 'FortifID DirectID API');
+                path = '/';
+            }
+
+            let web = WWW[path];
+            if(web) {
+                sendFile(res, web);
                 return;
             }
 
@@ -355,7 +389,7 @@ const httpHander = async (req, res) => {
                 path = path.substring(0, path.length - 1);
             }
 
-            //TODO! AUTH!
+            //TODO!
             switch (path) {
                 case '/restart': {
                     passed = true;
@@ -591,6 +625,12 @@ const httpHander = async (req, res) => {
     }
 }
 
+const setHeaders =(res)=> {
+    //TODO
+    //HTTP Strict Transport Security.
+    // res.setHeader('Strict-Transport-Security', );
+}
+
 const startServer = async () => {
     if(PARAMS.http_port && PARAMS.http_port > 0) {
         console.log('Starting HTTP server...');
@@ -603,14 +643,13 @@ const startServer = async () => {
     }
 
     if(PARAMS.https_port && PARAMS.https_port > 0) {
-        const cert = await utils.loadFile(PARAMS.server_crt_path);
-        const key = await utils.loadFile(PARAMS.server_key_path);
         console.log('Starting HTTPS server...');
-        if(cert  && key) {
+        if(PARAMS.server_crt  && PARAMS.server_key) {
             const httpsOptions = {
-                cert: cert,
-                key: key
+                cert: PARAMS.server_crt,
+                key: PARAMS.server_key
             };
+
             https.createServer(httpsOptions, httpHander).listen(PARAMS.https_port, (err) => {
                 if (err) {
                     return console.error(err);
@@ -651,6 +690,20 @@ const checkTokens = async () => {
 const loadParams = async () => {
     console.log(`[${SCRIPT_INFO.name}] Loading parameters...`);
     const funcs = [];
+
+
+    if(process.env.APIGWCMD) {
+        //All we really care about is if it was launched with local config 
+        let ARGS = utils.toArgs2(process.env.APIGWCMD);
+        if(ARGS.localpath) {
+            let index = paramKeys.indexOf('apigw_cfg');
+            if(index > -1) {
+                paramKeys.splice(index, 1);
+            }
+            PARAMS.apigw_cfg = await utils.loadJSONAsync(ARGS.localpath);
+        }
+    }
+
     const start = utils.time();
 
     //TODO: For later
@@ -712,8 +765,16 @@ const loadParams = async () => {
             if (typeof (PARAMS.apigw_cfg) === 'object') {
                 let transport = PARAMS.apigw_cfg.transport;
                 if(transport) {
-                    PARAMS.server_crt_path = transport.server_crt_path;
-                    PARAMS.server_key_path = transport.server_key_path;
+                    if(transport.local_certificate) {
+                        console.log("Loading local certificates...");
+                        PARAMS.server_crt = await utils.loadFile(transport.server_crt_path);
+                        PARAMS.server_key = await utils.loadFile(transport.server_key_path);
+                    } else {
+                        console.log("Loading remote certificates...");
+                        PARAMS.server_crt = await awsClient.getParameter(transport.server_crt_path);
+                        PARAMS.server_key = await awsClient.getParameter(transport.server_key_path);
+                    }
+                    console.log("Finished loading certificates.", PARAMS.server_crt && PARAMS.server_key ? "Success" : "Failure");
                 }
             }
         }
@@ -725,6 +786,7 @@ const loadParams = async () => {
 
 (async () => {
     const funcs = [];
+
     await loadParams();
 
     funcs.push(checkTokens());

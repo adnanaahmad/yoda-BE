@@ -227,6 +227,23 @@ const toArgs = (command) => {
     return parseArgs(arr);
 }
 
+const toArgs2 = (command)=> {
+    if(!command || command.length < 1)
+        return;
+
+    const ARGS = {};
+    let args = command.split(' ');
+    let len = args.length;
+    for (let index = 0; index < len; index++) {
+        const key = args[index];
+        if(key.startsWith('-') && index + 1 < len) {
+            ARGS[key.substr(1, key.length - 1)] = args[index + 1].trim();
+        }
+    }
+    return ARGS;
+}
+
+
 const cleanSlashes = (text) => {
     if (!text)
         return;
@@ -403,7 +420,7 @@ const contentTypes = {
 
 function sendMessage(res, statusCode, headers, data, cors) {
     try {
-        cors = cors || false;
+        cors = true;
         headers = headers || {};
         if (cors) {
             headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,PATCH,OPTIONS';
@@ -704,14 +721,14 @@ const flattenObject = (obj)=> {
 }
 
 const loadJSON = (file) => {
-    if (fs.existsSync(file)) {
+    if (file && fs.existsSync(file)) {
         let json = JSON.parse(fs.readFileSync(file, 'utf-8'));
         return json;
     }
 }
 
 const loadJSONAsync = async (file) => {
-    if (await fileExists(file)) {
+    if (file && await fileExists(file)) {
         try {
             let data = await fileRead(file, 'utf-8');
             if(data) {
@@ -784,8 +801,6 @@ const isEntryPoint = ()=> {
     return require.main === module;
 }
   
-
-
 const base62 = {
     charset: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
         .split(''),
@@ -921,6 +936,7 @@ module.exports = {
     parseNumber,
     splitter,
     toArgs,
+    toArgs2,
     versionCompare,
     formatBytes,
     cleanSlashes,
@@ -931,6 +947,7 @@ module.exports = {
     hashPassword,
     comparePassword,
     base62,
+    contentTypes,
     flattenObject,
     toUrlSafeBase64,
     fromUrlSafeBase64,
