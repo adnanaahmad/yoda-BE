@@ -7,7 +7,7 @@ echo "didservice setup starting..."
 
 cd /home/ec2-user
 
-aws s3 cp s3://barb-dev/didservice-master.tar.gz didservice-master.tar.gz
+aws s3 cp s3://fortifid-v2/didservice-master.tar.gz didservice-master.tar.gz
 tar -xvf didservice-master.tar.gz
 
 mv didservice-master didservice

@@ -55,6 +55,13 @@ else
     REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | awk -F\" '{print $4}')
     sudo -u ec2-user aws configure set region $REGION
     echo "AWS_REGION=$REGION" > ./.env
+
+    log "Configuring apigw command..."
+    APIGWCMD=$(curl -o- -s http://169.254.169.254/latest/user-data |grep "/apigw")
+    if [ -n "$APIGWCMD" ];
+    then
+        echo "APIGWCMD=$APIGWCMD" $ >> ./.env
+    fi
 fi
 
 if [ -d ~/.pm2 -a ! -h ~/.pm2 ]; then
