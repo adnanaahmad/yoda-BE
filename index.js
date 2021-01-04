@@ -450,6 +450,7 @@ const httpHandler = async (req, res) => {
                 res.end(e.message);
             } catch (error) {}
         }
+        //TODO: res.headersSent
     } catch (error) {
         console.error(error.message);
     }
