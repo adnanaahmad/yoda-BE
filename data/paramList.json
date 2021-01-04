@@ -105,6 +105,11 @@
     "Value": ""
   },
   {
+    "Name": "/config/shared/email.outlook",
+    "Type": "SecureString",
+    "Value": ""
+  },  
+  {
     "Name": "/config/shared/twilio.auth_token",
     "Type": "SecureString",
     "Value": ""
