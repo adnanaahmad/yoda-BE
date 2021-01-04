@@ -2,12 +2,15 @@
 # Most of these endpoints will be behind a firewall and only to be called directly from the API gateway.
 # We will need to secure them nevertheless.
 
+# Change this to the base url of the did service. 
+@base_url = https://dev.barbarians.com:8999
+
 ###
 # Generate URL for DirectID Connect 
 #
 @request_id={{$guid}}
 # @name income
-POST https://dev.barbarians.com/fortifid/DirectID/generateIncomeUrl
+POST {{base_url}}/directid/generate-income-url
 content-type: application/json
 
 {
@@ -21,7 +24,7 @@ content-type: application/json
 ###
 # DirectID incoming consent webhook
 # After a user authorizes access to their account 
-POST https://dev.barbarians.com/fortifid/directid/?key=kPgqykCWhR82ePaU4fWOufpcfSW3VqDrR
+POST {{base_url}}/directid/webhook?key=kPgqykCWhR82ePaU4fWOufpcfSW3VqDrR
 content-type: application/json
 
 # For some reason this is not working in some environments.
@@ -42,7 +45,7 @@ content-type: application/json
 # Get request status
 #
 @income_id = {{income.response.body.$.request_id}}
-GET https://dev.barbarians.com/fortifid/directid/?request_id={{income_id}}
+GET {{base_url}}/directid/check-request?request_id={{income_id}}
 content-type: application/json
 
 ###
@@ -50,11 +53,11 @@ content-type: application/json
 # This will restart the main DirectID service.
 # Later we can have a parameter to restart specific services and
 # a reload endpoint to just reload the parameters without restarting the service.
-GET https://dev.barbarians.com/fortifid/restart
+GET {{base_url}}/system/restart
 
 ###
 # This will update the DID service.
-GET https://dev.barbarians.com/fortifid/update
+GET {{base_url}}/system/update
 
 ################
 # Dynamic Code #
@@ -63,7 +66,7 @@ GET https://dev.barbarians.com/fortifid/update
 ###
 # Submit Code #1 (add)
 # Just proof of concept
-POST https://dev.barbarians.com/fortifid/DirectID/codeSubmit?id=add
+POST {{base_url}}/directid/code-submit?id=add
 content-type: text/plain
 
 'use strict';
@@ -73,7 +76,7 @@ return data.a + data.b;
 ###
 # Submit Code #2 (subtract)
 # Just proof of concept
-POST https://dev.barbarians.com/fortifid/DirectID/codeSubmit?id=subtract
+POST {{base_url}}/directid/code-submit?id=subtract
 content-type: text/plain
 
 'use strict';
@@ -82,7 +85,7 @@ return data.a - data.b;
 
 ###
 # Submit Code #3 (did_1)
-POST https://dev.barbarians.com/fortifid/DirectID/codeSubmit?id=did_1
+POST {{base_url}}/directid/code-submit?id=did_1
 content-type: text/plain
 
 'use strict';
@@ -118,7 +121,7 @@ return output;
 ###
 # Run Code #1 (add)
 # Just proof of concept
-POST https://dev.barbarians.com/fortifid/DirectID/codeRun?id=add
+POST {{base_url}}/directid/code-run?id=add
 content-type: application/json
 
 {
@@ -129,7 +132,7 @@ content-type: application/json
 ###
 # Run Code #2 (subtract)
 # Just proof of concept
-POST https://dev.barbarians.com/fortifid/DirectID/codeRun?id=subtract
+POST {{base_url}}/directid/code-run?id=subtract
 content-type: application/json
 
 {
@@ -139,7 +142,7 @@ content-type: application/json
 
 ###
 # Run Code #3 (did_01)
-POST https://dev.barbarians.com/fortifid/DirectID/codeRun?id=did_1
+POST {{base_url}}/directid/code-run?id=did_1
 content-type: application/json
 
 { "summary":
