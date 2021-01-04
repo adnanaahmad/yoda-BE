@@ -655,6 +655,7 @@ async function handleSystem(res, parsed, method, action,  bodyData) {
 
 async function handleDirectID(res, parsed, method, action,  bodyData) {
     let logRequest = true;
+    let key = parsed.query.key;
 
     switch (action) {
         case 'check-request':
