@@ -455,6 +455,13 @@ const httpHandler = async (req, res) => {
         console.error(error.message);
     }
     
+    //TODO!
+    // if(!res.writableFinished) {
+    //     try {
+    //         res.end();
+    //     } catch (error) {}
+    // }
+
     if (logRequest) {
         doLog();
     }

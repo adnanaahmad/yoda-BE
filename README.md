@@ -86,7 +86,7 @@ The DirectID service has the ability to easily update itself. To do this do the 
 
 ## REST Command Test
 The api-v1.http file allows you to test the endpoints interactively.
-It requires the REST Client (humao.rest-client) extension.
+It requires the [REST Client (humao.rest-client)](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) Visual Studio Code extension.
 
 ## Dynamic Code
 We're able to also upload and execute code on the fly without any recompilation. 
