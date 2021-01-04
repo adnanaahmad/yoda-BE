@@ -649,7 +649,7 @@ const loadParams = async () => {
 })();
 
 //TODO: Extract these to separate files
-async function handleSystem(res, parsed, method, action,  bodyData) {
+async function handleSystem(res, parsed, method, action,  bodyData, key) {
     let logRequest = true;
 
     switch (action) {
@@ -670,9 +670,8 @@ async function handleSystem(res, parsed, method, action,  bodyData) {
     return logRequest;
 }
 
-async function handleDirectID(res, parsed, method, action,  bodyData) {
+async function handleDirectID(res, parsed, method, action,  bodyData, key) {
     let logRequest = true;
-    let key = parsed.query.key;
 
     switch (action) {
         case 'check-request':
