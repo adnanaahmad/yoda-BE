@@ -84,9 +84,9 @@ The DirectID service has the ability to easily update itself. To do this do the 
 5. Then run *./update.sh* and enter the credentials from step 1.
 6. Now the service can be easily updated by hitting the */update/* endpoint.
 
-## Rest Command Test
+## REST Command Test
 The api-v1.http file allows you to test the endpoints interactively.
-It requires the Rest Client (humao.rest-client) extension.
+It requires the REST Client (humao.rest-client) extension.
 
 ## Dynamic Code
 We're able to also upload and execute code on the fly without any recompilation. 
