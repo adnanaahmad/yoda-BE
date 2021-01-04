@@ -17,28 +17,28 @@ let sesTransport;
 let ready = false;
 let emailFrom;
 
+
 const sendEmailWrapper = async (email, subject, text, textHTML) => {
 
     return new Promise((resolve, reject) => {
         const mailOptions = {
             from: emailFrom,
-            to: email
+            to: email,
+            subject : subject,
         };
 
-        mailOptions.subject = subject;
         if(text) {
             mailOptions.text = text;
         }
         
         if (textHTML) {
             mailOptions.html = textHTML;
-            //console.log(textHTML);
         }
 
         sesTransport.sendMail(mailOptions,  (error, info) => {
             if (error) {
                 console.log("error is ", error);
-                resolve(false); // or use rejcet(false) but then you will have to handle errors
+                resolve(false); // or use reject(false) but then you will have to handle errors
             } else {
                 console.log('email sent: ', info.response);
                 resolve(true);
@@ -48,8 +48,13 @@ const sendEmailWrapper = async (email, subject, text, textHTML) => {
     });
 }
 
+
 const sendEmail = async (email, subject, text, textHTML)=> {
-    return await sendEmailWrapper(email, subject, text, textHTML);
+    try {
+        return await sendEmailWrapper(email, subject, text, textHTML);
+    } catch (error) {
+        console.log(errror.message);        
+    }
 }
 
 const add = async(data)=> {
@@ -57,7 +62,6 @@ const add = async(data)=> {
         //TODO: cache and retry (?)
         return;
     }
-
 
     let results;
     try {
@@ -93,12 +97,10 @@ const add = async(data)=> {
 
 const startQueue = ()=> {
     console.log('Queue handler started.');
-
     Q.getQ(Q.names.alert_email).process(async (job, done) => {
         done(await add(job.data));
     });
 }
-
 
 const loadParams = async () => {
     //TODO:
@@ -115,21 +117,38 @@ const loadParams = async () => {
     funcs.push(awsClient.getParameter('/config/shared/email.ses.password'));
     funcs.push(awsClient.getParameter('/config/shared/email.ses.smtp_server'));
     funcs.push(awsClient.getParameter('/config/shared/email.ses.from'));
+    
+    funcs.push(awsClient.getParameter('/config/shared/email.outlook'));
+
 
     try {
         let results = await Promise.all(funcs);
+        const duration = utils.time() - start;
+        console.log(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+
         if(results) {
-            const sesAccount = results[0];
-            const sesPassword = results[1];
-            const sesServer = results[2];
-            emailFrom = results[3];
-            if(sesAccount && sesPassword && sesServer && emailFrom) {
-                sesTransport = nodemailer.createTransport(`smtps://${encodeURIComponent(sesAccount)}:${encodeURIComponent(sesPassword)}@${sesServer}`);
-                const duration = utils.time() - start;
-                console.log(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+            let outlook = results[4];
+            if(outlook) {
+                emailFrom = outlook.from;
+                sesTransport = nodemailer.createTransport({
+                    host: outlook.host || 'smtp.office365.com',
+                    port:  outlook.port|| 587,     
+                    auth: {
+                        user: outlook.user,
+                        pass: outlook.pass
+                    },
+                });
             } else {
-                console.log(`[${SCRIPT_INFO.name}] Email account information missing.`);
-            } 
+                const sesAccount = results[0];
+                const sesPassword = results[1];
+                const sesServer = results[2];
+                emailFrom = results[3];
+                if(sesAccount && sesPassword && sesServer && emailFrom) {
+                    sesTransport = nodemailer.createTransport(`smtps://${encodeURIComponent(sesAccount)}:${encodeURIComponent(sesPassword)}@${sesServer}`);
+                } else {
+                    console.log(`[${SCRIPT_INFO.name}] Email account information missing.`);
+                } 
+            }
         } else {
             console.log(`[${SCRIPT_INFO.name}] Unable to retrieve parameters.`);
         }
@@ -146,7 +165,7 @@ const loadParams = async () => {
         await utils.loadTemplates('./templates/', TEMPLATES);
         if(!SCRIPT_INFO.library_mode) {
             startQueue();
-        } 
+        }
     }
 })();
 

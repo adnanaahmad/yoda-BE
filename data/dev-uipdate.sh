@@ -7,4 +7,5 @@ rm -rf didservice-master*
 cd didservice
 npm install 
 npm update
+./setup.sh
 pm2 restart index.js 
