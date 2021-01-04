@@ -317,20 +317,32 @@ const restart = () => {
     }
 }
 
-const httpHander = async (req, res) => {
+const update = async () => {
     try {
-        const startTimer = utils.time();
-        let path;
-        let resource;
-        let method = req.method.toUpperCase();
+        const {
+            stdout,
+            stderr
+        } = await utils.execFile('./update.sh');
+        console.log(stdout, stderr);
+    } catch (error) {
+        console.log(error.message);
+    }
 
-        let statusCode = 400;
-        let statusText = 'Invalid key or data.';
-        let logRequest = true;
+}
 
+
+const httpHandler = async (req, res) => {
+    const startTimer = utils.time();
+    let logRequest = true;
+    let method;
+    let path;
+    let ip;
+    
+    try {
+        method = req.method.toUpperCase();
         const now = Date.now();
-
-        let ip = req.headers['x-forwarded-for'] ||
+        let resource;
+        ip = req.headers['x-forwarded-for'] ||
             req.connection.remoteAddress ||
             req.socket.remoteAddress ||
             (req.connection.socket ? req.connection.socket.remoteAddress : null);
@@ -343,10 +355,16 @@ const httpHander = async (req, res) => {
             }
 
             let web = WWW[path];
-            if(web) {
+            if (web) {
                 sendFile(res, web);
                 return;
             }
+
+            if (path.endsWith('/')) {
+                path = path.substring(0, path.length - 1);
+            }
+
+            path = path.toLowerCase();
 
             let referer = req.headers['referer'];
             let origin = req.headers['origin'];
@@ -360,12 +378,13 @@ const httpHander = async (req, res) => {
             //     }
             // }
 
-            let passed = false;
-            let key = parsed.query.key;
-
             let parts = path.substr(1).split('/');
             let count = parts.length;
-            resource = parts[0].toLowerCase();
+            resource = parts[0];
+
+            let action = count > 1 ? parts[1] : undefined;
+
+            let key = parsed.query.key;
 
             let bodyData;
             let bodyLength = req.headers["content-length"];
@@ -380,239 +399,32 @@ const httpHander = async (req, res) => {
                     return;
                 }
             }
+ 
+            /*
+            The standard best practice for REST APIs is to have a hyphen, not camelcase or underscores.
+            This comes from Mark Masse's "REST API Design Rulebook" from Oreilly.
+            */
 
-            let consentId;
-            let consent;
-            let returnData;
-
-            if(path.endsWith('/')) {
-                path = path.substring(0, path.length - 1);
-            }
-
-            //TODO!
-            switch (path) {
-                case '/restart': {
-                    passed = true;
-                    break;
-                }
-                case '/update': {
-                    passed = true;
-                    break;
-                }
-                //This endpoint is the webhook endpoint for DID
-                case '/DirectID/webhook': {
-                    if (method === 'POST') {
-                        //TODO!
-                        if (bodyData && key === PARAMS.webhook_secret) {
-                            passed = true;
-                            //if(bodyData.dataAvailability === 'Complete') {
-                            consentId = bodyData.consentId;
-                            console.log(`${consentId} - dataAvailability: ${bodyData.dataAvailability}.`);
-
-                            consent = consents[consentId];
-                            if (!consent) {
-                                consent = bodyData;
-                                consents[consentId] = consent;
-                            } else {
-                                consentId = undefined;
-                            }
-                            //}
-                        }
-                    } 
-                    break;
-                }
-                case '/DirectID/checkRequest': {
-                    let request_id = parsed.query.request_id;
-                    if (request_id) {
-                        let found = DONE[request_id];
-                        if (found) {
-                            passed = true;
-                            returnData = found;
-                        } else {
-                            logRequest = false;
-                            statusText = 'Not found or not ready.';
-                            statusCode = 404;
-                        }
-                    }
-                    break;
-                }
-                case '/DirectID/codeSubmit': {
-                    if (bodyData) {
-                        passed = true;
-                        let id = parsed.query.id;
-
-                        returnData = {
-                            id: id,
-                            code: utils.compressString(bodyData),
-                            hash: utils.hash(bodyData, 'sha256'),
-                            created: Date.now(),
-                            status: 0,
-                            size: bodyData.length
-                        }
-                        //TODO: for later.
-                        //let func =  new AsyncFunction("data", bodyData);
-                        let func = new Function("data", bodyData);
-                        OPAL[id] = func;
-                    }
-                    break;
-                }
-                case '/DirectID/codeRun': {
-                    if (bodyData) {
-                        let id = parsed.query.id;
-                        let fun = OPAL[id];
-                        if (fun) {
-                            passed = true;
-                            const start = utils.time();
-                            let results;
-                            let error;
-                            try {
-                                results = fun(bodyData);
-                            } catch (err) {
-                                error = err;
-                            }
-                            const duration = utils.time() - start;
-                            returnData = {
-                                results: results,
-                                duration: duration
-                            }
-
-                            if (error) {
-                                returnData.error = error;
-                            }
-                            //fun({a: 10, b: 20}).then(response => { console.log(response) });
-                        }
-                    }
-                    break;
-                }
-                case '/DirectID/generateIncomeUrl': {
-                    let request_id = bodyData.request_id;
-                    if (request_id) {
-                        passed = true;
-                        //TODO
-                        request_id = encodeURIComponent(`${request_id}:${utils.randomString(16)}`);
-                        //'&provider_id=3184'
-                        let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${request_id}`;
-
-                        let short_url = true;
-                        if (typeof (bodyData.shorten_url) !== 'undefined') {
-                            short_url = bodyData.shorten_url;
-                        }
-
-                        if (short_url) {
-                            //TODO
-                            url = await utils.shortenUrl(url, PARAMS.bitly);
-                        }
-
-                        returnData = bodyData;
-                        returnData = {
-                            email_address: bodyData.email_address,
-                            full_name: bodyData.full_name,
-                            request_id: bodyData.request_id,
-                            phone_number: bodyData.phone_number,
-                            request_timestamp: Date.now(),
-                            //status: incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress,
-                            url: url
-                        }
-                        META[bodyData.request_id] = returnData;
-                    }
-                    break;
-                }
-            }
-
-            if (logRequest) {
-                console.log(`[${method}] ${path} ${ip}`);
-            }
-
-            if (passed) {
-                returnData = returnData || 'OK';
-                utils.sendData(res, returnData);
-
-                switch (path) {
-                    case '/restart': {
-                        restart();
-                        break;
-                    }
-                    case '/update': {
-                        const {
-                            stdout,
-                            stderr
-                        } = await utils.execFile('./update.sh');
-                        console.log(stdout, stderr);
-                        break;
-                    }
-                    case '/DirectID/webhook': {
-                        if (consentId) {
-                            let customerReference = consent.customerReference;
-
-                            console.log(`${consentId} - Webhook verified.`);
-
-                            const funcs = [];
-
-                            funcs.push(saveWebhook(consent));
-
-                            funcs.push(requestIncomeVerification(consentId, customerReference));
-
-                            if (PARAMS.request_bank_data) {
-                                funcs.push(requestBankData(consentId, customerReference));
-                            }
-
-                            Promise.all(funcs).then((values) => {
-                                console.log(`${consentId} - Processing results...`);
-
-                                console.log(`${consentId} - Finished.`);
-                            }).catch(error => {
-                                console.error(error.message)
-                            });
-                        }
-                        break;
-                    }
-                    case '/DirectID/generateIncomeUrl': {
-                        const funcs = [];
-
-                        let phone_number = returnData.phone_number;
-
-                        if (phone_number && phone_number.length > 0) {
-                            let data = {
-                                numbers: phone_number,
-                                text: utils.parseTemplate(PARAMS.sms_text, {
-                                    '%URL%': returnData.url
-                                })
-                            };
-                            handlerTwilioQ.add(data);
-                        }
-
-                        let email_address = returnData.email_address;
-
-                        if (utils.validateEmail(email_address)) {
-                            let full_name = returnData.full_name;
-                            let subject = PARAMS.email_subject;
-
-                            let replacements = {
-                                // "%EMAIL%": email,
-                            };
-
-                            let data = {
-                                email: email_address,
-                                subject: subject,
-                                html: utils.parseTemplate(PARAMS.email_text, {
-                                    '%URL%': returnData.url
-                                }),
-                                //template: 'invitation',
-                                //replacements: replacements
-                            }
-
-                            if (full_name) {
-                                data.name = full_name;
-                            }
-
-                            handlerEmailQ.add(data);
-                        }
-                        console.log(`Done.`);
-                        break;
-                    }
-                }
+            if (typeof (action) === undefined) {
+                utils.sendData(res, 'Missing parameter', 422);
             } else {
-                utils.sendText(res, statusText, statusCode);
+                try {
+                    switch (resource) {
+                        case 'directid': {
+                            logRequest = await handleDirectID(res, parsed, method, action,  bodyData, key);
+                            break;
+                        }
+                        case 'system': {
+                            logRequest = await handleSystem(res, parsed, method, action,  bodyData, key);
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                    try {
+                        res.end(e.message);
+                    } catch (error) {}
+                }
             }
         } catch (e) {
             console.error(e);
@@ -620,21 +432,27 @@ const httpHander = async (req, res) => {
                 res.end(e.message);
             } catch (error) {}
         }
+        //TODO: res.headersSent
     } catch (error) {
         console.error(error.message);
     }
+    
+    if (logRequest) {
+        const duration = utils.time() - startTimer;
+        console.log(`[${method}] ${path} ${ip} - ${utils.toFixedPlaces(duration, 2)}ms`);
+    }
 }
 
-const setHeaders =(res)=> {
+const setHeaders = (res) => {
     //TODO
     //HTTP Strict Transport Security.
     // res.setHeader('Strict-Transport-Security', );
 }
 
 const startServer = async () => {
-    if(PARAMS.http_port && PARAMS.http_port > 0) {
+    if (PARAMS.http_port && PARAMS.http_port > 0) {
         console.log('Starting HTTP server...');
-        http.createServer(httpHander).listen(PARAMS.http_port, (err) => {
+        http.createServer(httpHandler).listen(PARAMS.http_port, (err) => {
             if (err) {
                 return console.error(err);
             }
@@ -642,15 +460,15 @@ const startServer = async () => {
         });
     }
 
-    if(PARAMS.https_port && PARAMS.https_port > 0) {
+    if (PARAMS.https_port && PARAMS.https_port > 0) {
         console.log('Starting HTTPS server...');
-        if(PARAMS.server_crt  && PARAMS.server_key) {
+        if (PARAMS.server_crt && PARAMS.server_key) {
             const httpsOptions = {
                 cert: PARAMS.server_crt,
                 key: PARAMS.server_key
             };
 
-            https.createServer(httpsOptions, httpHander).listen(PARAMS.https_port, (err) => {
+            https.createServer(httpsOptions, httpHandler).listen(PARAMS.https_port, (err) => {
                 if (err) {
                     return console.error(err);
                 }
@@ -692,12 +510,12 @@ const loadParams = async () => {
     const funcs = [];
 
 
-    if(process.env.APIGWCMD) {
+    if (process.env.APIGWCMD) {
         //All we really care about is if it was launched with local config 
         let ARGS = utils.toArgs2(process.env.APIGWCMD);
-        if(ARGS.localpath) {
+        if (ARGS.localpath) {
             let index = paramKeys.indexOf('apigw_cfg');
-            if(index > -1) {
+            if (index > -1) {
                 paramKeys.splice(index, 1);
             }
             PARAMS.apigw_cfg = await utils.loadJSONAsync(ARGS.localpath);
@@ -764,8 +582,8 @@ const loadParams = async () => {
 
             if (typeof (PARAMS.apigw_cfg) === 'object') {
                 let transport = PARAMS.apigw_cfg.transport;
-                if(transport) {
-                    if(transport.local_certificate) {
+                if (transport) {
+                    if (transport.local_certificate) {
                         console.log("Loading local certificates...");
                         PARAMS.server_crt = await utils.loadFile(transport.server_crt_path);
                         PARAMS.server_key = await utils.loadFile(transport.server_key_path);
@@ -812,3 +630,251 @@ const loadParams = async () => {
         console.log(error.message);
     }
 })();
+
+//TODO: Extract these to separate files
+async function handleSystem(res, parsed, method, action,  bodyData) {
+    let logRequest = true;
+
+    switch (action) {
+        case 'restart': {
+            utils.sendData(res, 'OK');
+            //restart();
+            break;
+        }
+        case 'update': {
+            utils.sendData(res, 'OK');
+            //update();
+            break;
+        }
+        default: {
+            utils.sendData(res, 'Not found.', 404);
+        }
+    }
+    return logRequest;
+}
+
+async function handleDirectID(res, parsed, method, action,  bodyData) {
+    let logRequest = true;
+
+    switch (action) {
+        case 'check-request':
+        case 'checkrequest': {
+            checkRequest();
+            break;
+        }
+        case 'generate-income-url':
+        case 'generateincomeurl': {
+            await generateIncomeUrl();
+            break;
+        }
+        case 'webhook': {
+            webhook();
+            break;
+        }
+        case 'code-submit':
+        case 'codesubmit': {
+            codeSubmit();
+            break;
+        }
+        case 'code-run':
+        case 'coderun': {
+            codeRun();
+            break;
+        }
+        default: {
+            utils.sendData(res, 'Not found.', 404);
+            break;
+        }
+    }
+    return logRequest;
+
+    function checkRequest() {
+        let request_id = parsed.query.request_id;
+        if (request_id) {
+            let found = DONE[request_id];
+            if (found) {
+                utils.sendData(res, found);
+            } else {
+                logRequest = false;
+                utils.sendData(res, 'Not found or not ready.', 404);
+            }
+        }
+    }
+
+    function codeRun() {
+        if (bodyData) {
+            let id = parsed.query.id;
+            let fun = OPAL[id];
+            if (fun) {
+                const start = utils.time();
+                let results;
+                let error;
+                try {
+                    results = fun(bodyData);
+                } catch (err) {
+                    error = err;
+                }
+                const duration = utils.time() - start;
+                let returnData = {
+                    results: results,
+                    duration: duration
+                };
+
+                if (error) {
+                    returnData.error = error;
+                }
+                utils.sendData(res, returnData);
+                //fun({a: 10, b: 20}).then(response => { console.log(response) });
+            } else {
+                utils.sendData(res, 'Function not found.', 404);
+            }
+        } else {
+            utils.sendData(res, 'Missing parameter', 422);
+        }
+    }
+
+    function codeSubmit() {
+        if (bodyData) {
+            let id = parsed.query.id;
+
+            let returnData = {
+                id: id,
+                code: utils.compressString(bodyData),
+                hash: utils.hash(bodyData, 'sha256'),
+                created: Date.now(),
+                status: 0,
+                size: bodyData.length
+            };
+            //TODO: for later.
+            //let func =  new AsyncFunction("data", bodyData);
+            let func = new Function("data", bodyData);
+            OPAL[id] = func;
+            utils.sendData(res, returnData);
+        } else {
+            utils.sendData(res, 'Missing parameter', 422);
+        }
+    }
+
+    function webhook() {
+        if (method === 'POST') {
+            //TODO!
+            if (key === PARAMS.webhook_secret) {
+                if (bodyData) {
+                    //if(bodyData.dataAvailability === 'Complete') {
+                    let consentId = bodyData.consentId;
+
+                    utils.sendData(res, 'OK');
+
+                    console.log(`${consentId} - dataAvailability: ${bodyData.dataAvailability}.`);
+
+                    let consent = consents[consentId];
+                    if (!consent) {
+                        consent = bodyData;
+                        consents[consentId] = consent;
+
+                        let customerReference = consent.customerReference;
+
+                        console.log(`${consentId} - Webhook verified.`);
+
+                        const funcs = [];
+
+                        funcs.push(saveWebhook(consent));
+
+                        funcs.push(requestIncomeVerification(consentId, customerReference));
+
+                        if (PARAMS.request_bank_data) {
+                            funcs.push(requestBankData(consentId, customerReference));
+                        }
+
+                        Promise.all(funcs).then((values) => {
+                            console.log(`${consentId} - Processing results...`);
+
+                            console.log(`${consentId} - Finished.`);
+                        }).catch(error => {
+                            console.error(error.message);
+                        });
+                    } else {
+                        consentId = undefined;
+                    }
+                } else {
+                    utils.sendData(res, 'Invalid or missing body.', 422);
+                }
+            } else {
+                utils.sendData(res, 'Invalid key', 401);
+            }
+        } else {
+            utils.sendData(res, 'Method not allowed', 405);
+        }
+    }
+
+    async function generateIncomeUrl() {
+        let request_id = bodyData.request_id;
+        if (request_id) {
+            request_id = encodeURIComponent(`${request_id}:${utils.randomString(16)}`);
+            //'&provider_id=3184'
+            let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${request_id}`;
+
+            let short_url = true;
+            if (typeof (bodyData.shorten_url) !== 'undefined') {
+                short_url = bodyData.shorten_url;
+            }
+
+            if (short_url) {
+                //TODO
+                url = await utils.shortenUrl(url, PARAMS.bitly);
+            }
+
+            let returnData = {
+                email_address: bodyData.email_address,
+                full_name: bodyData.full_name,
+                request_id: bodyData.request_id,
+                phone_number: bodyData.phone_number,
+                request_timestamp: Date.now(),
+                //status: incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress,
+                url: url
+            };
+            META[bodyData.request_id] = returnData;
+            utils.sendData(res, returnData);
+            const funcs = [];
+            let phone_number = returnData.phone_number;
+
+            if (phone_number && phone_number.length > 0) {
+                let data = {
+                    numbers: phone_number,
+                    text: utils.parseTemplate(PARAMS.sms_text, {
+                        '%URL%': returnData.url
+                    })
+                };
+                handlerTwilioQ.add(data);
+            }
+
+            let email_address = returnData.email_address;
+
+            if (utils.validateEmail(email_address)) {
+                let full_name = returnData.full_name;
+                let subject = PARAMS.email_subject;
+
+                let replacements = {
+                    // "%EMAIL%": email,
+                };
+
+                let data = {
+                    email: email_address,
+                    subject: subject,
+                    html: utils.parseTemplate(PARAMS.email_text, {
+                        '%URL%': returnData.url
+                    }),
+                };
+
+                if (full_name) {
+                    data.name = full_name;
+                }
+
+                handlerEmailQ.add(data);
+            }
+            console.log(`Done.`);
+        } else {
+            utils.sendData(res, 'Missing parameter', 422);
+        }
+    }
+}

@@ -7,7 +7,7 @@
 #
 @request_id={{$guid}}
 # @name income
-POST https://dev.barbarians.com/fortifid/DirectID/generateIncomeUrl
+POST https://dev.barbarians.com:8999/DirectID/generateIncomeUrl
 content-type: application/json
 
 {
@@ -21,7 +21,7 @@ content-type: application/json
 ###
 # DirectID incoming consent webhook
 # After a user authorizes access to their account 
-POST https://dev.barbarians.com/fortifid/directid/?key=kPgqykCWhR82ePaU4fWOufpcfSW3VqDrR
+POST https://dev.barbarians.com:8999/DirectID/webhook?key=kPgqykCWhR82ePaU4fWOufpcfSW3VqDrR
 content-type: application/json
 
 # For some reason this is not working in some environments.
