@@ -337,7 +337,24 @@ const httpHandler = async (req, res) => {
     let method;
     let path;
     let ip;
-    
+    let referer;
+
+    const doLog = ()=> {
+        const duration = utils.time() - startTimer;
+        let log = {
+            method: method,
+            path: path,
+            ip: ip,
+            duration: utils.toFixedPlaces(duration, 2)
+        }
+        
+        if(referer) {
+            log.referer = referer;
+        }
+
+        console.info(log);
+    }
+
     try {
         method = req.method.toUpperCase();
         const now = Date.now();
@@ -356,7 +373,8 @@ const httpHandler = async (req, res) => {
 
             let web = WWW[path];
             if (web) {
-                sendFile(res, web);
+                await sendFile(res, web);
+                doLog();
                 return;
             }
 
@@ -366,7 +384,7 @@ const httpHandler = async (req, res) => {
 
             path = path.toLowerCase();
 
-            let referer = req.headers['referer'];
+            referer = req.headers['referer'];
             let origin = req.headers['origin'];
 
             //TODO!!!!! This is just so the demo site will work for now.
@@ -438,8 +456,7 @@ const httpHandler = async (req, res) => {
     }
     
     if (logRequest) {
-        const duration = utils.time() - startTimer;
-        console.log(`[${method}] ${path} ${ip} - ${utils.toFixedPlaces(duration, 2)}ms`);
+        doLog();
     }
 }
 
