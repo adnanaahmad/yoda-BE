@@ -106,4 +106,4 @@ dist
 t.sh
 g.sh
 t.js
-
+tmp/

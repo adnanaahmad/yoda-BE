@@ -20,7 +20,12 @@
     "Value": ""
   },
   {
-    "Name": "/config/directid/directid.service.api_port",
+    "Name": "/config/directid/directid.service.http_port",
+    "Type": "String",
+    "Value": "8998"
+  },
+  {
+    "Name": "/config/directid/directid.service.https_port",
     "Type": "String",
     "Value": "8999"
   },
@@ -99,6 +104,11 @@
     "Type": "SecureString",
     "Value": ""
   },
+  {
+    "Name": "/config/shared/email.outlook",
+    "Type": "SecureString",
+    "Value": ""
+  },  
   {
     "Name": "/config/shared/twilio.auth_token",
     "Type": "SecureString",

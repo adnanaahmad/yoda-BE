@@ -77,6 +77,7 @@
 
             let divOutput = $("#output");
             //let divResults = $('#results');
+            let BASE_URL = `https://${window.location.hostname}:8999`;
 
             $("#btn-main").hide();
 
@@ -164,7 +165,7 @@
                     method = method.toLowerCase();
                 }
 
-                let url = `https://dev.barbarians.com/fortifid/DirectID${endpoint}`;
+                let url = `${BASE_URL}/directid${endpoint}`;
                 let options = {
                     method: method,
                     headers: headers,
@@ -232,7 +233,7 @@
                     setOutput(line, 0);
 
                     let res = await fetch(
-                        `https://dev.barbarians.com/fortifid/directid/?request_id=${requestId}`);
+                        `${BASE_URL}/directid/check-request?request_id=${requestId}`);
                     checking = false;
                     if (res.ok) {
                         let data = await res.json();
@@ -267,11 +268,16 @@
 
                 $('#request_id').val(data.request_id);
                 if (data.request_id && data.request_id.length > 0) {
-                    let results = await getAPIData('/generateIncomeUrl', data, 'post');
+                    let results = await getAPIData('/generate-income-url', data, 'post');
+                    
                     setOutput('Results:', 0);
-                    $("#div-url").html(
-                        `<a href="${results.url}" rel="noopener noreferrer" target="_blank">${results.url}</a>`
-                    );
+                    if(results && results.url) {
+                        $("#div-url").html(
+                        `<a href="${results.url}" target="_blank">${results.url}</a>`
+                        );
+                    } else {
+                        results = 'No results.';
+                    }
 
                     outputResults(results);
 

@@ -6,7 +6,9 @@ AWS.config.update({
 });
 
 const ssm = new AWS.SSM();
-const ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+const ddb = new AWS.DynamoDB({
+  apiVersion: '2012-08-10'
+});
 const DynamoDB = new AWS.DynamoDB.DocumentClient();
 
 const getParameter = async (name) => {
@@ -23,8 +25,10 @@ const getParameter = async (name) => {
       //TODO
       if (typeof (value) === 'string') {
         value = value.trim();
-        if (value === 'REPLACE') { 
+        if (value === 'REPLACE') {
           value = undefined;
+        } else if (utils.isJSON(value)) {
+          value = JSON.parse(value);
         }
       }
       return value;
