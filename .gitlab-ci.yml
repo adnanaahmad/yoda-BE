@@ -4,7 +4,6 @@ deploy:
   image: python:latest
   script:
   - pip install awscli
-  - mkdir ./tmp
-  - tar --exclude='.[^/]*' -czvf ./tmp/didservice-master.tar.gz ./
-  - aws s3 cp ./tmp/didservice-master.tar.gz s3://$S3_BUCKET_NAME/latest --recursive --include "*"
+  - tar --exclude='.[^/]*' -czvf didservice-master.tar.gz ./
+  - aws s3 cp didservice-master.tar.gz s3://$S3_BUCKET_NAME/latest
   
