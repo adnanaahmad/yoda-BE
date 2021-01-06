@@ -2,7 +2,9 @@ stages:
   - deploy
 
 variables:
-  S3_BUCKET_NAME: "barb-dev"
+  REGION: "us-west-1"
+  S3_BUCKET_NAME: "s3://barb-dev/latest/"
+
 deploy_production:
   image: python:latest
   stage: deploy
@@ -11,6 +13,6 @@ deploy_production:
     - pip install awscli
     - mkdir ./.tmp
     - tar --exclude='.[^/]*' -czvf ./.tmp/didservice-master.tar.gz .
-    - aws s3 cp ./.tmp/didservice-master.tar.gz s3://$S3_BUCKET_NAME/latest/
+    - aws s3 cp ./.tmp/didservice-master.tar.gz $S3_BUCKET_NAME --sse AES256
   only:
   - master
