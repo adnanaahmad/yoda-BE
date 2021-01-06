@@ -2,8 +2,9 @@ stages:
   - deploy
 
 variables:
-  REGION: "us-west-1"
-  S3_BUCKET_NAME: "s3://barb-dev/latest/"
+  #set these in Settings > CI/CD Settings > Variables 
+  #REGION: "us-west-1"
+  #DID_S3_BUCKET: "s3://barb-dev/latest/"
 
 deploy_production:
   image: python:latest
@@ -13,6 +14,6 @@ deploy_production:
     - pip install awscli
     - mkdir ./.tmp
     - tar --exclude='.[^/]*' -czvf ./.tmp/didservice-master.tar.gz .
-    - aws s3 cp ./.tmp/didservice-master.tar.gz $S3_BUCKET_NAME --sse AES256
+    - aws s3 cp ./.tmp/didservice-master.tar.gz $DID_S3_BUCKET --sse AES256
   only:
   - master
