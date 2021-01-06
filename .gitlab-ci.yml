@@ -4,6 +4,7 @@ stages:
 variables:
   S3_BUCKET_NAME: "barb-dev"
 deploy_production:
+  image: python:latest
   stage: deploy
   when: manual
   script:
