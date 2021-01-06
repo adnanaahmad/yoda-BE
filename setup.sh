@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Which node version to use
-NODE=14.15.3
+NODE=14.15.4
 
 timestamp() {
   date +"%Y-%m-%d %H:%M:%S.%3N"
