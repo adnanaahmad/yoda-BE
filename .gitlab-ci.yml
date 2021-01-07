@@ -15,7 +15,7 @@ deploy_production:
   script:
     - pip install awscli
     - mkdir ./.tmp
-    - tar --exclude='.[^/]*' -czvf ./.tmp/didservice-master.tar.gz .
-    - aws s3 cp ./.tmp/didservice-master.tar.gz $DID_S3_BUCKET --sse AES256
+    - tar --exclude='.[^/]*' -czvf ./.tmp/didservice.tar.gz .
+    - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET --sse AES256
   only:
   - master
