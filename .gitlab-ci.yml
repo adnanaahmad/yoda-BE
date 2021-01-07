@@ -9,11 +9,12 @@ variables:
   #DID_S3_BUCKET: "s3://barb-dev/latest/"
 
 deploy_production:
-  image: python:latest
+  #image: python:latest
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest 
   stage: deploy
   when: manual
   script:
-    - pip install awscli
+    #- pip install awscli
     - mkdir ./.tmp
     - tar --exclude='.[^/]*' -czvf ./.tmp/didservice.tar.gz .
     - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET --sse AES256
