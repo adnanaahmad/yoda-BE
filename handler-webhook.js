@@ -18,7 +18,13 @@ const add = async(data)=> {
         console.log(`webhook started. ${data.url}`);
         let start = utils.time();
         try {
-            let response = await utils.fetchData(data.url, data.data, true);
+
+            let url = data.url; 
+            if(data.query) {
+                url+= data.query;
+            }
+
+            let response = await utils.fetchData(url, data.data, true);
             let duration = utils.time() - start;
             let status = 0;
             if(response) { 

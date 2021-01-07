@@ -626,35 +626,6 @@ const loadParams = async () => {
 
 }
 
-(async () => {
-    const funcs = [];
-
-    await loadParams();
-
-    funcs.push(checkTokens());
-    funcs.push(loadTemplates());
-
-    Promise.all(funcs).then(async (values) => {
-        await startServer();
-        console.log(`Initialized.`);
-    }).catch(error => {
-        console.error(error.message)
-    });
-
-    try {
-        pm2.connect((err) => {
-            if (err) {
-                console.error(err);
-            } else {
-                pm2Connected = true;
-                console.log('pm2 connected.')
-            }
-        });
-    } catch (error) {
-        console.log(error.message);
-    }
-})();
-
 //TODO: Extract these to separate files
 async function handleSystem(res, parsed, method, action,  bodyData, key) {
     let logRequest = true;
@@ -902,3 +873,32 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
         }
     }
 }
+
+(async () => {
+    const funcs = [];
+
+    await loadParams();
+
+    funcs.push(checkTokens());
+    funcs.push(loadTemplates());
+
+    Promise.all(funcs).then(async (values) => {
+        await startServer();
+        console.log(`Initialized.`);
+    }).catch(error => {
+        console.error(error.message)
+    });
+
+    try {
+        pm2.connect((err) => {
+            if (err) {
+                console.error(err);
+            } else {
+                pm2Connected = true;
+                console.log('pm2 connected.')
+            }
+        });
+    } catch (error) {
+        console.log(error.message);
+    }
+})();
