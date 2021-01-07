@@ -17,5 +17,6 @@ deploy_production:
     - mkdir ./.tmp
     - tar --exclude='.[^/]*' -czvf ./.tmp/didservice.tar.gz .
     - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET --sse AES256
+    - aws s3 cp ./data/install.sh $DID_S3_BUCKET --sse AES256
   only:
   - master
