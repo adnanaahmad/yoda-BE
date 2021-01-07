@@ -1,0 +1,22 @@
+stages:
+  - deploy
+
+variables:
+  #set these in Settings > CI/CD Settings > Variables 
+  #AWS_ACCESS_KEY_ID: ""
+  #AWS_SECRET_ACCESS_KEY: ""
+  #REGION: "us-west-1"
+  #DID_S3_BUCKET: "s3://barb-dev/latest/"
+
+deploy_production:
+  image: python:latest
+  stage: deploy
+  when: manual
+  script:
+    - pip install awscli
+    - mkdir ./.tmp
+    - tar --exclude='.[^/]*' -czvf ./.tmp/didservice.tar.gz .
+    - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET --sse AES256
+    - aws s3 cp ./data/install.sh $DID_S3_BUCKET --sse AES256
+  only:
+  - master
