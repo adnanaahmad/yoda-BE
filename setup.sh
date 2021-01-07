@@ -83,13 +83,13 @@ else
     pm2 save
 fi
 
-if [ "$1" == "params" ] || [ "$2" == "params" ] 
+if [ "$P" == "1" ] 
 then
     log "Creating parameters..."
     node create-params.js
 fi
 
-if [ "$1" == "tables" ] || [ "$2" == "tables" ] 
+if [ "$T" == "1" ] 
 then
     log "Creating tables..."
     node create-tables.js
