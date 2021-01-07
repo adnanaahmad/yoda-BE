@@ -9,16 +9,19 @@ then
 else
     echo "DirectID Service setup starting..."
 
-    #CREATE_PARAMS=params
-    #CREATE_TABLES=tables
-
     cd /home/ec2-user
 
     aws s3 --quiet cp $DID_S3_BUCKET/didservice.tar.gz .
+
     tar -xvf didservice.tar.gz --directory didservice
+
     rm -rf didservice.tar.gz
+
     sudo chown -R ec2-user:ec2-user didservice
+
     cd didservice
+    
     sudo -u ec2-user bash -c "./setup.sh"
+
     echo "DirectID Service setup finished."    
 fi
