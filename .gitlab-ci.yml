@@ -21,3 +21,7 @@ deploy_production:
     - aws s3 cp ./data/install.sh $DID_S3_BUCKET --sse AES256
   only:
   - master
+  artifacts:
+    name: "DID-Release-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - ./.tmp/didservice.tar.gz
