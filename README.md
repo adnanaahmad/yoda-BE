@@ -3,7 +3,24 @@
 ## Description
 This is the DirectID micro-service. 
 
-## Installation
+## Installation and Upgrade Methods
+There are several methods of installation.
+
+## Gitlab CI Pipeline
+* Set the following environment variables in the DID repo:
+  * Settings > CI / CD Settings > Variables 
+  * AWS_ACCESS_KEY_ID
+  * AWS_SECRET_ACCESS_KEY
+  * AWS_DEFAULT_REGION
+  * DID_S3_BUCKET (for example: s3://barb-dev/latest/). 
+    * Don't forget the trailing slash.
+    * Make sure to secure this and give the account permissions to the bucket.
+* Run CI / CD > Pipelines > deploy_production
+* Then edit the apigw template: (this still needs to be tested)
+  * config_app_08:              
+      command: "export DID_S3_BUCKET='s3://barb-dev/latest' && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /tmp/ && chmod +x /tmp/install.sh && /tmp/install.sh"
+
+## Git Install Method
 Make sure git is installed.
 ```bash
 sudo apt install git -y
