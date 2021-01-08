@@ -814,9 +814,9 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
                 short_url = bodyData.shorten_url;
             }
 
-            if (short_url) {
-                //TODO
-                url = await utils.shortenUrl(url, PARAMS.bitly);
+            if (short_url && PARAMS.bitly ) {
+                let short = await utils.shortenUrl(url, PARAMS.bitly);
+                url = short || url;
             }
 
             let returnData = {
