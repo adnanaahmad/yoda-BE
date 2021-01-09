@@ -250,6 +250,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                 if (meta) {
                     output.requestStart = meta.request_timestamp;
                     output.requestDuration = output.requestComplete - output.requestStart;
+                    output.customerId = meta.customer_id;
                     delete META[id];
                 }
 
@@ -820,15 +821,18 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
             }
 
             let returnData = {
+                customer_id: bodyData.customer_id,
+                request_id: bodyData.request_id,
                 email_address: bodyData.email_address,
                 full_name: bodyData.full_name,
-                request_id: bodyData.request_id,
                 phone_number: bodyData.phone_number,
-                request_timestamp: Date.now(),
                 //status: incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress,
-                url: url
+                url: url,
+                request_timestamp: Date.now()
             };
+            
             META[bodyData.request_id] = returnData;
+
             utils.sendData(res, returnData);
             const funcs = [];
             let phone_number = returnData.phone_number;

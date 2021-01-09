@@ -26,6 +26,11 @@
         <div>
             <strong>DirectID Income Verification Demo</strong>
             <div class="form-group">
+                <label class="form-label" for="customer_id">Customer Id</label>
+                <input id="customer_id" class="form-input" type="text" placeholder="Customer Id" minlength="1"
+                    maxlength="64">
+            </div>
+            <div class="form-group">
                 <label class="form-label" for="full_name">Full Name</label>
                 <input id="full_name" class="form-input" type="text" placeholder="Full Name (optional)" minlength="1"
                     maxlength="64">
@@ -257,8 +262,17 @@
 
             $('#btn-url').on("click", async () => {
                 cancelTimer();
-                setOutput('Loading...', 0);
+
+                let customer_id = $('#customer_id').val() || '';
+                customer_id = customer_id.trim();
+
+                if (customer_id.length < 1) {
+                    setOutput('<span style="color:red;">Customer Id is required.</span>', 0);
+                    return;
+                }
+
                 let data = {
+                    customer_id: customer_id,
                     full_name: $('#full_name').val(),
                     email_address: $('#email_address').val(),
                     phone_number: $('#phone_number').val(),
@@ -267,30 +281,30 @@
                 };
 
                 $('#request_id').val(data.request_id);
-                if (data.request_id && data.request_id.length > 0) {
-                    let results = await getAPIData('/generate-income-url', data, 'post');
-                    
-                    setOutput('Results:', 0);
-                    if(results && results.url) {
-                        $("#div-url").html(
+                
+                setOutput('Loading...', 0);
+                let results = await getAPIData('/generate-income-url', data, 'post');
+                setOutput('Results:', 0);
+
+                if (results && results.url) {
+                    $("#div-url").html(
                         `<a href="${results.url}" target="_blank">${results.url}</a>`
-                        );
-                    } else {
-                        results = 'No results.';
-                    }
-
-                    outputResults(results);
-
-                    found = false;
-                    requestId = data.request_id;
-                    dotCount = 0;
-                    startTime = Date.now();
-                    //TODO!
-                    resultsTimer = setTimeout(() => {
-                        focused = true;
-                        getRequestStatus();
-                    }, 15000);
+                    );
+                } else {
+                    outputResults('No results.');
+                    return;
                 }
+
+                outputResults(results);
+                found = false;
+                requestId = data.request_id;
+                dotCount = 0;
+                startTime = Date.now();
+                //TODO!
+                resultsTimer = setTimeout(() => {
+                    focused = true;
+                    getRequestStatus();
+                }, 15000);
             });
 
             document.addEventListener('visibilitychange', (ev) => {
