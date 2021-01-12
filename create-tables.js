@@ -2,7 +2,7 @@ const awsClient = require('./aws-client');
 
 (async () => {
     let params = {
-        'TableName': 'DIRECTID_INCOME5',
+        'TableName': 'DIRECTID_INCOME',
         'BillingMode': 'PAY_PER_REQUEST',
         'AttributeDefinitions': [
           {
