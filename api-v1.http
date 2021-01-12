@@ -221,3 +221,26 @@ content-type: application/json
 ###
 # Get EC2 instance meta for auto-configuration use
 GET http://169.254.169.254/latest/dynamic/instance-identity/document
+###
+# Sample results
+{
+  "CustomerAccountID": "abc",
+  "RequestTimestamp": "1610420482994464996",
+  "TransactionID": "df76df39-fb17-4c9d-be0f-53961a4a6d38",
+  "RequesterRef": "3afee11b-177f-407c-a0d0-58816c011208",
+  "requestComplete": 1610420511275,
+  "requestStart": 1610420482994,
+  "requestDuration": 28281,
+  "apiRequestDuration": 2512,
+  "estimatedIncome": 0,
+  "confidenceScore": 7,
+  "confidenceScoreFlags": {
+    "incomeForLast3Months": false,
+    "varianceTolerance5Percent": true,
+    "varianceTolerance10Percent": true,
+    "mostRecentCheckValue": true,
+    "stabilityOverall": 3,
+    "stability6Months": 0
+  },
+  "status": "incomeDirectIDRequestSuccess"
+}

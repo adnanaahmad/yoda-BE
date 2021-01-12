@@ -225,15 +225,15 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     const output = {};
     // CustomerAccountID
     // RequestTimestamp
+    // TransactionID
     
     output[PARAMS.ddb_partition_income] = meta.customer_id;
     if(PARAMS.ddb_sort_income) {
-        output[PARAMS.ddb_sort_income] = meta.request_time;
+        output[PARAMS.ddb_sort_income] = customerReference;
     }
 
-    output.TransactionID = customerReference;
     output.RequesterRef = meta.request_id;
-
+    //output.RequestTimestamp = meta.request_time;
     output.requestComplete =  Date.now();
     
     output.requestStart = meta.request_timestamp;    

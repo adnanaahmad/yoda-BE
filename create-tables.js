@@ -10,7 +10,7 @@ const awsClient = require('./aws-client');
             'AttributeType': 'S'
           },
           {
-            "AttributeName": "RequestTimestamp",
+            "AttributeName": "TransactionID",
             "AttributeType": "S"
           }
         ],
@@ -20,7 +20,7 @@ const awsClient = require('./aws-client');
             'KeyType': 'HASH'
           },
           {
-            "AttributeName": "RequestTimestamp",
+            "AttributeName": "TransactionID",
             "KeyType": "RANGE"
           }
         ]
