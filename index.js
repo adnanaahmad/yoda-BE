@@ -224,8 +224,7 @@ const loadTemplates = async () => {
 }
 
 const updateIncomeVerification = async (data)=> {
-
-    if(!partitionKey || !sortKey || typeof(data) !== 'object') {
+    if(typeof(data) !== 'object') {
         logger.warn('updateIncomeVerification - invalid pararmeters', data );
         return;
     }
