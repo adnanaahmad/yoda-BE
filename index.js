@@ -12,7 +12,7 @@ let pm2Connected = false;
 const utils = require('./utils');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 
-logger.info("Startup", SCRIPT_INFO);
+logger.info(SCRIPT_INFO);
 
 const url = require('url');
 const fetch = require("node-fetch");
@@ -230,6 +230,8 @@ const updateIncomeVerification = async (data)=> {
         return;
     }
 
+    logger.info('updateIncomeVerification', data );
+
     try {
         const keys = {};
         keys[PARAMS.ddb_partition_income] = output[PARAMS.ddb_partition_income];
@@ -261,8 +263,9 @@ const updateIncomeVerification = async (data)=> {
         };
 
         logger.debug('updateIncomeVerification - params', params);
-
-        return awsClient.updateDDBItem(params);      
+        let result = await awsClient.updateDDBItem(params);
+        logger.debug('updateIncomeVerification - result', result);
+        return result;      
     } catch (error) {
         logger.error(error);        
     }
