@@ -233,9 +233,9 @@ const updateIncomeVerification = async (data)=> {
 
     try {
         const keys = {};
-        keys[PARAMS.ddb_partition_income] = output[PARAMS.ddb_partition_income];
+        keys[PARAMS.ddb_partition_income] = data[PARAMS.ddb_partition_income];
         if(PARAMS.ddb_sort_income) {
-            keys[PARAMS.ddb_sort_income] = output[PARAMS.ddb_sort_income];
+            keys[PARAMS.ddb_sort_income] = data[PARAMS.ddb_sort_income];
         }
         
         const dataKeys = Object.keys(data);
