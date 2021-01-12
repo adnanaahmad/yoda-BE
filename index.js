@@ -733,9 +733,9 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
     return logRequest;
 
     function checkRequest() {
-        let request_id = parsed.query.request_id;
-        if (request_id) {
-            let found = DONE[request_id];
+        let transaction_id = parsed.query.transaction_id;
+        if (transaction_id) {
+            let found = DONE[transaction_id];
             if (found) {
                 utils.sendData(res, found);
             } else {

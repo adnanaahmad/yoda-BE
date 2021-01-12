@@ -71,7 +71,7 @@
             "use strict";
 
             let startTime = 0;
-            let requestId;
+            let transactionId;
 
             let checking = false;
             let found = false;
@@ -221,14 +221,14 @@
 
 
             const getRequestStatus = async () => {
-                if (checking || !focused || !requestId) {
+                if (checking || !focused || !transactionId) {
                     return;
                 }
 
                 let duration = Date.now() - startTime;
                 if (duration > 180000) {
                     setOutput('Took too long. Please try again.', 0);
-                    requestId = undefined;
+                    transactionId = undefined;
                     return;
                 }
 
@@ -243,21 +243,21 @@
                     setOutput(line, 0);
 
                     let res = await fetch(
-                        `${BASE_URL}/directid/check-request?request_id=${requestId}`);
+                        `${BASE_URL}/directid/check-request?transaction_id=${transactionId}`);
                     checking = false;
                     if (res.ok) {
                         let data = await res.json();
                         if (data) {
                             setOutput('Results:', 0);
                             outputResults(data);
-                            requestId = undefined;
+                            transactionId = undefined;
                         }
                     }
                 } catch (error) {
                     console.log(error);
                 }
 
-                if (requestId) {
+                if (transactionId) {
                     cancelTimer();
                     resultsTimer = setTimeout(() => {
                         getRequestStatus();
@@ -289,9 +289,11 @@
                 
                 setOutput('Loading...', 0);
                 let results = await getAPIData('/generate-income-url', data, 'post');
+                
                 setOutput('Results:', 0);
 
-                if (results && results.url) {
+                if (results && results.url && results.transaction_id) {
+                    
                     $("#div-url").html(
                         `<a href="${results.url}" target="_blank">${results.url}</a>`
                     );
@@ -302,7 +304,7 @@
 
                 outputResults(results);
                 found = false;
-                requestId = data.request_id;
+                transactionId = results.transaction_id;
                 dotCount = 0;
                 startTime = Date.now();
                 //TODO!

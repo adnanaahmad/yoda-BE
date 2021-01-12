@@ -49,8 +49,7 @@ content-type: application/json
 ###
 # Get request status
 #
-@income_id = {{income.response.body.$.request_id}}
-GET {{base_url}}/directid/check-request?request_id={{income_id}}
+GET {{base_url}}/directid/check-request?transaction_id={{income.response.body.$.transaction_id}}
 content-type: application/json
 
 ###
