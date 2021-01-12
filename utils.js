@@ -17,7 +17,6 @@ const BigInt = require('big-integer');
 const loadNs = process.hrtime();
 const loadMs = new Date().getTime();
 
-
 require('dotenv').config();
 
 require('console-stamp')(console, {
@@ -474,7 +473,7 @@ function sendMessage(res, statusCode, headers, data, cors) {
             res.end();
         }
     } catch (error) {
-        console.error(error.message);
+        console.error(error);
     }
 }
 
@@ -674,8 +673,8 @@ const fetchData = async (url = '', data = undefined, full = false, headers = {},
         
         return full ? response : response.json();
     } catch (error) {
-        console.error(error.message);
-        throw error;
+        console.error(error);
+        //throw error;
     }
 }
 
@@ -782,20 +781,7 @@ const loadFile = async (file) => {
     } catch (error) {}
 }
 
-const shortenUrl = async (url, token, full = false)=> {
-    //TODO!
-    let data = {
-        "long_url": url
-    };
 
-    let headers = { "Authorization": `Bearer ${token}`};
-    const start = time();
-    let results =  await fetchData('https://api-ssl.bitly.com/v4/shorten', data, false, headers);
-    const duration = time() - start; 
-    //console.log(results, token);
-    console.log(`Url shortened to [${results.link}] in ${toFixedPlaces(duration, 2)}ms`);
-    return full ? results : results.link;
-}
 
 
 const toUrlSafeBase64 = (text) => {
@@ -983,7 +969,6 @@ module.exports = {
     sendData,
     sendMessage,
     getBody,
-    shortenUrl,
     isJSON,
     convertIfJSON,
     makeTemplate,

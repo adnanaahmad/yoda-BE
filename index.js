@@ -5,11 +5,14 @@ const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const pm2 = require('pm2');
+const logger = require('./logger').logger
+
 let pm2Connected = false;
 
 const utils = require('./utils');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
-console.info(SCRIPT_INFO);
+
+logger.info("Startup", SCRIPT_INFO);
 
 const url = require('url');
 const fetch = require("node-fetch");
@@ -76,8 +79,26 @@ const fetchData = async (url = '', data = undefined, headers = {}, method = 'POS
 
         return response;
     } catch (error) {
-        console.error(error.message);
+        logger.error(error);
         throw error;
+    }
+}
+
+const shortenUrl = async (url, token, full = false)=> {
+
+    let data = {
+        "long_url": url
+    };
+
+    let headers = { "Authorization": `Bearer ${token}`};
+    const start = utils.time();
+    try {
+        let results =  await utils.fetchData('https://api-ssl.bitly.com/v4/shorten', data, false, headers);
+        const duration = utils.time() - start; 
+        logger.info(`Url shortened to [${results.link}] in ${utils.toFixedPlaces(duration, 2)}ms`);
+        return full ? results : results.link;
+    } catch (error) {
+        logger.error(error);        
     }
 }
 
@@ -89,7 +110,7 @@ const saveFile = async (type, id, data) => {
     try {
         await utils.fileWrite(`./${type}/${id}.json`, JSON.stringify(data, null, 2));
     } catch (error) {
-        console.log(error.message);
+        logger.error(error);
     }
 }
 
@@ -100,7 +121,7 @@ const loadFile = async (type, id) => {
             return JSON.parse(data);
         }
     } catch (error) {
-        console.log(error.message);
+        logger.error(error);
     }
 }
 
@@ -110,7 +131,7 @@ const checkToken = async (scope) => {
         cached = await loadFile('secure', scope);
         if (cached) {
             TOKENS[scope] = cached;
-            console.log(`Loaded cached ${scope} token.`);
+            logger.debug(`Loaded cached ${scope} token.`);
         }
     }
 
@@ -127,7 +148,7 @@ const requestDIDToken = async (scope) => {
         return;
     }
 
-    console.log(`Requesting did.${scope} token...`);
+    logger.debug(`Requesting did.${scope} token...`);
     let headers = {
         'content-type': 'application/x-www-form-urlencoded'
     };
@@ -144,7 +165,7 @@ const requestDIDToken = async (scope) => {
         token = data.access_token;
         TOKENS[scope] = data;
         data.expires = Date.now() + data.expires_in * 1000;
-        console.log(`Retrieved did.${scope} token. Expires on ${new Date(data.expires).toLocaleString()}. ${utils.toFixedPlaces(duration, 2)}ms`);
+        logger.debug(`Retrieved did.${scope} token. Expires on ${new Date(data.expires).toLocaleString()}. ${utils.toFixedPlaces(duration, 2)}ms`);
         if (PARAMS.cache_tokens) {
             await saveFile('secure', scope, data);
         }
@@ -160,15 +181,15 @@ const saveWebhook = async (consent) => {
     let consentId = consent.consentId;
 
     if (consentId) {
-        console.log(`${consentId} - Saving webhook data...`);
+        logger.info(`${consentId} - Saving webhook data...`);
         //await saveFile('res', consentId, consent);
-        console.log(`${consentId} - Webhook data saved`);
+        logger.info(`${consentId} - Webhook data saved`);
         return true;
     }
 }
 
 const requestBankData = async (consentId, customerReference) => {
-    console.log(`${consentId} - Requesting bank data...`);
+    logger.info(`${consentId} - Requesting bank data...`);
     let headers = {
         'content-type': 'application/x-www-form-urlencoded',
         'authorization': `Bearer ${TOKENS[TOKEN_IDS.data].access_token}`
@@ -182,7 +203,7 @@ const requestBankData = async (consentId, customerReference) => {
     let duration = utils.time() - start;
 
     let data = await response.json();
-    console.log(`${consentId} - Retrieved bank data. ${utils.toFixedPlaces(duration, 2)}ms`);
+    logger.info(`${consentId} - Retrieved bank data. ${utils.toFixedPlaces(duration, 2)}ms`);
     if (data) {
         //await saveFile('res', `${consentId}-bank-data`, data);
         // let d = {
@@ -195,33 +216,87 @@ const requestBankData = async (consentId, customerReference) => {
 }
 
 const loadTemplates = async () => {
-    console.log('Loading templates...');
+    logger.debug('Loading templates...');
     let start = utils.time();
     await utils.loadTemplates('./templates/', TEMPLATES);
     let duration = utils.time() - start;
-    console.log(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
+    logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
 }
 
+const updateIncomeVerification = async (data)=> {
 
-let TMP = utils.loadJSON('./tmp/sample.json');
-//console.log(TMP);
+    if(!partitionKey || !sortKey || typeof(data) !== 'object') {
+        logger.warn('updateIncomeVerification - invalid pararmeters', data );
+        return;
+    }
+
+    try {
+        const keys = {};
+        keys[PARAMS.ddb_partition_income] = output[PARAMS.ddb_partition_income];
+        if(PARAMS.ddb_sort_income) {
+            keys[PARAMS.ddb_sort_income] = output[PARAMS.ddb_sort_income];
+        }
+        
+        const dataKeys = Object.keys(data);
+        const dataKeyLength = dataKeys.length;
+        const values = {};
+        let updateExpression = 'SET';
+    
+        for (let index = 0; index < dataKeyLength; index++) {
+            const key = dataKeys[index];
+            const value = data[key];
+            if(index > 0) {
+                updateExpression += ',';    
+            }
+            updateExpression += ` ${key}=:${key}`;
+            values[':'+ key] = value;
+        }
+    
+        let params = {
+            TableName: PARAMS.ddb_table_income,
+            Key: keys,
+            UpdateExpression: updateExpression,
+            ExpressionAttributeValues:values,
+            ReturnValues:"UPDATED_NEW"
+        };
+
+        logger.debug('updateIncomeVerification - params', params);
+
+        return awsClient.updateDDBItem(params);      
+    } catch (error) {
+        logger.error(error);        
+    }
+}
 
 const requestIncomeVerification = async (consentId, customerReference) => {
     if(!customerReference || !consentId) {
         //TODO!
-        console.log('requestIncomeVerification - Invalid customer reference.', customerReference);
-        return;
-    }
- 
-    let meta = META[customerReference];
-    if(!meta) {
-        //TODO!
-        console.log('requestIncomeVerification - Missing meta', customerReference);
-        //output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestFail;
-        //awsClient.putDDBItem(PARAMS.ddb_table_income, output);
+        logger.error('requestIncomeVerification - Invalid customer reference.', customerReference);
         return;
     }
     
+    let parts = customerReference.split(':');
+    if(parts.length !== 2 ) {
+        logger.error('requestIncomeVerification - Invalid customer reference.', customerReference);
+        return;
+    }
+
+    let transaction_id = parts[0];
+    let customer_id  = parts[1];
+
+    let meta = META[transaction_id];
+    if(!meta) {
+        //TODO!
+        logger.error('requestIncomeVerification - Missing meta', customerReference);
+        //output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestFail;
+        return;
+    }
+    
+    if(customer_id !== meta.customer_id) {
+        logger.error('requestIncomeVerification - Invalid customer Id.',{ customer_id, meta});
+        return;
+    }
+
     const output = {};
     // CustomerAccountID
     // RequestTimestamp
@@ -229,7 +304,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     
     output[PARAMS.ddb_partition_income] = meta.customer_id;
     if(PARAMS.ddb_sort_income) {
-        output[PARAMS.ddb_sort_income] = customerReference;
+        output[PARAMS.ddb_sort_income] = transaction_id;
     }
 
     output.RequesterRef = meta.request_id;
@@ -239,7 +314,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     output.requestStart = meta.request_timestamp;    
     output.requestDuration = output.requestComplete - output.requestStart;
 
-    console.log(`${consentId} - Requesting income verification...`);
+    logger.info(`${customerReference} - Requesting income verification...`);
     let headers = {
         'content-type': 'application/x-www-form-urlencoded',
         'authorization': `Bearer ${TOKENS[TOKEN_IDS.data].access_token}`
@@ -255,7 +330,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
 
     let data = await response.json();
 
-    console.log(`${consentId} - Retrieved income verification. ${utils.toFixedPlaces(duration, 2)}ms`);
+    logger.info(`${customerReference} - Retrieved income verification. ${utils.toFixedPlaces(duration, 2)}ms`);
  
     output.apiRequestDuration = Math.round(duration);
 
@@ -283,30 +358,26 @@ const requestIncomeVerification = async (consentId, customerReference) => {
 
                 DONE[customerReference] = output;
                 
-                console.log('requestIncomeVerification - Saving response.');
-                //console.log(output);
-
-                awsClient.putDDBItem(PARAMS.ddb_table_income, output);
-                //saveFile('done', `${customerReference}`, results);
+                logger.info(`${customerReference} - requestIncomeVerification - Saving response.`);
+                updateIncomeVerification(output);
             } else {
-                console.log('requestIncomeVerification - Invalid response', customerReference);
+                logger.warn(`${customerReference} - requestIncomeVerification - Invalid response`);
                 output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestFail;
-                awsClient.putDDBItem(PARAMS.ddb_table_income, output);
+                updateIncomeVerification(output);
             }
         } catch (error) {
-            console.log(error);
+            logger.error(error);
         }
-        //await saveFile('res', `${consentId}-income-verification`, data);
     } else {
         output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSentFail;
-        awsClient.putDDBItem(PARAMS.ddb_table_income, output);
+        updateIncomeVerification(output);
         // DONE[customerReference] = {
         //     status: -1,
         //     message: 'Nothing returned'
         // };
     }
 
-    delete META[customerReference];
+    delete META[transaction_id];
     return data;
 }
 
@@ -388,11 +459,14 @@ const httpHandler = async (req, res) => {
             log.referer = referer;
         }
 
-        console.info(log);
+        //console.info(log);
+        logger.http(log);
+        
     }
 
     try {
         method = req.method.toUpperCase();
+
         const now = Date.now();
         let resource;
         ip = req.headers['x-forwarded-for'] ||
@@ -457,7 +531,7 @@ const httpHandler = async (req, res) => {
                     //let parse =  contentType && contentType.indexOf('json') > 0;
                     bodyData = await utils.getBody(req); //, parse);
                 } catch (error) {
-                    console.error(error);
+                    logger.error(error);
                     utils.sendData(res, error, 400);
                     return;
                 }
@@ -483,21 +557,21 @@ const httpHandler = async (req, res) => {
                         }
                     }
                 } catch (e) {
-                    console.error(e);
+                    logger.error(e);
                     try {
                         res.end(e.message);
                     } catch (error) {}
                 }
             }
         } catch (e) {
-            console.error(e);
+            logger.error(e);
             try {
                 res.end(e.message);
             } catch (error) {}
         }
         //TODO: res.headersSent
     } catch (error) {
-        console.error(error.message);
+        logger.error(error);
     }
     
     //TODO!
@@ -520,17 +594,17 @@ const setHeaders = (res) => {
 
 const startServer = async () => {
     if (PARAMS.http_port && PARAMS.http_port > 0) {
-        console.log('Starting HTTP server...');
+        logger.info('Starting HTTP server...');
         http.createServer(httpHandler).listen(PARAMS.http_port, (err) => {
             if (err) {
-                return console.error(err);
+                return logger.error(err);
             }
-            console.log(`HTTP server is listening on ${PARAMS.http_port}`);
+            logger.info(`HTTP server is listening on ${PARAMS.http_port}`);
         });
     }
 
     if (PARAMS.https_port && PARAMS.https_port > 0) {
-        console.log('Starting HTTPS server...');
+        logger.info('Starting HTTPS server...');
         if (PARAMS.server_crt && PARAMS.server_key) {
             const httpsOptions = {
                 cert: PARAMS.server_crt,
@@ -539,12 +613,12 @@ const startServer = async () => {
 
             https.createServer(httpsOptions, httpHandler).listen(PARAMS.https_port, (err) => {
                 if (err) {
-                    return console.error(err);
+                    return logger.error(err);
                 }
-                console.log(`HTTPS server is listening on ${PARAMS.https_port}`);
+                logger.info(`HTTPS server is listening on ${PARAMS.https_port}`);
             });
         } else {
-            console.log('Unable to load certificates.');
+            logger.error('Unable to load certificates.');
         }
     }
 }
@@ -552,7 +626,7 @@ const startServer = async () => {
 const checkTokens = async () => {
     //TODO
     if (!PARAMS.token_url || PARAMS.token_url.indexOf('http') !== 0) {
-        console.log('Invalid token_url parameter.');
+        logger.error('Invalid token_url parameter.');
         return;
     }
 
@@ -566,7 +640,7 @@ const checkTokens = async () => {
         await Promise.all(tokenFuncs);
     } catch (error) {
         wait = 10000;
-        console.log(error.message);
+        logger.error(error);
     }
 
     renewTimer = setTimeout(() => {
@@ -575,7 +649,7 @@ const checkTokens = async () => {
 }
 
 const loadParams = async () => {
-    console.log(`[${SCRIPT_INFO.name}] Loading parameters...`);
+    logger.debug(`[${SCRIPT_INFO.name}] Loading parameters...`);
     const funcs = [];
 
 
@@ -626,7 +700,7 @@ const loadParams = async () => {
                 }
             }
             const duration = utils.time() - start;
-            console.log(`[${SCRIPT_INFO.name}] Loaded ${Object.keys(PARAMS).length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+            logger.debug(`[${SCRIPT_INFO.name}] Loaded ${Object.keys(PARAMS).length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
 
             //TODO
             if (typeof (PARAMS.http_port) !== 'undefined') {
@@ -657,20 +731,20 @@ const loadParams = async () => {
                 let transport = PARAMS.apigw_cfg.transport;
                 if (transport) {
                     if (transport.local_certificate) {
-                        console.log("Loading local certificates...");
+                        logger.debug("Loading local certificates...");
                         PARAMS.server_crt = await utils.loadFile(transport.server_crt_path);
                         PARAMS.server_key = await utils.loadFile(transport.server_key_path);
                     } else {
-                        console.log("Loading remote certificates...");
+                        logger.debug("Loading remote certificates...");
                         PARAMS.server_crt = await awsClient.getParameter(transport.server_crt_path);
                         PARAMS.server_key = await awsClient.getParameter(transport.server_key_path);
                     }
-                    console.log("Finished loading certificates.", PARAMS.server_crt && PARAMS.server_key ? "Success" : "Failure");
+                    logger.debug("Finished loading certificates.", PARAMS.server_crt && PARAMS.server_key ? "Success" : "Failure");
                 }
             }
         }
     } catch (error) {
-        console.log(error);
+        logger.error(error);
     }
 
 }
@@ -809,7 +883,7 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
 
                     utils.sendData(res, 'OK');
 
-                    console.log(`${consentId} - dataAvailability: ${bodyData.dataAvailability}.`);
+                    logger.info(`${consentId} - dataAvailability: ${bodyData.dataAvailability}.`);
 
                     let consent = consents[consentId];
                     if (!consent) {
@@ -818,7 +892,7 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
 
                         let customerReference = consent.customerReference;
 
-                        console.log(`${consentId} - Webhook verified.`);
+                        logger.info(`${consentId} - Webhook verified.`);
 
                         const funcs = [];
                         //funcs.push(saveWebhook(consent));
@@ -829,10 +903,10 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
                         }
 
                         Promise.all(funcs).then((values) => {
-                            console.log(`${consentId} - Processing results...`);
-                            console.log(`${consentId} - Finished.`);
+                            //logger.info(`${consentId} - Processing results...`);
+                            //console.log(`${consentId} - Finished.`);
                         }).catch(error => {
-                            console.error(error.message);
+                            logger.error(error);
                         });
                     } else {
                         consentId = undefined;
@@ -851,11 +925,12 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
     async function generateIncomeUrl() {
         let request_id = bodyData.request_id;
         let customer_id = bodyData.customer_id;
-
-        if (request_id && customer_id) {
-            let transaction_id = utils.getUUID();
-
-            request_id = encodeURIComponent(`${transaction_id}`);
+        let transaction_id = bodyData.transaction_id;
+        
+        if (request_id && request_id.length > 0 && customer_id &&  customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
+            //let transaction_id = utils.getUUID();
+            request_id = encodeURIComponent(`${transaction_id}:${customer_id}`);
+            //request_id = encodeURIComponent(`${transaction_id}`);
             //'&provider_id=3184'
             let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${request_id}`;
 
@@ -863,9 +938,9 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
             if (typeof (bodyData.shorten_url) !== 'undefined') {
                 short_url = bodyData.shorten_url;
             }
-
+    
             if (short_url && PARAMS.bitly ) {
-                let short = await utils.shortenUrl(url, PARAMS.bitly);
+                let short = await shortenUrl(url, PARAMS.bitly);
                 url = short || url;
             }
 
@@ -881,11 +956,12 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
                 request_timestamp: Date.now()
             };
 
-            //This SHOULD be temporarily saved somewhere.
-
+            
             utils.sendData(res, returnData);
-            let copy = { request_time: utils.timenano(), ... returnData}; 
-            META[transaction_id] = copy;
+
+            //TODO! This SHOULD be temporarily saved somewhere.
+            //let copy = { request_time: utils.timenano(), ... returnData}; 
+            META[transaction_id] =returnData;
 
             const funcs = [];
             let phone_number = returnData.phone_number;
@@ -924,7 +1000,27 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
 
                 handlerEmailQ.add(data);
             }
-            console.log(`Done.`);
+
+            const output = {};
+            // CustomerAccountID
+            // RequestTimestamp
+            // TransactionID
+            
+            try {
+                output[PARAMS.ddb_partition_income] = customer_id;
+                if(PARAMS.ddb_sort_income) {
+                    output[PARAMS.ddb_sort_income] = transaction_id;
+                }
+            
+                output.RequesterRef = request_id;
+                output.requestStart = returnData.request_timestamp;   
+                output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress; 
+                
+                awsClient.putDDBItem(PARAMS.ddb_table_income, output);
+            } catch (error) {
+                logger.error(error);
+            }
+            logger.info(`Generated income url`, output);
         } else {
             utils.sendData(res, 'Missing parameter', 422);
         }
@@ -941,21 +1037,21 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
 
     Promise.all(funcs).then(async (values) => {
         await startServer();
-        console.log(`Initialized.`);
+        logger.info(`Initialized.`);
     }).catch(error => {
-        console.error(error.message)
+        logger.error(error.message)
     });
 
     try {
         pm2.connect((err) => {
             if (err) {
-                console.error(err);
+                logger.error(err);
             } else {
                 pm2Connected = true;
-                console.log('pm2 connected.')
+                logger.debug('pm2 connected.')
             }
         });
     } catch (error) {
-        console.log(error.message);
+        logger.error(error.message);
     }
 })();

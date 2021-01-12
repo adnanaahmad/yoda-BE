@@ -277,11 +277,12 @@
                 }
 
                 let data = {
+                    transaction_id : uuid.v4(),  
                     customer_id: customer_id,
+                    request_id: uuid.v4(),
                     full_name: $('#full_name').val(),
                     email_address: $('#email_address').val(),
                     phone_number: $('#phone_number').val(),
-                    request_id: uuid.v4(),
                     shorten_url: $('#check-shorten_url').is(':checked')
                 };
 

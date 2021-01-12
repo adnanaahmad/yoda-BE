@@ -3,8 +3,8 @@
 # We will need to secure them nevertheless.
 
 # Change this to the base url of the did service. 
-@base_url = https://dev.barbarians.com:8999
-#@base_url = https://api.dev.fortifid.com:8999
+#@base_url = https://dev.barbarians.com:8999
+@base_url = https://api.dev.fortifid.com:8999
 #@base_url = http://127.0.0.1:8998
 
 ###
@@ -224,14 +224,13 @@ GET http://169.254.169.254/latest/dynamic/instance-identity/document
 ###
 # Sample results
 {
-  "CustomerAccountID": "abc",
-  "RequestTimestamp": "1610420482994464996",
-  "TransactionID": "df76df39-fb17-4c9d-be0f-53961a4a6d38",
-  "RequesterRef": "3afee11b-177f-407c-a0d0-58816c011208",
-  "requestComplete": 1610420511275,
-  "requestStart": 1610420482994,
-  "requestDuration": 28281,
-  "apiRequestDuration": 2512,
+  "CustomerAccountID": "testcomp",
+  "TransactionID": "3c2c15a8-3146-4518-9bf2-dd15819bbaa1",
+  "RequesterRef": "b58491d7-9dd2-4581-91b1-26ecb4eb8568",
+  "requestComplete": 1610422854896,
+  "requestStart": 1610422824192,
+  "requestDuration": 30704,
+  "apiRequestDuration": 2412,
   "estimatedIncome": 0,
   "confidenceScore": 7,
   "confidenceScoreFlags": {
@@ -243,4 +242,15 @@ GET http://169.254.169.254/latest/dynamic/instance-identity/document
     "stability6Months": 0
   },
   "status": "incomeDirectIDRequestSuccess"
+}
+
+{
+  "transaction_id": "3c2c15a8-3146-4518-9bf2-dd15819bbaa1",
+  "customer_id": "testcomp",
+  "request_id": "b58491d7-9dd2-4581-91b1-26ecb4eb8568",
+  "email_address": "cisco@barbarians.com",
+  "full_name": "Cisco Caceres",
+  "phone_number": "12066597857",
+  "url": "https://bit.ly/3sr6Xg6",
+  "request_timestamp": 1610424271524
 }

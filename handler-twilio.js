@@ -2,11 +2,11 @@
 /*jshint esversion: 8 */
 
 const utils = require('./utils');
-
+const logger = require('./logger').logger
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 SCRIPT_INFO.library_mode = require.main !== module;
 if(!SCRIPT_INFO.library_mode) {
-    console.info(SCRIPT_INFO);
+    logger.info(SCRIPT_INFO);
 }
 
 const awsClient = require('./aws-client');
@@ -27,7 +27,7 @@ const sendSMSTwilio = async (numbers, message) => {
             });
         return data;
     } catch (error) {
-        console.error(error.message);
+        logger.error(error);
         throw error;
     }
 }
@@ -41,14 +41,14 @@ const add = async(data)=> {
     let results;
     if (data) {
         try {
-            console.log(`SMS process started. ${data.numbers}`);
+            logger.info(`SMS process started. ${data.numbers}`);
             const start = utils.time();
             let response = await sendSMSTwilio(data.numbers, data.text);
             if (response) {
                 const duration = utils.time() - start; 
-                console.log(`SMS sent. ${response.sid} ${utils.toFixedPlaces(duration, 2)}ms`);
+                logger.info(`SMS sent. ${response.sid} ${utils.toFixedPlaces(duration, 2)}ms`);
             } else {
-                console.error('No data returned.');
+                logger.warn('No data returned.');
             }
         } catch (error) {
             if (error && error.code) {
@@ -66,7 +66,7 @@ const add = async(data)=> {
 }
 
 const startQueue = ()=> {
-    console.log('Queue handler started.');
+    logger.info('Twilio queue handler started.');
     Q.getQ(Q.names.alert_twilio).process(async (job, done) => {
         done(await add(job.data));
     });
@@ -77,7 +77,7 @@ const loadParams = async () => {
     ready = false;
     twilio = undefined;
 
-    console.log(`[${SCRIPT_INFO.name}] Loading parameters...`);
+    logger.debug(`[${SCRIPT_INFO.name}] Loading parameters...`);
     const funcs = [];
     const start = utils.time();
     
@@ -95,15 +95,15 @@ const loadParams = async () => {
             if(twilioAccountSid && twilioAuthToken && TWILIO_NUMBER) {
                 twilio = require('twilio')(twilioAccountSid, twilioAuthToken);
                 const duration = utils.time() - start;
-                console.log(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+                logger.info(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
             } else {
-                console.log(`[${SCRIPT_INFO.name}] Twilio account information missing.`);
+                logger.warn(`[${SCRIPT_INFO.name}] Twilio account information missing.`);
             }
         } else {
-            console.log(`[${SCRIPT_INFO.name}] Unable to retrieve parameters.`);
+            logger.warn(`[${SCRIPT_INFO.name}] Unable to retrieve parameters.`);
         }
     } catch (error) {
-        console.log(error.message);
+        logger.error(error);
     }
     ready = typeof(twilio) !== 'undefined';
 }

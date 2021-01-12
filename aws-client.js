@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const utils = require('./utils');
+const logger = require('./logger').logger
 
 AWS.config.update({
   region: process.env.AWS_REGION
@@ -34,7 +35,7 @@ const getParameter = async (name) => {
       return value;
     }
   } catch (error) {
-    console.log(error.message);
+    logger.error(error);
   }
 };
 
@@ -50,7 +51,7 @@ const putParameter = async (name, value, type = 'SecureString', dataType = 'text
   try {
     return await ssm.putParameter(params).promise();
   } catch (error) {
-    console.log(error.message);
+    logger.error(error);
   }
 };
 
@@ -64,7 +65,15 @@ const putDDBItem = async (table, data) => {
   try {
     return await DynamoDB.put(params).promise();
   } catch (error) {
-    console.log(error.message);
+    logger.error(error);
+  }
+}
+
+const updateDDBItem = async (params) => {
+  try {
+    return await DynamoDB.update(params).promise();
+  } catch (error) {
+    logger.error(error);
   }
 }
 
@@ -76,7 +85,7 @@ const describeTable = async (table) => {
   try {
     return await ddb.describeTable(params).promise();
   } catch (error) {
-    console.log(error.message);
+    logger.error(error);
   }
 }
 
@@ -84,7 +93,7 @@ const createTable = async (params) => {
   try {
     return await ddb.createTable(params).promise();
   } catch (error) {
-    console.log(error.message);
+    logger.error(error);
   }
 }
 
@@ -96,6 +105,7 @@ module.exports = {
   getParameter,
   putParameter,
   putDDBItem,
+  updateDDBItem,
   describeTable,
   createTable
 };

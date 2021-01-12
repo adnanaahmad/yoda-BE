@@ -3,11 +3,11 @@
 //https://webhook.site/ffbd1a65-a040-4c68-aef4-fc5774c6be67
 
 const utils = require('./utils');
-
+const logger = require('./logger').logger
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 SCRIPT_INFO.library_mode = require.main !== module;
 if(!SCRIPT_INFO.library_mode) {
-    console.info(SCRIPT_INFO);
+    logger.info(SCRIPT_INFO);
 }
 
 const Q = require('./utils-q');
@@ -15,7 +15,7 @@ const Q = require('./utils-q');
 const add = async(data)=> {
     let results;
     if (data && data.url && data.data) {
-        console.log(`webhook started. ${data.url}`);
+        logger.info(`webhook started. ${data.url}`);
         let start = utils.time();
         try {
 
@@ -30,9 +30,9 @@ const add = async(data)=> {
             if(response) { 
                 status = response.status;
             }
-            console.log(`webhook finished. ${utils.toFixedPlaces(duration, 2)}ms. [${status}]`);            
+            logger.info(`webhook finished. ${utils.toFixedPlaces(duration, 2)}ms. [${status}]`);            
         } catch (error) {
-            console.log(error.message);
+            logger.error(error);
             results = error;
         }
     } else {
@@ -50,7 +50,7 @@ const add = async(data)=> {
 }
 
 const startQueue = ()=> {
-    console.log('Queue handler started.');
+    logger.info('Webhook queue handler started.');
 
     Q.getQ(Q.names.alert_webhook).process(async (job, done) => {
         done(await add(job.data));
