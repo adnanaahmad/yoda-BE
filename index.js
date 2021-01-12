@@ -202,7 +202,43 @@ const loadTemplates = async () => {
     console.log(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
 }
 
+
+let TMP = utils.loadJSON('./tmp/sample.json');
+//console.log(TMP);
+
 const requestIncomeVerification = async (consentId, customerReference) => {
+    if(!customerReference || !consentId) {
+        //TODO!
+        console.log('requestIncomeVerification - Invalid customer reference.', customerReference);
+        return;
+    }
+ 
+    let meta = META[customerReference];
+    if(!meta) {
+        //TODO!
+        console.log('requestIncomeVerification - Missing meta', customerReference);
+        //output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestFail;
+        //awsClient.putDDBItem(PARAMS.ddb_table_income, output);
+        return;
+    }
+    
+    const output = {};
+    // CustomerAccountID
+    // RequestTimestamp
+    
+    output[PARAMS.ddb_partition_income] = meta.customer_id;
+    if(PARAMS.ddb_sort_income) {
+        output[PARAMS.ddb_sort_income] = meta.request_time;
+    }
+
+    output.TransactionID = customerReference;
+    output.RequesterRef = meta.request_id;
+
+    output.requestComplete =  Date.now();
+    
+    output.requestStart = meta.request_timestamp;    
+    output.requestDuration = output.requestComplete - output.requestStart;
+
     console.log(`${consentId} - Requesting income verification...`);
     let headers = {
         'content-type': 'application/x-www-form-urlencoded',
@@ -210,7 +246,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     };
 
     let start = utils.time();
-
+    //TODO: Write initial record;
     let response = await fetchData(utils.parseTemplate(PARAMS.income_verification_url, {
         '%CONSENT_ID%': consentId
     }), undefined, headers, 'GET');
@@ -218,10 +254,13 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     let duration = utils.time() - start;
 
     let data = await response.json();
+
     console.log(`${consentId} - Retrieved income verification. ${utils.toFixedPlaces(duration, 2)}ms`);
+ 
+    output.apiRequestDuration = Math.round(duration);
+
     if (data) {
         try {
-            let id = customerReference.split(':')[0];
             //saveFile('res', `${id}-income-verification`, data);
             // let d = {
             //     data: data,
@@ -230,48 +269,44 @@ const requestIncomeVerification = async (consentId, customerReference) => {
             // handlerWebhookQ.add(d);
 
             //TODO: Array? Can have more than one incomes stream summary?
-            let summary = data[0].incomeStreamsSummary;
+            let summary;
+
+            if(Array.isArray(data) ) {
+                summary = data[0].incomeStreamsSummary;
+            }
+
             if (summary) {
-                let meta = META[id];
+                output.estimatedIncome = summary.estimatedIncome; 
+                output.confidenceScore = summary.confidenceScore;
+                output.confidenceScoreFlags= {...summary.confidenceScoreFlags};
+                output.status =  incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
 
-                let output = {
-                    estimatedIncome: summary.estimatedIncome,
-                    confidenceScore: summary.confidenceScore,
-                    confidenceScoreFlags: {
-                        ...summary.confidenceScoreFlags
-                    },
-                    requestStart: 0,
-                    requestComplete: Date.now(),
-                    requestDuration: 0,
-                    apiRequestDuration: Math.round(duration),
-                    status: incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess
-                }
-
-                if (meta) {
-                    output.requestStart = meta.request_timestamp;
-                    output.requestDuration = output.requestComplete - output.requestStart;
-                    output.customerId = meta.customer_id;
-                    delete META[id];
-                }
-
-                output[PARAMS.ddb_partition_income] = id;
-
-                DONE[id] = output;
+                DONE[customerReference] = output;
+                
+                console.log('requestIncomeVerification - Saving response.');
+                //console.log(output);
 
                 awsClient.putDDBItem(PARAMS.ddb_table_income, output);
                 //saveFile('done', `${customerReference}`, results);
+            } else {
+                console.log('requestIncomeVerification - Invalid response', customerReference);
+                output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestFail;
+                awsClient.putDDBItem(PARAMS.ddb_table_income, output);
             }
         } catch (error) {
-            console.log(error.message);
+            console.log(error);
         }
         //await saveFile('res', `${consentId}-income-verification`, data);
     } else {
-        DONE[customerReference] = {
-            status: -1,
-            message: 'Nothing returned'
-        };
+        output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSentFail;
+        awsClient.putDDBItem(PARAMS.ddb_table_income, output);
+        // DONE[customerReference] = {
+        //     status: -1,
+        //     message: 'Nothing returned'
+        // };
     }
 
+    delete META[customerReference];
     return data;
 }
 
@@ -374,7 +409,16 @@ const httpHandler = async (req, res) => {
 
             let web = WWW[path];
             if (web) {
-                await sendFile(res, web);
+                if(PARAMS.demo_enabled) {
+                    if(method === 'GET') {
+                        await sendFile(res, web);
+                    } else {
+                        utils.sendData(res, 'Method not allowed', 405); 
+                    }
+                }else {
+                    utils.sendData(res, 'Forbidden', 403); 
+                }
+
                 doLog();
                 return;
             }
@@ -600,9 +644,13 @@ const loadParams = async () => {
             if (typeof (PARAMS.request_bank_data) !== 'undefined') {
                 PARAMS.request_bank_data = utils.parseBoolean(PARAMS.request_bank_data);
             }
-
+            
             if (typeof (PARAMS.match_name) !== 'undefined') {
                 PARAMS.match_name = utils.parseBoolean(PARAMS.match_name);
+            }
+
+            if (typeof (PARAMS.demo_enabled) !== 'undefined') {
+                PARAMS.demo_enabled = utils.parseBoolean(PARAMS.demo_enabled);
             }
 
             if (typeof (PARAMS.apigw_cfg) === 'object') {
@@ -773,9 +821,7 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
                         console.log(`${consentId} - Webhook verified.`);
 
                         const funcs = [];
-
-                        funcs.push(saveWebhook(consent));
-
+                        //funcs.push(saveWebhook(consent));
                         funcs.push(requestIncomeVerification(consentId, customerReference));
 
                         if (PARAMS.request_bank_data) {
@@ -784,7 +830,6 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
 
                         Promise.all(funcs).then((values) => {
                             console.log(`${consentId} - Processing results...`);
-
                             console.log(`${consentId} - Finished.`);
                         }).catch(error => {
                             console.error(error.message);
@@ -805,8 +850,12 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
 
     async function generateIncomeUrl() {
         let request_id = bodyData.request_id;
-        if (request_id) {
-            request_id = encodeURIComponent(`${request_id}:${utils.randomString(16)}`);
+        let customer_id = bodyData.customer_id;
+
+        if (request_id && customer_id) {
+            let transaction_id = utils.getUUID();
+
+            request_id = encodeURIComponent(`${transaction_id}`);
             //'&provider_id=3184'
             let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${request_id}`;
 
@@ -821,6 +870,7 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
             }
 
             let returnData = {
+                transaction_id: transaction_id,
                 customer_id: bodyData.customer_id,
                 request_id: bodyData.request_id,
                 email_address: bodyData.email_address,
@@ -830,10 +880,13 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
                 url: url,
                 request_timestamp: Date.now()
             };
-            
-            META[bodyData.request_id] = returnData;
+
+            //This SHOULD be temporarily saved somewhere.
 
             utils.sendData(res, returnData);
+            let copy = { request_time: utils.timenano(), ... returnData}; 
+            META[transaction_id] = copy;
+
             const funcs = [];
             let phone_number = returnData.phone_number;
 

@@ -81,8 +81,13 @@
             let resultsTimer;
 
             let divOutput = $("#output");
-            //let divResults = $('#results');
-            let BASE_URL = `https://${window.location.hostname}:8999`;
+
+            let port = window.location.port || '';
+            if(port.length === 0) {
+                port = '8999';
+            } 
+
+            let BASE_URL = `${window.location.protocol}//${window.location.hostname}:${port}`;
 
             $("#btn-main").hide();
 

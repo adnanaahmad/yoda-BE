@@ -12,6 +12,12 @@ const bcrypt = require('bcrypt');
 const BCRYPT_SALT_ROUNDS = 10;
 const fetch = require("node-fetch");
 const LZUTF8 = require('lzutf8');
+const { v4: uuidv4 } = require('uuid');
+const BigInt = require('big-integer');
+const loadNs = process.hrtime();
+const loadMs = new Date().getTime();
+
+
 require('dotenv').config();
 
 require('console-stamp')(console, {
@@ -182,6 +188,15 @@ const time = () => {
     const [seconds, nanos] = process.hrtime();
     return seconds * 1000 + nanos / 1000000;
 };
+
+const timenano = () => {
+  let diffNs = process.hrtime(loadNs);
+  return BigInt(loadMs).times(1e6).add(BigInt(diffNs[0]).times(1e9).plus(diffNs[1])).toString();
+}
+
+const timemicro = ()=> {
+  return BigInt(timenano()).divide(1e3).toString();
+}
 
 const timeout = (ms) => new Promise(res => setTimeout(res, ms));
 
@@ -697,6 +712,11 @@ const copyObjectValues = (source, dest) => {
     });
 }
 
+const getUUID = () => {
+    return uuidv4();
+}
+
+
 const flattenObject = (obj)=> {
     let results = {};
 
@@ -894,6 +914,8 @@ module.exports = {
     checksum8,
     getFileUpdatedDate,
     time,
+    timenano,
+    timemicro,
     timeout,
     syncFileTime,
     toFixedPlaces,
@@ -967,5 +989,6 @@ module.exports = {
     makeTemplate,
     parseTemplate,
     compressString,
-    decompressString
+    decompressString,
+    getUUID
 }

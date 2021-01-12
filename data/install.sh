@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Make sure to set the S3 bucket
-#export DID_S3_BUCKET=s3://barb-dev/latest && export T=0 && export P=0 && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /tmp/ && chmod +x /tmp/install.sh && /tmp/install.sh
+#export DID_S3_BUCKET=s3://fortifid-opalv2-dev-usw2-fortifidstaticassetsbuck-45sqjyoln3uf/build/directid && export T=0 && export P=0 && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /tmp/ && chmod +x /tmp/install.sh && /tmp/install.sh
 
 if [ -z "$DID_S3_BUCKET" ]
 then

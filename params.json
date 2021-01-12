@@ -11,11 +11,13 @@
     "match_name": "/config/directid/directid.service.match_name",
     "email_text": "/config/directid/directid.service.email_text",
     "sms_text": "/config/directid/directid.service.sms_text",
+    "demo_enabled": "/config/directid/directid.service.demo_enabled",
     "cache_tokens": "/config/directid/directid.service.cache_tokens",
     "api_whitelist": "/config/directid/directid.service.api_whitelist",
     "webhook_secret": "/config/directid/directid.service.webhook_secret",
     "ddb_table_income": "/config/directid/directid.service.ddb_table_income",
     "ddb_partition_income": "/config/directid/directid.service.ddb_partition_income",
+    "ddb_sort_income": "/config/directid/directid.service.ddb_sort_income",
     "request_bank_data": "/config/directid/directid.service.request_bank_data",
     "bitly": "/config/shared/bitly.access_token",
     "apigw_cfg" : "/config/apigw/configuration/apigw.cfg"

@@ -4,26 +4,31 @@
 
 # Change this to the base url of the did service. 
 @base_url = https://dev.barbarians.com:8999
+#@base_url = https://api.dev.fortifid.com:8999
+#@base_url = http://127.0.0.1:8998
 
 ###
 # Generate URL for DirectID Connect 
 #
-@request_id={{$guid}}
 # @name income
 POST {{base_url}}/directid/generate-income-url
 content-type: application/json
 
 {
-    "full_name": "First Last",
+    "customer_id": "company-123",
+    "full_name": "Cisco Caceres",
     "email_address": "cisco801@gmail.com",
     "phone_number": "2066597857",
-    "request_id": "{{request_id}}",
+    "request_id": "{{$guid}}",
     "shorten_url": true     
 }
 
 ###
 # DirectID incoming consent webhook
 # After a user authorizes access to their account 
+
+#@transaction_id = {{income.response.body.$.transaction_id}}
+#@transaction_id=8b1f82e0-d942-4029-82ba-d0a9e610b76d 
 POST {{base_url}}/directid/webhook?key=kPgqykCWhR82ePaU4fWOufpcfSW3VqDrR
 content-type: application/json
 
@@ -31,11 +36,11 @@ content-type: application/json
 # < ./data/directid_consent.json
 # So inlining it.
 {
-    "consentId": "7c6d77fd-c3e5-4270-e9d4-08d879cd60e9",
+    "consentId": "{{$guid}}",
     "applicationId": "11e3cccb-5511-4e5f-adb6-e6ec82081f08",
-    "customerReference": "Test1123",
+    "customerReference": "{{income.response.body.$.transaction_id}}",
     "providerAuthentication": "Error",
-    "dataAvailability": null,
+    "dataAvailability": "Complete",
     "paymentConfirmation": null,
     "reauthentication": false,
     "errorMessage": null

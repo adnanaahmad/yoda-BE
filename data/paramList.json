@@ -30,9 +30,19 @@
     "Value": "8999"
   },
   {
+    "Name": "/config/directid/directid.service.ddb_table_income",
+    "Type": "String",
+    "Value": "DIRECTID_INCOME"
+  },  
+  {
     "Name": "/config/directid/directid.service.ddb_partition_income",
     "Type": "String",
-    "Value": "requestId"
+    "Value": "CustomerAccountID"
+  },
+  {
+    "Name": "/config/directid/directid.service.ddb_sort_income",
+    "Type": "String",
+    "Value": "RequestTimestamp"
   },
   {
     "Name": "/config/directid/directid.service.email_text",
@@ -46,6 +56,11 @@
   },
   {
     "Name": "/config/directid/directid.service.request_bank_data",
+    "Type": "String",
+    "Value": "false"
+  },
+  {
+    "Name": "/config/directid/directid.service.demo_enabled",
     "Type": "String",
     "Value": "false"
   },
@@ -78,11 +93,6 @@
     "Name": "/config/directid/directid.service.cache_tokens",
     "Type": "String",
     "Value": "false"
-  },
-  {
-    "Name": "/config/directid/directid.service.ddb_table_income",
-    "Type": "String",
-    "Value": "DIRECTID_INCOME"
   },
   {
     "Name": "/config/directid/directid.service.email_subject",
