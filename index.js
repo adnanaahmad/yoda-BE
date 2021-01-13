@@ -240,9 +240,14 @@ const updateIncomeVerification = async (data) => {
             keys[PARAMS.ddb_sort_income] = data[PARAMS.ddb_sort_income];
         }
 
+        delete data[PARAMS.ddb_partition_income];
+        delete data[PARAMS.ddb_sort_income];
+
         const dataKeys = Object.keys(data);
         const dataKeyLength = dataKeys.length;
         const values = {};
+        const names = {};
+
         let updateExpression = 'SET';
         //TODO: 
         let startIndex =  'A'.charCodeAt(0);
@@ -250,11 +255,16 @@ const updateIncomeVerification = async (data) => {
         for (let index = 0; index < dataKeyLength; index++) {
             const key = dataKeys[index];
             const value = data[key];
-            const paramKey =`:${String.fromCharCode(index + startIndex)}`;
+            let char = String.fromCharCode(index + startIndex);
+            const paramName =`#${char}`;
+            const paramKey =`:${char}`;
+
             if (index > 0) {
                 updateExpression += ',';
             }
-            updateExpression += ` ${key}=${paramKey}`;
+
+            updateExpression += ` ${paramName}=${paramKey}`;
+            names[paramName] = key;
             values[paramKey] = value;
         }
 
@@ -263,6 +273,7 @@ const updateIncomeVerification = async (data) => {
             Key: keys,
             UpdateExpression: updateExpression,
             ExpressionAttributeValues: values,
+            ExpressionAttributeNames: names,
             ReturnValues: "UPDATED_NEW"
         };
 
@@ -368,7 +379,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                 };
                 output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
 
-                DONE[customerReference] = output;
+                DONE[customerReference] = {...output};
 
                 logger.info(`${customerReference} - requestIncomeVerification - Saving response.`);
                 updateIncomeVerification(output);
