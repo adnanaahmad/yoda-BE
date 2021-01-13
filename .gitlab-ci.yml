@@ -6,13 +6,14 @@ variables:
   DID_S3_BUCKET_US_W1: "s3://opalapp-opal-dev-usw1-ap-fortifidstaticassetsbuck-kgbssmqm2man/build/directid/"
   DID_S3_BUCKET_US_W2: "s3://fortifid-opalv2-dev-usw2-fortifidstaticassetsbuck-45sqjyoln3uf/build/directid/"
 
-deploy_production:
+deploy:
   #image: python:latest
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest 
   stage: deploy
   tags:
     - did-service
-  when: manual
+  #when: manual
+  when: always
   script:
     #- pip install awscli
     - mkdir ./.tmp
