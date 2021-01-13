@@ -824,7 +824,7 @@ async function handleDirectID(res, parsed, method, action, bodyData, key) {
             break;
         }
         default: {
-            utils.sendData(res, 'Not found.', 404);
+            utils.sendData(res, 'Endpoint not found.', 404);
             break;
         }
     }
