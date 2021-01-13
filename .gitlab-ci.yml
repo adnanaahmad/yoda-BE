@@ -3,10 +3,9 @@ stages:
 
 variables:
   #set these in Settings > CI/CD Settings > Variables 
-  #AWS_ACCESS_KEY_ID: ""
-  #AWS_SECRET_ACCESS_KEY: ""
-  #AWS_DEFAULT_REGION: "us-west-1"
-  #DID_S3_BUCKET: "s3://barb-dev/latest/"
+  DID_S3_BUCKET_US_E1: "s3://opalapp-opal-dev-use1-ap-fortifidstaticassetsbuck-fcko7emh9u2i/build/directid/"
+  DID_S3_BUCKET_US_W1: "s3://opalapp-opal-dev-usw1-ap-fortifidstaticassetsbuck-kgbssmqm2man/build/directid/"
+  DID_S3_BUCKET_US_W2: "s3://fortifid-opalv2-dev-usw2-fortifidstaticassetsbuck-45sqjyoln3uf/build/directid/"
 
 deploy_production:
   #image: python:latest
@@ -19,8 +18,12 @@ deploy_production:
     #- pip install awscli
     - mkdir ./.tmp
     - tar --exclude='.[^/]*' -czvf ./.tmp/didservice.tar.gz .
-    - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET --sse AES256
-    - aws s3 cp ./data/install.sh $DID_S3_BUCKET --sse AES256
+    - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET_US_W1 --sse AES256
+    - aws s3 cp ./data/install.sh $DID_S3_BUCKET_US_W1 --sse AES256
+    - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET_US_W2 --sse AES256
+    - aws s3 cp ./data/install.sh $DID_S3_BUCKET_US_W2--sse AES256
+    - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET_US_E1 --sse AES256
+    - aws s3 cp ./data/install.sh $DID_S3_BUCKET_US_E1 --sse AES256
   only:
   - master
   #No need for artifacts.

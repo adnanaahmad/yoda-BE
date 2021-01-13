@@ -29,8 +29,8 @@ if (process.env.RUN_MODE === 'DEV') {
   }))
 } else {
   const cloudwatchConfig = {
-    level: process.env.LOG_LEVEL || 'silly',
-    logGroupName: 'didservice',
+    level: process.env.LOG_LEVEL || 'http',
+    logGroupName: process.env.LOG_GROUP_NAME || 'didservice',
     logStreamName: process.env.INSTANCE_ID || 'default',
     messageFormatter: formatter
   }

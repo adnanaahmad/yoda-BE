@@ -12,6 +12,7 @@ let pm2Connected = false;
 const utils = require('./utils');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 
+//SCRIPT_INFO.env = process.env;
 logger.info('Startup', SCRIPT_INFO);
 
 const url = require('url');
