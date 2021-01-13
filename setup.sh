@@ -66,6 +66,11 @@ else
     echo "LOG_LEVEL=http" >> ./.env
     echo "RUN_MODE=PROD" >> ./.env
 
+    if [ -n "$DID_S3_BUCKET" ];
+    then
+        echo "DID_S3_BUCKET=$DID_S3_BUCKET" >> ./.env
+    fi
+
     log "Configuring apigw command..."
     APIGWCMD=$(curl -o- -s http://169.254.169.254/latest/user-data |grep "/apigw")
     if [ -n "$APIGWCMD" ];

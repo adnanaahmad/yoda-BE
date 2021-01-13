@@ -11,6 +11,7 @@
 # us-west-2
 #export DID_S3_BUCKET=s3://fortifid-opalv2-dev-usw2-fortifidstaticassetsbuck-45sqjyoln3uf/build/directid && export T=0 && export P=0 && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
 
+
 if [ -z "$DID_S3_BUCKET" ]
 then
     echo "\$DID_S3_BUCKET not set."
