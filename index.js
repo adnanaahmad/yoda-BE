@@ -252,13 +252,13 @@ const updateIncomeVerification = async (data) => {
         let updateExpression = 'SET';
 
         //TODO: This will break if used with moore than 26 fields.  
-        //let startIndex =  'A'.charCodeAt(0);
+        let startIndex =  'A'.charCodeAt(0);
         
         for (let index = 0; index < dataKeyLength; index++) {
             const key = dataKeys[index];
             const value = data[key];
-            //const char = String.fromCharCode(index + startIndex);
-            const char = utils.baseAlpha(index);
+            const char = String.fromCharCode(index + startIndex);
+            //const char = utils.baseAlpha(index);
 
             const paramName =`#${char}`;
             const paramKey =`:${char}`;
