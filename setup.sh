@@ -46,6 +46,8 @@ else
 fi
 npm install > /dev/null 2>&1
 
+
+
 if test -f "./.env"; then
     log ".env already exist."
 else
@@ -75,9 +77,10 @@ else
     APIGWCMD=$(curl -o- -s http://169.254.169.254/latest/user-data |grep "/apigw")
     if [ -n "$APIGWCMD" ];
     then
-        echo "APIGWCMD=$APIGWCMD" $ >> ./.env
+        echo "APIGWCMD=\"$APIGWCMD\"" $ >> ./.env
     fi
 fi
+
 
 if [ -d ~/.pm2 -a ! -h ~/.pm2 ]; then
     log "PM2 already installed."
