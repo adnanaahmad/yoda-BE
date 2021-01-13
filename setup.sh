@@ -76,6 +76,7 @@ fi
 
 if [ -d ~/.pm2 -a ! -h ~/.pm2 ]; then
     log "PM2 already installed."
+    source ~/.bashrc
     pm2 restart index.js
 else
     log "Installing PM2..."
