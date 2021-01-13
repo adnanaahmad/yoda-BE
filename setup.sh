@@ -91,9 +91,10 @@ else
     npm i -g pm2@latest > /dev/null 2>&1
     source ~/.bashrc
     
-    log "Installing pm2-logrotate..."
-    pm2 install pm2-logrotate > /dev/null 2>&1
-    pm2 set pm2-logrotate:compress true > /dev/null 2>&1
+    # Since we're now logging to CloudWatch we probably don't need this
+    # log "Installing pm2-logrotate..."
+    # pm2 install pm2-logrotate > /dev/null 2>&1
+    # pm2 set pm2-logrotate:compress true > /dev/null 2>&1
 
     log "Adding startup command."
     startup=$(pm2 startup systemd| tail -1)

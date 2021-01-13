@@ -15,6 +15,7 @@
     "cache_tokens": "/config/directid/directid.service.cache_tokens",
     "api_whitelist": "/config/directid/directid.service.api_whitelist",
     "webhook_secret": "/config/directid/directid.service.webhook_secret",
+    "system_secret": "/config/directid/directid.service.system_secret",
     "ddb_table_income": "/config/directid/directid.service.ddb_table_income",
     "ddb_partition_income": "/config/directid/directid.service.ddb_partition_income",
     "ddb_sort_income": "/config/directid/directid.service.ddb_sort_income",

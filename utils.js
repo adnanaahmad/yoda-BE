@@ -825,6 +825,23 @@ const base62 = {
         prev + (base62.charset.indexOf(curr) * (62 ** i)), 0)
 };
 
+//TODO!
+const baseAlpha = {
+    charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+    encode: integer => {
+        if (integer === 0) {
+            return baseAlpha.charset[0];
+        }
+        let s = [];
+        while (integer > 0) {
+
+            s.push(baseAlpha.charset[integer % 26]);
+            integer = Math.floor(integer / 26);
+        }
+        return s.join('');
+    }
+};
+
 const addS = (value) => {
     return value !== 1 ? 's' : '';
 }
@@ -955,6 +972,7 @@ module.exports = {
     hashPassword,
     comparePassword,
     base62,
+    baseAlpha,
     contentTypes,
     flattenObject,
     toUrlSafeBase64,

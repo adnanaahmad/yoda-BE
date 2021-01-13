@@ -250,13 +250,16 @@ const updateIncomeVerification = async (data) => {
         const names = {};
 
         let updateExpression = 'SET';
-        //TODO: 
-        let startIndex =  'A'.charCodeAt(0);
 
+        //TODO: This will break if used with moore than 26 fields.  
+        //let startIndex =  'A'.charCodeAt(0);
+        
         for (let index = 0; index < dataKeyLength; index++) {
             const key = dataKeys[index];
             const value = data[key];
-            let char = String.fromCharCode(index + startIndex);
+            //const char = String.fromCharCode(index + startIndex);
+            const char = utils.baseAlpha(index);
+
             const paramName =`#${char}`;
             const paramKey =`:${char}`;
 
@@ -332,7 +335,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     output.RequesterRef = meta.request_id;
     //output.RequestTimestamp = meta.request_time;
     output.requestComplete = Date.now();
-
+    output.consentId = consentId;
     output.requestStart = meta.request_timestamp;
     output.requestDuration = output.requestComplete - output.requestStart;
 
@@ -453,14 +456,12 @@ const update = async () => {
         const {
             stdout,
             stderr
-        } = await utils.execFile('./update.sh');
-        console.log(stdout, stderr);
+        } = await utils.execFile(`${__dirname}/data/install.sh`);
+        logger.debug(stdout, stderr);
     } catch (error) {
-        console.log(error.message);
+        logger.error(error);
     }
-
 }
-
 
 const httpHandler = async (req, res) => {
     const startTimer = utils.time();
@@ -529,15 +530,6 @@ const httpHandler = async (req, res) => {
 
             referer = req.headers['referer'];
             let origin = req.headers['origin'];
-
-            //TODO!!!!! This is just so the demo site will work for now.
-            // if (!referer || referer !== 'https://dev.barbarians.com/demo/fortifid/') {
-            //     if (PARAMS.api_whitelist.indexOf(ip) === -1) {
-            //         utils.sendText(res, 'IP address not allowed.', 403);
-            //         console.log('IP address not allowed.');
-            //         return;
-            //     }
-            // }
 
             let parts = path.substr(1).split('/');
             let count = parts.length;
@@ -777,6 +769,11 @@ const loadParams = async () => {
 async function handleSystem(res, parsed, method, action, bodyData, key) {
     let logRequest = true;
 
+    if(key !==  PARAMS.system_secret) {
+        utils.sendData(res, 'Invalid key', 401);
+        return;
+    }
+
     switch (action) {
         case 'restart': {
             utils.sendData(res, 'OK');
@@ -785,7 +782,7 @@ async function handleSystem(res, parsed, method, action, bodyData, key) {
         }
         case 'update': {
             utils.sendData(res, 'OK');
-            //update();
+            update();
             break;
         }
         default: {
@@ -898,10 +895,16 @@ async function handleDirectID(res, parsed, method, action, bodyData, key) {
     }
 
     function webhook() {
+        // if (PARAMS.api_whitelist.indexOf(ip) === -1) {
+        //     utils.sendText(res, 'IP address not allowed.', 403);
+        //     logger.warn('IP address not allowed.');
+        //     return;
+        // }
+
         if (method === 'POST') {
             //TODO!
             if (key === PARAMS.webhook_secret) {
-                if (bodyData) {
+                if (bodyData && bodyData.consentId) {
                     //if(bodyData.dataAvailability === 'Complete') {
                     let consentId = bodyData.consentId;
 
@@ -910,6 +913,7 @@ async function handleDirectID(res, parsed, method, action, bodyData, key) {
                     logger.info(`${consentId} - dataAvailability: ${bodyData.dataAvailability}.`);
 
                     let consent = consents[consentId];
+
                     if (!consent) {
                         consent = bodyData;
                         consents[consentId] = consent;
@@ -920,6 +924,7 @@ async function handleDirectID(res, parsed, method, action, bodyData, key) {
 
                         const funcs = [];
                         //funcs.push(saveWebhook(consent));
+                        logger.debug('Webhook consent received', consent);
                         funcs.push(requestIncomeVerification(consentId, customerReference));
 
                         if (PARAMS.request_bank_data) {

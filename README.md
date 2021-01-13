@@ -3,6 +3,8 @@
 ## Description
 This is the DirectID micro-service. 
 
+## High Level Overview
+
 ## Installation and Upgrade Methods
 There are several methods of installation.
 
