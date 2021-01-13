@@ -12,7 +12,7 @@ const WinstonCloudWatch = require('winston-cloudwatch');
 
 const format = (message, ...rest)=> {  
   message = typeof (message) === 'object' ? JSON.stringify(message) : message;
-  return `${message}${typeof(rest) !=='undefined' ? rest.map(r => `${JSON.stringify(r)}`).join('\n') : ''}`
+  return `${message} ${typeof(rest) !=='undefined' ? rest.map(r => `${JSON.stringify(r)}`).join('\n') : ''}`
 }
 
 const formatter = ({level, message, [Symbol.for('splat')]: args = []})=> {

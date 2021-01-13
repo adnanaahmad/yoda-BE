@@ -35,7 +35,7 @@ const getParameter = async (name) => {
       return value;
     }
   } catch (error) {
-    logger.error(error);
+    logger.error(error, name);
   }
 };
 
