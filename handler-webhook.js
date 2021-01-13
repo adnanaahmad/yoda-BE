@@ -3,7 +3,7 @@
 //https://webhook.site/ffbd1a65-a040-4c68-aef4-fc5774c6be67
 
 const utils = require('./utils');
-const logger = require('./logger').logger
+const logger = require('./logger').logger;
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 SCRIPT_INFO.library_mode = require.main !== module;
 if(!SCRIPT_INFO.library_mode) {

@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 const utils = require('./utils');
-const logger = require('./logger').logger
+const logger = require('./logger').logger;
 
 AWS.config.update({
   region: process.env.AWS_REGION

@@ -5,14 +5,14 @@ const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const pm2 = require('pm2');
-const logger = require('./logger').logger
+const logger = require('./logger').logger;
 
 let pm2Connected = false;
 
 const utils = require('./utils');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 
-logger.info(SCRIPT_INFO);
+logger.info('Startup', SCRIPT_INFO);
 
 const url = require('url');
 const fetch = require("node-fetch");
@@ -84,21 +84,23 @@ const fetchData = async (url = '', data = undefined, headers = {}, method = 'POS
     }
 }
 
-const shortenUrl = async (url, token, full = false)=> {
+const shortenUrl = async (url, token, full = false) => {
 
     let data = {
         "long_url": url
     };
 
-    let headers = { "Authorization": `Bearer ${token}`};
+    let headers = {
+        "Authorization": `Bearer ${token}`
+    };
     const start = utils.time();
     try {
-        let results =  await utils.fetchData('https://api-ssl.bitly.com/v4/shorten', data, false, headers);
-        const duration = utils.time() - start; 
+        let results = await utils.fetchData('https://api-ssl.bitly.com/v4/shorten', data, false, headers);
+        const duration = utils.time() - start;
         logger.info(`Url shortened to [${results.link}] in ${utils.toFixedPlaces(duration, 2)}ms`);
         return full ? results : results.link;
     } catch (error) {
-        logger.error(error);        
+        logger.error(error);
     }
 }
 
@@ -223,79 +225,85 @@ const loadTemplates = async () => {
     logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
 }
 
-const updateIncomeVerification = async (data)=> {
-    if(typeof(data) !== 'object') {
-        logger.warn('updateIncomeVerification - invalid pararmeters', data );
+const updateIncomeVerification = async (data) => {
+    if (typeof (data) !== 'object') {
+        logger.warn('updateIncomeVerification - invalid pararmeters', data);
         return;
     }
 
-    logger.info('updateIncomeVerification', data );
+    logger.info('updateIncomeVerification', data);
 
     try {
         const keys = {};
         keys[PARAMS.ddb_partition_income] = data[PARAMS.ddb_partition_income];
-        if(PARAMS.ddb_sort_income) {
+        if (PARAMS.ddb_sort_income) {
             keys[PARAMS.ddb_sort_income] = data[PARAMS.ddb_sort_income];
         }
-        
+
         const dataKeys = Object.keys(data);
         const dataKeyLength = dataKeys.length;
         const values = {};
         let updateExpression = 'SET';
-    
+        //TODO: 
+        let startIndex =  'A'.charCodeAt(0);
+
         for (let index = 0; index < dataKeyLength; index++) {
             const key = dataKeys[index];
             const value = data[key];
-            if(index > 0) {
-                updateExpression += ',';    
+            const paramKey =`:${String.fromCharCode(index + startIndex)}`;
+            if (index > 0) {
+                updateExpression += ',';
             }
-            updateExpression += ` ${key}=:${key}`;
-            values[':'+ key] = value;
+            updateExpression += ` ${key}=${paramKey}`;
+            values[paramKey] = value;
         }
-    
+
         let params = {
             TableName: PARAMS.ddb_table_income,
             Key: keys,
             UpdateExpression: updateExpression,
-            ExpressionAttributeValues:values,
-            ReturnValues:"UPDATED_NEW"
+            ExpressionAttributeValues: values,
+            ReturnValues: "UPDATED_NEW"
         };
 
         logger.debug('updateIncomeVerification - params', params);
         let result = await awsClient.updateDDBItem(params);
         logger.debug('updateIncomeVerification - result', result);
-        return result;      
+        return result;
     } catch (error) {
-        logger.error(error);        
+        logger.error(error);
     }
 }
 
 const requestIncomeVerification = async (consentId, customerReference) => {
-    if(!customerReference || !consentId) {
+    if (!customerReference || !consentId) {
         //TODO!
         logger.error('requestIncomeVerification - Invalid customer reference.', customerReference);
         return;
     }
-    
+
     let parts = customerReference.split(':');
-    if(parts.length !== 2 ) {
+    if (parts.length !== 2) {
         logger.error('requestIncomeVerification - Invalid customer reference.', customerReference);
         return;
     }
 
     let transaction_id = parts[0];
-    let customer_id  = parts[1];
+    let customer_id = parts[1];
 
     let meta = META[transaction_id];
-    if(!meta) {
+    if (!meta) {
         //TODO!
         logger.error('requestIncomeVerification - Missing meta', customerReference);
         //output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestFail;
         return;
     }
-    
-    if(customer_id !== meta.customer_id) {
-        logger.error('requestIncomeVerification - Invalid customer Id.',{ customer_id, meta});
+
+    if (customer_id !== meta.customer_id) {
+        logger.error('requestIncomeVerification - Invalid customer Id.', {
+            customer_id,
+            meta
+        });
         return;
     }
 
@@ -303,17 +311,17 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     // CustomerAccountID
     // RequestTimestamp
     // TransactionID
-    
+
     output[PARAMS.ddb_partition_income] = meta.customer_id;
-    if(PARAMS.ddb_sort_income) {
+    if (PARAMS.ddb_sort_income) {
         output[PARAMS.ddb_sort_income] = transaction_id;
     }
 
     output.RequesterRef = meta.request_id;
     //output.RequestTimestamp = meta.request_time;
-    output.requestComplete =  Date.now();
-    
-    output.requestStart = meta.request_timestamp;    
+    output.requestComplete = Date.now();
+
+    output.requestStart = meta.request_timestamp;
     output.requestDuration = output.requestComplete - output.requestStart;
 
     logger.info(`${customerReference} - Requesting income verification...`);
@@ -333,7 +341,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     let data = await response.json();
 
     logger.info(`${customerReference} - Retrieved income verification. ${utils.toFixedPlaces(duration, 2)}ms`);
- 
+
     output.apiRequestDuration = Math.round(duration);
 
     if (data) {
@@ -348,18 +356,20 @@ const requestIncomeVerification = async (consentId, customerReference) => {
             //TODO: Array? Can have more than one incomes stream summary?
             let summary;
 
-            if(Array.isArray(data) ) {
+            if (Array.isArray(data)) {
                 summary = data[0].incomeStreamsSummary;
             }
 
             if (summary) {
-                output.estimatedIncome = summary.estimatedIncome; 
+                output.estimatedIncome = summary.estimatedIncome;
                 output.confidenceScore = summary.confidenceScore;
-                output.confidenceScoreFlags= {...summary.confidenceScoreFlags};
-                output.status =  incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
+                output.confidenceScoreFlags = {
+                    ...summary.confidenceScoreFlags
+                };
+                output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
 
                 DONE[customerReference] = output;
-                
+
                 logger.info(`${customerReference} - requestIncomeVerification - Saving response.`);
                 updateIncomeVerification(output);
             } else {
@@ -448,7 +458,7 @@ const httpHandler = async (req, res) => {
     let ip;
     let referer;
 
-    const doLog = ()=> {
+    const doLog = () => {
         const duration = utils.time() - startTimer;
         let log = {
             method: method,
@@ -456,14 +466,14 @@ const httpHandler = async (req, res) => {
             ip: ip,
             duration: utils.toFixedPlaces(duration, 2)
         }
-        
-        if(referer) {
+
+        if (referer) {
             log.referer = referer;
         }
 
         //console.info(log);
         logger.http(log);
-        
+
     }
 
     try {
@@ -485,14 +495,14 @@ const httpHandler = async (req, res) => {
 
             let web = WWW[path];
             if (web) {
-                if(PARAMS.demo_enabled) {
-                    if(method === 'GET') {
+                if (PARAMS.demo_enabled) {
+                    if (method === 'GET') {
                         await sendFile(res, web);
                     } else {
-                        utils.sendData(res, 'Method not allowed', 405); 
+                        utils.sendData(res, 'Method not allowed', 405);
                     }
-                }else {
-                    utils.sendData(res, 'Forbidden', 403); 
+                } else {
+                    utils.sendData(res, 'Forbidden', 403);
                 }
 
                 doLog();
@@ -538,7 +548,7 @@ const httpHandler = async (req, res) => {
                     return;
                 }
             }
- 
+
             /*
             The standard best practice for REST APIs is to have a hyphen, not camelcase or underscores.
             This comes from Mark Masse's "REST API Design Rulebook" from Oreilly.
@@ -550,11 +560,11 @@ const httpHandler = async (req, res) => {
                 try {
                     switch (resource) {
                         case 'directid': {
-                            logRequest = await handleDirectID(res, parsed, method, action,  bodyData, key);
+                            logRequest = await handleDirectID(res, parsed, method, action, bodyData, key);
                             break;
                         }
                         case 'system': {
-                            logRequest = await handleSystem(res, parsed, method, action,  bodyData, key);
+                            logRequest = await handleSystem(res, parsed, method, action, bodyData, key);
                             break;
                         }
                     }
@@ -575,7 +585,7 @@ const httpHandler = async (req, res) => {
     } catch (error) {
         logger.error(error);
     }
-    
+
     //TODO!
     // if(!res.writableFinished) {
     //     try {
@@ -720,7 +730,7 @@ const loadParams = async () => {
             if (typeof (PARAMS.request_bank_data) !== 'undefined') {
                 PARAMS.request_bank_data = utils.parseBoolean(PARAMS.request_bank_data);
             }
-            
+
             if (typeof (PARAMS.match_name) !== 'undefined') {
                 PARAMS.match_name = utils.parseBoolean(PARAMS.match_name);
             }
@@ -752,7 +762,7 @@ const loadParams = async () => {
 }
 
 //TODO: Extract these to separate files
-async function handleSystem(res, parsed, method, action,  bodyData, key) {
+async function handleSystem(res, parsed, method, action, bodyData, key) {
     let logRequest = true;
 
     switch (action) {
@@ -773,7 +783,7 @@ async function handleSystem(res, parsed, method, action,  bodyData, key) {
     return logRequest;
 }
 
-async function handleDirectID(res, parsed, method, action,  bodyData, key) {
+async function handleDirectID(res, parsed, method, action, bodyData, key) {
     let logRequest = true;
 
     switch (action) {
@@ -928,8 +938,8 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
         let request_id = bodyData.request_id;
         let customer_id = bodyData.customer_id;
         let transaction_id = bodyData.transaction_id;
-        
-        if (request_id && request_id.length > 0 && customer_id &&  customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
+
+        if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
             //let transaction_id = utils.getUUID();
             request_id = encodeURIComponent(`${transaction_id}:${customer_id}`);
             //request_id = encodeURIComponent(`${transaction_id}`);
@@ -940,8 +950,8 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
             if (typeof (bodyData.shorten_url) !== 'undefined') {
                 short_url = bodyData.shorten_url;
             }
-    
-            if (short_url && PARAMS.bitly ) {
+
+            if (short_url && PARAMS.bitly) {
                 let short = await shortenUrl(url, PARAMS.bitly);
                 url = short || url;
             }
@@ -958,12 +968,12 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
                 request_timestamp: Date.now()
             };
 
-            
+
             utils.sendData(res, returnData);
 
             //TODO! This SHOULD be temporarily saved somewhere.
             //let copy = { request_time: utils.timenano(), ... returnData}; 
-            META[transaction_id] =returnData;
+            META[transaction_id] = returnData;
 
             const funcs = [];
             let phone_number = returnData.phone_number;
@@ -1007,17 +1017,17 @@ async function handleDirectID(res, parsed, method, action,  bodyData, key) {
             // CustomerAccountID
             // RequestTimestamp
             // TransactionID
-            
+
             try {
                 output[PARAMS.ddb_partition_income] = customer_id;
-                if(PARAMS.ddb_sort_income) {
+                if (PARAMS.ddb_sort_income) {
                     output[PARAMS.ddb_sort_income] = transaction_id;
                 }
-            
+
                 output.RequesterRef = request_id;
-                output.requestStart = returnData.request_timestamp;   
-                output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress; 
-                
+                output.requestStart = returnData.request_timestamp;
+                output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress;
+
                 awsClient.putDDBItem(PARAMS.ddb_table_income, output);
             } catch (error) {
                 logger.error(error);
