@@ -379,7 +379,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                 };
                 output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
 
-                DONE[customerReference] = {...output};
+                DONE[transaction_id] = {...output};
 
                 logger.info(`${customerReference} - requestIncomeVerification - Saving response.`);
                 updateIncomeVerification(output);
