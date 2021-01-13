@@ -332,12 +332,10 @@ const requestIncomeVerification = async (consentId, customerReference) => {
         output[PARAMS.ddb_sort_income] = transaction_id;
     }
 
-    output.RequesterRef = meta.request_id;
     //output.RequestTimestamp = meta.request_time;
     output.requestComplete = Date.now();
     output.consentId = consentId;
-    output.requestStart = meta.request_timestamp;
-    output.requestDuration = output.requestComplete - output.requestStart;
+    output.requestDuration = output.requestComplete - meta.request_timestamp;
 
     logger.info(`${customerReference} - Requesting income verification...`);
     let headers = {
