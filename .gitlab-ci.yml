@@ -21,7 +21,7 @@ deploy_production:
     - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET_US_W1 --sse AES256
     - aws s3 cp ./data/install.sh $DID_S3_BUCKET_US_W1 --sse AES256
     - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET_US_W2 --sse AES256
-    - aws s3 cp ./data/install.sh $DID_S3_BUCKET_US_W2--sse AES256
+    - aws s3 cp ./data/install.sh $DID_S3_BUCKET_US_W2 --sse AES256
     - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET_US_E1 --sse AES256
     - aws s3 cp ./data/install.sh $DID_S3_BUCKET_US_E1 --sse AES256
   only:
