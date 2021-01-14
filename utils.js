@@ -651,32 +651,78 @@ const objectToQueryString = (params)=> Object.keys(params).map((key) => {
 }).join('&');
 
 
+const fetchData = async (url, body, headers, method = 'post', responseType, throwError = true) => {
+    headers =  headers || {};
 
-const fetchData = async (url = '', data = undefined, full = false, headers = {}, method = 'POST') => {
-    try {
+    let data;
 
-        let config = {
-            method: method,
-            headers: headers
-        }
-
-        //TODO!
-        if (typeof (data) !== 'undefined') {
-            config.body = JSON.stringify(data);
-        }
-        
-        if(!headers['Content-Type']) {
-            headers['Content-Type'] = 'application/json';
-        }
-
-        const response = await fetch(url, config);
-        
-        return full ? response : response.json();
-    } catch (error) {
-        console.error(error);
-        //throw error;
+    if (!method) {
+        method = 'get';
+    } else {
+        method = method.toLowerCase();
     }
+
+    //TODO
+    const bodyType = typeof(body);
+
+    if(!headers['content-type'] && bodyType === 'object') {
+        headers['content-type'] = 'application/json';
+    }
+
+    if(bodyType === 'object') {
+        if(headers['content-type'] === 'application/json') {
+            body = JSON.stringify(body);
+        } else {
+            body = new URLSearchParams(body);
+        }
+    }
+
+    let config = {
+        method: method,
+        headers: headers,
+    };
+
+    //TODO!
+    if (body) {
+        if (method === 'post' || method === 'put' || method === 'patch') {
+            config.body = body;
+        } else {
+            //CLEAN
+            url = `${url}${url.indexOf('?') > -1 ? '&' : '?'}${body}`;
+        }
+    }
+
+    let response;
+    try {
+        response = await fetch(url, config);
+        
+        if (response) {
+            if(response.ok) {
+                if(responseType === 'blob') {
+                    data = await response.blob();
+                } else {
+                    data = await response.text();
+                    if (data && data.length > 1) {
+                        try {
+                            let firstChar = data.substring(0, 1);
+                            if (firstChar === '[' || firstChar === '{') {
+                                data = JSON.parse(data);
+                            } 
+                        } catch (e) {}
+                    }
+                }
+            } else {
+                data = await response.text();
+            }
+        }
+    } catch (error) {
+        if(throwError) {
+            throw error;
+        }
+    }
+    return data;
 }
+
 
 
 const validateEmail = (email) => email && REGEX_EMAIL.test(email);

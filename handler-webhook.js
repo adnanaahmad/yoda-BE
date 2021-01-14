@@ -21,16 +21,12 @@ const add = async(data)=> {
 
             let url = data.url; 
             if(data.query) {
-                url+= data.query;
+                url += data.query;
             }
 
-            let response = await utils.fetchData(url, data.data, true);
+            let response = await utils.fetchData(url, data.data);
             let duration = utils.time() - start;
-            let status = 0;
-            if(response) { 
-                status = response.status;
-            }
-            logger.info(`webhook finished. ${utils.toFixedPlaces(duration, 2)}ms. [${status}]`);            
+            logger.info(`webhook finished. ${utils.toFixedPlaces(duration, 2)}ms. [${response}]`);            
         } catch (error) {
             logger.error(error);
             results = error;

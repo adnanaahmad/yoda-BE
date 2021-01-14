@@ -12,7 +12,6 @@ let pm2Connected = false;
 const utils = require('./utils');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 
-//SCRIPT_INFO.env = process.env;
 logger.info('Startup', SCRIPT_INFO);
 
 const url = require('url');
@@ -32,6 +31,12 @@ const OPAL = {};
 const paramList = require('./params.json');
 const paramKeys = Object.keys(paramList);
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+
+// TODO:
+// Note: According to DirectID this is the only IP address source that they use for their hooks.
+// May want to use the parameter store for this in the future.
+const DIRECTID_SOURCE_IP = '51.11.21.163';
+
 
 let consents = {};
 
@@ -64,27 +69,6 @@ Object.freeze(incomeDirectIDResponseStatus);
 
 let renewTimer;
 
-//TODO: Use the one in utils.
-const fetchData = async (url = '', data = undefined, headers = {}, method = 'POST') => {
-    try {
-        let config = {
-            method: method,
-            headers: headers
-        }
-
-        if (typeof (data) !== 'undefined') {
-            config.body = data;
-        }
-
-        const response = await fetch(url, config);
-
-        return response;
-    } catch (error) {
-        logger.error(error);
-        throw error;
-    }
-}
-
 const shortenUrl = async (url, token, full = false) => {
 
     let data = {
@@ -96,7 +80,7 @@ const shortenUrl = async (url, token, full = false) => {
     };
     const start = utils.time();
     try {
-        let results = await utils.fetchData('https://api-ssl.bitly.com/v4/shorten', data, false, headers);
+        let results = await utils.fetchData('https://api-ssl.bitly.com/v4/shorten', data, headers);
         const duration = utils.time() - start;
         logger.info(`Url shortened to [${results.link}] in ${utils.toFixedPlaces(duration, 2)}ms`);
         return full ? results : results.link;
@@ -156,38 +140,33 @@ const requestDIDToken = async (scope) => {
         'content-type': 'application/x-www-form-urlencoded'
     };
 
-    //TODO!
-    let body = `grant_type=client_credentials&client_id=${PARAMS.client_id}&client_secret=${PARAMS.client_secret}&scope=directid.${scope}`;
-    let start = utils.time();
-    let response = await fetchData(PARAMS.token_url, body, headers);
-    let duration = utils.time() - start;
-    let head = response.headers;
-    let data = await response.json();
-    let token;
-    if (data && data.access_token) {
-        token = data.access_token;
-        TOKENS[scope] = data;
-        data.expires = Date.now() + data.expires_in * 1000;
-        logger.debug(`Retrieved did.${scope} token. Expires on ${new Date(data.expires).toLocaleString()}. ${utils.toFixedPlaces(duration, 2)}ms`);
-        if (PARAMS.cache_tokens) {
-            await saveFile('secure', scope, data);
+    let body = {
+        grant_type: 'client_credentials',
+        client_id: PARAMS.client_id,
+        client_secret: PARAMS.client_secret,
+        scope: `directid.${scope}`
+    }
+
+    try {
+        let start = utils.time();
+        let response = await utils.fetchData(PARAMS.token_url, body, headers);
+
+        let duration = utils.time() - start;
+        let token;
+
+        if (response && response.access_token && response.expires_in) {
+            token = response.access_token;
+            TOKENS[scope] = response;
+            response.expires = Date.now() + response.expires_in * 1000;
+            logger.debug(`Retrieved did.${scope} token. Expires on ${new Date(response.expires).toLocaleString()}. ${utils.toFixedPlaces(duration, 2)}ms`);
+            if (PARAMS.cache_tokens) {
+                await saveFile('secure', scope, response);
+            }
+        } else {
+            logger.error(`requestDIDToken - [${scope}] invalid response`, response);
         }
-    } else {
-
-    }
-}
-
-const saveWebhook = async (consent) => {
-    if (!consent) {
-        return;
-    }
-    let consentId = consent.consentId;
-
-    if (consentId) {
-        logger.info(`${consentId} - Saving webhook data...`);
-        //await saveFile('res', consentId, consent);
-        logger.info(`${consentId} - Webhook data saved`);
-        return true;
+    } catch (error) {
+        logger.error(`requestDIDToken - [${scope}] error`, error);
     }
 }
 
@@ -198,22 +177,27 @@ const requestBankData = async (consentId, customerReference) => {
         'authorization': `Bearer ${TOKENS[TOKEN_IDS.data].access_token}`
     };
 
-    let start = utils.time();
+    try {
 
-    let response = await fetchData(utils.parseTemplate(PARAMS.bank_data_url, {
-        '%CONSENT_ID%': consentId
-    }), undefined, headers, 'GET');
-    let duration = utils.time() - start;
+        let start = utils.time();
 
-    let data = await response.json();
-    logger.info(`${consentId} - Retrieved bank data. ${utils.toFixedPlaces(duration, 2)}ms`);
-    if (data) {
-        //await saveFile('res', `${consentId}-bank-data`, data);
-        // let d = {
-        //     data: data,
-        //     url: 'https://webhook.site/19139114-62f9-43a3-b9cb-7e028338b9a3'
-        // }
-        // alertWebhookQ.add(d);
+        let data = await utils.fetchData(utils.parseTemplate(PARAMS.bank_data_url, {
+            '%CONSENT_ID%': consentId
+        }), undefined, headers, 'get');
+
+        let duration = utils.time() - start;
+
+        logger.info(`${consentId} - Retrieved bank data. ${utils.toFixedPlaces(duration, 2)}ms`);
+        if (data) {
+            //await saveFile('res', `${consentId}-bank-data`, data);
+            // let d = {
+            //     data: data,
+            //     url: 'https://webhook.site/19139114-62f9-43a3-b9cb-7e028338b9a3'
+            // }
+            // alertWebhookQ.add(d);
+        }
+    } catch (error) {
+        logger.error(`requestBankData - error`, error);
     }
     return data;
 }
@@ -251,17 +235,13 @@ const updateIncomeVerification = async (data) => {
 
         let updateExpression = 'SET';
 
-        //TODO: This will break if used with moore than 26 fields.  
-        //let startIndex =  'A'.charCodeAt(0);
-        
         for (let index = 0; index < dataKeyLength; index++) {
             const key = dataKeys[index];
             const value = data[key];
-            //const char = String.fromCharCode(index + startIndex);
             const char = utils.baseAlpha.encode(index);
 
-            const paramName =`#${char}`;
-            const paramKey =`:${char}`;
+            const paramName = `#${char}`;
+            const paramKey = `:${char}`;
 
             if (index > 0) {
                 updateExpression += ',';
@@ -297,16 +277,16 @@ const requestIncomeVerification = async (consentId, customerReference) => {
         return;
     }
 
-    let parts = customerReference.split(':');
+    const parts = customerReference.split(':');
     if (parts.length !== 2) {
         logger.error('requestIncomeVerification - Invalid customer reference.', customerReference);
         return;
     }
 
-    let transaction_id = parts[0];
-    let customer_id = parts[1];
+    const transaction_id = parts[0];
+    const customer_id = parts[1];
 
-    let meta = META[transaction_id];
+    const meta = META[transaction_id];
     if (!meta) {
         //TODO!
         logger.error('requestIncomeVerification - Missing meta', customerReference);
@@ -323,9 +303,6 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     }
 
     const output = {};
-    // CustomerAccountID
-    // RequestTimestamp
-    // TransactionID
 
     output[PARAMS.ddb_partition_income] = meta.customer_id;
     if (PARAMS.ddb_sort_income) {
@@ -338,24 +315,30 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     output.requestDuration = output.requestComplete - meta.request_timestamp;
 
     logger.info(`${customerReference} - Requesting income verification...`);
-    let headers = {
+    const headers = {
         'content-type': 'application/x-www-form-urlencoded',
         'authorization': `Bearer ${TOKENS[TOKEN_IDS.data].access_token}`
     };
 
-    let start = utils.time();
-    //TODO: Write initial record;
-    let response = await fetchData(utils.parseTemplate(PARAMS.income_verification_url, {
-        '%CONSENT_ID%': consentId
-    }), undefined, headers, 'GET');
+    const start = utils.time();
+    let data;
 
-    let duration = utils.time() - start;
+    try {
 
-    let data = await response.json();
+        const url = utils.parseTemplate(PARAMS.income_verification_url, {
+            '%CONSENT_ID%': consentId
+        });
 
-    logger.info(`${customerReference} - Retrieved income verification. ${utils.toFixedPlaces(duration, 2)}ms`);
+        data = await utils.fetchData(url, undefined, headers, 'get');
 
-    output.apiRequestDuration = Math.round(duration);
+        const duration = utils.time() - start;
+
+        logger.info(`${customerReference} - Retrieved income verification. ${utils.toFixedPlaces(duration, 2)}ms`);
+
+        output.apiRequestDuration = Math.round(duration);
+    } catch (error) {
+        logger.error(error, customerReference);
+    }
 
     if (data) {
         try {
@@ -381,17 +364,19 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                 };
                 output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
 
-                DONE[transaction_id] = {...output};
+                DONE[transaction_id] = {
+                    ...output
+                };
 
                 logger.info(`${customerReference} - requestIncomeVerification - Saving response.`);
                 updateIncomeVerification(output);
             } else {
-                logger.warn(`${customerReference} - requestIncomeVerification - Invalid response`);
+                logger.warn(`${customerReference} - requestIncomeVerification - Invalid response`, data);
                 output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestFail;
                 updateIncomeVerification(output);
             }
         } catch (error) {
-            logger.error(error);
+            logger.error(error, customerReference);
         }
     } else {
         output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSentFail;
@@ -463,6 +448,8 @@ const update = async () => {
 
 const httpHandler = async (req, res) => {
     const startTimer = utils.time();
+    const now = Date.now();
+
     let logRequest = true;
     let method;
     let path;
@@ -482,20 +469,22 @@ const httpHandler = async (req, res) => {
             log.referer = referer;
         }
 
-        //console.info(log);
         logger.http(log);
-
     }
 
     try {
         method = req.method.toUpperCase();
 
-        const now = Date.now();
         let resource;
         ip = req.headers['x-forwarded-for'] ||
             req.connection.remoteAddress ||
             req.socket.remoteAddress ||
-            (req.connection.socket ? req.connection.socket.remoteAddress : null);
+            (req.connection.socket ? req.connection.socket.remoteAddress : undefined);
+
+        if (ip) {
+            ip = ip.replace('::ffff:', '');
+        }
+
 
         try {
             let parsed = url.parse(req.url, true);
@@ -767,7 +756,7 @@ const loadParams = async () => {
 async function handleSystem(res, parsed, method, action, bodyData, key) {
     let logRequest = true;
 
-    if(key !==  PARAMS.system_secret) {
+    if (key !== PARAMS.system_secret) {
         utils.sendData(res, 'Invalid key', 401);
         return;
     }
@@ -894,10 +883,12 @@ async function handleDirectID(res, parsed, method, action, bodyData, key) {
 
     function webhook() {
         // if (PARAMS.api_whitelist.indexOf(ip) === -1) {
-        //     utils.sendText(res, 'IP address not allowed.', 403);
-        //     logger.warn('IP address not allowed.');
-        //     return;
         // }
+        if (DIRECTID_SOURCE_IP !== ip) {
+            utils.sendText(res, 'IP address not allowed.', 403);
+            logger.warn('IP address not allowed.');
+            return;
+        }
 
         if (method === 'POST') {
             //TODO!

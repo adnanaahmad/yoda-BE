@@ -3,31 +3,18 @@
 ## Description
 This is the DirectID micro-service. 
 
-## High Level Overview
+## High Level Architectural Overview
+* XX
 
 ## Installation and Upgrade Methods
 There are several methods of installation.
 
 ## Gitlab CI Pipeline
-* Set the following environment variables in the DID repo:
-  * Settings > CI / CD Settings > Variables 
-  * AWS_ACCESS_KEY_ID
-  * AWS_SECRET_ACCESS_KEY
-  * AWS_DEFAULT_REGION
-  * DID_S3_BUCKET (for example: s3://barb-dev/latest/). 
-    * Don't forget the trailing slash.
-    * Make sure to secure this and give the account permissions to the bucket.
-* Run CI / CD > Pipelines > deploy_production
-* Then edit the apigw template: (this still needs to be tested)
-  * Change the  exports as needed:
-    * DID_S3_BUCKET : s3 bucket and folder.
-    * T : 1 to create the DynamoDB tables.
-    * P : 1 to create the entries in the parameter store.
-  * Then either add this to the user data field:
-    * export DID_S3_BUCKET=s3://barb-dev/latest && export T=0 && export P=0 && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /tmp/ && chmod +x /tmp/install.sh && /tmp/install.sh
-  * or config_app_08:              
-      command: "export DID_S3_BUCKET=s3://barb-dev/latest && export T=0 && export P=0 && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /tmp/ && chmod +x /tmp/install.sh && /tmp/install.sh"
-    
+* Builds are automatic when commits to master are made.
+* Set the following environment variables in the .gitlab-cy.yml file (if required):
+  * DID_S3_BUCKET (for example: s3://opalapp-opal-dev-usw1-ap-fortifidstaticassetsbuck-kgbssmqm2man/build/directid/). 
+    * Don't forget the trailing slashes.
+*   
 ## Git Install Method
 Make sure git is installed.
 ```bash
