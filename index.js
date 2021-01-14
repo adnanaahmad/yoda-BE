@@ -779,10 +779,8 @@ const httpHandler = async (req, res) => {
 
             if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
                 //let transaction_id = utils.getUUID();
-                request_id = encodeURIComponent(`${transaction_id}:${customer_id}`);
-                //request_id = encodeURIComponent(`${transaction_id}`);
-                //'&provider_id=3184'
-                let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${request_id}`;
+                let url_ref = encodeURIComponent(`${transaction_id}:${customer_id}`);
+                let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${url_ref}`;
 
                 let short_url = true;
                 if (typeof (bodyData.shorten_url) !== 'undefined') {
