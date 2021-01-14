@@ -210,7 +210,7 @@ const loadTemplates = async () => {
     logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
 }
 
-const updateIncomeVerification = async (data) => {
+const updateIncomeVerification = async (data, updateDone = true) => {
     if (typeof (data) !== 'object') {
         logger.warn('updateIncomeVerification - invalid pararmeters', data);
         return;
@@ -258,12 +258,20 @@ const updateIncomeVerification = async (data) => {
             UpdateExpression: updateExpression,
             ExpressionAttributeValues: values,
             ExpressionAttributeNames: names,
-            ReturnValues: "UPDATED_NEW"
+            ReturnValues: "ALL_NEW" //"UPDATED_NEW"
         };
 
         logger.debug('updateIncomeVerification - params', params);
         let result = await awsClient.updateDDBItem(params);
+
         logger.debug('updateIncomeVerification - result', result);
+        if (result && result.Attributes) {
+            result = result.Attributes;
+            //TODO!
+            if(updateDone) {
+                DONE[keys[PARAMS.ddb_sort_income]] = result;
+            }
+        }
         return result;
     } catch (error) {
         logger.error(error);
@@ -362,17 +370,15 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                 output.confidenceScoreFlags = {
                     ...summary.confidenceScoreFlags
                 };
-                output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
-
-                DONE[transaction_id] = {
-                    ...output
-                };
 
                 logger.info(`${customerReference} - requestIncomeVerification - Saving response.`);
-                updateIncomeVerification(output);
+                output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
+                
+                await updateIncomeVerification(output);
             } else {
                 logger.warn(`${customerReference} - requestIncomeVerification - Invalid response`, data);
                 output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestFail;
+
                 updateIncomeVerification(output);
             }
         } catch (error) {
@@ -380,11 +386,8 @@ const requestIncomeVerification = async (consentId, customerReference) => {
         }
     } else {
         output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSentFail;
+        
         updateIncomeVerification(output);
-        // DONE[customerReference] = {
-        //     status: -1,
-        //     message: 'Nothing returned'
-        // };
     }
 
     delete META[transaction_id];
@@ -557,7 +560,7 @@ const httpHandler = async (req, res) => {
                             break;
                         }
                         case 'system': {
-                            await handleSystem( action, bodyData, key);
+                            await handleSystem(action, bodyData, key);
                             break;
                         }
                     }
@@ -803,12 +806,9 @@ const httpHandler = async (req, res) => {
                     url: url,
                     request_timestamp: Date.now()
                 };
-
-
                 utils.sendData(res, returnData);
 
                 //TODO! This SHOULD be temporarily saved somewhere.
-                //let copy = { request_time: utils.timenano(), ... returnData}; 
                 META[transaction_id] = returnData;
 
                 const funcs = [];
@@ -850,9 +850,6 @@ const httpHandler = async (req, res) => {
                 }
 
                 const output = {};
-                // CustomerAccountID
-                // RequestTimestamp
-                // TransactionID
 
                 try {
                     output[PARAMS.ddb_partition_income] = customer_id;
