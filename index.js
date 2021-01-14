@@ -455,6 +455,7 @@ const httpHandler = async (req, res) => {
     let path;
     let ip;
     let referer;
+    let parsed;
 
     const doLog = () => {
         const duration = utils.time() - startTimer;
@@ -487,7 +488,8 @@ const httpHandler = async (req, res) => {
 
 
         try {
-            let parsed = url.parse(req.url, true);
+            parsed = url.parse(req.url, true);
+
             path = parsed.pathname;
             if (!path || path.length < 2) {
                 path = '/';
@@ -551,11 +553,11 @@ const httpHandler = async (req, res) => {
                 try {
                     switch (resource) {
                         case 'directid': {
-                            logRequest = await handleDirectID(res, parsed, method, action, bodyData, key);
+                            await handleDirectID(action, bodyData, key);
                             break;
                         }
                         case 'system': {
-                            logRequest = await handleSystem(res, parsed, method, action, bodyData, key);
+                            await handleSystem( action, bodyData, key);
                             break;
                         }
                     }
@@ -586,6 +588,293 @@ const httpHandler = async (req, res) => {
 
     if (logRequest) {
         doLog();
+    }
+
+    //TODO: Extract these to separate files
+    async function handleSystem(action, bodyData, key) {
+        if (key !== PARAMS.system_secret) {
+            utils.sendData(res, 'Invalid key', 401);
+            return;
+        }
+
+        switch (action) {
+            case 'restart': {
+                utils.sendData(res, 'OK');
+                //restart();
+                break;
+            }
+            case 'update': {
+                utils.sendData(res, 'OK');
+                update();
+                break;
+            }
+            default: {
+                utils.sendData(res, 'Not found.', 404);
+            }
+        }
+    }
+
+    async function handleDirectID(action, bodyData, key) {
+        switch (action) {
+            case 'check-request':
+            case 'checkrequest': {
+                checkRequest();
+                break;
+            }
+            case 'generate-income-url':
+            case 'generateincomeurl': {
+                await generateIncomeUrl();
+                break;
+            }
+            case 'webhook': {
+                webhook();
+                break;
+            }
+            case 'code-submit':
+            case 'codesubmit': {
+                codeSubmit();
+                break;
+            }
+            case 'code-run':
+            case 'coderun': {
+                codeRun();
+                break;
+            }
+            default: {
+                utils.sendData(res, 'Endpoint not found.', 404);
+                break;
+            }
+        }
+
+        function checkRequest() {
+            let transaction_id = parsed.query.transaction_id;
+            if (transaction_id) {
+                let found = DONE[transaction_id];
+                if (found) {
+                    utils.sendData(res, found);
+                } else {
+                    logRequest = false;
+                    utils.sendData(res, 'Not found or not ready.', 404);
+                }
+            }
+        }
+
+        function codeRun() {
+            if (bodyData) {
+                let id = parsed.query.id;
+                let fun = OPAL[id];
+                if (fun) {
+                    const start = utils.time();
+                    let results;
+                    let error;
+                    try {
+                        results = fun(bodyData);
+                    } catch (err) {
+                        error = err;
+                    }
+                    const duration = utils.time() - start;
+                    let returnData = {
+                        results: results,
+                        duration: duration
+                    };
+
+                    if (error) {
+                        returnData.error = error;
+                    }
+                    utils.sendData(res, returnData);
+                    //fun({a: 10, b: 20}).then(response => { console.log(response) });
+                } else {
+                    utils.sendData(res, 'Function not found.', 404);
+                }
+            } else {
+                utils.sendData(res, 'Missing parameter', 422);
+            }
+        }
+
+        function codeSubmit() {
+            if (bodyData) {
+                let id = parsed.query.id;
+
+                let returnData = {
+                    id: id,
+                    code: utils.compressString(bodyData),
+                    hash: utils.hash(bodyData, 'sha256'),
+                    created: Date.now(),
+                    status: 0,
+                    size: bodyData.length
+                };
+                //TODO: for later.
+                //let func =  new AsyncFunction("data", bodyData);
+                let func = new Function("data", bodyData);
+                OPAL[id] = func;
+                utils.sendData(res, returnData);
+            } else {
+                utils.sendData(res, 'Missing parameter', 422);
+            }
+        }
+
+        function webhook() {
+            // if (PARAMS.api_whitelist.indexOf(ip) === -1) {
+            // }
+            if (DIRECTID_SOURCE_IP !== ip) {
+                utils.sendText(res, 'IP address not allowed.', 403);
+                logger.warn('IP address not allowed.');
+                return;
+            }
+
+            if (method === 'POST') {
+                //TODO!
+                if (key === PARAMS.webhook_secret) {
+                    if (bodyData && bodyData.consentId) {
+                        //if(bodyData.dataAvailability === 'Complete') {
+                        let consentId = bodyData.consentId;
+
+                        utils.sendData(res, 'OK');
+
+                        logger.info(`${consentId} - dataAvailability: ${bodyData.dataAvailability}.`);
+
+                        let consent = consents[consentId];
+
+                        if (!consent) {
+                            consent = bodyData;
+                            consents[consentId] = consent;
+
+                            let customerReference = consent.customerReference;
+
+                            logger.info(`${consentId} - Webhook verified.`);
+
+                            const funcs = [];
+                            //funcs.push(saveWebhook(consent));
+                            logger.debug('Webhook consent received', consent);
+                            funcs.push(requestIncomeVerification(consentId, customerReference));
+
+                            if (PARAMS.request_bank_data) {
+                                funcs.push(requestBankData(consentId, customerReference));
+                            }
+
+                            Promise.all(funcs).then((values) => {
+                                //logger.info(`${consentId} - Processing results...`);
+                                //console.log(`${consentId} - Finished.`);
+                            }).catch(error => {
+                                logger.error(error);
+                            });
+                        } else {
+                            consentId = undefined;
+                        }
+                    } else {
+                        utils.sendData(res, 'Invalid or missing body.', 422);
+                    }
+                } else {
+                    utils.sendData(res, 'Invalid key', 401);
+                }
+            } else {
+                utils.sendData(res, 'Method not allowed', 405);
+            }
+        }
+
+        async function generateIncomeUrl() {
+            let request_id = bodyData.request_id;
+            let customer_id = bodyData.customer_id;
+            let transaction_id = bodyData.transaction_id;
+
+            if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
+                //let transaction_id = utils.getUUID();
+                request_id = encodeURIComponent(`${transaction_id}:${customer_id}`);
+                //request_id = encodeURIComponent(`${transaction_id}`);
+                //'&provider_id=3184'
+                let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${request_id}`;
+
+                let short_url = true;
+                if (typeof (bodyData.shorten_url) !== 'undefined') {
+                    short_url = bodyData.shorten_url;
+                }
+
+                if (short_url && PARAMS.bitly) {
+                    let short = await shortenUrl(url, PARAMS.bitly);
+                    url = short || url;
+                }
+
+                let returnData = {
+                    transaction_id: transaction_id,
+                    customer_id: bodyData.customer_id,
+                    request_id: bodyData.request_id,
+                    email_address: bodyData.email_address,
+                    full_name: bodyData.full_name,
+                    phone_number: bodyData.phone_number,
+                    //status: incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress,
+                    url: url,
+                    request_timestamp: Date.now()
+                };
+
+
+                utils.sendData(res, returnData);
+
+                //TODO! This SHOULD be temporarily saved somewhere.
+                //let copy = { request_time: utils.timenano(), ... returnData}; 
+                META[transaction_id] = returnData;
+
+                const funcs = [];
+                let phone_number = returnData.phone_number;
+
+                if (phone_number && phone_number.length > 0) {
+                    let data = {
+                        numbers: phone_number,
+                        text: utils.parseTemplate(PARAMS.sms_text, {
+                            '%URL%': returnData.url
+                        })
+                    };
+                    handlerTwilioQ.add(data);
+                }
+
+                let email_address = returnData.email_address;
+
+                if (utils.validateEmail(email_address)) {
+                    let full_name = returnData.full_name;
+                    let subject = PARAMS.email_subject;
+
+                    let replacements = {
+                        // "%EMAIL%": email,
+                    };
+
+                    let data = {
+                        email: email_address,
+                        subject: subject,
+                        html: utils.parseTemplate(PARAMS.email_text, {
+                            '%URL%': returnData.url
+                        }),
+                    };
+
+                    if (full_name) {
+                        data.name = full_name;
+                    }
+
+                    handlerEmailQ.add(data);
+                }
+
+                const output = {};
+                // CustomerAccountID
+                // RequestTimestamp
+                // TransactionID
+
+                try {
+                    output[PARAMS.ddb_partition_income] = customer_id;
+                    if (PARAMS.ddb_sort_income) {
+                        output[PARAMS.ddb_sort_income] = transaction_id;
+                    }
+
+                    output.RequesterRef = request_id;
+                    output.requestStart = returnData.request_timestamp;
+                    output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress;
+
+                    awsClient.putDDBItem(PARAMS.ddb_table_income, output);
+                } catch (error) {
+                    logger.error(error);
+                }
+                logger.info(`Generated income url`, output);
+            } else {
+                utils.sendData(res, 'Missing parameter', 422);
+            }
+        }
     }
 }
 
@@ -752,298 +1041,7 @@ const loadParams = async () => {
 
 }
 
-//TODO: Extract these to separate files
-async function handleSystem(res, parsed, method, action, bodyData, key) {
-    let logRequest = true;
 
-    if (key !== PARAMS.system_secret) {
-        utils.sendData(res, 'Invalid key', 401);
-        return;
-    }
-
-    switch (action) {
-        case 'restart': {
-            utils.sendData(res, 'OK');
-            //restart();
-            break;
-        }
-        case 'update': {
-            utils.sendData(res, 'OK');
-            update();
-            break;
-        }
-        default: {
-            utils.sendData(res, 'Not found.', 404);
-        }
-    }
-    return logRequest;
-}
-
-async function handleDirectID(res, parsed, method, action, bodyData, key) {
-    let logRequest = true;
-
-    switch (action) {
-        case 'check-request':
-        case 'checkrequest': {
-            checkRequest();
-            break;
-        }
-        case 'generate-income-url':
-        case 'generateincomeurl': {
-            await generateIncomeUrl();
-            break;
-        }
-        case 'webhook': {
-            webhook();
-            break;
-        }
-        case 'code-submit':
-        case 'codesubmit': {
-            codeSubmit();
-            break;
-        }
-        case 'code-run':
-        case 'coderun': {
-            codeRun();
-            break;
-        }
-        default: {
-            utils.sendData(res, 'Endpoint not found.', 404);
-            break;
-        }
-    }
-    return logRequest;
-
-    function checkRequest() {
-        let transaction_id = parsed.query.transaction_id;
-        if (transaction_id) {
-            let found = DONE[transaction_id];
-            if (found) {
-                utils.sendData(res, found);
-            } else {
-                logRequest = false;
-                utils.sendData(res, 'Not found or not ready.', 404);
-            }
-        }
-    }
-
-    function codeRun() {
-        if (bodyData) {
-            let id = parsed.query.id;
-            let fun = OPAL[id];
-            if (fun) {
-                const start = utils.time();
-                let results;
-                let error;
-                try {
-                    results = fun(bodyData);
-                } catch (err) {
-                    error = err;
-                }
-                const duration = utils.time() - start;
-                let returnData = {
-                    results: results,
-                    duration: duration
-                };
-
-                if (error) {
-                    returnData.error = error;
-                }
-                utils.sendData(res, returnData);
-                //fun({a: 10, b: 20}).then(response => { console.log(response) });
-            } else {
-                utils.sendData(res, 'Function not found.', 404);
-            }
-        } else {
-            utils.sendData(res, 'Missing parameter', 422);
-        }
-    }
-
-    function codeSubmit() {
-        if (bodyData) {
-            let id = parsed.query.id;
-
-            let returnData = {
-                id: id,
-                code: utils.compressString(bodyData),
-                hash: utils.hash(bodyData, 'sha256'),
-                created: Date.now(),
-                status: 0,
-                size: bodyData.length
-            };
-            //TODO: for later.
-            //let func =  new AsyncFunction("data", bodyData);
-            let func = new Function("data", bodyData);
-            OPAL[id] = func;
-            utils.sendData(res, returnData);
-        } else {
-            utils.sendData(res, 'Missing parameter', 422);
-        }
-    }
-
-    function webhook() {
-        // if (PARAMS.api_whitelist.indexOf(ip) === -1) {
-        // }
-        if (DIRECTID_SOURCE_IP !== ip) {
-            utils.sendText(res, 'IP address not allowed.', 403);
-            logger.warn('IP address not allowed.');
-            return;
-        }
-
-        if (method === 'POST') {
-            //TODO!
-            if (key === PARAMS.webhook_secret) {
-                if (bodyData && bodyData.consentId) {
-                    //if(bodyData.dataAvailability === 'Complete') {
-                    let consentId = bodyData.consentId;
-
-                    utils.sendData(res, 'OK');
-
-                    logger.info(`${consentId} - dataAvailability: ${bodyData.dataAvailability}.`);
-
-                    let consent = consents[consentId];
-
-                    if (!consent) {
-                        consent = bodyData;
-                        consents[consentId] = consent;
-
-                        let customerReference = consent.customerReference;
-
-                        logger.info(`${consentId} - Webhook verified.`);
-
-                        const funcs = [];
-                        //funcs.push(saveWebhook(consent));
-                        logger.debug('Webhook consent received', consent);
-                        funcs.push(requestIncomeVerification(consentId, customerReference));
-
-                        if (PARAMS.request_bank_data) {
-                            funcs.push(requestBankData(consentId, customerReference));
-                        }
-
-                        Promise.all(funcs).then((values) => {
-                            //logger.info(`${consentId} - Processing results...`);
-                            //console.log(`${consentId} - Finished.`);
-                        }).catch(error => {
-                            logger.error(error);
-                        });
-                    } else {
-                        consentId = undefined;
-                    }
-                } else {
-                    utils.sendData(res, 'Invalid or missing body.', 422);
-                }
-            } else {
-                utils.sendData(res, 'Invalid key', 401);
-            }
-        } else {
-            utils.sendData(res, 'Method not allowed', 405);
-        }
-    }
-
-    async function generateIncomeUrl() {
-        let request_id = bodyData.request_id;
-        let customer_id = bodyData.customer_id;
-        let transaction_id = bodyData.transaction_id;
-
-        if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
-            //let transaction_id = utils.getUUID();
-            request_id = encodeURIComponent(`${transaction_id}:${customer_id}`);
-            //request_id = encodeURIComponent(`${transaction_id}`);
-            //'&provider_id=3184'
-            let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${request_id}`;
-
-            let short_url = true;
-            if (typeof (bodyData.shorten_url) !== 'undefined') {
-                short_url = bodyData.shorten_url;
-            }
-
-            if (short_url && PARAMS.bitly) {
-                let short = await shortenUrl(url, PARAMS.bitly);
-                url = short || url;
-            }
-
-            let returnData = {
-                transaction_id: transaction_id,
-                customer_id: bodyData.customer_id,
-                request_id: bodyData.request_id,
-                email_address: bodyData.email_address,
-                full_name: bodyData.full_name,
-                phone_number: bodyData.phone_number,
-                //status: incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress,
-                url: url,
-                request_timestamp: Date.now()
-            };
-
-
-            utils.sendData(res, returnData);
-
-            //TODO! This SHOULD be temporarily saved somewhere.
-            //let copy = { request_time: utils.timenano(), ... returnData}; 
-            META[transaction_id] = returnData;
-
-            const funcs = [];
-            let phone_number = returnData.phone_number;
-
-            if (phone_number && phone_number.length > 0) {
-                let data = {
-                    numbers: phone_number,
-                    text: utils.parseTemplate(PARAMS.sms_text, {
-                        '%URL%': returnData.url
-                    })
-                };
-                handlerTwilioQ.add(data);
-            }
-
-            let email_address = returnData.email_address;
-
-            if (utils.validateEmail(email_address)) {
-                let full_name = returnData.full_name;
-                let subject = PARAMS.email_subject;
-
-                let replacements = {
-                    // "%EMAIL%": email,
-                };
-
-                let data = {
-                    email: email_address,
-                    subject: subject,
-                    html: utils.parseTemplate(PARAMS.email_text, {
-                        '%URL%': returnData.url
-                    }),
-                };
-
-                if (full_name) {
-                    data.name = full_name;
-                }
-
-                handlerEmailQ.add(data);
-            }
-
-            const output = {};
-            // CustomerAccountID
-            // RequestTimestamp
-            // TransactionID
-
-            try {
-                output[PARAMS.ddb_partition_income] = customer_id;
-                if (PARAMS.ddb_sort_income) {
-                    output[PARAMS.ddb_sort_income] = transaction_id;
-                }
-
-                output.RequesterRef = request_id;
-                output.requestStart = returnData.request_timestamp;
-                output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress;
-
-                awsClient.putDDBItem(PARAMS.ddb_table_income, output);
-            } catch (error) {
-                logger.error(error);
-            }
-            logger.info(`Generated income url`, output);
-        } else {
-            utils.sendData(res, 'Missing parameter', 422);
-        }
-    }
-}
 
 (async () => {
     const funcs = [];
