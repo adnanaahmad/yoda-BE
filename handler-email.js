@@ -66,7 +66,9 @@ const add = async(data)=> {
 
     let results;
     try {
-        logger.info(`[${data.email}] email process started`);
+        //TODO: Should we save the id?
+        const id = data.transaction_id || data.email;
+        logger.info(`[${id}] email process started`);
         const start = utils.time();
         if(utils.validateEmail(data.email)) {
             let replacements = data.replacements;
@@ -85,9 +87,9 @@ const add = async(data)=> {
             let email = data.name ? (`${data.name} <${data.email}>`): data.email;
             await sendEmail(email, data.subject, data.body, data.html);
             const duration = utils.time() - start; 
-            logger.info(`email sent to ${data.email} [${data.subject}] in ${utils.toFixedPlaces(duration, 2)}ms`);
+            logger.info(`[${id}] email sent. [${data.subject}] in ${utils.toFixedPlaces(duration, 2)}ms`);
         } else {
-            logger.warn('invalid email:', data.email);
+            logger.warn(`[${id}] invalid email:`);
         }
     } catch (error) {
         logger.error(error);

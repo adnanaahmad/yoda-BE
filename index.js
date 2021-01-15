@@ -908,6 +908,7 @@ const httpHandler = async (req, res) => {
 
                     if (phone_number && phone_number.length > 0) {
                         let data = {
+                            transaction_id: transaction_id,
                             numbers: phone_number,
                             text: utils.parseTemplate(PARAMS.sms_text, {
                                 '%URL%': returnData.url
@@ -927,6 +928,7 @@ const httpHandler = async (req, res) => {
                         // };
 
                         let data = {
+                            transaction_id: transaction_id,
                             email: email_address,
                             subject: subject,
                             html: utils.parseTemplate(PARAMS.email_text, {

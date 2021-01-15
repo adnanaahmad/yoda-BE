@@ -41,12 +41,14 @@ const add = async(data)=> {
     let results;
     if (data) {
         try {
-            logger.info(`SMS process started. ${data.numbers}`);
+            //TODO: Should we save the id?
+            const id = data.transaction_id || data.numbers;
+            logger.info(`[${id}] SMS process started.`);
             const start = utils.time();
             let response = await sendSMSTwilio(data.numbers, data.text);
             if (response) {
                 const duration = utils.time() - start; 
-                logger.info(`SMS sent. ${response.sid} ${utils.toFixedPlaces(duration, 2)}ms`);
+                logger.info(`[${id}] SMS sent. ${response.sid} ${utils.toFixedPlaces(duration, 2)}ms`);
             } else {
                 logger.warn('No data returned.');
             }
