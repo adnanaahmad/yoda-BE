@@ -408,7 +408,8 @@ const requestIncomeVerification = async (consentId, customerReference) => {
 
                 let nameMatchScore = 0;
                 let details = data[0].accountDetails;
-                logger.silly(`Account details`, details);
+                //REMOVE!
+                logger.silly(`Account details`, details, meta);
                 if (details) {
                     const parties = details.parties; 
                     if(parties && Array.isArray(parties)) {
@@ -896,7 +897,6 @@ const httpHandler = async (req, res) => {
                         email_address: bodyData.email_address,
                         full_name: bodyData.full_name,
                         phone_number: bodyData.phone_number,
-                        //status: incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress,
                         url: url,
                         request_timestamp: Date.now()
                     };
@@ -916,6 +916,8 @@ const httpHandler = async (req, res) => {
                             })
                         };
                         handlerTwilioQ.add(data);
+
+                        delete returnData.phone_number;
                     }
 
                     let email_address = returnData.email_address;
@@ -942,6 +944,8 @@ const httpHandler = async (req, res) => {
                         }
 
                         handlerEmailQ.add(data);
+
+                        delete returnData.email_address;
                     }
 
                     output[PARAMS.ddb_partition_income] = customer_id;
