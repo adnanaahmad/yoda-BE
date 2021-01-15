@@ -1099,7 +1099,7 @@ const loadParams = async () => {
     await loadParams();
 
     funcs.push(checkTokens());
-    funcs.push(loadTemplates());
+    //funcs.push(loadTemplates());
 
     Promise.all(funcs).then(async (values) => {
         await startServer();

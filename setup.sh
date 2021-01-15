@@ -116,7 +116,7 @@ then
     node create-tables.js
 fi
 
-log "Setting  execute permissions..."
-chmod +x ./update.sh
+#log "Setting  execute permissions..."
+#chmod +x ./update.sh
 
 log "Setup complete."

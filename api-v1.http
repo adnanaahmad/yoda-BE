@@ -108,6 +108,7 @@ if(summary) {
         confidenceScore: summary.confidenceScore,
         confidenceScoreFlags: {...summary.confidenceScoreFlags},
         requestStartX : 0,
+//        now: Date.now(),
         requestComplete : Date.now(),
         requestDuration: 0
     }
