@@ -65,7 +65,10 @@ else
     echo "INSTANCE_ID=$INSTANCE_ID" >> ./.env
     
     echo "LOG_GROUP_NAME=didservice" >> ./.env
-    echo "LOG_LEVEL=http" >> ./.env
+    #echo "LOG_LEVEL=http" >> ./.env
+    # For now until this is production ready.
+    echo "LOG_LEVEL=silly" >> ./.env
+
     echo "RUN_MODE=PROD" >> ./.env
 
     if [ -n "$DID_S3_BUCKET" ];

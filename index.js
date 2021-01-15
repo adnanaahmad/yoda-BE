@@ -8,6 +8,15 @@ const utils = require('./utils');
 const nameMatch = require('./name-match');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
+const packageJSON = require('./package.json');
+
+SCRIPT_INFO.version = packageJSON.version; 
+
+SCRIPT_INFO.created = process.env.CREATED;
+SCRIPT_INFO.region = process.env.AWS_REGION;
+SCRIPT_INFO.instance = process.env.INSTANCE_ID;
+SCRIPT_INFO.log_level = process.env.LOG_LEVEL;
+SCRIPT_INFO.run_mode = process.env.RUN_MODE;
 
 logger.info('Startup', SCRIPT_INFO);
 
@@ -22,8 +31,8 @@ let renewTimer;
 
 // TODO: Just for testing and demos
 ///////////////////////////////////////////////////////////////
-const base_dir = `${__dirname}/demo/`
-const serve_http = true;
+const baseDir = `${__dirname}/demo/`
+const SERVE_HTTP = true;
 const WWW = {
     '/': 'index.html',
     '/favicon.ico': 'cropped-FortidID-logo-square-32x32.jpg',
@@ -418,12 +427,12 @@ const requestIncomeVerification = async (consentId, customerReference) => {
 }
 
 const sendFile = async (res, filename) => {
-    if (!serve_http) {
+    if (!SERVE_HTTP) {
         utils.sendText(res, 'HTTP Server not enabled.', 503);
     } else {
 
         filename = sanitize(filename);
-        let file = base_dir + filename;
+        let file = baseDir + filename;
         if (await utils.fileExists(file)) {
             let content = await utils.fileRead(file);
 
@@ -645,6 +654,11 @@ const httpHandler = async (req, res) => {
             case 'update': {
                 utils.sendData(res, 'OK');
                 update();
+                break;
+            }
+            case 'server': {
+                const data = {...SCRIPT_INFO, start: utils.startTime, time: now, uptime: (now - utils.startTime), };
+                utils.sendData(res, data);
                 break;
             }
             default: {
