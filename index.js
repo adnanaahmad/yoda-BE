@@ -5,6 +5,8 @@ const http = require('http');
 const https = require('https');
 const logger = require('./logger').logger;
 const utils = require('./utils');
+const nameMatch = require('./name-match');
+
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 
 logger.info('Startup', SCRIPT_INFO);
@@ -387,6 +389,10 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                 output.confidenceScoreFlags = {
                     ...summary.confidenceScoreFlags
                 };
+
+                //TODO: How about accounts with multiple parties?
+                let accountName = data[0].accountDetails?.accountHolderNames;
+                output.nameMatchScore = PARAMS.match_name ? nameMatch.compare(meta.full_name, accountName) : 0;
 
                 logger.info(`${customerReference} - requestIncomeVerification - Saving response.`);
                 output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
@@ -830,7 +836,7 @@ const httpHandler = async (req, res) => {
             let transaction_id = bodyData.transaction_id;
 
             if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
-                //let transaction_id = utils.getUUID();
+
                 const output = {};
                 try {
                     let url_ref = encodeURIComponent(`${transaction_id}:${customer_id}`);

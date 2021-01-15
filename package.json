@@ -30,7 +30,5 @@
     "winston": "^3.3.3",
     "winston-cloudwatch": "^2.5.0"
   },
-  "devDependencies": {
-    "eslint": "^7.17.0"
-  }
+  "devDependencies": {}
 }

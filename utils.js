@@ -752,7 +752,7 @@ const isValidIpv4Address = (ip) => {
 }
 
 const copyObjectValues = (source, dest) => {
-    Object.keys(sourcej).forEach((key) => {
+    Object.keys(source).forEach((key) => {
         dest[key] = source[key];
     });
 }

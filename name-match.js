@@ -1,11 +1,14 @@
 'use strict';
 /*jshint esversion: 8 */
 
+const similarity = require('string-similarity');
+
 const prefixes = [
     'Alderman',
     'Dr',
     'Miss',
     'Mr',
+    'Mister',
     'Mrs',
     'Ms',
     'Prof',
@@ -40,14 +43,43 @@ const suffixes = [
 ];
 
 const combined = [];
-
-function clean(str) {
-    return str.replace(/[^a-z-A-Z ]/g, "").replace(/ +/, " ")
-}
-
 let pattern;
 
+function clean(value, strip = false) {
+    value =  value.replace(/[^a-z-A-Z ]/g, "").toLowerCase().replace(/ +/, " ");
+    
+    if(strip) {
+        value = value.replace(pattern, '');
+    }
 
+    return value;
+}
+
+const compare =(a, b, ignoreMiddle = false)=> {
+    if(a === null || b === null || typeof(a) !== 'string' || typeof(b) !== 'string' || a.length === 0 || b.length === 0 ) {
+        return 0;
+    }
+
+    a = clean(a, true);
+    b = clean(b, true);
+
+    if(ignoreMiddle) {
+        //TODO
+    }
+
+    // Dice's Coefficient 
+    // https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient
+    // Mostly better than Levenshtein distance 
+    // https://en.wikipedia.org/wiki/Levenshtein_distance
+    return similarity.compareTwoStrings(a, b);
+}
+
+function test() {
+    console.log(pattern);
+    console.log(compare('Mr Cisco Caceres, M.D.', 'Cisco Caceres'));
+    console.log(compare('Mr Cisco Gerardo Caceres', 'Mister Cisco G Caceres'));
+    console.log(compare('Cisco Gerardo Caceres', 'Cisco G. Caceres'));
+}
 
 (async () => {
     prefixes.forEach(item => {
@@ -57,13 +89,13 @@ let pattern;
 
     suffixes.forEach(item => {
         item = clean(item.toLowerCase());
-        combined.push(` ${item}`);
+        combined.push(` ${item}$`);
     })
 
-        //let pattern = /\b(?:Prof\.? *|Dr\. *|, Phd)\b/g;
-    pattern = `/\b(?:${combined.join('|')})\b/g`;
-    pattern = `(?:${combined.join('|')})`;
-    let test = new RegExp(pattern, 'gi');
-    console.log('mr francis lacson'.replace(test, ''));
-   
+    pattern = new RegExp(combined.join('|'), 'g');
 })();
+
+
+module.exports = {
+    compare
+}
