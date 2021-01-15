@@ -3,21 +3,31 @@
 
 const http = require('http');
 const https = require('https');
-const fs = require('fs');
-const pm2 = require('pm2');
 const logger = require('./logger').logger;
-
-let pm2Connected = false;
-
 const utils = require('./utils');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 
 logger.info('Startup', SCRIPT_INFO);
 
 const url = require('url');
-const fetch = require("node-fetch");
 const sanitize = require("sanitize-filename");
+const pm2 = require('pm2');
+
 const awsClient = require('./aws-client');
+
+let pm2Connected = false;
+let renewTimer;
+
+// TODO: Just for testing and demos
+///////////////////////////////////////////////////////////////
+const base_dir = `${__dirname}/demo/`
+const serve_http = true;
+const WWW = {
+    '/': 'index.html',
+    '/favicon.ico': 'cropped-FortidID-logo-square-32x32.jpg',
+    '/loader.gif': '/loader.gif'
+}
+///////////////////////////////////////////////////////////////
 
 const TOKENS = {};
 const TEMPLATES = {};
@@ -30,6 +40,7 @@ const OPAL = {};
 //TODO!
 const paramList = require('./params.json');
 const paramKeys = Object.keys(paramList);
+
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 // TODO:
@@ -37,13 +48,13 @@ const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 // May want to use the parameter store for this in the future.
 const DIRECTID_SOURCE_IP = '51.11.21.163';
 
-
-let consents = {};
+const consents = {};
 
 const TOKEN_IDS = {
     data: 'data',
     consent: 'consent'
 }
+
 
 Object.freeze(TOKEN_IDS);
 
@@ -55,7 +66,7 @@ Object.freeze(TOKEN_IDS);
 
 const handlerTwilioQ = require('./handler-twilio');
 const handlerEmailQ = require('./handler-email');
-const handlerWebhookQ = require('./handler-webhook');
+//const handlerWebhookQ = require('./handler-webhook');
 
 const incomeDirectIDResponseStatus = {
     incomeDirectIDRequestSent: 'incomeDirectIDRequestSent',
@@ -67,20 +78,19 @@ const incomeDirectIDResponseStatus = {
 
 Object.freeze(incomeDirectIDResponseStatus);
 
-let renewTimer;
 
 const shortenUrl = async (url, token, full = false) => {
 
-    let data = {
+    const data = {
         "long_url": url
     };
 
-    let headers = {
+    const headers = {
         "Authorization": `Bearer ${token}`
     };
     const start = utils.time();
     try {
-        let results = await utils.fetchData('https://api-ssl.bitly.com/v4/shorten', data, headers);
+        const results = await utils.fetchData('https://api-ssl.bitly.com/v4/shorten', data, headers);
         const duration = utils.time() - start;
         logger.info(`Url shortened to [${results.link}] in ${utils.toFixedPlaces(duration, 2)}ms`);
         return full ? results : results.link;
@@ -136,11 +146,11 @@ const requestDIDToken = async (scope) => {
     }
 
     logger.debug(`Requesting did.${scope} token...`);
-    let headers = {
+    const headers = {
         'content-type': 'application/x-www-form-urlencoded'
     };
 
-    let body = {
+    const body = {
         grant_type: 'client_credentials',
         client_id: PARAMS.client_id,
         client_secret: PARAMS.client_secret,
@@ -148,14 +158,12 @@ const requestDIDToken = async (scope) => {
     }
 
     try {
-        let start = utils.time();
-        let response = await utils.fetchData(PARAMS.token_url, body, headers);
+        const start = utils.time();
+        const response = await utils.fetchData(PARAMS.token_url, body, headers);
 
-        let duration = utils.time() - start;
-        let token;
+        const duration = utils.time() - start;
 
         if (response && response.access_token && response.expires_in) {
-            token = response.access_token;
             TOKENS[scope] = response;
             response.expires = Date.now() + response.expires_in * 1000;
             logger.debug(`Retrieved did.${scope} token. Expires on ${new Date(response.expires).toLocaleString()}. ${utils.toFixedPlaces(duration, 2)}ms`);
@@ -171,23 +179,24 @@ const requestDIDToken = async (scope) => {
 }
 
 const requestBankData = async (consentId, customerReference) => {
-    logger.info(`${consentId} - Requesting bank data...`);
-    let headers = {
+    logger.info(`${customerReference} - Requesting bank data...`);
+    const headers = {
         'content-type': 'application/x-www-form-urlencoded',
         'authorization': `Bearer ${TOKENS[TOKEN_IDS.data].access_token}`
     };
 
+    let data;
     try {
 
-        let start = utils.time();
+        const start = utils.time();
 
-        let data = await utils.fetchData(utils.parseTemplate(PARAMS.bank_data_url, {
+        data = await utils.fetchData(utils.parseTemplate(PARAMS.bank_data_url, {
             '%CONSENT_ID%': consentId
         }), undefined, headers, 'get');
 
-        let duration = utils.time() - start;
+        const duration = utils.time() - start;
 
-        logger.info(`${consentId} - Retrieved bank data. ${utils.toFixedPlaces(duration, 2)}ms`);
+        logger.info(`${customerReference} - Retrieved bank data. ${utils.toFixedPlaces(duration, 2)}ms`);
         if (data) {
             //await saveFile('res', `${consentId}-bank-data`, data);
             // let d = {
@@ -204,15 +213,15 @@ const requestBankData = async (consentId, customerReference) => {
 
 const loadTemplates = async () => {
     logger.debug('Loading templates...');
-    let start = utils.time();
+    const start = utils.time();
     await utils.loadTemplates('./templates/', TEMPLATES);
-    let duration = utils.time() - start;
+    const duration = utils.time() - start;
     logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
 }
 
-const updateIncomeVerification = async (data, updateDone = true) => {
+const updateIncomeVerification = async (data) => {
     if (typeof (data) !== 'object') {
-        logger.warn('updateIncomeVerification - invalid pararmeters', data);
+        logger.warn('updateIncomeVerification - invalid data', data);
         return;
     }
 
@@ -220,9 +229,20 @@ const updateIncomeVerification = async (data, updateDone = true) => {
 
     try {
         const keys = {};
+
+        if (!data[PARAMS.ddb_partition_income]) {
+            logger.warn('updateIncomeVerification - missing partition key.', data);
+            return;
+        }
+
         keys[PARAMS.ddb_partition_income] = data[PARAMS.ddb_partition_income];
+
         if (PARAMS.ddb_sort_income) {
             keys[PARAMS.ddb_sort_income] = data[PARAMS.ddb_sort_income];
+            if (!data[PARAMS.ddb_sort_income]) {
+                logger.warn('updateIncomeVerification - missing sort key.', data);
+                return;
+            }
         }
 
         delete data[PARAMS.ddb_partition_income];
@@ -252,13 +272,13 @@ const updateIncomeVerification = async (data, updateDone = true) => {
             values[paramKey] = value;
         }
 
-        let params = {
+        const params = {
             TableName: PARAMS.ddb_table_income,
             Key: keys,
             UpdateExpression: updateExpression,
             ExpressionAttributeValues: values,
             ExpressionAttributeNames: names,
-            ReturnValues: "ALL_NEW" //"UPDATED_NEW"
+            ReturnValues: "ALL_NEW"
         };
 
         logger.debug('updateIncomeVerification - params', params);
@@ -267,10 +287,7 @@ const updateIncomeVerification = async (data, updateDone = true) => {
         logger.debug('updateIncomeVerification - result', result);
         if (result && result.Attributes) {
             result = result.Attributes;
-            //TODO!
-            if(updateDone) {
-                DONE[keys[PARAMS.ddb_sort_income]] = result;
-            }
+            DONE[keys[PARAMS.ddb_sort_income]] = result;
         }
         return result;
     } catch (error) {
@@ -350,7 +367,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
 
     if (data) {
         try {
-            //saveFile('res', `${id}-income-verification`, data);
+
             // let d = {
             //     data: data,
             //     url: 'https://webhook.site/19139114-62f9-43a3-b9cb-7e028338b9a3'
@@ -373,7 +390,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
 
                 logger.info(`${customerReference} - requestIncomeVerification - Saving response.`);
                 output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
-                
+
                 await updateIncomeVerification(output);
             } else {
                 logger.warn(`${customerReference} - requestIncomeVerification - Invalid response`, data);
@@ -386,21 +403,12 @@ const requestIncomeVerification = async (consentId, customerReference) => {
         }
     } else {
         output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSentFail;
-        
+
         updateIncomeVerification(output);
     }
 
     delete META[transaction_id];
     return data;
-}
-
-const base_dir = `${__dirname}/demo/`
-const serve_http = true;
-//TODO: Just for testing and demos
-const WWW = {
-    '/': 'index.html',
-    '/favicon.ico': 'cropped-FortidID-logo-square-32x32.jpg',
-    '/loader.gif': '/loader.gif'
 }
 
 const sendFile = async (res, filename) => {
@@ -429,9 +437,9 @@ const restart = () => {
     if (pm2Connected) {
         pm2.restart("index", (err, val) => {
             if (err) {
-                console.log(err)
+                logger.error(err)
             } else {
-                console.log(val);
+                logger.info(val);
             }
         });
     }
@@ -454,11 +462,19 @@ const httpHandler = async (req, res) => {
     const now = Date.now();
 
     let logRequest = true;
+
+
     let method;
     let path;
     let ip;
+    let action;
+    let key;
+    let bodyData;
     let referer;
+    let origin;
     let parsed;
+
+    const logExtras = {};
 
     const doLog = () => {
         const duration = utils.time() - startTimer;
@@ -466,6 +482,7 @@ const httpHandler = async (req, res) => {
             method: method,
             path: path,
             ip: ip,
+            ts: now,
             duration: utils.toFixedPlaces(duration, 2)
         }
 
@@ -473,7 +490,19 @@ const httpHandler = async (req, res) => {
             log.referer = referer;
         }
 
+        if (origin) {
+            log.origin = origin;
+        }
+
+        if (Object.keys(logExtras).length > 0) {
+            log.extras = logExtras;
+        }
+
         logger.http(log);
+    }
+
+    const addLogExtra = (key, name) => {
+        logExtras[key] = name;
     }
 
     try {
@@ -488,7 +517,6 @@ const httpHandler = async (req, res) => {
         if (ip) {
             ip = ip.replace('::ffff:', '');
         }
-
 
         try {
             parsed = url.parse(req.url, true);
@@ -521,17 +549,15 @@ const httpHandler = async (req, res) => {
             path = path.toLowerCase();
 
             referer = req.headers['referer'];
-            let origin = req.headers['origin'];
+            origin = req.headers['origin'];
 
             let parts = path.substr(1).split('/');
             let count = parts.length;
             resource = parts[0];
 
-            let action = count > 1 ? parts[1] : undefined;
+            action = count > 1 ? parts[1] : undefined;
+            key = parsed.query.key;
 
-            let key = parsed.query.key;
-
-            let bodyData;
             let bodyLength = req.headers["content-length"];
             //let contentType = req.headers['content-type'];
             if (bodyLength && ((bodyLength = parseInt(bodyLength)) > 0)) {
@@ -568,14 +594,18 @@ const httpHandler = async (req, res) => {
                     logger.error(e);
                     try {
                         res.end(e.message);
-                    } catch (error) {}
+                    } catch (error) {
+                        // ignore
+                    }
                 }
             }
         } catch (e) {
             logger.error(e);
             try {
                 res.end(e.message);
-            } catch (error) {}
+            } catch (error) {
+                // ignore
+            }
         }
         //TODO: res.headersSent
     } catch (error) {
@@ -603,7 +633,7 @@ const httpHandler = async (req, res) => {
         switch (action) {
             case 'restart': {
                 utils.sendData(res, 'OK');
-                //restart();
+                restart();
                 break;
             }
             case 'update': {
@@ -640,7 +670,7 @@ const httpHandler = async (req, res) => {
             }
             case 'code-run':
             case 'coderun': {
-                codeRun();
+                await codeRun();
                 break;
             }
             default: {
@@ -662,19 +692,25 @@ const httpHandler = async (req, res) => {
             }
         }
 
-        function codeRun() {
+        async function codeRun() {
             if (bodyData) {
                 let id = parsed.query.id;
-                let fun = OPAL[id];
-                if (fun) {
+                let data = OPAL[id];
+                if (data) {
                     const start = utils.time();
                     let results;
                     let error;
                     try {
-                        results = fun(bodyData);
+                        if (data.async) {
+                            results = await data.func(bodyData);
+                        } else {
+                            results = data.func(bodyData);
+                        }
                     } catch (err) {
                         error = err;
+                        logger.warn('codeRun', err);
                     }
+
                     const duration = utils.time() - start;
                     let returnData = {
                         results: results,
@@ -685,6 +721,8 @@ const httpHandler = async (req, res) => {
                         returnData.error = error;
                     }
                     utils.sendData(res, returnData);
+
+                    addLogExtra('results', returnData);
                     //fun({a: 10, b: 20}).then(response => { console.log(response) });
                 } else {
                     utils.sendData(res, 'Function not found.', 404);
@@ -697,20 +735,30 @@ const httpHandler = async (req, res) => {
         function codeSubmit() {
             if (bodyData) {
                 let id = parsed.query.id;
+                let async = typeof (parsed.query.async) !== 'undefined' ? parsed.query.async : false;
 
-                let returnData = {
+                let data = {
                     id: id,
                     code: utils.compressString(bodyData),
                     hash: utils.hash(bodyData, 'sha256'),
                     created: Date.now(),
                     status: 0,
-                    size: bodyData.length
+                    size: bodyData.length,
+                    async
                 };
-                //TODO: for later.
-                //let func =  new AsyncFunction("data", bodyData);
-                let func = new Function("data", bodyData);
-                OPAL[id] = func;
-                utils.sendData(res, returnData);
+
+                try {
+                    utils.sendData(res, data);
+                    const func = async ?new AsyncFunction('data', bodyData): new Function('data', bodyData);
+                    OPAL[id] = {
+                        ...data,
+                        func
+                    };
+                    logger.debug('codeSubmit', data);
+                } catch (error) {
+                    utils.sendData(res, error);
+                    logger.warn('codeSubmit', error);
+                }
             } else {
                 utils.sendData(res, 'Missing parameter', 422);
             }
@@ -756,8 +804,9 @@ const httpHandler = async (req, res) => {
                             }
 
                             Promise.all(funcs).then((values) => {
-                                //logger.info(`${consentId} - Processing results...`);
-                                //console.log(`${consentId} - Finished.`);
+                                if (values) {
+                                    // TODO:
+                                }
                             }).catch(error => {
                                 logger.error(error);
                             });
@@ -782,76 +831,75 @@ const httpHandler = async (req, res) => {
 
             if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
                 //let transaction_id = utils.getUUID();
-                let url_ref = encodeURIComponent(`${transaction_id}:${customer_id}`);
-                let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${url_ref}`;
+                const output = {};
+                try {
+                    let url_ref = encodeURIComponent(`${transaction_id}:${customer_id}`);
+                    let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${url_ref}`;
+    
 
-                let short_url = true;
-                if (typeof (bodyData.shorten_url) !== 'undefined') {
-                    short_url = bodyData.shorten_url;
-                }
-
-                if (short_url && PARAMS.bitly) {
-                    let short = await shortenUrl(url, PARAMS.bitly);
-                    url = short || url;
-                }
-
-                let returnData = {
-                    transaction_id: transaction_id,
-                    customer_id: bodyData.customer_id,
-                    request_id: bodyData.request_id,
-                    email_address: bodyData.email_address,
-                    full_name: bodyData.full_name,
-                    phone_number: bodyData.phone_number,
-                    //status: incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress,
-                    url: url,
-                    request_timestamp: Date.now()
-                };
-                utils.sendData(res, returnData);
-
-                //TODO! This SHOULD be temporarily saved somewhere.
-                META[transaction_id] = returnData;
-
-                const funcs = [];
-                let phone_number = returnData.phone_number;
-
-                if (phone_number && phone_number.length > 0) {
-                    let data = {
-                        numbers: phone_number,
-                        text: utils.parseTemplate(PARAMS.sms_text, {
-                            '%URL%': returnData.url
-                        })
-                    };
-                    handlerTwilioQ.add(data);
-                }
-
-                let email_address = returnData.email_address;
-
-                if (utils.validateEmail(email_address)) {
-                    let full_name = returnData.full_name;
-                    let subject = PARAMS.email_subject;
-
-                    let replacements = {
-                        // "%EMAIL%": email,
-                    };
-
-                    let data = {
-                        email: email_address,
-                        subject: subject,
-                        html: utils.parseTemplate(PARAMS.email_text, {
-                            '%URL%': returnData.url
-                        }),
-                    };
-
-                    if (full_name) {
-                        data.name = full_name;
+                    let short_url = true;
+                    if (typeof (bodyData.shorten_url) !== 'undefined') {
+                        short_url = bodyData.shorten_url;
                     }
 
-                    handlerEmailQ.add(data);
-                }
+                    if (short_url && PARAMS.bitly) {
+                        let short = await shortenUrl(url, PARAMS.bitly);
+                        url = short || url;
+                    }
 
-                const output = {};
+                    let returnData = {
+                        transaction_id: transaction_id,
+                        customer_id: bodyData.customer_id,
+                        request_id: bodyData.request_id,
+                        email_address: bodyData.email_address,
+                        full_name: bodyData.full_name,
+                        phone_number: bodyData.phone_number,
+                        //status: incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress,
+                        url: url,
+                        request_timestamp: Date.now()
+                    };
+                    utils.sendData(res, returnData);
 
-                try {
+                    //TODO! This SHOULD be temporarily saved somewhere.
+                    META[transaction_id] = returnData;
+
+                    let phone_number = returnData.phone_number;
+
+                    if (phone_number && phone_number.length > 0) {
+                        let data = {
+                            numbers: phone_number,
+                            text: utils.parseTemplate(PARAMS.sms_text, {
+                                '%URL%': returnData.url
+                            })
+                        };
+                        handlerTwilioQ.add(data);
+                    }
+
+                    let email_address = returnData.email_address;
+
+                    if (utils.validateEmail(email_address)) {
+                        let full_name = returnData.full_name;
+                        let subject = PARAMS.email_subject;
+
+                        // let replacements = {
+                        //     // "%EMAIL%": email,
+                        // };
+
+                        let data = {
+                            email: email_address,
+                            subject: subject,
+                            html: utils.parseTemplate(PARAMS.email_text, {
+                                '%URL%': returnData.url
+                            }),
+                        };
+
+                        if (full_name) {
+                            data.name = full_name;
+                        }
+
+                        handlerEmailQ.add(data);
+                    }
+
                     output[PARAMS.ddb_partition_income] = customer_id;
                     if (PARAMS.ddb_sort_income) {
                         output[PARAMS.ddb_sort_income] = transaction_id;
@@ -873,11 +921,12 @@ const httpHandler = async (req, res) => {
     }
 }
 
-const setHeaders = (res) => {
-    //TODO
-    //HTTP Strict Transport Security.
-    // res.setHeader('Strict-Transport-Security', );
-}
+//TODO: Future use
+// const setHeaders = (res) => {
+//     //TODO
+//     //HTTP Strict Transport Security.
+//     // res.setHeader('Strict-Transport-Security', );
+// }
 
 const startServer = async () => {
     if (PARAMS.http_port && PARAMS.http_port > 0) {
@@ -917,17 +966,20 @@ const checkTokens = async () => {
         return;
     }
 
+    clearTimeout(renewTimer);
+
     const tokenFuncs = [];
 
     tokenFuncs.push(requestDIDToken(TOKEN_IDS.data));
     tokenFuncs.push(requestDIDToken(TOKEN_IDS.consent));
 
+    //TODO : Param store?
     let wait = 30000;
     try {
         await Promise.all(tokenFuncs);
     } catch (error) {
         wait = 10000;
-        logger.error(error);
+        logger.error('checkTokens', error);
     }
 
     renewTimer = setTimeout(() => {
@@ -938,7 +990,6 @@ const checkTokens = async () => {
 const loadParams = async () => {
     logger.debug(`[${SCRIPT_INFO.name}] Loading parameters...`);
     const funcs = [];
-
 
     if (process.env.APIGWCMD) {
         //All we really care about is if it was launched with local config 
@@ -977,7 +1028,7 @@ const loadParams = async () => {
     });
 
     try {
-        let results = await Promise.all(funcs);
+        const results = await Promise.all(funcs);
         if (results) {
             let len = results.length;
             for (let index = 0; index < len; index++) {
@@ -1036,8 +1087,6 @@ const loadParams = async () => {
 
 }
 
-
-
 (async () => {
     const funcs = [];
 
@@ -1049,6 +1098,9 @@ const loadParams = async () => {
     Promise.all(funcs).then(async (values) => {
         await startServer();
         logger.info(`Initialized.`);
+        if (values) {
+            //TODO
+        }
     }).catch(error => {
         logger.error(error.message)
     });

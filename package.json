@@ -12,7 +12,7 @@
     "@types/express": "^4.17.11",
     "@types/qs": "^6.9.4",
     "atob": "^2.1.2",
-    "aws-sdk": "^2.826.0",
+    "aws-sdk": "^2.827.0",
     "bcrypt": "^5.0.0",
     "big-integer": "^1.6.48",
     "bull": "^3.20.0",
@@ -25,9 +25,12 @@
     "pm2": "^4.5.1",
     "sanitize-filename": "^1.6.3",
     "string-similarity": "^4.0.4",
-    "twilio": "^3.54.2",
+    "twilio": "^3.55.0",
     "uuid": "^8.3.2",
     "winston": "^3.3.3",
     "winston-cloudwatch": "^2.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.17.0"
   }
 }

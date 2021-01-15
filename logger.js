@@ -1,7 +1,7 @@
 'use strict';
 /*jshint esversion: 8 */
 const AWS = require('aws-sdk');
-const utils = require('./utils');
+require('dotenv').config();
 
 AWS.config.update({
   region: process.env.AWS_REGION
@@ -25,7 +25,7 @@ const logger = new winston.createLogger();
 if (process.env.RUN_MODE === 'DEV') {
   logger.add(new winston.transports.Console({
     level: process.env.LOG_LEVEL || 'silly',
-    format: winston.format.simple(),
+    format: winston.format.printf(formatter),
   }))
 } else {
   const cloudwatchConfig = {

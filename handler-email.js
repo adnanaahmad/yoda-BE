@@ -54,7 +54,7 @@ const sendEmail = async (email, subject, text, textHTML)=> {
     try {
         return await sendEmailWrapper(email, subject, text, textHTML);
     } catch (error) {
-        logger.error(errror);        
+        logger.error(error);        
     }
 }
 
