@@ -399,9 +399,30 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                     ...summary.confidenceScoreFlags
                 };
 
-                //TODO: How about accounts with multiple parties?
-                let accountName = data[0].accountDetails?.accountHolderNames;
-                output.nameMatchScore = PARAMS.match_name ? nameMatch.compare(meta.full_name, accountName) : 0;
+                const getNameMatchScore = (accountName)=> {
+                    let score  = PARAMS.match_name ? nameMatch.compare(meta.full_name, accountName) : 0;
+                    //TODO!!!! ONLY FOR TESTING! REMOVE before production
+                    logger.silly(`Name match:  ${PARAMS.match_name} ${meta.full_name} ${accountName}`);
+                    return score;
+                }
+
+                let nameMatchScore = 0;
+                let details = data[0].accountDetails;
+                if (details) {
+                    const parties = details.parties; 
+                    if(parties && Array.isArray(parties)) {
+                        for (let index = 0; index < parties.length; index++) {
+                            let score = getNameMatchScore(parties[index].accountHolderName);
+                            if(score > nameMatchScore) {
+                                nameMatchScore = score;
+                            }
+                        }
+                    }else {
+                        nameMatchScore = getNameMatchScore(details.accountHolderNames);
+                    }
+                }
+
+                output.nameMatchScore = nameMatchScore;
 
                 logger.info(`${customerReference} - requestIncomeVerification - Saving response.`);
                 output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
