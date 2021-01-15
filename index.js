@@ -408,6 +408,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
 
                 let nameMatchScore = 0;
                 let details = data[0].accountDetails;
+                logger.silly(`Account details`, details);
                 if (details) {
                     const parties = details.parties; 
                     if(parties && Array.isArray(parties)) {
