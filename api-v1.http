@@ -105,10 +105,10 @@ let output;
 if(summary) {
     output = {
         estimatedIncome: summary.estimatedIncome,
-        confidenceScore: summary.confidenceScore,
+        confidenceScore: summary.confidenceScore * 10,
         confidenceScoreFlags: {...summary.confidenceScoreFlags},
-        requestStartX : 0,
-//        now: Date.now(),
+        requestStart : 0,
+        now: Date.now(),
         requestComplete : Date.now(),
         requestDuration: 0
     }

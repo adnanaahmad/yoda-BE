@@ -60,6 +60,10 @@ const compare =(a, b, ignoreMiddle = false)=> {
         return 0;
     }
 
+    if(a === b) {
+        return 1;
+    }
+
     a = clean(a, true);
     b = clean(b, true);
 
@@ -79,6 +83,12 @@ function test() {
     console.log(compare('Mr Cisco Caceres, M.D.', 'Cisco Caceres'));
     console.log(compare('Mr Cisco Gerardo Caceres', 'Mister Cisco G Caceres'));
     console.log(compare('Cisco Gerardo Caceres', 'Cisco G. Caceres'));
+
+    console.log(compare('Mr T Greenr', 'Mr T Greenr'));
+    console.log(compare('Mr T Greenr', 'T Greenr'));
+    console.log(compare('Mr T Greenr', 'Thomas Greenr'));
+    console.log(compare('Mr T Greenr', 'T Green'));
+    console.log(compare('Mr T Greenr', 'Mr T'));
 }
 
 (async () => {
