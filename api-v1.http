@@ -219,6 +219,21 @@ content-type: application/json
       }
     }
 }
+
+###
+# Run Code #4 (complex)
+POST {{base_url}}/directid/code-run?id=complex
+content-type: application/json
+
+
+function sha512(str) {
+  return crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(str)).then(buf => {
+    return Array.prototype.map.call(new Uint8Array(buf), x=>(('00'+x.toString(16)).slice(-2))).join('');
+  });
+}
+
+sha512("my string for hashing").then(x => console.log(x));
+
 ###
 # Get EC2 instance meta for auto-configuration use
 GET http://169.254.169.254/latest/dynamic/instance-identity/document

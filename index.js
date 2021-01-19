@@ -402,7 +402,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                 const getNameMatchScore = (accountName)=> {
                     let score  = PARAMS.match_name ? nameMatch.compare(meta.full_name, accountName) : 0;
                     if(score > 0) {
-                        score = score.toFixed(3);
+                        score = utils.toFixedPlaces(score, 3);
                     }
                     //TODO!!!! ONLY FOR TESTING! REMOVE before production
                     logger.silly(`Name match:  enabled: ${PARAMS.match_name} | "${accountName}" = "${meta.full_name}" : ${score}`);
