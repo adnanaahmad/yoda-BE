@@ -405,7 +405,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                         score = utils.toFixedPlaces(score, 3);
                     }
                     //TODO!!!! ONLY FOR TESTING! REMOVE before production
-                    logger.silly(`Name match:  enabled: ${PARAMS.match_name} | "${accountName}" = "${meta.full_name}" : ${score}`);
+                    logger.silly(`Name match: "${accountName}" = "${meta.full_name}" : ${score}`);
                     return score;
                 }
 
@@ -413,7 +413,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                 let details = data[0].accountDetails;
                 //REMOVE!
                 logger.silly(`Account details`, details, meta);
-                if (details) {
+                if (details && PARAMS.match_name) {
                     const parties = details.parties; 
                     if(parties && Array.isArray(parties)) {
                         for (let index = 0; index < parties.length; index++) {
