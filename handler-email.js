@@ -18,7 +18,6 @@ let sesTransport;
 let ready = false;
 let emailFrom;
 
-
 const sendEmailWrapper = async (email, subject, text, textHTML) => {
 
     return new Promise((resolve, reject) => {
@@ -63,7 +62,6 @@ const add = async(data)=> {
         //TODO: cache and retry (?)
         return;
     }
-
     let results;
     try {
         //TODO: Should we save the id?
@@ -75,15 +73,11 @@ const add = async(data)=> {
             if(data.template && replacements) {
                 let template = TEMPLATES[data.template];
                 if(!template) {
-                    logger.warn(data.template, 'not found.');
+                    logger.warn(data.template, `template [${data.template}] not found.`);
                     return;
                 } 
-
-                data.html = template.replace(/%\w+%/g, (id) => {
-                    return replacements[id] || id;
-                });
+                data.html= utils.parseTemplate(template, replacements);
             }
-
             let email = data.name ? (`${data.name} <${data.email}>`): data.email;
             await sendEmail(email, data.subject, data.body, data.html);
             const duration = utils.time() - start; 
@@ -162,10 +156,18 @@ const loadParams = async () => {
     ready = typeof(sesTransport) !== 'undefined';
 }
 
+const loadTemplates = async () => {
+    logger.debug('Loading templates...');
+    const start = utils.time();
+    await utils.loadTemplates('./templates/', TEMPLATES);
+    const duration = utils.time() - start;
+    logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
+}
+
 (async () => {
     await loadParams();
     if(ready) {
-        await utils.loadTemplates('./templates/', TEMPLATES);
+        await loadTemplates();
         if(!SCRIPT_INFO.library_mode) {
             startQueue();
         }

@@ -10,6 +10,24 @@ AWS.config.update({
 const winston = require('winston');
 const WinstonCloudWatch = require('winston-cloudwatch');
 
+const enumerateErrorFormat = winston.format(info => {
+  if (info.message instanceof Error) {
+    info.message = Object.assign({
+      message: info.message.message,
+      stack: info.message.stack
+    }, info.message);
+  }
+
+  if (info instanceof Error) {
+    return Object.assign({
+      message: info.message,
+      stack: info.stack
+    }, info);
+  }
+
+  return info;
+});
+
 const format = (message, ...rest)=> {  
   message = typeof (message) === 'object' ? JSON.stringify(message) : message;
   return `${message} ${typeof(rest) !=='undefined' ? rest.map(r => `${JSON.stringify(r)}`).join('\n') : ''}`
@@ -17,10 +35,15 @@ const format = (message, ...rest)=> {
 
 const formatter = ({level, message, [Symbol.for('splat')]: args = []})=> {
   level = level.substring(0, 1).toUpperCase();
-  return `${level}/${format(message, ...args)}`;
+  return `${new Date().toISOString()} ${level}/${format(message, ...args)}`;
 }
 
-const logger = new winston.createLogger();
+const logger = new winston.createLogger({
+  level: 'error',
+  format: winston.format.combine(
+    enumerateErrorFormat(),
+    winston.format.json()
+  )});
 
 if (process.env.RUN_MODE === 'DEV') {
   logger.add(new winston.transports.Console({

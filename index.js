@@ -10,7 +10,7 @@ const nameMatch = require('./name-match');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 const packageJSON = require('./package.json');
 
-SCRIPT_INFO.version = packageJSON.version; 
+SCRIPT_INFO.version = packageJSON.version;
 
 SCRIPT_INFO.created = process.env.CREATED;
 SCRIPT_INFO.region = process.env.AWS_REGION;
@@ -41,7 +41,7 @@ const WWW = {
 ///////////////////////////////////////////////////////////////
 
 const TOKENS = {};
-const TEMPLATES = {};
+
 const PARAMS = {};
 
 const DONE = {};
@@ -222,13 +222,6 @@ const requestBankData = async (consentId, customerReference) => {
     return data;
 }
 
-const loadTemplates = async () => {
-    logger.debug('Loading templates...');
-    const start = utils.time();
-    await utils.loadTemplates('./templates/', TEMPLATES);
-    const duration = utils.time() - start;
-    logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
-}
 
 const updateIncomeVerification = async (data) => {
     if (typeof (data) !== 'object') {
@@ -399,9 +392,9 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                     ...summary.confidenceScoreFlags
                 };
 
-                const getNameMatchScore = (accountName)=> {
-                    let score  = PARAMS.match_name ? nameMatch.compare(meta.full_name, accountName) : 0;
-                    if(score > 0) {
+                const getNameMatchScore = (accountName) => {
+                    let score = PARAMS.match_name ? nameMatch.compare(meta.full_name, accountName) : 0;
+                    if (score > 0) {
                         score = utils.toFixedPlaces(score, 3);
                     }
                     //TODO!!!! ONLY FOR TESTING! REMOVE before production
@@ -414,15 +407,15 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                 //REMOVE!
                 logger.silly(`Account details`, details, meta);
                 if (details && PARAMS.match_name) {
-                    const parties = details.parties; 
-                    if(parties && Array.isArray(parties)) {
+                    const parties = details.parties;
+                    if (parties && Array.isArray(parties)) {
                         for (let index = 0; index < parties.length; index++) {
                             let score = getNameMatchScore(parties[index].accountHolderName);
-                            if(score > nameMatchScore) {
+                            if (score > nameMatchScore) {
                                 nameMatchScore = score;
                             }
                         }
-                    }else {
+                    } else {
                         nameMatchScore = getNameMatchScore(details.accountHolderNames);
                     }
                 }
@@ -683,7 +676,12 @@ const httpHandler = async (req, res) => {
                 break;
             }
             case 'server': {
-                const data = {...SCRIPT_INFO, start: utils.startTime, time: now, uptime: (now - utils.startTime), };
+                const data = {
+                    ...SCRIPT_INFO,
+                    start: utils.startTime,
+                    time: now,
+                    uptime: (now - utils.startTime),
+                };
                 utils.sendData(res, data);
                 break;
             }
@@ -881,7 +879,7 @@ const httpHandler = async (req, res) => {
                 try {
                     let url_ref = encodeURIComponent(`${transaction_id}:${customer_id}`);
                     let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${url_ref}`;
-    
+
 
                     let short_url = true;
                     if (typeof (bodyData.shorten_url) !== 'undefined') {
@@ -929,17 +927,17 @@ const httpHandler = async (req, res) => {
                         let full_name = returnData.full_name;
                         let subject = PARAMS.email_subject;
 
-                        // let replacements = {
-                        //     // "%EMAIL%": email,
-                        // };
+                        let replacements = {
+                            "%EMAIL%": email_address,
+                            "%LINK%": returnData.url
+                        };
 
                         let data = {
                             transaction_id: transaction_id,
                             email: email_address,
                             subject: subject,
-                            html: utils.parseTemplate(PARAMS.email_text, {
-                                '%URL%': returnData.url
-                            }),
+                            template: 'directid_email',
+                            replacements: replacements
                         };
 
                         if (full_name) {
@@ -962,7 +960,8 @@ const httpHandler = async (req, res) => {
 
                     awsClient.putDDBItem(PARAMS.ddb_table_income, output);
                 } catch (error) {
-                    logger.error(error);
+                    logger.error(error.stack);
+                    return;
                 }
                 logger.info(`Generated income url`, output);
             } else {
@@ -1144,7 +1143,6 @@ const loadParams = async () => {
     await loadParams();
 
     funcs.push(checkTokens());
-    //funcs.push(loadTemplates());
 
     Promise.all(funcs).then(async (values) => {
         await startServer();
