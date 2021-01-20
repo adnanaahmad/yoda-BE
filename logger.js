@@ -35,6 +35,11 @@ const format = (message, ...rest)=> {
 
 const formatter = ({level, message, [Symbol.for('splat')]: args = []})=> {
   level = level.substring(0, 1).toUpperCase();
+  return `${level}/${format(message, ...args)}`;
+}
+
+const formatterDate = ({level, message, [Symbol.for('splat')]: args = []})=> {
+  level = level.substring(0, 1).toUpperCase();
   return `${new Date().toISOString()} ${level}/${format(message, ...args)}`;
 }
 
@@ -48,7 +53,7 @@ const logger = new winston.createLogger({
 if (process.env.RUN_MODE === 'DEV') {
   logger.add(new winston.transports.Console({
     level: process.env.LOG_LEVEL || 'silly',
-    format: winston.format.printf(formatter),
+    format: winston.format.printf(formatterDate),
   }))
 } else {
   const cloudwatchConfig = {

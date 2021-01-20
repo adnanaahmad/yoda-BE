@@ -1,6 +1,6 @@
 {
   "name": "didservice",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "DirectID micro service.",
   "main": "index.js",
   "scripts": {
