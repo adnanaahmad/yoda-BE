@@ -88,7 +88,7 @@ fi
 if [ -d ~/.pm2 -a ! -h ~/.pm2 ]; then
     log "PM2 already installed."
     source ~/.bashrc
-    pm2 restart index.js
+    pm2 restart all
 else
     log "Installing PM2..."
     npm i -g pm2@latest > /dev/null 2>&1
@@ -104,6 +104,7 @@ else
     eval $startup > /dev/null 2>&1
 
     pm2 start index.js
+    pm2 start scheduler.js
     pm2 save
 fi
 
