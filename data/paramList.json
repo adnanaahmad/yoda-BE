@@ -90,6 +90,16 @@
     "Value": ""
   },
   {
+    "Name": "/config/directid/scheduler.expiration_ms",
+    "Type": "String",
+    "Value": "86400000"
+  },
+  {
+    "Name": "/config/directid/scheduler.cron_schedule",
+    "Type": "String",
+    "Value": "0 */10 * * * *"
+  },
+  {
     "Name": "/config/directid/directid.service.api_whitelist",
     "Type": "SecureString",
     "Value": ""

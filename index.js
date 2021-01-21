@@ -79,13 +79,7 @@ const handlerTwilioQ = require('./handler-twilio');
 const handlerEmailQ = require('./handler-email');
 //const handlerWebhookQ = require('./handler-webhook');
 
-const incomeDirectIDResponseStatus = {
-    incomeDirectIDRequestSent: 'incomeDirectIDRequestSent',
-    incomeDirectIDRequestSentFail: 'incomeDirectIDRequestSentFail',
-    incomeDirectIDRequestInProgress: 'incomeDirectIDRequestInProgress',
-    incomeDirectIDRequestSuccess: 'incomeDirectIDRequestSuccess',
-    incomeDirectIDRequestFail: 'incomeDirectIDRequestFail'
-}
+const incomeDirectIDResponseStatus =  require('./response-status.json');
 
 Object.freeze(incomeDirectIDResponseStatus);
 
@@ -398,7 +392,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                         score = utils.toFixedPlaces(score, 3);
                     }
                     //TODO!!!! ONLY FOR TESTING! REMOVE before production
-                    logger.silly(`Name match: "${accountName}" = "${meta.full_name}" : ${score}`);
+                    logger.silly(`Name match: "${accountName}" ~ "${meta.full_name}" = ${score}`);
                     return score;
                 }
 

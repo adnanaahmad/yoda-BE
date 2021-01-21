@@ -97,6 +97,49 @@ const createTable = async (params) => {
   }
 }
 
+const docQuery = async (params) => {
+  try {
+    return await DynamoDB.query(params).promise();
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+const docScan = async (params) => {
+  try {
+    return await DynamoDB.scan(params).promise();
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+
+const docDelete = async (params) => {
+  try {
+    return await DynamoDB.delete(params).promise();
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+
+const query = async (params) => {
+  try {
+    return await ddb.query(params).promise();
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+const scan = async (params) => {
+  try {
+    return await ddb.scan(params).promise();
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+
 (async () => {
 
 })();
@@ -106,6 +149,11 @@ module.exports = {
   putParameter,
   putDDBItem,
   updateDDBItem,
+  query,
+  scan,
+  docScan,
+  docQuery,
+  docDelete,
   describeTable,
   createTable
 };

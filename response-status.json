@@ -1,0 +1,7 @@
+{
+"incomeDirectIDRequestSent" : "incomeDirectIDRequestSent",
+"incomeDirectIDRequestSentFail": "incomeDirectIDRequestSentFail",
+"incomeDirectIDRequestInProgress": "incomeDirectIDRequestInProgress",
+"incomeDirectIDRequestSuccess": "incomeDirectIDRequestSuccess",
+"incomeDirectIDRequestFail": "incomeDirectIDRequestFail"
+}
