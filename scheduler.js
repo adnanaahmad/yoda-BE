@@ -6,7 +6,7 @@ const logger = require('./logger').createLogger('scheduler-did');
 const awsClient = require('./aws-client');
 const incomeDirectIDResponseStatus = require('./response-status.json');
 
-const SCRIPT_INFO = utils.getFileInfo(__filename); 
+const SCRIPT_INFO = utils.getFileInfo(__filename, true, true); 
 
 logger.info(SCRIPT_INFO);
 
@@ -44,7 +44,7 @@ const cleanRecords = async (status, now)=> {
         };
         let result = await awsClient.docDelete(params);
         if (result) {
-            logger.debug(`Deleted record: ${item.CustomerAccountID} - ${item.TransactionID}`);
+            logger.debug(`Deleted record:  [${item.archived}] ${item.CustomerAccountID} - ${item.TransactionID}`);
         }
     }
 
@@ -62,7 +62,7 @@ const cleanRecords = async (status, now)=> {
 
             let result = await awsClient.putDDBItem('DIRECTID_INCOME_ARCHIVED', item);
             if (result) {
-                logger.debug(`Archived record: ${item.CustomerAccountID} - ${item.TransactionID}`);
+                logger.debug(`Archived record: [${now}] ${item.CustomerAccountID} - ${item.TransactionID}`);
                 await deleteRecord(item);
             }
         });
