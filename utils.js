@@ -115,11 +115,11 @@ const comparePassword = async (password, hash) => {
 
 const parseBoolean = (value) => value !== undefined && (value === 'true');
 
-const getFileInfo = (file, doHash) => {
+const getFileInfo = (file, doHash, extras) => {
     const stats = fs.statSync(file);
 
     //TODO! fileStats
-    let info = {
+    const info = {
         start: startTime,
         path: file,
         name: getFilename(file),
@@ -130,6 +130,19 @@ const getFileInfo = (file, doHash) => {
 
     if (doHash) {
         info.hash = hash(fs.readFileSync(file, 'utf8'));
+    }
+
+
+    if(extras) {
+        const packageJSON = require('./package.json');
+
+        info.version = packageJSON.version;
+
+        info.created = process.env.CREATED;
+        info.region = process.env.AWS_REGION;
+        info.instance = process.env.INSTANCE_ID;
+        info.log_level = process.env.LOG_LEVEL;
+        info.run_mode = process.env.RUN_MODE;
     }
 
     return info;

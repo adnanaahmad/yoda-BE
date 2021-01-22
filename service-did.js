@@ -7,16 +7,7 @@ const logger = require('./logger').logger;
 const utils = require('./utils');
 const nameMatch = require('./name-match');
 
-const SCRIPT_INFO = utils.getFileInfo(__filename, true);
-const packageJSON = require('./package.json');
-
-SCRIPT_INFO.version = packageJSON.version;
-
-SCRIPT_INFO.created = process.env.CREATED;
-SCRIPT_INFO.region = process.env.AWS_REGION;
-SCRIPT_INFO.instance = process.env.INSTANCE_ID;
-SCRIPT_INFO.log_level = process.env.LOG_LEVEL;
-SCRIPT_INFO.run_mode = process.env.RUN_MODE;
+const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info('Startup', SCRIPT_INFO);
 

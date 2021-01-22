@@ -88,7 +88,8 @@ fi
 if [ -d ~/.pm2 -a ! -h ~/.pm2 ]; then
     log "PM2 already installed."
     source ~/.bashrc
-    pm2 restart all
+    # This will ensure the even when updating PM2 it starts the services.
+    pm2 delete  all
 else
     log "Installing PM2..."
     npm i -g pm2@latest > /dev/null 2>&1
@@ -102,11 +103,14 @@ else
     log "Adding startup command."
     startup=$(pm2 startup systemd| tail -1)
     eval $startup > /dev/null 2>&1
-
-    pm2 start index.js
-    pm2 start scheduler.js
-    pm2 save
 fi
+
+# To ensure we start all the correct services.
+# TODO: Make this conditional
+pm2 start service-did.js
+#pm2 start service-ss.js
+pm2 start scheduler.js
+pm2 save
 
 if [ "$P" == "1" ] 
 then

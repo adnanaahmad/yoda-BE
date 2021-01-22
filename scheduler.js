@@ -2,11 +2,13 @@
 /*jshint esversion: 8 */
 
 const utils = require('./utils');
-const logger = require('./logger').logger;
+const logger = require('./logger').createLogger('scheduler-did');
 const awsClient = require('./aws-client');
 const incomeDirectIDResponseStatus = require('./response-status.json');
 
-logger.info(utils.getFileInfo(__filename));
+const SCRIPT_INFO = utils.getFileInfo(__filename); 
+
+logger.info(SCRIPT_INFO);
 
 const cron = require('cron');
 let cronJob;
@@ -74,9 +76,9 @@ const cleanRecords = async (status, now)=> {
 }
 
 const doJob = async () => {
-    logger.info('Scheduled tasks starting...');
-    const funcs = [];
     const now = Date.now();
+    logger.info(`Scheduled tasks starting... [${now - expirationMS}]`);
+    const funcs = [];
     const start = utils.time();
     Object.keys(incomeDirectIDResponseStatus).forEach((key)=> {
         funcs.push(cleanRecords(incomeDirectIDResponseStatus[key], now));

@@ -28,54 +28,76 @@ const enumerateErrorFormat = winston.format(info => {
   return info;
 });
 
-const format = (message, ...rest)=> {  
+const format = (message, ...rest) => {
   message = typeof (message) === 'object' ? JSON.stringify(message) : message;
   return `${message} ${typeof(rest) !=='undefined' ? rest.map(r => `${JSON.stringify(r)}`).join('\n') : ''}`
 }
 
-const formatter = ({level, message, [Symbol.for('splat')]: args = []})=> {
+const formatter = ({
+  level,
+  message,
+  [Symbol.for('splat')]: args = []
+}) => {
   level = level.substring(0, 1).toUpperCase();
   return `${level}/${format(message, ...args)}`;
 }
 
-const formatterDate = ({level, message, [Symbol.for('splat')]: args = []})=> {
+const formatterDate = ({
+  level,
+  message,
+  [Symbol.for('splat')]: args = []
+}) => {
   level = level.substring(0, 1).toUpperCase();
   return `${new Date().toISOString()} ${level}/${format(message, ...args)}`;
 }
 
-const logger = new winston.createLogger({
-  level: 'error',
-  format: winston.format.combine(
-    enumerateErrorFormat(),
-    winston.format.json()
-  )});
+const createLogger = (logGroupName, logStreamName) => {
 
-if (process.env.RUN_MODE === 'DEV') {
-  logger.add(new winston.transports.Console({
-    level: process.env.LOG_LEVEL || 'silly',
-    format: winston.format.printf(formatterDate),
-  }))
-} else {
-  const cloudwatchConfig = {
-    level: process.env.LOG_LEVEL || 'http',
-    logGroupName: process.env.LOG_GROUP_NAME || 'didservice',
-    logStreamName: process.env.INSTANCE_ID || 'default',
-    messageFormatter: formatter
+  let cloud = process.env.RUN_MODE !== 'DEV' && typeof(logGroupName) !== 'undefined';
+
+  const logger = new winston.createLogger({
+    level: 'error',
+    format: winston.format.combine(
+      enumerateErrorFormat(),
+      winston.format.json()
+    )
+  });
+
+  if (cloud) {
+    const cloudwatchConfig = {
+      level: process.env.LOG_LEVEL || 'http',
+      logGroupName: logGroupName ||process.env.LOG_GROUP_NAME || 'service-did',
+      logStreamName: logStreamName || process.env.INSTANCE_ID || 'default',
+      messageFormatter: formatter
+    }
+    logger.add(new WinstonCloudWatch(cloudwatchConfig))
+  } else {
+    logger.add(new winston.transports.Console({
+      level: process.env.LOG_LEVEL || 'silly',
+      format: winston.format.printf(formatterDate),
+    }))
   }
-  logger.add(new WinstonCloudWatch(cloudwatchConfig))
   
+  return logger;
 }
 
-const error= (message, extra)=> logger.log('error', message, extra);
-const warn = (message, extra)=> logger.log('warn', message, extra);
-const info= (message, extra)=> logger.log('info', message, extra);
-const http = (message, extra)=> logger.log('http:', message, extra);
-const verbose = (message, extra)=> logger.log('verbose', message, extra);
-const debug= (message, extra)=> logger.log('debug', message, extra);
-const silly= (message, extra)=> logger.log('silly', message, extra);
+const logger = createLogger('service-did');
+
+//TODO
+const doLog = (type, message, extra)=> {
+}
+
+const error = (message, extra) => logger.log('error', message, extra);
+const warn = (message, extra) => logger.log('warn', message, extra);
+const info = (message, extra) => logger.log('info', message, extra);
+const http = (message, extra) => logger.log('http:', message, extra);
+const verbose = (message, extra) => logger.log('verbose', message, extra);
+const debug = (message, extra) => logger.log('debug', message, extra);
+const silly = (message, extra) => logger.log('silly', message, extra);
 
 module.exports = {
   logger,
+  createLogger,
   error,
   warn,
   info,
