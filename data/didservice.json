@@ -1,45 +1,60 @@
 {
-  "directid": {
-    "api": {
-      "connect_url": "https://uk.connect.directid.co",
-      "income_verification_url": "https://uk.api.directid.co/income-verification/v1/consents/%CONSENT_ID%/verifications?includeFlags=true",
-      "token_url": "https://uk.api.directid.co/v1/oauth2/token",
-      "bank_data_url": "https://uk.api.directid.co/data/v1/consents/%CONSENT_ID%/accounts"
+  "config": {
+    "directid": {
+      "directid": {
+        "api": {
+          "connect_url": "https://uk.connect.directid.co",
+          "income_verification_url": "https://uk.api.directid.co/income-verification/v1/consents/%CONSENT_ID%/verifications?includeFlags=true",
+          "token_url": "https://uk.api.directid.co/v1/oauth2/token",
+          "bank_data_url": "https://uk.api.directid.co/data/v1/consents/%CONSENT_ID%/accounts",
+          "revoke_consent_url": "https://uk.api.directid.co/consents/v1/%CONSENT_ID%/revoke"
+        },
+        "credentials": {
+          "client_secret": "",
+          "client_id": ""
+        },
+        "service": {
+          "http_port": "8998",
+          "https_port": "8999",
+          "ddb_table_income": "DIRECTID_INCOME",
+          "ddb_partition_income": "CustomerAccountID",
+          "ddb_sort_income": "RequestTimestamp",
+          "email_text": "From FortifID: please use the following link to complete the verification steps: %URL%",
+          "incoming_webhook": "",
+          "request_bank_data": "false",
+          "demo_enabled": "false",
+          "sms_text": "From FortifID: please use the following link to complete the verification steps: %URL%",
+          "webhook_secret": "",
+          "system_secret": "",
+          "api_whitelist": "",
+          "cache_tokens": "false",
+          "email_subject": "Verification steps",
+          "match_name": "false"
+        }
+      },
+      "scheduler": {
+        "expiration_ms": "86400000",
+        "cron_schedule": "0 */10 * * * *"
+      }
     },
-    "credentials": {
-      "client_secret": "",
-      "client_id": ""
-    },
-    "service": {
-      "http_port": 8998,
-      "https_port": 8999,
-      "ddb_partition_income": "requestId",
-      "email_text": "From FortifID: please use the following link to complete the verification steps: %URL%",
-      "incoming_webhook": "",
-      "request_bank_data": false,
-      "sms_text": "From FortifID: please use the following link to complete the verification steps: %URL%",
-      "webhook_secret": "",
-      "api_whitelist": "",
-      "cache_tokens": false,
-      "ddb_table_income": "DIRECTID_INCOME",
-      "email_subject": "Verification steps",
-      "match_name": false
+    "shared": {
+      "bitly": {
+        "access_token": ""
+      },
+      "email": {
+        "ses": {
+          "password": "",
+          "account": "",
+          "from": "Barbarians Dev <dev@barbarians.com>",
+          "smtp_server": "email-smtp.us-east-1.amazonaws.com"
+        },
+        "outlook": ""
+      },
+      "twilio": {
+        "auth_token": "",
+        "account_sid": "",
+        "phone_number": ""
+      }
     }
-  },
-  "bitly": {
-    "access_token": ""
-  },
-  "email": {
-    "ses": {
-      "password": "",
-      "account": "",
-      "from": "Barbarians Dev <dev@barbarians.com>",
-      "smtp_server": "email-smtp.us-east-1.amazonaws.com"
-    }
-  },
-  "twilio": {
-    "auth_token": "",
-    "account_sid": "",
-    "phone_number": ""
   }
 }

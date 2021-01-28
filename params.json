@@ -4,6 +4,7 @@
     "connect_url": "/config/directid/directid.api.connect_url",
     "token_url": "/config/directid/directid.api.token_url",
     "bank_data_url": "/config/directid/directid.api.bank_data_url",
+    "revoke_consent_url": "/config/directid/directid.api.revoke_consent_url",
     "income_verification_url": "/config/directid/directid.api.income_verification_url",
     "http_port": "/config/directid/directid.service.http_port",
     "https_port": "/config/directid/directid.service.https_port",

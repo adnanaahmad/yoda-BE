@@ -70,7 +70,7 @@ const handlerTwilioQ = require('./handler-twilio');
 const handlerEmailQ = require('./handler-email');
 //const handlerWebhookQ = require('./handler-webhook');
 
-const incomeDirectIDResponseStatus =  require('./response-status.json');
+const incomeDirectIDResponseStatus = require('./response-status.json');
 
 Object.freeze(incomeDirectIDResponseStatus);
 
@@ -183,7 +183,7 @@ const requestBankData = async (consentId, customerReference) => {
 
     let data;
     try {
-
+        //https://uk.api.directid.co/consents/v1/{consentId}/revoke
         const start = utils.time();
 
         data = await utils.fetchData(utils.parseTemplate(PARAMS.bank_data_url, {
@@ -206,6 +206,32 @@ const requestBankData = async (consentId, customerReference) => {
     }
     return data;
 }
+
+const revokeConsent = async (consentId) => {
+    logger.info(`${consentId} - Revoking consent...`);
+    const headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+        'authorization': `Bearer ${TOKENS[TOKEN_IDS.consent].access_token}`
+    };
+
+    let data;
+    try {
+        const start = utils.time();
+
+        data = await utils.fetchData(utils.parseTemplate(PARAMS.revoke_consent_url, {
+            '%CONSENT_ID%': consentId
+        }), undefined, headers, 'get');
+
+        const duration = utils.time() - start;
+
+        logger.info(`${consentId} - Revoked consent. ${utils.toFixedPlaces(duration, 2)}ms`);
+    } catch (error) {
+        logger.error(`revokeConsent - error`, error);
+    }
+    return data;
+}
+
+
 
 
 const updateIncomeVerification = async (data) => {
@@ -832,9 +858,13 @@ const httpHandler = async (req, res) => {
                                 funcs.push(requestBankData(consentId, customerReference));
                             }
 
-                            Promise.all(funcs).then((values) => {
+                            Promise.all(funcs).then(async (values) => {
+                                if (PARAMS.revoke_consent_url) {
+                                    await revokeConsent(consentId);
+                                }
+
                                 if (values) {
-                                    // TODO:
+                                    //TODO
                                 }
                             }).catch(error => {
                                 logger.error(error);

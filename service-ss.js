@@ -11,8 +11,8 @@ logger.info(SCRIPT_INFO);
 
 //https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc?singleWsdl
 //AdrConnectWebService
-const  url = 'https://adrconnect.mvrs.com/adrconnect/adrconnectwebservice.svc?singlewsdl';
-//https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc?singleWsdl';
+//const  url = 'https://adrconnect.mvrs.com/adrconnect/adrconnectwebservice.svc?singlewsdl';
+const  url ='https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc?singleWsdl';
 let args = {name: 'value'};
 soap.createClient(url, (err, client)=> {
     if(err) {

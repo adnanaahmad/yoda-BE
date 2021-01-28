@@ -12,7 +12,9 @@ const bcrypt = require('bcrypt');
 const BCRYPT_SALT_ROUNDS = 10;
 const fetch = require("node-fetch");
 const LZUTF8 = require('lzutf8');
-const { v4: uuidv4 } = require('uuid');
+const {
+    v4: uuidv4
+} = require('uuid');
 const BigInt = require('big-integer');
 const loadNs = process.hrtime();
 const loadMs = new Date().getTime();
@@ -133,7 +135,7 @@ const getFileInfo = (file, doHash, extras) => {
     }
 
 
-    if(extras) {
+    if (extras) {
         const packageJSON = require('./package.json');
 
         info.version = packageJSON.version;
@@ -152,7 +154,7 @@ const makeTemplate = (templateString) => {
     return (templateData) => new Function(`{${Object.keys(templateData).join(',')}}`, 'return `' + templateString + '`')(templateData);
 }
 
-const parseTemplate = (template, replacements)=> {
+const parseTemplate = (template, replacements) => {
     return template.replace(/%\w+%/g, (id) => {
         return replacements[id] || id;
     });
@@ -189,6 +191,22 @@ const checksum8 = (message, hex) => {
         return c;
 };
 
+const parseDotNotation = (str, val, obj) => {
+    var currentObj = obj,
+        keys = str.split("."),
+        i, l = Math.max(1, keys.length - 1),
+        key;
+
+    for (i = 0; i < l; ++i) {
+        key = keys[i];
+        currentObj[key] = currentObj[key] || {};
+        currentObj = currentObj[key];
+    }
+
+    currentObj[keys[i]] = val;
+    delete obj[str];
+}
+
 const getFileUpdatedDate = (path, asNumber) => {
     const stats = fs.statSync(path);
     let time = stats.mtime;
@@ -202,12 +220,12 @@ const time = () => {
 };
 
 const timenano = () => {
-  let diffNs = process.hrtime(loadNs);
-  return BigInt(loadMs).times(1e6).add(BigInt(diffNs[0]).times(1e9).plus(diffNs[1])).toString();
+    let diffNs = process.hrtime(loadNs);
+    return BigInt(loadMs).times(1e6).add(BigInt(diffNs[0]).times(1e9).plus(diffNs[1])).toString();
 }
 
-const timemicro = ()=> {
-  return BigInt(timenano()).divide(1e3).toString();
+const timemicro = () => {
+    return BigInt(timenano()).divide(1e3).toString();
 }
 
 const timeout = (ms) => new Promise(res => setTimeout(res, ms));
@@ -254,8 +272,8 @@ const toArgs = (command) => {
     return parseArgs(arr);
 }
 
-const toArgs2 = (command)=> {
-    if(!command || command.length < 1)
+const toArgs2 = (command) => {
+    if (!command || command.length < 1)
         return;
 
     const ARGS = {};
@@ -263,7 +281,7 @@ const toArgs2 = (command)=> {
     let len = args.length;
     for (let index = 0; index < len; index++) {
         const key = args[index];
-        if(key.startsWith('-') && index + 1 < len) {
+        if (key.startsWith('-') && index + 1 < len) {
             ARGS[key.substr(1, key.length - 1)] = args[index + 1].trim();
         }
     }
@@ -312,7 +330,7 @@ const setFileTime = (file, atime, mtime) => {
     });
 };
 
-const cleanName = (name)=> {
+const cleanName = (name) => {
     return name.replace(/[ $.#]+/g, '-');
 }
 
@@ -376,12 +394,16 @@ const parseNumber = (val) => {
     return temp === null ? 0 : temp;
 }
 
-const compressString = (input)=> {
-    return LZUTF8.compress(input, {outputEncoding: 'Base64'});
+const compressString = (input) => {
+    return LZUTF8.compress(input, {
+        outputEncoding: 'Base64'
+    });
 }
 
-const decompressString = (input)=> {
-    return LZUTF8.decompress(input,  {outputEncoding: 'String'});
+const decompressString = (input) => {
+    return LZUTF8.decompress(input, {
+        outputEncoding: 'String'
+    });
 }
 
 const getFields = (source, fields, destination, useHas, noCheck) => {
@@ -659,13 +681,13 @@ const queryStringToObject = (query) => {
     return undefined;
 }
 
-const objectToQueryString = (params)=> Object.keys(params).map((key) => {
+const objectToQueryString = (params) => Object.keys(params).map((key) => {
     return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
 }).join('&');
 
 
 const fetchData = async (url, body, headers, method = 'post', responseType, throwError = true) => {
-    headers =  headers || {};
+    headers = headers || {};
 
     let data;
 
@@ -676,14 +698,14 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
     }
 
     //TODO
-    const bodyType = typeof(body);
+    const bodyType = typeof (body);
 
-    if(!headers['content-type'] && bodyType === 'object') {
+    if (!headers['content-type'] && bodyType === 'object') {
         headers['content-type'] = 'application/json';
     }
 
-    if(bodyType === 'object') {
-        if(headers['content-type'] === 'application/json') {
+    if (bodyType === 'object') {
+        if (headers['content-type'] === 'application/json') {
             body = JSON.stringify(body);
         } else {
             body = new URLSearchParams(body);
@@ -708,10 +730,10 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
     let response;
     try {
         response = await fetch(url, config);
-        
+
         if (response) {
-            if(response.ok) {
-                if(responseType === 'blob') {
+            if (response.ok) {
+                if (responseType === 'blob') {
                     data = await response.blob();
                 } else {
                     data = await response.text();
@@ -720,7 +742,7 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
                             let firstChar = data.substring(0, 1);
                             if (firstChar === '[' || firstChar === '{') {
                                 data = JSON.parse(data);
-                            } 
+                            }
                         } catch (e) {}
                     }
                 }
@@ -729,7 +751,7 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
             }
         }
     } catch (error) {
-        if(throwError) {
+        if (throwError) {
             throw error;
         }
     }
@@ -775,17 +797,17 @@ const getUUID = () => {
 }
 
 
-const flattenObject = (obj)=> {
+const flattenObject = (obj) => {
     let results = {};
 
     for (let item in obj) {
-        if (!obj.hasOwnProperty(item)) 
+        if (!obj.hasOwnProperty(item))
             continue;
-        
+
         if ((typeof obj[item]) == 'object') {
             let flatObject = flattenObject(obj[item]);
             for (let x in flatObject) {
-                if (!flatObject.hasOwnProperty(x)) 
+                if (!flatObject.hasOwnProperty(x))
                     continue;
 
                 results[item + '/' + x] = flatObject[x];
@@ -809,7 +831,7 @@ const loadJSONAsync = async (file) => {
     if (file && await fileExists(file)) {
         try {
             let data = await fileRead(file, 'utf-8');
-            if(data) {
+            if (data) {
                 let json = JSON.parse(data);
                 return json;
             }
@@ -862,10 +884,10 @@ const fromUrlSafeBase64 = (base64) => {
     return new Buffer.from(base64, 'base64');
 }
 
-const isEntryPoint = ()=> {
+const isEntryPoint = () => {
     return require.main === module;
 }
-  
+
 const base62 = {
     charset: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
         .split(''),
@@ -905,9 +927,9 @@ const addS = (value) => {
     return value !== 1 ? 's' : '';
 }
 
-const isJSON = (data)=> {
+const isJSON = (data) => {
 
-    const dataType = typeof(data);
+    const dataType = typeof (data);
     if (dataType === 'string' && data.length > 1) {
         let firstChar = data.substring(0, 1);
         //let lastChar = data.slice(-1);
@@ -916,12 +938,11 @@ const isJSON = (data)=> {
     }
 }
 
-const convertIfJSON = (data)=> {
-    if(isJSON(data)) {
+const convertIfJSON = (data) => {
+    if (isJSON(data)) {
         try {
             data = JSON.parse(data);
-        } catch (error) {
-        }
+        } catch (error) {}
     }
     return data;
 }
@@ -942,7 +963,7 @@ const getBody = async (req) => {
                 //     data = data.toString('utf8');
                 // }
                 data = data.toString('utf8');
-                if(isJSON(data)) {
+                if (isJSON(data)) {
                     data = JSON.parse(data);
                 }
                 resolve(data);
@@ -964,11 +985,11 @@ const getBody = async (req) => {
     });
 }
 
-const getRandomIntInclusive = (min, max)=> {
+const getRandomIntInclusive = (min, max) => {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
-  }
+}
 
 module.exports = {
     isEntryPoint,
@@ -1034,6 +1055,7 @@ module.exports = {
     baseAlpha,
     contentTypes,
     flattenObject,
+    parseDotNotation,
     toUrlSafeBase64,
     fromUrlSafeBase64,
     loadTemplates,

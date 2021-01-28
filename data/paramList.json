@@ -85,6 +85,11 @@
     "Value": "https://uk.api.directid.co/data/v1/consents/%CONSENT_ID%/accounts"
   },
   {
+    "Name": "/config/directid/directid.api.revoke_consent_url",
+    "Type": "String",
+    "Value": "https://uk.api.directid.co/consents/v1/%CONSENT_ID%/revoke"
+  },  
+  {
     "Name": "/config/directid/directid.credentials.client_id",
     "Type": "SecureString",
     "Value": ""
