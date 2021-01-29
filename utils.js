@@ -991,6 +991,19 @@ const getRandomIntInclusive = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
 }
 
+function escapeHTML(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+ }
+
+ function unescapeHTML(escapedHTML) {
+    return escapedHTML.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+  }
+
 module.exports = {
     isEntryPoint,
     startTime,
@@ -1074,5 +1087,7 @@ module.exports = {
     parseTemplate,
     compressString,
     decompressString,
-    getUUID
+    getUUID,
+    unescapeHTML,
+    escapeHTML
 }

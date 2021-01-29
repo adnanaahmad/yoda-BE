@@ -2,7 +2,7 @@
 /*jshint esversion: 8 */
 const utils = require('./utils');
 
-(async () => {
+const createParams =()=> {
     let orig = require('./data/paramList.json');
     const fields = {};
 
@@ -13,4 +13,7 @@ const utils = require('./utils');
 
 
     utils.fileWrite('./data/didservice.json', JSON.stringify(fields, null, 2));
+}
+
+(async () => {
 })();

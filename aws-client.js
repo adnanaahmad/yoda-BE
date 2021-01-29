@@ -35,7 +35,7 @@ const getParameter = async (name) => {
       return value;
     }
   } catch (error) {
-    logger.error(error, name);
+    logger.error('getParameter', name, error);
   }
 };
 
@@ -51,7 +51,7 @@ const putParameter = async (name, value, type = 'SecureString', dataType = 'text
   try {
     return await ssm.putParameter(params).promise();
   } catch (error) {
-    logger.error(error);
+    logger.error('putParameter', name, error);
   }
 };
 

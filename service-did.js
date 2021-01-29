@@ -14,11 +14,11 @@ logger.info('Startup', SCRIPT_INFO);
 const url = require('url');
 const sanitize = require("sanitize-filename");
 const pm2 = require('pm2');
+const oauth2 = require('./auth-oauth2');
 
 const awsClient = require('./aws-client');
 
 let pm2Connected = false;
-let renewTimer;
 
 // TODO: Just for testing and demos
 ///////////////////////////////////////////////////////////////
@@ -31,7 +31,6 @@ const WWW = {
 }
 ///////////////////////////////////////////////////////////////
 
-const TOKENS = {};
 
 const PARAMS = {};
 
@@ -53,10 +52,9 @@ const DIRECTID_SOURCE_IP = '51.11.21.163';
 const consents = {};
 
 const TOKEN_IDS = {
-    data: 'data',
-    consent: 'consent'
+    data: 'directid.data',
+    consent: 'directid.consent'
 }
-
 
 Object.freeze(TOKEN_IDS);
 
@@ -95,95 +93,15 @@ const shortenUrl = async (url, token, full = false) => {
     }
 }
 
-const saveFile = async (type, id, data) => {
-    if (!data) {
-        return;
-    }
-
-    try {
-        await utils.fileWrite(`./${type}/${id}.json`, JSON.stringify(data, null, 2));
-    } catch (error) {
-        logger.error(error);
-    }
-}
-
-const loadFile = async (type, id) => {
-    try {
-        let data = await utils.loadFile(`./${type}/${id}.json`);
-        if (data) {
-            return JSON.parse(data);
-        }
-    } catch (error) {
-        logger.error(error);
-    }
-}
-
-const checkToken = async (scope) => {
-    let cached = TOKENS[scope];
-    if (!cached && PARAMS.cache_tokens) {
-        cached = await loadFile('secure', scope);
-        if (cached) {
-            TOKENS[scope] = cached;
-            logger.debug(`Loaded cached ${scope} token.`);
-        }
-    }
-
-    if (cached) {
-        cached.checking = false;
-        if (cached.expires - 300000 - Date.now() > 0) {
-            return true;
-        }
-    }
-}
-
-const requestDIDToken = async (scope) => {
-    if (await checkToken(scope)) {
-        return;
-    }
-
-    logger.debug(`Requesting did.${scope} token...`);
-    const headers = {
-        'content-type': 'application/x-www-form-urlencoded'
-    };
-
-    const body = {
-        grant_type: 'client_credentials',
-        client_id: PARAMS.client_id,
-        client_secret: PARAMS.client_secret,
-        scope: `directid.${scope}`
-    }
-
-    try {
-        const start = utils.time();
-        const response = await utils.fetchData(PARAMS.token_url, body, headers);
-
-        const duration = utils.time() - start;
-
-        if (response && response.access_token && response.expires_in) {
-            TOKENS[scope] = response;
-            response.expires = Date.now() + response.expires_in * 1000;
-            logger.debug(`Retrieved did.${scope} token. Expires on ${new Date(response.expires).toLocaleString()}. ${utils.toFixedPlaces(duration, 2)}ms`);
-            if (PARAMS.cache_tokens) {
-                await saveFile('secure', scope, response);
-            }
-        } else {
-            logger.error(`requestDIDToken - [${scope}] invalid response`, response);
-        }
-    } catch (error) {
-        logger.error(`requestDIDToken - [${scope}] error`, error);
-    }
-}
-
 const requestBankData = async (consentId, customerReference) => {
     logger.info(`${customerReference} - Requesting bank data...`);
     const headers = {
         'content-type': 'application/x-www-form-urlencoded',
-        'authorization': `Bearer ${TOKENS[TOKEN_IDS.data].access_token}`
+        'authorization': `Bearer ${oauth2.TOKENS[TOKEN_IDS.data].access_token}`
     };
 
     let data;
     try {
-        //https://uk.api.directid.co/consents/v1/{consentId}/revoke
         const start = utils.time();
 
         data = await utils.fetchData(utils.parseTemplate(PARAMS.bank_data_url, {
@@ -211,7 +129,7 @@ const revokeConsent = async (consentId) => {
     logger.info(`${consentId} - Revoking consent...`);
     const headers = {
         'content-type': 'application/x-www-form-urlencoded',
-        'authorization': `Bearer ${TOKENS[TOKEN_IDS.consent].access_token}`
+        'authorization': `Bearer ${oauth2.TOKENS[TOKEN_IDS.consent].access_token}`
     };
 
     let data;
@@ -225,14 +143,12 @@ const revokeConsent = async (consentId) => {
         const duration = utils.time() - start;
 
         logger.info(`${consentId} - Revoked consent. ${utils.toFixedPlaces(duration, 2)}ms`);
+        logger.silly('revokeConsent results', data);
     } catch (error) {
         logger.error(`revokeConsent - error`, error);
     }
     return data;
 }
-
-
-
 
 const updateIncomeVerification = async (data) => {
     if (typeof (data) !== 'object') {
@@ -357,7 +273,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     logger.info(`${customerReference} - Requesting income verification...`);
     const headers = {
         'content-type': 'application/x-www-form-urlencoded',
-        'authorization': `Bearer ${TOKENS[TOKEN_IDS.data].access_token}`
+        'authorization': `Bearer ${oauth2.TOKENS[TOKEN_IDS.data].access_token}`
     };
 
     const start = utils.time();
@@ -1024,32 +940,17 @@ const startServer = async () => {
     }
 }
 
-const checkTokens = async () => {
+const initTokens = async () => {
     //TODO
     if (!PARAMS.token_url || PARAMS.token_url.indexOf('http') !== 0) {
         logger.error('Invalid token_url parameter.');
         return;
     }
 
-    clearTimeout(renewTimer);
-
-    const tokenFuncs = [];
-
-    tokenFuncs.push(requestDIDToken(TOKEN_IDS.data));
-    tokenFuncs.push(requestDIDToken(TOKEN_IDS.consent));
-
-    //TODO : Param store?
-    let wait = 30000;
-    try {
-        await Promise.all(tokenFuncs);
-    } catch (error) {
-        wait = 10000;
-        logger.error('checkTokens', error);
-    }
-
-    renewTimer = setTimeout(() => {
-        checkTokens();
-    }, wait);
+    oauth2.cacheTokens = PARAMS.cache_tokens;
+    oauth2.addRequest(TOKEN_IDS.data, PARAMS.token_url, PARAMS.client_id, PARAMS.client_secret, TOKEN_IDS.data);
+    oauth2.addRequest(TOKEN_IDS.consent, PARAMS.token_url, PARAMS.client_id, PARAMS.client_secret, TOKEN_IDS.consent);
+    await oauth2.start();
 }
 
 const loadParams = async () => {
@@ -1157,7 +1058,7 @@ const loadParams = async () => {
 
     await loadParams();
 
-    funcs.push(checkTokens());
+    funcs.push(initTokens());
 
     Promise.all(funcs).then(async (values) => {
         await startServer();

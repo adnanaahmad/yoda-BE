@@ -19,6 +19,7 @@
     "console-stamp": "^3.0.0-rc4.2",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",
+    "easy-soap-request": "^4.1.2",
     "lzutf8": "^0.5.8",
     "minimist": "^1.2.5",
     "node-fetch": "^2.6.1",
@@ -30,7 +31,8 @@
     "twilio": "^3.55.1",
     "uuid": "^8.3.2",
     "winston": "^3.3.3",
-    "winston-cloudwatch": "^2.5.0"
+    "winston-cloudwatch": "^2.5.0",
+    "xml-js": "^1.6.11"
   },
   "devDependencies": {}
 }
