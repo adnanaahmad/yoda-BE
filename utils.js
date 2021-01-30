@@ -1001,7 +1001,7 @@ function escapeHTML(unsafe) {
  }
 
  function unescapeHTML(escapedHTML) {
-    return escapedHTML.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+    return escapedHTML.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&#xD;/g, '').replace(/&#xA;/g, '');
   }
 
 module.exports = {
