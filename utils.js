@@ -730,7 +730,7 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
     let response;
     try {
         response = await fetch(url, config);
-
+        //response = await fetchWithTimeout(url, config);
         if (response) {
             if (response.ok) {
                 if (responseType === 'blob') {
@@ -862,8 +862,20 @@ const loadFile = async (file) => {
     } catch (error) {}
 }
 
-
-
+async function fetchWithTimeout(resource, options) {
+    const { timeout = 8000 } = options;
+    
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+  
+    const response = await fetch(resource, {
+      ...options,
+      signal: controller.signal  
+    });
+    clearTimeout(id);
+  
+    return response;
+  }
 
 const toUrlSafeBase64 = (text) => {
     let safe = Buffer.from(text).toString('base64')
@@ -1089,5 +1101,6 @@ module.exports = {
     decompressString,
     getUUID,
     unescapeHTML,
-    escapeHTML
+    escapeHTML,
+    fetchWithTimeout
 }

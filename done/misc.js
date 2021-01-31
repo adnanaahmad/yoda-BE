@@ -355,4 +355,33 @@ const orderInteractive =()=> {
     //     changePassword();
     //     orderInteractive();
     // });
+
+    try {
+        let index = body.indexOf('<Data>&lt;![CDATA[');
+        if (index > -1) {
+            let end = body.indexOf(']]&gt;</Data>', index);
+            let data = body.substr(index + 18, end - index - 18);
+            //console.log(data);
+            data = utils.unescapeHTML(data);
+            //let result1 = convert.xml2json(data, {compact: true, spaces: 4})
+            console.log(data);
+            //let obj = JSON.parse(utils.unescapeHTML(data));
+            //console.log(obj)
+            //let result = obj['s:Envelope']['s:Body']['OrderInteractiveResponse']['OrderInteractiveResult']; 
+            // if(result) {
+            //     console.log(result)
+            // }
+        }
+        //console.log(body);
+        //console.log(statusCode);
+        // let result1 = convert.xml2json(body, {compact: true, spaces: 4})
+        // let obj = JSON.parse(result1);
+        // let result = obj['s:Envelope']['s:Body']['OrderInteractiveResponse']['OrderInteractiveResult']; 
+        // if(result) {
+        //     console.log(result.Report)
+        // }
+    } catch (error) {
+        console.log(error);
+    }
 })();
+

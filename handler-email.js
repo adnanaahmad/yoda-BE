@@ -159,7 +159,7 @@ const loadParams = async () => {
 const loadTemplates = async () => {
     logger.debug('Loading templates...');
     const start = utils.time();
-    await utils.loadTemplates('./templates/', TEMPLATES);
+    await utils.loadTemplates('./templates/emails/', TEMPLATES);
     const duration = utils.time() - start;
     logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
 }
