@@ -1,7 +1,7 @@
 'use strict';
 /*jshint esversion: 8 */
 const utils = require('./utils');
-const logger = require('./logger').logger;
+const logger = require('./logger').createLogger('service-ss');
 const convert = require('xml-js');
 const prettyData = require('pretty-data');
 const soapRequest = require('./soap');
@@ -20,7 +20,11 @@ const js2Options = {
     ignoreAttributes: false
 };
 
+//TEST!
+const password = 'u9sm8uhv!B';
+
 //const  url = 'https://adrconnect.mvrs.com/adrconnect/adrconnectwebservice.svc?singlewsdl';
+//const url = 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc?singleWsdl';
 const loadParams = async () => {
     //TODO:
 
@@ -40,7 +44,7 @@ const loadParams = async () => {
         const duration = utils.time() - start;
         logger.debug(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
         if (results) {
-            console.log(results);
+            logger.debug(results);
         } else {
             logger.warn(`[${SCRIPT_INFO.name}] Unable to retrieve parameters.`);
         }
@@ -48,6 +52,7 @@ const loadParams = async () => {
         logger.error(error);
     }
 }
+
 
 const loadTemplates = async () => {
     logger.debug('Loading templates...');
@@ -57,8 +62,43 @@ const loadTemplates = async () => {
     logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
 }
 
+const createSoapEnvelope = (name, data) => {
+    const soapBody = {};
+
+    soapBody[name] = {
+        "_attributes": {
+            "xmlns": "http://adrconnect.mvrs.com/adrconnect/2013/04/"
+        },
+        ...data
+    }
+
+    const envelope = {
+        "s:Envelope": {
+            "_attributes": {
+                "xmlns:s": "http://schemas.xmlsoap.org/soap/envelope/"
+            },
+            "s:Body": {
+                ...soapBody
+            }
+        }
+    }
+
+    try {
+        const xml = convert.js2xml(envelope, js2Options);
+        logger.silly(xml);
+        return xml;
+    } catch (error) {
+        logger.error(error);
+    }
+}
+
 const callSoapFunction = async (name, data) => {
-    console.log(`callSoapFunction start [${name}]`);
+    logger.debug(`callSoapFunction [${name}] start...`);
+
+    const xml = createSoapEnvelope(name, data);
+    if (!xml) {
+        return;
+    }
     const url = 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc';
     const headers = {
         'user-agent': `FortifID ${SCRIPT_INFO.version}`,
@@ -73,48 +113,44 @@ const callSoapFunction = async (name, data) => {
         } = await soapRequest({
             url: url,
             headers: headers,
-            xml: data,
+            xml: xml,
             timeout: 180000
         });
-        
+
         const {
             body,
             statusCode
         } = response;
         //console.log(statusCode);
         const duration = utils.time() - start;
-        logger.debug(`Soap request done. ${utils.toFixedPlaces(duration, 2)}ms`);
+        logger.debug(`callSoapFunction [${name}] done ${utils.toFixedPlaces(duration, 2)}ms`);
 
         return body;
     } catch (error) {
-        console.log(error);
+        logger.error(error);
     }
 }
 
-const changePassword = async ()=> {
-    let args = {
-        'ns2:inAccountID': 'K1625',
-        'ns2:inUserId': '01',
-        'ns2:inCurrentPassword': 'u9sm8uhv!A',
-        'ns2:inNewPassword': 'u9sm8uhv!AB'
-    };
-    const replacements = {
-        '%PASS%': convert.js2xml(args, js2Options)
-    }
+const changePassword = async () => {
 
-    const data = utils.parseTemplate(TEMPLATES['password'], replacements);
-    console.log(data);
+    let data = {
+        inAccountID: 'K1625',
+        InUserID: '01', //inUserId //DOCS!
+        inCurrentPassword: password,
+        inNewPassword: 'u9sm8uhv!C',
+    };
+
     const body = await callSoapFunction('ChangePassword', data);
     let x = prettyData.pd.xml(body);
-    console.log(x);
+    logger.debug(x);
 }
 
-const orderInteractive = async () => {
-    let comm = {
+const getCommunications = () => {
+    const comm = {
         Communications: {
             Account: 'K1625',
             UserID: '01',
-            Password: 'u9sm8uhv!A',
+            Password: password,
             DeviceID: {
                 "_attributes": {
                     "format": "encoded"
@@ -125,8 +161,11 @@ const orderInteractive = async () => {
             },
         }
     };
+    return comm;
+}
 
-    let order = {
+const getOrder = () => {
+    const order = {
         Order: {
             License: 'W2020987693401',
             State: {
@@ -156,13 +195,16 @@ const orderInteractive = async () => {
             }
         }
     };
+    return order;
+}
 
-    const replacements = {
-        '%COMM%': utils.escapeHTML(convert.js2xml(comm, js2Options)),
-        '%ORDER%': utils.escapeHTML(convert.js2xml(order, js2Options))
+const orderInteractive = async () => {
+    const data = {
+        inCommunications: convert.js2xml(getCommunications(), js2Options),
+        inOrder: {
+            OrderXml: convert.js2xml(getOrder(), js2Options)
+        }
     }
-
-    const data = utils.parseTemplate(TEMPLATES['order'], replacements);
 
     const body = await callSoapFunction('OrderInteractive', data);
 
@@ -170,7 +212,8 @@ const orderInteractive = async () => {
         if (!body) {
             return;
         }
-        console.log(body);
+
+        logger.silly(body);
         let index = body.indexOf('<Data>&lt;![CDATA[');
         if (index > -1) {
             let end = body.indexOf(']]&gt;</Data>', index);
@@ -179,18 +222,76 @@ const orderInteractive = async () => {
             console.log(data);
         }
     } catch (error) {
-        console.log(error);
+        logger.error(error);
     }
+}
+
+const sendOrders = async () => {
+    const data = {
+        inCommunication: convert.js2xml(getCommunications(), js2Options),
+        inOrders: [{
+            OrderXml: [
+                convert.js2xml(getOrder(), js2Options),
+                convert.js2xml(getOrder(), js2Options)
+            ],
+        }]
+    }
+
+    const body = await callSoapFunction('SendOrders', data);
+
+    try {
+        if (!body) {
+            return;
+        }
+
+        let x = prettyData.pd.xml(body);
+        logger.silly(x);
+
+        // let index = body.indexOf('<Data>&lt;![CDATA[');
+        // if (index > -1) {
+        //     let end = body.indexOf(']]&gt;</Data>', index);
+        //     let data = body.substr(index + 18, end - index - 18);
+        //     data = utils.unescapeHTML(data);
+        //     console.log(data);
+        // }
+    } catch (error) {
+        logger.error(error);
+    }
+}
+
+const receiveRecords = async () => {
+
+    const data = {
+        inCommunications: convert.js2xml(getCommunications(), js2Options)
+    }
+
+    const body = await callSoapFunction('ReceiveRecords', data);
+
+    try {
+        if (!body) {
+            return;
+        }
+
+        let x = prettyData.pd.xml(body);
+        logger.silly(x);
+
+        // let index = body.indexOf('<Data>&lt;![CDATA[');
+        // if (index > -1) {
+        //     let end = body.indexOf(']]&gt;</Data>', index);
+        //     let data = body.substr(index + 18, end - index - 18);
+        //     data = utils.unescapeHTML(data);
+        //     console.log(data);
+        // }
+    } catch (error) {
+        logger.error(error);
+    }
+
 }
 
 (async () => {
     //await loadParams();
-    await loadTemplates();
-
-    await orderInteractive();
     //await changePassword();
-    //SendOrders
-    //ReceiveRecords
-    //ChangePassword
-
+    //await orderInteractive();
+    //await sendOrders();
+    await receiveRecords();
 })();
