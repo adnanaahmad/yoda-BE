@@ -152,7 +152,7 @@ content-type: application/json
 { "summary":
     {
       "month1": {
-        "income": 1500,
+        "income": 1501,
         "month": 1,
         "year": 2020
       },
