@@ -108,10 +108,32 @@ if(summary) {
         confidenceScore: summary.confidenceScore * 10,
         confidenceScoreFlags: {...summary.confidenceScoreFlags},
         requestStart : 0,
-        now: Date.now(),
+        //now: Date.now() + 2000,
         requestComplete : Date.now(),
-        requestDuration: 0
+        requestDuration: 0,
+        total : 0,
+        count: 0,
+        
     }
+//*
+    for(let i = 0;i<100;i++) {
+      output.count++;
+    }
+    
+    let total = 0;
+    let keys =  Object.keys(summary);
+    keys.forEach((key)=> {
+        if(key.startsWith('month')) {
+          let d = summary[key];
+          output.total += d.income;
+          total++;
+        }
+    })
+
+    output.months = total;
+    output.total = Math.round(output.total);
+    output.average = Math.round(output.total / total); 
+//*/
 }
 
 if (meta) {
@@ -122,29 +144,6 @@ if (meta) {
 
 return output;
 
-
-###
-# Run Code #1 (add)
-# Just proof of concept
-POST {{base_url}}/directid/code-run?id=add
-content-type: application/json
-
-{
-    "a": 120,
-    "b": 50
-}
-
-###
-# Run Code #2 (subtract)
-# Just proof of concept
-POST {{base_url}}/directid/code-run?id=subtract
-content-type: application/json
-
-{
-    "a": 100,
-    "b": 50
-}
-
 ###
 # Run Code #3 (did_01)
 POST {{base_url}}/directid/code-run?id=did_1
@@ -153,47 +152,47 @@ content-type: application/json
 { "summary":
     {
       "month1": {
-        "income": 0,
+        "income": 1500,
         "month": 1,
         "year": 2020
       },
       "month2": {
-        "income": 0,
+        "income": 1412,
         "month": 2,
         "year": 2020
       },
       "month3": {
-        "income": 0,
+        "income": 1300,
         "month": 3,
         "year": 2020
       },
       "month4": {
-        "income": 0,
+        "income": 3500,
         "month": 4,
         "year": 2020
       },
       "month5": {
-        "income": 0,
+        "income": 1645,
         "month": 5,
         "year": 2020
       },
       "month6": {
-        "income": 0,
+        "income": 1243,
         "month": 6,
         "year": 2020
       },
       "month7": {
-        "income": 0,
+        "income": 1234,
         "month": 7,
         "year": 2020
       },
       "month8": {
-        "income": 0,
+        "income": 1480,
         "month": 8,
         "year": 2020
       },
       "month9": {
-        "income": 0,
+        "income": 1341,
         "month": 9,
         "year": 2020
       },
@@ -219,6 +218,29 @@ content-type: application/json
       }
     }
 }
+
+###
+# Run Code #1 (add)
+# Just proof of concept
+POST {{base_url}}/directid/code-run?id=add
+content-type: application/json
+
+{
+    "a": 120,
+    "b": 50
+}
+
+###
+# Run Code #2 (subtract)
+# Just proof of concept
+POST {{base_url}}/directid/code-run?id=subtract
+content-type: application/json
+
+{
+    "a": 100,
+    "b": 50
+}
+
 
 ###
 # Run Code #4 (complex)

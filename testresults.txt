@@ -1,0 +1,3481 @@
+2021-02-02T01:24:06.412Z I/{"start":1612229046067,"path":"/home/ec2-user/fortifid/service-ss.js","name":"service-ss.js","modified":1612229041019.2092,"size":8707,"hash":"sbTNCFGPoGYCK1q+agoBXaiMKVE=","version":"1.0.25","region":"us-east-1","instance":"i-004aeaa0d1bce7104","log_level":"silly","run_mode":"DEV"} 
+2021-02-02T01:24:06.417Z S/<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">
+   <inCommunications>&lt;Communications&gt;
+   &lt;Account&gt;K1625&lt;/Account&gt;
+   &lt;UserID&gt;01&lt;/UserID&gt;
+   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;
+   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;
+   &lt;ReportTypes&gt;
+      &lt;Type&gt;XML2.03&lt;/Type&gt;
+   &lt;/ReportTypes&gt;
+&lt;/Communications&gt;</inCommunications>
+   <inOrder>
+      <OrderXml>&lt;Order&gt;
+   &lt;License&gt;20209301&lt;/License&gt;
+   &lt;State&gt;
+      &lt;Abbrev&gt;TX&lt;/Abbrev&gt;
+   &lt;/State&gt;
+   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;
+   &lt;LastName&gt;CATERO&lt;/LastName&gt;
+   &lt;DOB&gt;
+      &lt;Year&gt;1911&lt;/Year&gt;
+      &lt;Month&gt;10&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/DOB&gt;
+   &lt;Handling&gt;DL&lt;/Handling&gt;
+   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;
+   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;
+   &lt;ProductID&gt;LV&lt;/ProductID&gt;
+   &lt;Purpose&gt;AA&lt;/Purpose&gt;
+   &lt;Subtype&gt;ST&lt;/Subtype&gt;
+   &lt;DocumentType&gt;License&lt;/DocumentType&gt;
+   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;
+   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;
+   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;
+   &lt;LicenseExpireDate&gt;
+      &lt;Year&gt;2006&lt;/Year&gt;
+      &lt;Month&gt;1&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/LicenseExpireDate&gt;
+&lt;/Order&gt;</OrderXml>
+   </inOrder>
+</OrderInteractive> 
+2021-02-02T01:24:06.419Z S/<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">
+   <inCommunications>&lt;Communications&gt;
+   &lt;Account&gt;K1625&lt;/Account&gt;
+   &lt;UserID&gt;01&lt;/UserID&gt;
+   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;
+   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;
+   &lt;ReportTypes&gt;
+      &lt;Type&gt;XML2.03&lt;/Type&gt;
+   &lt;/ReportTypes&gt;
+&lt;/Communications&gt;</inCommunications>
+   <inOrder>
+      <OrderXml>&lt;Order&gt;
+   &lt;License&gt;202094501&lt;/License&gt;
+   &lt;State&gt;
+      &lt;Abbrev&gt;CO&lt;/Abbrev&gt;
+   &lt;/State&gt;
+   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;
+   &lt;LastName&gt;CATERO&lt;/LastName&gt;
+   &lt;DOB&gt;
+      &lt;Year&gt;1911&lt;/Year&gt;
+      &lt;Month&gt;10&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/DOB&gt;
+   &lt;Handling&gt;DL&lt;/Handling&gt;
+   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;
+   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;
+   &lt;ProductID&gt;LV&lt;/ProductID&gt;
+   &lt;Purpose&gt;AA&lt;/Purpose&gt;
+   &lt;Subtype&gt;ST&lt;/Subtype&gt;
+   &lt;DocumentType&gt;License&lt;/DocumentType&gt;
+   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;
+   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;
+   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;
+   &lt;LicenseExpireDate&gt;
+      &lt;Year&gt;2006&lt;/Year&gt;
+      &lt;Month&gt;1&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/LicenseExpireDate&gt;
+&lt;/Order&gt;</OrderXml>
+   </inOrder>
+</OrderInteractive> 
+2021-02-02T01:24:06.421Z S/<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">
+   <inCommunications>&lt;Communications&gt;
+   &lt;Account&gt;K1625&lt;/Account&gt;
+   &lt;UserID&gt;01&lt;/UserID&gt;
+   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;
+   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;
+   &lt;ReportTypes&gt;
+      &lt;Type&gt;XML2.03&lt;/Type&gt;
+   &lt;/ReportTypes&gt;
+&lt;/Communications&gt;</inCommunications>
+   <inOrder>
+      <OrderXml>&lt;Order&gt;
+   &lt;License&gt;V20203901&lt;/License&gt;
+   &lt;State&gt;
+      &lt;Abbrev&gt;AZ&lt;/Abbrev&gt;
+   &lt;/State&gt;
+   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;
+   &lt;LastName&gt;CATERO&lt;/LastName&gt;
+   &lt;DOB&gt;
+      &lt;Year&gt;1911&lt;/Year&gt;
+      &lt;Month&gt;10&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/DOB&gt;
+   &lt;Handling&gt;DL&lt;/Handling&gt;
+   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;
+   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;
+   &lt;ProductID&gt;LV&lt;/ProductID&gt;
+   &lt;Purpose&gt;AA&lt;/Purpose&gt;
+   &lt;Subtype&gt;ST&lt;/Subtype&gt;
+   &lt;DocumentType&gt;License&lt;/DocumentType&gt;
+   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;
+   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;
+   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;
+   &lt;LicenseExpireDate&gt;
+      &lt;Year&gt;2006&lt;/Year&gt;
+      &lt;Month&gt;1&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/LicenseExpireDate&gt;
+&lt;/Order&gt;</OrderXml>
+   </inOrder>
+</OrderInteractive> 
+2021-02-02T01:24:06.422Z S/<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">
+   <inCommunications>&lt;Communications&gt;
+   &lt;Account&gt;K1625&lt;/Account&gt;
+   &lt;UserID&gt;01&lt;/UserID&gt;
+   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;
+   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;
+   &lt;ReportTypes&gt;
+      &lt;Type&gt;XML2.03&lt;/Type&gt;
+   &lt;/ReportTypes&gt;
+&lt;/Communications&gt;</inCommunications>
+   <inOrder>
+      <OrderXml>&lt;Order&gt;
+   &lt;License&gt;F202020204502&lt;/License&gt;
+   &lt;State&gt;
+      &lt;Abbrev&gt;FL&lt;/Abbrev&gt;
+   &lt;/State&gt;
+   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;
+   &lt;LastName&gt;CATERO&lt;/LastName&gt;
+   &lt;DOB&gt;
+      &lt;Year&gt;1911&lt;/Year&gt;
+      &lt;Month&gt;10&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/DOB&gt;
+   &lt;Handling&gt;DL&lt;/Handling&gt;
+   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;
+   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;
+   &lt;ProductID&gt;LV&lt;/ProductID&gt;
+   &lt;Purpose&gt;AA&lt;/Purpose&gt;
+   &lt;Subtype&gt;ST&lt;/Subtype&gt;
+   &lt;DocumentType&gt;License&lt;/DocumentType&gt;
+   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;
+   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;
+   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;
+   &lt;LicenseExpireDate&gt;
+      &lt;Year&gt;2006&lt;/Year&gt;
+      &lt;Month&gt;1&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/LicenseExpireDate&gt;
+&lt;/Order&gt;</OrderXml>
+   </inOrder>
+</OrderInteractive> 
+2021-02-02T01:24:06.423Z S/<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">
+   <inCommunications>&lt;Communications&gt;
+   &lt;Account&gt;K1625&lt;/Account&gt;
+   &lt;UserID&gt;01&lt;/UserID&gt;
+   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;
+   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;
+   &lt;ReportTypes&gt;
+      &lt;Type&gt;XML2.03&lt;/Type&gt;
+   &lt;/ReportTypes&gt;
+&lt;/Communications&gt;</inCommunications>
+   <inOrder>
+      <OrderXml>&lt;Order&gt;
+   &lt;License&gt;F202020204503&lt;/License&gt;
+   &lt;State&gt;
+      &lt;Abbrev&gt;FL&lt;/Abbrev&gt;
+   &lt;/State&gt;
+   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;
+   &lt;LastName&gt;CATERO&lt;/LastName&gt;
+   &lt;DOB&gt;
+      &lt;Year&gt;1911&lt;/Year&gt;
+      &lt;Month&gt;10&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/DOB&gt;
+   &lt;Handling&gt;DL&lt;/Handling&gt;
+   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;
+   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;
+   &lt;ProductID&gt;LV&lt;/ProductID&gt;
+   &lt;Purpose&gt;AA&lt;/Purpose&gt;
+   &lt;Subtype&gt;ST&lt;/Subtype&gt;
+   &lt;DocumentType&gt;License&lt;/DocumentType&gt;
+   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;
+   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;
+   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;
+   &lt;LicenseExpireDate&gt;
+      &lt;Year&gt;2006&lt;/Year&gt;
+      &lt;Month&gt;1&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/LicenseExpireDate&gt;
+&lt;/Order&gt;</OrderXml>
+   </inOrder>
+</OrderInteractive> 
+2021-02-02T01:24:06.425Z S/<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">
+   <inCommunications>&lt;Communications&gt;
+   &lt;Account&gt;K1625&lt;/Account&gt;
+   &lt;UserID&gt;01&lt;/UserID&gt;
+   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;
+   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;
+   &lt;ReportTypes&gt;
+      &lt;Type&gt;XML2.03&lt;/Type&gt;
+   &lt;/ReportTypes&gt;
+&lt;/Communications&gt;</inCommunications>
+   <inOrder>
+      <OrderXml>&lt;Order&gt;
+   &lt;License&gt;020LV4301&lt;/License&gt;
+   &lt;State&gt;
+      &lt;Abbrev&gt;IA&lt;/Abbrev&gt;
+   &lt;/State&gt;
+   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;
+   &lt;LastName&gt;CATERO&lt;/LastName&gt;
+   &lt;DOB&gt;
+      &lt;Year&gt;1911&lt;/Year&gt;
+      &lt;Month&gt;10&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/DOB&gt;
+   &lt;Handling&gt;DL&lt;/Handling&gt;
+   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;
+   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;
+   &lt;ProductID&gt;LV&lt;/ProductID&gt;
+   &lt;Purpose&gt;AA&lt;/Purpose&gt;
+   &lt;Subtype&gt;ST&lt;/Subtype&gt;
+   &lt;DocumentType&gt;License&lt;/DocumentType&gt;
+   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;
+   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;
+   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;
+   &lt;LicenseExpireDate&gt;
+      &lt;Year&gt;2006&lt;/Year&gt;
+      &lt;Month&gt;1&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/LicenseExpireDate&gt;
+&lt;/Order&gt;</OrderXml>
+   </inOrder>
+</OrderInteractive> 
+2021-02-02T01:24:06.426Z S/<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">
+   <inCommunications>&lt;Communications&gt;
+   &lt;Account&gt;K1625&lt;/Account&gt;
+   &lt;UserID&gt;01&lt;/UserID&gt;
+   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;
+   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;
+   &lt;ReportTypes&gt;
+      &lt;Type&gt;XML2.03&lt;/Type&gt;
+   &lt;/ReportTypes&gt;
+&lt;/Communications&gt;</inCommunications>
+   <inOrder>
+      <OrderXml>&lt;Order&gt;
+   &lt;License&gt;M202090145301&lt;/License&gt;
+   &lt;State&gt;
+      &lt;Abbrev&gt;MD&lt;/Abbrev&gt;
+   &lt;/State&gt;
+   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;
+   &lt;LastName&gt;CATERO&lt;/LastName&gt;
+   &lt;DOB&gt;
+      &lt;Year&gt;1911&lt;/Year&gt;
+      &lt;Month&gt;10&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/DOB&gt;
+   &lt;Handling&gt;DL&lt;/Handling&gt;
+   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;
+   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;
+   &lt;ProductID&gt;LV&lt;/ProductID&gt;
+   &lt;Purpose&gt;AA&lt;/Purpose&gt;
+   &lt;Subtype&gt;ST&lt;/Subtype&gt;
+   &lt;DocumentType&gt;License&lt;/DocumentType&gt;
+   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;
+   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;
+   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;
+   &lt;LicenseExpireDate&gt;
+      &lt;Year&gt;2006&lt;/Year&gt;
+      &lt;Month&gt;1&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/LicenseExpireDate&gt;
+&lt;/Order&gt;</OrderXml>
+   </inOrder>
+</OrderInteractive> 
+2021-02-02T01:24:06.427Z S/<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">
+   <inCommunications>&lt;Communications&gt;
+   &lt;Account&gt;K1625&lt;/Account&gt;
+   &lt;UserID&gt;01&lt;/UserID&gt;
+   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;
+   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;
+   &lt;ReportTypes&gt;
+      &lt;Type&gt;XML2.03&lt;/Type&gt;
+   &lt;/ReportTypes&gt;
+&lt;/Communications&gt;</inCommunications>
+   <inOrder>
+      <OrderXml>&lt;Order&gt;
+   &lt;License&gt;W2020987693401&lt;/License&gt;
+   &lt;State&gt;
+      &lt;Abbrev&gt;WI&lt;/Abbrev&gt;
+   &lt;/State&gt;
+   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;
+   &lt;LastName&gt;CATERO&lt;/LastName&gt;
+   &lt;DOB&gt;
+      &lt;Year&gt;1911&lt;/Year&gt;
+      &lt;Month&gt;10&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/DOB&gt;
+   &lt;Handling&gt;DL&lt;/Handling&gt;
+   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;
+   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;
+   &lt;ProductID&gt;LV&lt;/ProductID&gt;
+   &lt;Purpose&gt;AA&lt;/Purpose&gt;
+   &lt;Subtype&gt;ST&lt;/Subtype&gt;
+   &lt;DocumentType&gt;License&lt;/DocumentType&gt;
+   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;
+   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;
+   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;
+   &lt;LicenseExpireDate&gt;
+      &lt;Year&gt;2006&lt;/Year&gt;
+      &lt;Month&gt;1&lt;/Month&gt;
+      &lt;Day&gt;1&lt;/Day&gt;
+   &lt;/LicenseExpireDate&gt;
+&lt;/Order&gt;</OrderXml>
+   </inOrder>
+</OrderInteractive> 
+[2021.02.02 01:24:06.506] [LOG] Error: Request failed with status code 400
+    at createError (/home/ec2-user/fortifid/node_modules/axios/lib/core/createError.js:16:15)
+    at settle (/home/ec2-user/fortifid/node_modules/axios/lib/core/settle.js:17:12)
+    at IncomingMessage.handleStreamEnd (/home/ec2-user/fortifid/node_modules/axios/lib/adapters/http.js:260:11)
+    at IncomingMessage.emit (events.js:327:22)
+    at IncomingMessage.EventEmitter.emit (domain.js:467:12)
+    at endReadableNT (internal/streams/readable.js:1327:12)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21) {
+  config: {
+    url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+    method: 'post',
+    data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+      '   <inCommunications>&lt;Communications&gt;\n' +
+      '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+      '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+      '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+      '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+      '   &lt;ReportTypes&gt;\n' +
+      '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+      '   &lt;/ReportTypes&gt;\n' +
+      '&lt;/Communications&gt;</inCommunications>\n' +
+      '   <inOrder>\n' +
+      '      <OrderXml>&lt;Order&gt;\n' +
+      '   &lt;License&gt;202094501&lt;/License&gt;\n' +
+      '   &lt;State&gt;\n' +
+      '      &lt;Abbrev&gt;CO&lt;/Abbrev&gt;\n' +
+      '   &lt;/State&gt;\n' +
+      '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+      '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+      '   &lt;DOB&gt;\n' +
+      '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/DOB&gt;\n' +
+      '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+      '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+      '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+      '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+      '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+      '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+      '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+      '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+      '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+      '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+      '   &lt;LicenseExpireDate&gt;\n' +
+      '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/LicenseExpireDate&gt;\n' +
+      '&lt;/Order&gt;</OrderXml>\n' +
+      '   </inOrder>\n' +
+      '</OrderInteractive>',
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'text/xml;charset=UTF-8',
+      'user-agent': 'FortifID 1.0.25',
+      soapAction: 'http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive',
+      'Content-Length': 1482
+    },
+    transformRequest: [ [Function: transformRequest] ],
+    transformResponse: [ [Function: transformResponse] ],
+    timeout: 180000,
+    adapter: [Function: httpAdapter],
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    maxContentLength: -1,
+    maxBodyLength: -1,
+    validateStatus: [Function: validateStatus]
+  },
+  request: <ref *1> ClientRequest {
+    _events: [Object: null prototype] {
+      socket: [Function (anonymous)],
+      abort: [Function (anonymous)],
+      aborted: [Function (anonymous)],
+      connect: [Function (anonymous)],
+      error: [Function (anonymous)],
+      timeout: [Function (anonymous)],
+      prefinish: [Function: requestOnPrefinish]
+    },
+    _eventsCount: 7,
+    _maxListeners: undefined,
+    outputData: [],
+    outputSize: 0,
+    writable: true,
+    destroyed: false,
+    _last: true,
+    chunkedEncoding: false,
+    shouldKeepAlive: false,
+    _defaultKeepAlive: true,
+    useChunkedEncodingByDefault: true,
+    sendDate: false,
+    _removedConnection: false,
+    _removedContLen: false,
+    _removedTE: false,
+    _contentLength: null,
+    _hasBody: true,
+    _trailer: '',
+    finished: true,
+    _headerSent: true,
+    socket: TLSSocket {
+      _tlsOptions: [Object],
+      _secureEstablished: true,
+      _securePending: false,
+      _newSessionPending: false,
+      _controlReleased: true,
+      secureConnecting: false,
+      _SNICallback: null,
+      servername: 'demo2.mvrs.com',
+      alpnProtocol: false,
+      authorized: true,
+      authorizationError: null,
+      encrypted: true,
+      _events: [Object: null prototype],
+      _eventsCount: 10,
+      connecting: false,
+      _hadError: false,
+      _parent: null,
+      _host: 'demo2.mvrs.com',
+      _readableState: [ReadableState],
+      _maxListeners: undefined,
+      _writableState: [WritableState],
+      allowHalfOpen: false,
+      _sockname: null,
+      _pendingData: null,
+      _pendingEncoding: '',
+      server: undefined,
+      _server: null,
+      ssl: [TLSWrap],
+      _requestCert: true,
+      _rejectUnauthorized: true,
+      parser: null,
+      _httpMessage: [Circular *1],
+      [Symbol(res)]: [TLSWrap],
+      [Symbol(verified)]: true,
+      [Symbol(pendingSession)]: null,
+      [Symbol(async_id_symbol)]: 42,
+      [Symbol(kHandle)]: [TLSWrap],
+      [Symbol(kSetNoDelay)]: false,
+      [Symbol(lastWriteQueueSize)]: 0,
+      [Symbol(timeout)]: null,
+      [Symbol(kBuffer)]: null,
+      [Symbol(kBufferCb)]: null,
+      [Symbol(kBufferGen)]: null,
+      [Symbol(kCapture)]: false,
+      [Symbol(kBytesRead)]: 0,
+      [Symbol(kBytesWritten)]: 0,
+      [Symbol(connect-options)]: [Object],
+      [Symbol(RequestTimeout)]: undefined
+    },
+    _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+      'Accept: application/json, text/plain, */*\r\n' +
+      'Content-Type: text/xml;charset=UTF-8\r\n' +
+      'user-agent: FortifID 1.0.25\r\n' +
+      'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+      'Content-Length: 1482\r\n' +
+      'Host: demo2.mvrs.com\r\n' +
+      'Connection: close\r\n' +
+      '\r\n',
+    _keepAliveTimeout: 0,
+    _onPendingData: [Function: noopPendingOutput],
+    agent: Agent {
+      _events: [Object: null prototype],
+      _eventsCount: 2,
+      _maxListeners: undefined,
+      defaultPort: 443,
+      protocol: 'https:',
+      options: [Object],
+      requests: {},
+      sockets: [Object],
+      freeSockets: {},
+      keepAliveMsecs: 1000,
+      keepAlive: false,
+      maxSockets: Infinity,
+      maxFreeSockets: 256,
+      scheduling: 'fifo',
+      maxTotalSockets: Infinity,
+      totalSocketCount: 8,
+      maxCachedSessions: 100,
+      _sessionCache: [Object],
+      [Symbol(kCapture)]: false
+    },
+    socketPath: undefined,
+    method: 'POST',
+    maxHeaderSize: undefined,
+    insecureHTTPParser: undefined,
+    path: '/AdrConnect/AdrConnectWebService.svc',
+    _ended: true,
+    res: IncomingMessage {
+      _readableState: [ReadableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      socket: [TLSSocket],
+      httpVersionMajor: 1,
+      httpVersionMinor: 1,
+      httpVersion: '1.1',
+      complete: true,
+      headers: [Object],
+      rawHeaders: [Array],
+      trailers: {},
+      rawTrailers: [],
+      aborted: false,
+      upgrade: false,
+      url: '',
+      method: null,
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      client: [TLSSocket],
+      _consuming: false,
+      _dumped: false,
+      req: [Circular *1],
+      responseUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      redirects: [],
+      [Symbol(kCapture)]: false,
+      [Symbol(RequestTimeout)]: undefined
+    },
+    aborted: false,
+    timeoutCb: null,
+    upgradeOrConnect: false,
+    parser: null,
+    maxHeadersCount: null,
+    reusedSocket: false,
+    host: 'demo2.mvrs.com',
+    protocol: 'https:',
+    _redirectable: Writable {
+      _writableState: [WritableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      _options: [Object],
+      _ended: true,
+      _ending: true,
+      _redirectCount: 0,
+      _redirects: [],
+      _requestBodyLength: 1482,
+      _requestBodyBuffers: [],
+      _onNativeResponse: [Function (anonymous)],
+      _currentRequest: [Circular *1],
+      _currentUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      _timeout: Timeout {
+        _idleTimeout: -1,
+        _idlePrev: null,
+        _idleNext: null,
+        _idleStart: 426,
+        _onTimeout: null,
+        _timerArgs: undefined,
+        _repeat: null,
+        _destroyed: true,
+        [Symbol(refed)]: true,
+        [Symbol(kHasPrimitive)]: false,
+        [Symbol(asyncId)]: 81,
+        [Symbol(triggerId)]: 45
+      },
+      [Symbol(kCapture)]: false
+    },
+    [Symbol(kCapture)]: false,
+    [Symbol(kNeedDrain)]: false,
+    [Symbol(corked)]: 0,
+    [Symbol(kOutHeaders)]: [Object: null prototype] {
+      accept: [Array],
+      'content-type': [Array],
+      'user-agent': [Array],
+      soapaction: [Array],
+      'content-length': [Array],
+      host: [Array]
+    }
+  },
+  response: {
+    status: 400,
+    statusText: 'Bad Request',
+    headers: {
+      date: 'Tue, 02 Feb 2021 01:24:06 GMT',
+      'content-length': '0',
+      connection: 'close',
+      server: 'Microsoft-IIS/8.5',
+      'x-powered-by': 'ASP.NET'
+    },
+    config: {
+      url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      method: 'post',
+      data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+        '   <inCommunications>&lt;Communications&gt;\n' +
+        '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+        '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+        '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+        '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+        '   &lt;ReportTypes&gt;\n' +
+        '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+        '   &lt;/ReportTypes&gt;\n' +
+        '&lt;/Communications&gt;</inCommunications>\n' +
+        '   <inOrder>\n' +
+        '      <OrderXml>&lt;Order&gt;\n' +
+        '   &lt;License&gt;202094501&lt;/License&gt;\n' +
+        '   &lt;State&gt;\n' +
+        '      &lt;Abbrev&gt;CO&lt;/Abbrev&gt;\n' +
+        '   &lt;/State&gt;\n' +
+        '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+        '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+        '   &lt;DOB&gt;\n' +
+        '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/DOB&gt;\n' +
+        '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+        '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+        '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+        '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+        '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+        '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+        '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+        '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+        '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+        '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+        '   &lt;LicenseExpireDate&gt;\n' +
+        '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/LicenseExpireDate&gt;\n' +
+        '&lt;/Order&gt;</OrderXml>\n' +
+        '   </inOrder>\n' +
+        '</OrderInteractive>',
+      headers: [Object],
+      transformRequest: [Array],
+      transformResponse: [Array],
+      timeout: 180000,
+      adapter: [Function: httpAdapter],
+      xsrfCookieName: 'XSRF-TOKEN',
+      xsrfHeaderName: 'X-XSRF-TOKEN',
+      maxContentLength: -1,
+      maxBodyLength: -1,
+      validateStatus: [Function: validateStatus]
+    },
+    request: <ref *1> ClientRequest {
+      _events: [Object: null prototype],
+      _eventsCount: 7,
+      _maxListeners: undefined,
+      outputData: [],
+      outputSize: 0,
+      writable: true,
+      destroyed: false,
+      _last: true,
+      chunkedEncoding: false,
+      shouldKeepAlive: false,
+      _defaultKeepAlive: true,
+      useChunkedEncodingByDefault: true,
+      sendDate: false,
+      _removedConnection: false,
+      _removedContLen: false,
+      _removedTE: false,
+      _contentLength: null,
+      _hasBody: true,
+      _trailer: '',
+      finished: true,
+      _headerSent: true,
+      socket: [TLSSocket],
+      _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+        'Accept: application/json, text/plain, */*\r\n' +
+        'Content-Type: text/xml;charset=UTF-8\r\n' +
+        'user-agent: FortifID 1.0.25\r\n' +
+        'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+        'Content-Length: 1482\r\n' +
+        'Host: demo2.mvrs.com\r\n' +
+        'Connection: close\r\n' +
+        '\r\n',
+      _keepAliveTimeout: 0,
+      _onPendingData: [Function: noopPendingOutput],
+      agent: [Agent],
+      socketPath: undefined,
+      method: 'POST',
+      maxHeaderSize: undefined,
+      insecureHTTPParser: undefined,
+      path: '/AdrConnect/AdrConnectWebService.svc',
+      _ended: true,
+      res: [IncomingMessage],
+      aborted: false,
+      timeoutCb: null,
+      upgradeOrConnect: false,
+      parser: null,
+      maxHeadersCount: null,
+      reusedSocket: false,
+      host: 'demo2.mvrs.com',
+      protocol: 'https:',
+      _redirectable: [Writable],
+      [Symbol(kCapture)]: false,
+      [Symbol(kNeedDrain)]: false,
+      [Symbol(corked)]: 0,
+      [Symbol(kOutHeaders)]: [Object: null prototype]
+    },
+    data: ''
+  },
+  isAxiosError: true,
+  toJSON: [Function: toJSON]
+}
+2021-02-02T01:24:06.510Z E/ 
+[2021.02.02 01:24:06.515] [LOG] Error: Request failed with status code 400
+    at createError (/home/ec2-user/fortifid/node_modules/axios/lib/core/createError.js:16:15)
+    at settle (/home/ec2-user/fortifid/node_modules/axios/lib/core/settle.js:17:12)
+    at IncomingMessage.handleStreamEnd (/home/ec2-user/fortifid/node_modules/axios/lib/adapters/http.js:260:11)
+    at IncomingMessage.emit (events.js:327:22)
+    at IncomingMessage.EventEmitter.emit (domain.js:467:12)
+    at endReadableNT (internal/streams/readable.js:1327:12)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21) {
+  config: {
+    url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+    method: 'post',
+    data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+      '   <inCommunications>&lt;Communications&gt;\n' +
+      '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+      '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+      '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+      '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+      '   &lt;ReportTypes&gt;\n' +
+      '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+      '   &lt;/ReportTypes&gt;\n' +
+      '&lt;/Communications&gt;</inCommunications>\n' +
+      '   <inOrder>\n' +
+      '      <OrderXml>&lt;Order&gt;\n' +
+      '   &lt;License&gt;F202020204503&lt;/License&gt;\n' +
+      '   &lt;State&gt;\n' +
+      '      &lt;Abbrev&gt;FL&lt;/Abbrev&gt;\n' +
+      '   &lt;/State&gt;\n' +
+      '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+      '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+      '   &lt;DOB&gt;\n' +
+      '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/DOB&gt;\n' +
+      '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+      '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+      '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+      '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+      '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+      '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+      '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+      '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+      '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+      '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+      '   &lt;LicenseExpireDate&gt;\n' +
+      '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/LicenseExpireDate&gt;\n' +
+      '&lt;/Order&gt;</OrderXml>\n' +
+      '   </inOrder>\n' +
+      '</OrderInteractive>',
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'text/xml;charset=UTF-8',
+      'user-agent': 'FortifID 1.0.25',
+      soapAction: 'http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive',
+      'Content-Length': 1486
+    },
+    transformRequest: [ [Function: transformRequest] ],
+    transformResponse: [ [Function: transformResponse] ],
+    timeout: 180000,
+    adapter: [Function: httpAdapter],
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    maxContentLength: -1,
+    maxBodyLength: -1,
+    validateStatus: [Function: validateStatus]
+  },
+  request: <ref *1> ClientRequest {
+    _events: [Object: null prototype] {
+      socket: [Function (anonymous)],
+      abort: [Function (anonymous)],
+      aborted: [Function (anonymous)],
+      connect: [Function (anonymous)],
+      error: [Function (anonymous)],
+      timeout: [Function (anonymous)],
+      prefinish: [Function: requestOnPrefinish]
+    },
+    _eventsCount: 7,
+    _maxListeners: undefined,
+    outputData: [],
+    outputSize: 0,
+    writable: true,
+    destroyed: false,
+    _last: true,
+    chunkedEncoding: false,
+    shouldKeepAlive: false,
+    _defaultKeepAlive: true,
+    useChunkedEncodingByDefault: true,
+    sendDate: false,
+    _removedConnection: false,
+    _removedContLen: false,
+    _removedTE: false,
+    _contentLength: null,
+    _hasBody: true,
+    _trailer: '',
+    finished: true,
+    _headerSent: true,
+    socket: TLSSocket {
+      _tlsOptions: [Object],
+      _secureEstablished: true,
+      _securePending: false,
+      _newSessionPending: false,
+      _controlReleased: true,
+      secureConnecting: false,
+      _SNICallback: null,
+      servername: 'demo2.mvrs.com',
+      alpnProtocol: false,
+      authorized: true,
+      authorizationError: null,
+      encrypted: true,
+      _events: [Object: null prototype],
+      _eventsCount: 10,
+      connecting: false,
+      _hadError: false,
+      _parent: null,
+      _host: 'demo2.mvrs.com',
+      _readableState: [ReadableState],
+      _maxListeners: undefined,
+      _writableState: [WritableState],
+      allowHalfOpen: false,
+      _sockname: null,
+      _pendingData: null,
+      _pendingEncoding: '',
+      server: undefined,
+      _server: null,
+      ssl: [TLSWrap],
+      _requestCert: true,
+      _rejectUnauthorized: true,
+      parser: null,
+      _httpMessage: [Circular *1],
+      [Symbol(res)]: [TLSWrap],
+      [Symbol(verified)]: true,
+      [Symbol(pendingSession)]: null,
+      [Symbol(async_id_symbol)]: 57,
+      [Symbol(kHandle)]: [TLSWrap],
+      [Symbol(kSetNoDelay)]: false,
+      [Symbol(lastWriteQueueSize)]: 0,
+      [Symbol(timeout)]: null,
+      [Symbol(kBuffer)]: null,
+      [Symbol(kBufferCb)]: null,
+      [Symbol(kBufferGen)]: null,
+      [Symbol(kCapture)]: false,
+      [Symbol(kBytesRead)]: 0,
+      [Symbol(kBytesWritten)]: 0,
+      [Symbol(connect-options)]: [Object],
+      [Symbol(RequestTimeout)]: undefined
+    },
+    _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+      'Accept: application/json, text/plain, */*\r\n' +
+      'Content-Type: text/xml;charset=UTF-8\r\n' +
+      'user-agent: FortifID 1.0.25\r\n' +
+      'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+      'Content-Length: 1486\r\n' +
+      'Host: demo2.mvrs.com\r\n' +
+      'Connection: close\r\n' +
+      '\r\n',
+    _keepAliveTimeout: 0,
+    _onPendingData: [Function: noopPendingOutput],
+    agent: Agent {
+      _events: [Object: null prototype],
+      _eventsCount: 2,
+      _maxListeners: undefined,
+      defaultPort: 443,
+      protocol: 'https:',
+      options: [Object],
+      requests: {},
+      sockets: [Object],
+      freeSockets: {},
+      keepAliveMsecs: 1000,
+      keepAlive: false,
+      maxSockets: Infinity,
+      maxFreeSockets: 256,
+      scheduling: 'fifo',
+      maxTotalSockets: Infinity,
+      totalSocketCount: 8,
+      maxCachedSessions: 100,
+      _sessionCache: [Object],
+      [Symbol(kCapture)]: false
+    },
+    socketPath: undefined,
+    method: 'POST',
+    maxHeaderSize: undefined,
+    insecureHTTPParser: undefined,
+    path: '/AdrConnect/AdrConnectWebService.svc',
+    _ended: true,
+    res: IncomingMessage {
+      _readableState: [ReadableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      socket: [TLSSocket],
+      httpVersionMajor: 1,
+      httpVersionMinor: 1,
+      httpVersion: '1.1',
+      complete: true,
+      headers: [Object],
+      rawHeaders: [Array],
+      trailers: {},
+      rawTrailers: [],
+      aborted: false,
+      upgrade: false,
+      url: '',
+      method: null,
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      client: [TLSSocket],
+      _consuming: false,
+      _dumped: false,
+      req: [Circular *1],
+      responseUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      redirects: [],
+      [Symbol(kCapture)]: false,
+      [Symbol(RequestTimeout)]: undefined
+    },
+    aborted: false,
+    timeoutCb: null,
+    upgradeOrConnect: false,
+    parser: null,
+    maxHeadersCount: null,
+    reusedSocket: false,
+    host: 'demo2.mvrs.com',
+    protocol: 'https:',
+    _redirectable: Writable {
+      _writableState: [WritableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      _options: [Object],
+      _ended: true,
+      _ending: true,
+      _redirectCount: 0,
+      _redirects: [],
+      _requestBodyLength: 1486,
+      _requestBodyBuffers: [],
+      _onNativeResponse: [Function (anonymous)],
+      _currentRequest: [Circular *1],
+      _currentUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      _timeout: Timeout {
+        _idleTimeout: -1,
+        _idlePrev: null,
+        _idleNext: null,
+        _idleStart: 427,
+        _onTimeout: null,
+        _timerArgs: undefined,
+        _repeat: null,
+        _destroyed: true,
+        [Symbol(refed)]: true,
+        [Symbol(kHasPrimitive)]: false,
+        [Symbol(asyncId)]: 90,
+        [Symbol(triggerId)]: 60
+      },
+      [Symbol(kCapture)]: false
+    },
+    [Symbol(kCapture)]: false,
+    [Symbol(kNeedDrain)]: false,
+    [Symbol(corked)]: 0,
+    [Symbol(kOutHeaders)]: [Object: null prototype] {
+      accept: [Array],
+      'content-type': [Array],
+      'user-agent': [Array],
+      soapaction: [Array],
+      'content-length': [Array],
+      host: [Array]
+    }
+  },
+  response: {
+    status: 400,
+    statusText: 'Bad Request',
+    headers: {
+      date: 'Tue, 02 Feb 2021 01:24:06 GMT',
+      'content-length': '0',
+      connection: 'close',
+      server: 'Microsoft-IIS/8.5',
+      'x-powered-by': 'ASP.NET'
+    },
+    config: {
+      url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      method: 'post',
+      data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+        '   <inCommunications>&lt;Communications&gt;\n' +
+        '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+        '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+        '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+        '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+        '   &lt;ReportTypes&gt;\n' +
+        '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+        '   &lt;/ReportTypes&gt;\n' +
+        '&lt;/Communications&gt;</inCommunications>\n' +
+        '   <inOrder>\n' +
+        '      <OrderXml>&lt;Order&gt;\n' +
+        '   &lt;License&gt;F202020204503&lt;/License&gt;\n' +
+        '   &lt;State&gt;\n' +
+        '      &lt;Abbrev&gt;FL&lt;/Abbrev&gt;\n' +
+        '   &lt;/State&gt;\n' +
+        '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+        '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+        '   &lt;DOB&gt;\n' +
+        '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/DOB&gt;\n' +
+        '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+        '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+        '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+        '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+        '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+        '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+        '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+        '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+        '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+        '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+        '   &lt;LicenseExpireDate&gt;\n' +
+        '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/LicenseExpireDate&gt;\n' +
+        '&lt;/Order&gt;</OrderXml>\n' +
+        '   </inOrder>\n' +
+        '</OrderInteractive>',
+      headers: [Object],
+      transformRequest: [Array],
+      transformResponse: [Array],
+      timeout: 180000,
+      adapter: [Function: httpAdapter],
+      xsrfCookieName: 'XSRF-TOKEN',
+      xsrfHeaderName: 'X-XSRF-TOKEN',
+      maxContentLength: -1,
+      maxBodyLength: -1,
+      validateStatus: [Function: validateStatus]
+    },
+    request: <ref *1> ClientRequest {
+      _events: [Object: null prototype],
+      _eventsCount: 7,
+      _maxListeners: undefined,
+      outputData: [],
+      outputSize: 0,
+      writable: true,
+      destroyed: false,
+      _last: true,
+      chunkedEncoding: false,
+      shouldKeepAlive: false,
+      _defaultKeepAlive: true,
+      useChunkedEncodingByDefault: true,
+      sendDate: false,
+      _removedConnection: false,
+      _removedContLen: false,
+      _removedTE: false,
+      _contentLength: null,
+      _hasBody: true,
+      _trailer: '',
+      finished: true,
+      _headerSent: true,
+      socket: [TLSSocket],
+      _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+        'Accept: application/json, text/plain, */*\r\n' +
+        'Content-Type: text/xml;charset=UTF-8\r\n' +
+        'user-agent: FortifID 1.0.25\r\n' +
+        'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+        'Content-Length: 1486\r\n' +
+        'Host: demo2.mvrs.com\r\n' +
+        'Connection: close\r\n' +
+        '\r\n',
+      _keepAliveTimeout: 0,
+      _onPendingData: [Function: noopPendingOutput],
+      agent: [Agent],
+      socketPath: undefined,
+      method: 'POST',
+      maxHeaderSize: undefined,
+      insecureHTTPParser: undefined,
+      path: '/AdrConnect/AdrConnectWebService.svc',
+      _ended: true,
+      res: [IncomingMessage],
+      aborted: false,
+      timeoutCb: null,
+      upgradeOrConnect: false,
+      parser: null,
+      maxHeadersCount: null,
+      reusedSocket: false,
+      host: 'demo2.mvrs.com',
+      protocol: 'https:',
+      _redirectable: [Writable],
+      [Symbol(kCapture)]: false,
+      [Symbol(kNeedDrain)]: false,
+      [Symbol(corked)]: 0,
+      [Symbol(kOutHeaders)]: [Object: null prototype]
+    },
+    data: ''
+  },
+  isAxiosError: true,
+  toJSON: [Function: toJSON]
+}
+2021-02-02T01:24:06.517Z E/ 
+[2021.02.02 01:24:06.519] [LOG] Error: Request failed with status code 400
+    at createError (/home/ec2-user/fortifid/node_modules/axios/lib/core/createError.js:16:15)
+    at settle (/home/ec2-user/fortifid/node_modules/axios/lib/core/settle.js:17:12)
+    at IncomingMessage.handleStreamEnd (/home/ec2-user/fortifid/node_modules/axios/lib/adapters/http.js:260:11)
+    at IncomingMessage.emit (events.js:327:22)
+    at IncomingMessage.EventEmitter.emit (domain.js:467:12)
+    at endReadableNT (internal/streams/readable.js:1327:12)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21) {
+  config: {
+    url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+    method: 'post',
+    data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+      '   <inCommunications>&lt;Communications&gt;\n' +
+      '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+      '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+      '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+      '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+      '   &lt;ReportTypes&gt;\n' +
+      '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+      '   &lt;/ReportTypes&gt;\n' +
+      '&lt;/Communications&gt;</inCommunications>\n' +
+      '   <inOrder>\n' +
+      '      <OrderXml>&lt;Order&gt;\n' +
+      '   &lt;License&gt;V20203901&lt;/License&gt;\n' +
+      '   &lt;State&gt;\n' +
+      '      &lt;Abbrev&gt;AZ&lt;/Abbrev&gt;\n' +
+      '   &lt;/State&gt;\n' +
+      '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+      '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+      '   &lt;DOB&gt;\n' +
+      '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/DOB&gt;\n' +
+      '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+      '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+      '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+      '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+      '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+      '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+      '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+      '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+      '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+      '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+      '   &lt;LicenseExpireDate&gt;\n' +
+      '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/LicenseExpireDate&gt;\n' +
+      '&lt;/Order&gt;</OrderXml>\n' +
+      '   </inOrder>\n' +
+      '</OrderInteractive>',
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'text/xml;charset=UTF-8',
+      'user-agent': 'FortifID 1.0.25',
+      soapAction: 'http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive',
+      'Content-Length': 1482
+    },
+    transformRequest: [ [Function: transformRequest] ],
+    transformResponse: [ [Function: transformResponse] ],
+    timeout: 180000,
+    adapter: [Function: httpAdapter],
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    maxContentLength: -1,
+    maxBodyLength: -1,
+    validateStatus: [Function: validateStatus]
+  },
+  request: <ref *1> ClientRequest {
+    _events: [Object: null prototype] {
+      socket: [Function (anonymous)],
+      abort: [Function (anonymous)],
+      aborted: [Function (anonymous)],
+      connect: [Function (anonymous)],
+      error: [Function (anonymous)],
+      timeout: [Function (anonymous)],
+      prefinish: [Function: requestOnPrefinish]
+    },
+    _eventsCount: 7,
+    _maxListeners: undefined,
+    outputData: [],
+    outputSize: 0,
+    writable: true,
+    destroyed: false,
+    _last: true,
+    chunkedEncoding: false,
+    shouldKeepAlive: false,
+    _defaultKeepAlive: true,
+    useChunkedEncodingByDefault: true,
+    sendDate: false,
+    _removedConnection: false,
+    _removedContLen: false,
+    _removedTE: false,
+    _contentLength: null,
+    _hasBody: true,
+    _trailer: '',
+    finished: true,
+    _headerSent: true,
+    socket: TLSSocket {
+      _tlsOptions: [Object],
+      _secureEstablished: true,
+      _securePending: false,
+      _newSessionPending: false,
+      _controlReleased: true,
+      secureConnecting: false,
+      _SNICallback: null,
+      servername: 'demo2.mvrs.com',
+      alpnProtocol: false,
+      authorized: true,
+      authorizationError: null,
+      encrypted: true,
+      _events: [Object: null prototype],
+      _eventsCount: 10,
+      connecting: false,
+      _hadError: false,
+      _parent: null,
+      _host: 'demo2.mvrs.com',
+      _readableState: [ReadableState],
+      _maxListeners: undefined,
+      _writableState: [WritableState],
+      allowHalfOpen: false,
+      _sockname: null,
+      _pendingData: null,
+      _pendingEncoding: '',
+      server: undefined,
+      _server: null,
+      ssl: [TLSWrap],
+      _requestCert: true,
+      _rejectUnauthorized: true,
+      parser: null,
+      _httpMessage: [Circular *1],
+      [Symbol(res)]: [TLSWrap],
+      [Symbol(verified)]: true,
+      [Symbol(pendingSession)]: null,
+      [Symbol(async_id_symbol)]: 47,
+      [Symbol(kHandle)]: [TLSWrap],
+      [Symbol(kSetNoDelay)]: false,
+      [Symbol(lastWriteQueueSize)]: 0,
+      [Symbol(timeout)]: null,
+      [Symbol(kBuffer)]: null,
+      [Symbol(kBufferCb)]: null,
+      [Symbol(kBufferGen)]: null,
+      [Symbol(kCapture)]: false,
+      [Symbol(kBytesRead)]: 0,
+      [Symbol(kBytesWritten)]: 0,
+      [Symbol(connect-options)]: [Object],
+      [Symbol(RequestTimeout)]: undefined
+    },
+    _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+      'Accept: application/json, text/plain, */*\r\n' +
+      'Content-Type: text/xml;charset=UTF-8\r\n' +
+      'user-agent: FortifID 1.0.25\r\n' +
+      'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+      'Content-Length: 1482\r\n' +
+      'Host: demo2.mvrs.com\r\n' +
+      'Connection: close\r\n' +
+      '\r\n',
+    _keepAliveTimeout: 0,
+    _onPendingData: [Function: noopPendingOutput],
+    agent: Agent {
+      _events: [Object: null prototype],
+      _eventsCount: 2,
+      _maxListeners: undefined,
+      defaultPort: 443,
+      protocol: 'https:',
+      options: [Object],
+      requests: {},
+      sockets: [Object],
+      freeSockets: {},
+      keepAliveMsecs: 1000,
+      keepAlive: false,
+      maxSockets: Infinity,
+      maxFreeSockets: 256,
+      scheduling: 'fifo',
+      maxTotalSockets: Infinity,
+      totalSocketCount: 8,
+      maxCachedSessions: 100,
+      _sessionCache: [Object],
+      [Symbol(kCapture)]: false
+    },
+    socketPath: undefined,
+    method: 'POST',
+    maxHeaderSize: undefined,
+    insecureHTTPParser: undefined,
+    path: '/AdrConnect/AdrConnectWebService.svc',
+    _ended: true,
+    res: IncomingMessage {
+      _readableState: [ReadableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      socket: [TLSSocket],
+      httpVersionMajor: 1,
+      httpVersionMinor: 1,
+      httpVersion: '1.1',
+      complete: true,
+      headers: [Object],
+      rawHeaders: [Array],
+      trailers: {},
+      rawTrailers: [],
+      aborted: false,
+      upgrade: false,
+      url: '',
+      method: null,
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      client: [TLSSocket],
+      _consuming: false,
+      _dumped: false,
+      req: [Circular *1],
+      responseUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      redirects: [],
+      [Symbol(kCapture)]: false,
+      [Symbol(RequestTimeout)]: undefined
+    },
+    aborted: false,
+    timeoutCb: null,
+    upgradeOrConnect: false,
+    parser: null,
+    maxHeadersCount: null,
+    reusedSocket: false,
+    host: 'demo2.mvrs.com',
+    protocol: 'https:',
+    _redirectable: Writable {
+      _writableState: [WritableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      _options: [Object],
+      _ended: true,
+      _ending: true,
+      _redirectCount: 0,
+      _redirects: [],
+      _requestBodyLength: 1482,
+      _requestBodyBuffers: [],
+      _onNativeResponse: [Function (anonymous)],
+      _currentRequest: [Circular *1],
+      _currentUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      _timeout: Timeout {
+        _idleTimeout: -1,
+        _idlePrev: null,
+        _idleNext: null,
+        _idleStart: 427,
+        _onTimeout: null,
+        _timerArgs: undefined,
+        _repeat: null,
+        _destroyed: true,
+        [Symbol(refed)]: true,
+        [Symbol(kHasPrimitive)]: false,
+        [Symbol(asyncId)]: 84,
+        [Symbol(triggerId)]: 50
+      },
+      [Symbol(kCapture)]: false
+    },
+    [Symbol(kCapture)]: false,
+    [Symbol(kNeedDrain)]: false,
+    [Symbol(corked)]: 0,
+    [Symbol(kOutHeaders)]: [Object: null prototype] {
+      accept: [Array],
+      'content-type': [Array],
+      'user-agent': [Array],
+      soapaction: [Array],
+      'content-length': [Array],
+      host: [Array]
+    }
+  },
+  response: {
+    status: 400,
+    statusText: 'Bad Request',
+    headers: {
+      date: 'Tue, 02 Feb 2021 01:24:06 GMT',
+      'content-length': '0',
+      connection: 'close',
+      server: 'Microsoft-IIS/8.5',
+      'x-powered-by': 'ASP.NET'
+    },
+    config: {
+      url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      method: 'post',
+      data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+        '   <inCommunications>&lt;Communications&gt;\n' +
+        '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+        '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+        '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+        '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+        '   &lt;ReportTypes&gt;\n' +
+        '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+        '   &lt;/ReportTypes&gt;\n' +
+        '&lt;/Communications&gt;</inCommunications>\n' +
+        '   <inOrder>\n' +
+        '      <OrderXml>&lt;Order&gt;\n' +
+        '   &lt;License&gt;V20203901&lt;/License&gt;\n' +
+        '   &lt;State&gt;\n' +
+        '      &lt;Abbrev&gt;AZ&lt;/Abbrev&gt;\n' +
+        '   &lt;/State&gt;\n' +
+        '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+        '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+        '   &lt;DOB&gt;\n' +
+        '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/DOB&gt;\n' +
+        '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+        '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+        '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+        '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+        '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+        '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+        '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+        '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+        '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+        '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+        '   &lt;LicenseExpireDate&gt;\n' +
+        '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/LicenseExpireDate&gt;\n' +
+        '&lt;/Order&gt;</OrderXml>\n' +
+        '   </inOrder>\n' +
+        '</OrderInteractive>',
+      headers: [Object],
+      transformRequest: [Array],
+      transformResponse: [Array],
+      timeout: 180000,
+      adapter: [Function: httpAdapter],
+      xsrfCookieName: 'XSRF-TOKEN',
+      xsrfHeaderName: 'X-XSRF-TOKEN',
+      maxContentLength: -1,
+      maxBodyLength: -1,
+      validateStatus: [Function: validateStatus]
+    },
+    request: <ref *1> ClientRequest {
+      _events: [Object: null prototype],
+      _eventsCount: 7,
+      _maxListeners: undefined,
+      outputData: [],
+      outputSize: 0,
+      writable: true,
+      destroyed: false,
+      _last: true,
+      chunkedEncoding: false,
+      shouldKeepAlive: false,
+      _defaultKeepAlive: true,
+      useChunkedEncodingByDefault: true,
+      sendDate: false,
+      _removedConnection: false,
+      _removedContLen: false,
+      _removedTE: false,
+      _contentLength: null,
+      _hasBody: true,
+      _trailer: '',
+      finished: true,
+      _headerSent: true,
+      socket: [TLSSocket],
+      _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+        'Accept: application/json, text/plain, */*\r\n' +
+        'Content-Type: text/xml;charset=UTF-8\r\n' +
+        'user-agent: FortifID 1.0.25\r\n' +
+        'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+        'Content-Length: 1482\r\n' +
+        'Host: demo2.mvrs.com\r\n' +
+        'Connection: close\r\n' +
+        '\r\n',
+      _keepAliveTimeout: 0,
+      _onPendingData: [Function: noopPendingOutput],
+      agent: [Agent],
+      socketPath: undefined,
+      method: 'POST',
+      maxHeaderSize: undefined,
+      insecureHTTPParser: undefined,
+      path: '/AdrConnect/AdrConnectWebService.svc',
+      _ended: true,
+      res: [IncomingMessage],
+      aborted: false,
+      timeoutCb: null,
+      upgradeOrConnect: false,
+      parser: null,
+      maxHeadersCount: null,
+      reusedSocket: false,
+      host: 'demo2.mvrs.com',
+      protocol: 'https:',
+      _redirectable: [Writable],
+      [Symbol(kCapture)]: false,
+      [Symbol(kNeedDrain)]: false,
+      [Symbol(corked)]: 0,
+      [Symbol(kOutHeaders)]: [Object: null prototype]
+    },
+    data: ''
+  },
+  isAxiosError: true,
+  toJSON: [Function: toJSON]
+}
+2021-02-02T01:24:06.521Z E/ 
+[2021.02.02 01:24:06.524] [LOG] Error: Request failed with status code 400
+    at createError (/home/ec2-user/fortifid/node_modules/axios/lib/core/createError.js:16:15)
+    at settle (/home/ec2-user/fortifid/node_modules/axios/lib/core/settle.js:17:12)
+    at IncomingMessage.handleStreamEnd (/home/ec2-user/fortifid/node_modules/axios/lib/adapters/http.js:260:11)
+    at IncomingMessage.emit (events.js:327:22)
+    at IncomingMessage.EventEmitter.emit (domain.js:467:12)
+    at endReadableNT (internal/streams/readable.js:1327:12)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21) {
+  config: {
+    url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+    method: 'post',
+    data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+      '   <inCommunications>&lt;Communications&gt;\n' +
+      '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+      '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+      '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+      '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+      '   &lt;ReportTypes&gt;\n' +
+      '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+      '   &lt;/ReportTypes&gt;\n' +
+      '&lt;/Communications&gt;</inCommunications>\n' +
+      '   <inOrder>\n' +
+      '      <OrderXml>&lt;Order&gt;\n' +
+      '   &lt;License&gt;020LV4301&lt;/License&gt;\n' +
+      '   &lt;State&gt;\n' +
+      '      &lt;Abbrev&gt;IA&lt;/Abbrev&gt;\n' +
+      '   &lt;/State&gt;\n' +
+      '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+      '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+      '   &lt;DOB&gt;\n' +
+      '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/DOB&gt;\n' +
+      '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+      '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+      '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+      '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+      '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+      '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+      '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+      '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+      '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+      '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+      '   &lt;LicenseExpireDate&gt;\n' +
+      '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/LicenseExpireDate&gt;\n' +
+      '&lt;/Order&gt;</OrderXml>\n' +
+      '   </inOrder>\n' +
+      '</OrderInteractive>',
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'text/xml;charset=UTF-8',
+      'user-agent': 'FortifID 1.0.25',
+      soapAction: 'http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive',
+      'Content-Length': 1482
+    },
+    transformRequest: [ [Function: transformRequest] ],
+    transformResponse: [ [Function: transformResponse] ],
+    timeout: 180000,
+    adapter: [Function: httpAdapter],
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    maxContentLength: -1,
+    maxBodyLength: -1,
+    validateStatus: [Function: validateStatus]
+  },
+  request: <ref *1> ClientRequest {
+    _events: [Object: null prototype] {
+      socket: [Function (anonymous)],
+      abort: [Function (anonymous)],
+      aborted: [Function (anonymous)],
+      connect: [Function (anonymous)],
+      error: [Function (anonymous)],
+      timeout: [Function (anonymous)],
+      prefinish: [Function: requestOnPrefinish]
+    },
+    _eventsCount: 7,
+    _maxListeners: undefined,
+    outputData: [],
+    outputSize: 0,
+    writable: true,
+    destroyed: false,
+    _last: true,
+    chunkedEncoding: false,
+    shouldKeepAlive: false,
+    _defaultKeepAlive: true,
+    useChunkedEncodingByDefault: true,
+    sendDate: false,
+    _removedConnection: false,
+    _removedContLen: false,
+    _removedTE: false,
+    _contentLength: null,
+    _hasBody: true,
+    _trailer: '',
+    finished: true,
+    _headerSent: true,
+    socket: TLSSocket {
+      _tlsOptions: [Object],
+      _secureEstablished: true,
+      _securePending: false,
+      _newSessionPending: false,
+      _controlReleased: true,
+      secureConnecting: false,
+      _SNICallback: null,
+      servername: 'demo2.mvrs.com',
+      alpnProtocol: false,
+      authorized: true,
+      authorizationError: null,
+      encrypted: true,
+      _events: [Object: null prototype],
+      _eventsCount: 10,
+      connecting: false,
+      _hadError: false,
+      _parent: null,
+      _host: 'demo2.mvrs.com',
+      _readableState: [ReadableState],
+      _maxListeners: undefined,
+      _writableState: [WritableState],
+      allowHalfOpen: false,
+      _sockname: null,
+      _pendingData: null,
+      _pendingEncoding: '',
+      server: undefined,
+      _server: null,
+      ssl: [TLSWrap],
+      _requestCert: true,
+      _rejectUnauthorized: true,
+      parser: null,
+      _httpMessage: [Circular *1],
+      [Symbol(res)]: [TLSWrap],
+      [Symbol(verified)]: true,
+      [Symbol(pendingSession)]: null,
+      [Symbol(async_id_symbol)]: 62,
+      [Symbol(kHandle)]: [TLSWrap],
+      [Symbol(kSetNoDelay)]: false,
+      [Symbol(lastWriteQueueSize)]: 0,
+      [Symbol(timeout)]: null,
+      [Symbol(kBuffer)]: null,
+      [Symbol(kBufferCb)]: null,
+      [Symbol(kBufferGen)]: null,
+      [Symbol(kCapture)]: false,
+      [Symbol(kBytesRead)]: 0,
+      [Symbol(kBytesWritten)]: 0,
+      [Symbol(connect-options)]: [Object],
+      [Symbol(RequestTimeout)]: undefined
+    },
+    _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+      'Accept: application/json, text/plain, */*\r\n' +
+      'Content-Type: text/xml;charset=UTF-8\r\n' +
+      'user-agent: FortifID 1.0.25\r\n' +
+      'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+      'Content-Length: 1482\r\n' +
+      'Host: demo2.mvrs.com\r\n' +
+      'Connection: close\r\n' +
+      '\r\n',
+    _keepAliveTimeout: 0,
+    _onPendingData: [Function: noopPendingOutput],
+    agent: Agent {
+      _events: [Object: null prototype],
+      _eventsCount: 2,
+      _maxListeners: undefined,
+      defaultPort: 443,
+      protocol: 'https:',
+      options: [Object],
+      requests: {},
+      sockets: [Object],
+      freeSockets: {},
+      keepAliveMsecs: 1000,
+      keepAlive: false,
+      maxSockets: Infinity,
+      maxFreeSockets: 256,
+      scheduling: 'fifo',
+      maxTotalSockets: Infinity,
+      totalSocketCount: 8,
+      maxCachedSessions: 100,
+      _sessionCache: [Object],
+      [Symbol(kCapture)]: false
+    },
+    socketPath: undefined,
+    method: 'POST',
+    maxHeaderSize: undefined,
+    insecureHTTPParser: undefined,
+    path: '/AdrConnect/AdrConnectWebService.svc',
+    _ended: true,
+    res: IncomingMessage {
+      _readableState: [ReadableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      socket: [TLSSocket],
+      httpVersionMajor: 1,
+      httpVersionMinor: 1,
+      httpVersion: '1.1',
+      complete: true,
+      headers: [Object],
+      rawHeaders: [Array],
+      trailers: {},
+      rawTrailers: [],
+      aborted: false,
+      upgrade: false,
+      url: '',
+      method: null,
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      client: [TLSSocket],
+      _consuming: false,
+      _dumped: false,
+      req: [Circular *1],
+      responseUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      redirects: [],
+      [Symbol(kCapture)]: false,
+      [Symbol(RequestTimeout)]: undefined
+    },
+    aborted: false,
+    timeoutCb: null,
+    upgradeOrConnect: false,
+    parser: null,
+    maxHeadersCount: null,
+    reusedSocket: false,
+    host: 'demo2.mvrs.com',
+    protocol: 'https:',
+    _redirectable: Writable {
+      _writableState: [WritableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      _options: [Object],
+      _ended: true,
+      _ending: true,
+      _redirectCount: 0,
+      _redirects: [],
+      _requestBodyLength: 1482,
+      _requestBodyBuffers: [],
+      _onNativeResponse: [Function (anonymous)],
+      _currentRequest: [Circular *1],
+      _currentUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      _timeout: Timeout {
+        _idleTimeout: -1,
+        _idlePrev: null,
+        _idleNext: null,
+        _idleStart: 427,
+        _onTimeout: null,
+        _timerArgs: undefined,
+        _repeat: null,
+        _destroyed: true,
+        [Symbol(refed)]: true,
+        [Symbol(kHasPrimitive)]: false,
+        [Symbol(asyncId)]: 93,
+        [Symbol(triggerId)]: 65
+      },
+      [Symbol(kCapture)]: false
+    },
+    [Symbol(kCapture)]: false,
+    [Symbol(kNeedDrain)]: false,
+    [Symbol(corked)]: 0,
+    [Symbol(kOutHeaders)]: [Object: null prototype] {
+      accept: [Array],
+      'content-type': [Array],
+      'user-agent': [Array],
+      soapaction: [Array],
+      'content-length': [Array],
+      host: [Array]
+    }
+  },
+  response: {
+    status: 400,
+    statusText: 'Bad Request',
+    headers: {
+      date: 'Tue, 02 Feb 2021 01:24:06 GMT',
+      'content-length': '0',
+      connection: 'close',
+      server: 'Microsoft-IIS/8.5',
+      'x-powered-by': 'ASP.NET'
+    },
+    config: {
+      url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      method: 'post',
+      data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+        '   <inCommunications>&lt;Communications&gt;\n' +
+        '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+        '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+        '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+        '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+        '   &lt;ReportTypes&gt;\n' +
+        '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+        '   &lt;/ReportTypes&gt;\n' +
+        '&lt;/Communications&gt;</inCommunications>\n' +
+        '   <inOrder>\n' +
+        '      <OrderXml>&lt;Order&gt;\n' +
+        '   &lt;License&gt;020LV4301&lt;/License&gt;\n' +
+        '   &lt;State&gt;\n' +
+        '      &lt;Abbrev&gt;IA&lt;/Abbrev&gt;\n' +
+        '   &lt;/State&gt;\n' +
+        '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+        '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+        '   &lt;DOB&gt;\n' +
+        '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/DOB&gt;\n' +
+        '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+        '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+        '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+        '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+        '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+        '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+        '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+        '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+        '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+        '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+        '   &lt;LicenseExpireDate&gt;\n' +
+        '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/LicenseExpireDate&gt;\n' +
+        '&lt;/Order&gt;</OrderXml>\n' +
+        '   </inOrder>\n' +
+        '</OrderInteractive>',
+      headers: [Object],
+      transformRequest: [Array],
+      transformResponse: [Array],
+      timeout: 180000,
+      adapter: [Function: httpAdapter],
+      xsrfCookieName: 'XSRF-TOKEN',
+      xsrfHeaderName: 'X-XSRF-TOKEN',
+      maxContentLength: -1,
+      maxBodyLength: -1,
+      validateStatus: [Function: validateStatus]
+    },
+    request: <ref *1> ClientRequest {
+      _events: [Object: null prototype],
+      _eventsCount: 7,
+      _maxListeners: undefined,
+      outputData: [],
+      outputSize: 0,
+      writable: true,
+      destroyed: false,
+      _last: true,
+      chunkedEncoding: false,
+      shouldKeepAlive: false,
+      _defaultKeepAlive: true,
+      useChunkedEncodingByDefault: true,
+      sendDate: false,
+      _removedConnection: false,
+      _removedContLen: false,
+      _removedTE: false,
+      _contentLength: null,
+      _hasBody: true,
+      _trailer: '',
+      finished: true,
+      _headerSent: true,
+      socket: [TLSSocket],
+      _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+        'Accept: application/json, text/plain, */*\r\n' +
+        'Content-Type: text/xml;charset=UTF-8\r\n' +
+        'user-agent: FortifID 1.0.25\r\n' +
+        'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+        'Content-Length: 1482\r\n' +
+        'Host: demo2.mvrs.com\r\n' +
+        'Connection: close\r\n' +
+        '\r\n',
+      _keepAliveTimeout: 0,
+      _onPendingData: [Function: noopPendingOutput],
+      agent: [Agent],
+      socketPath: undefined,
+      method: 'POST',
+      maxHeaderSize: undefined,
+      insecureHTTPParser: undefined,
+      path: '/AdrConnect/AdrConnectWebService.svc',
+      _ended: true,
+      res: [IncomingMessage],
+      aborted: false,
+      timeoutCb: null,
+      upgradeOrConnect: false,
+      parser: null,
+      maxHeadersCount: null,
+      reusedSocket: false,
+      host: 'demo2.mvrs.com',
+      protocol: 'https:',
+      _redirectable: [Writable],
+      [Symbol(kCapture)]: false,
+      [Symbol(kNeedDrain)]: false,
+      [Symbol(corked)]: 0,
+      [Symbol(kOutHeaders)]: [Object: null prototype]
+    },
+    data: ''
+  },
+  isAxiosError: true,
+  toJSON: [Function: toJSON]
+}
+2021-02-02T01:24:06.526Z E/ 
+[2021.02.02 01:24:06.529] [LOG] Error: Request failed with status code 400
+    at createError (/home/ec2-user/fortifid/node_modules/axios/lib/core/createError.js:16:15)
+    at settle (/home/ec2-user/fortifid/node_modules/axios/lib/core/settle.js:17:12)
+    at IncomingMessage.handleStreamEnd (/home/ec2-user/fortifid/node_modules/axios/lib/adapters/http.js:260:11)
+    at IncomingMessage.emit (events.js:327:22)
+    at IncomingMessage.EventEmitter.emit (domain.js:467:12)
+    at endReadableNT (internal/streams/readable.js:1327:12)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21) {
+  config: {
+    url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+    method: 'post',
+    data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+      '   <inCommunications>&lt;Communications&gt;\n' +
+      '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+      '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+      '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+      '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+      '   &lt;ReportTypes&gt;\n' +
+      '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+      '   &lt;/ReportTypes&gt;\n' +
+      '&lt;/Communications&gt;</inCommunications>\n' +
+      '   <inOrder>\n' +
+      '      <OrderXml>&lt;Order&gt;\n' +
+      '   &lt;License&gt;W2020987693401&lt;/License&gt;\n' +
+      '   &lt;State&gt;\n' +
+      '      &lt;Abbrev&gt;WI&lt;/Abbrev&gt;\n' +
+      '   &lt;/State&gt;\n' +
+      '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+      '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+      '   &lt;DOB&gt;\n' +
+      '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/DOB&gt;\n' +
+      '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+      '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+      '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+      '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+      '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+      '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+      '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+      '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+      '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+      '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+      '   &lt;LicenseExpireDate&gt;\n' +
+      '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/LicenseExpireDate&gt;\n' +
+      '&lt;/Order&gt;</OrderXml>\n' +
+      '   </inOrder>\n' +
+      '</OrderInteractive>',
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'text/xml;charset=UTF-8',
+      'user-agent': 'FortifID 1.0.25',
+      soapAction: 'http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive',
+      'Content-Length': 1487
+    },
+    transformRequest: [ [Function: transformRequest] ],
+    transformResponse: [ [Function: transformResponse] ],
+    timeout: 180000,
+    adapter: [Function: httpAdapter],
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    maxContentLength: -1,
+    maxBodyLength: -1,
+    validateStatus: [Function: validateStatus]
+  },
+  request: <ref *1> ClientRequest {
+    _events: [Object: null prototype] {
+      socket: [Function (anonymous)],
+      abort: [Function (anonymous)],
+      aborted: [Function (anonymous)],
+      connect: [Function (anonymous)],
+      error: [Function (anonymous)],
+      timeout: [Function (anonymous)],
+      prefinish: [Function: requestOnPrefinish]
+    },
+    _eventsCount: 7,
+    _maxListeners: undefined,
+    outputData: [],
+    outputSize: 0,
+    writable: true,
+    destroyed: false,
+    _last: true,
+    chunkedEncoding: false,
+    shouldKeepAlive: false,
+    _defaultKeepAlive: true,
+    useChunkedEncodingByDefault: true,
+    sendDate: false,
+    _removedConnection: false,
+    _removedContLen: false,
+    _removedTE: false,
+    _contentLength: null,
+    _hasBody: true,
+    _trailer: '',
+    finished: true,
+    _headerSent: true,
+    socket: TLSSocket {
+      _tlsOptions: [Object],
+      _secureEstablished: true,
+      _securePending: false,
+      _newSessionPending: false,
+      _controlReleased: true,
+      secureConnecting: false,
+      _SNICallback: null,
+      servername: 'demo2.mvrs.com',
+      alpnProtocol: false,
+      authorized: true,
+      authorizationError: null,
+      encrypted: true,
+      _events: [Object: null prototype],
+      _eventsCount: 10,
+      connecting: false,
+      _hadError: false,
+      _parent: null,
+      _host: 'demo2.mvrs.com',
+      _readableState: [ReadableState],
+      _maxListeners: undefined,
+      _writableState: [WritableState],
+      allowHalfOpen: false,
+      _sockname: null,
+      _pendingData: null,
+      _pendingEncoding: '',
+      server: undefined,
+      _server: null,
+      ssl: [TLSWrap],
+      _requestCert: true,
+      _rejectUnauthorized: true,
+      parser: null,
+      _httpMessage: [Circular *1],
+      [Symbol(res)]: [TLSWrap],
+      [Symbol(verified)]: true,
+      [Symbol(pendingSession)]: null,
+      [Symbol(async_id_symbol)]: 72,
+      [Symbol(kHandle)]: [TLSWrap],
+      [Symbol(kSetNoDelay)]: false,
+      [Symbol(lastWriteQueueSize)]: 0,
+      [Symbol(timeout)]: null,
+      [Symbol(kBuffer)]: null,
+      [Symbol(kBufferCb)]: null,
+      [Symbol(kBufferGen)]: null,
+      [Symbol(kCapture)]: false,
+      [Symbol(kBytesRead)]: 0,
+      [Symbol(kBytesWritten)]: 0,
+      [Symbol(connect-options)]: [Object],
+      [Symbol(RequestTimeout)]: undefined
+    },
+    _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+      'Accept: application/json, text/plain, */*\r\n' +
+      'Content-Type: text/xml;charset=UTF-8\r\n' +
+      'user-agent: FortifID 1.0.25\r\n' +
+      'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+      'Content-Length: 1487\r\n' +
+      'Host: demo2.mvrs.com\r\n' +
+      'Connection: close\r\n' +
+      '\r\n',
+    _keepAliveTimeout: 0,
+    _onPendingData: [Function: noopPendingOutput],
+    agent: Agent {
+      _events: [Object: null prototype],
+      _eventsCount: 2,
+      _maxListeners: undefined,
+      defaultPort: 443,
+      protocol: 'https:',
+      options: [Object],
+      requests: {},
+      sockets: [Object],
+      freeSockets: {},
+      keepAliveMsecs: 1000,
+      keepAlive: false,
+      maxSockets: Infinity,
+      maxFreeSockets: 256,
+      scheduling: 'fifo',
+      maxTotalSockets: Infinity,
+      totalSocketCount: 8,
+      maxCachedSessions: 100,
+      _sessionCache: [Object],
+      [Symbol(kCapture)]: false
+    },
+    socketPath: undefined,
+    method: 'POST',
+    maxHeaderSize: undefined,
+    insecureHTTPParser: undefined,
+    path: '/AdrConnect/AdrConnectWebService.svc',
+    _ended: true,
+    res: IncomingMessage {
+      _readableState: [ReadableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      socket: [TLSSocket],
+      httpVersionMajor: 1,
+      httpVersionMinor: 1,
+      httpVersion: '1.1',
+      complete: true,
+      headers: [Object],
+      rawHeaders: [Array],
+      trailers: {},
+      rawTrailers: [],
+      aborted: false,
+      upgrade: false,
+      url: '',
+      method: null,
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      client: [TLSSocket],
+      _consuming: false,
+      _dumped: false,
+      req: [Circular *1],
+      responseUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      redirects: [],
+      [Symbol(kCapture)]: false,
+      [Symbol(RequestTimeout)]: undefined
+    },
+    aborted: false,
+    timeoutCb: null,
+    upgradeOrConnect: false,
+    parser: null,
+    maxHeadersCount: null,
+    reusedSocket: false,
+    host: 'demo2.mvrs.com',
+    protocol: 'https:',
+    _redirectable: Writable {
+      _writableState: [WritableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      _options: [Object],
+      _ended: true,
+      _ending: true,
+      _redirectCount: 0,
+      _redirects: [],
+      _requestBodyLength: 1487,
+      _requestBodyBuffers: [],
+      _onNativeResponse: [Function (anonymous)],
+      _currentRequest: [Circular *1],
+      _currentUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      _timeout: Timeout {
+        _idleTimeout: -1,
+        _idlePrev: null,
+        _idleNext: null,
+        _idleStart: 427,
+        _onTimeout: null,
+        _timerArgs: undefined,
+        _repeat: null,
+        _destroyed: true,
+        [Symbol(refed)]: true,
+        [Symbol(kHasPrimitive)]: false,
+        [Symbol(asyncId)]: 99,
+        [Symbol(triggerId)]: 75
+      },
+      [Symbol(kCapture)]: false
+    },
+    [Symbol(kCapture)]: false,
+    [Symbol(kNeedDrain)]: false,
+    [Symbol(corked)]: 0,
+    [Symbol(kOutHeaders)]: [Object: null prototype] {
+      accept: [Array],
+      'content-type': [Array],
+      'user-agent': [Array],
+      soapaction: [Array],
+      'content-length': [Array],
+      host: [Array]
+    }
+  },
+  response: {
+    status: 400,
+    statusText: 'Bad Request',
+    headers: {
+      date: 'Tue, 02 Feb 2021 01:24:06 GMT',
+      'content-length': '0',
+      connection: 'close',
+      server: 'Microsoft-IIS/8.5',
+      'x-powered-by': 'ASP.NET'
+    },
+    config: {
+      url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      method: 'post',
+      data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+        '   <inCommunications>&lt;Communications&gt;\n' +
+        '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+        '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+        '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+        '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+        '   &lt;ReportTypes&gt;\n' +
+        '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+        '   &lt;/ReportTypes&gt;\n' +
+        '&lt;/Communications&gt;</inCommunications>\n' +
+        '   <inOrder>\n' +
+        '      <OrderXml>&lt;Order&gt;\n' +
+        '   &lt;License&gt;W2020987693401&lt;/License&gt;\n' +
+        '   &lt;State&gt;\n' +
+        '      &lt;Abbrev&gt;WI&lt;/Abbrev&gt;\n' +
+        '   &lt;/State&gt;\n' +
+        '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+        '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+        '   &lt;DOB&gt;\n' +
+        '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/DOB&gt;\n' +
+        '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+        '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+        '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+        '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+        '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+        '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+        '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+        '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+        '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+        '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+        '   &lt;LicenseExpireDate&gt;\n' +
+        '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/LicenseExpireDate&gt;\n' +
+        '&lt;/Order&gt;</OrderXml>\n' +
+        '   </inOrder>\n' +
+        '</OrderInteractive>',
+      headers: [Object],
+      transformRequest: [Array],
+      transformResponse: [Array],
+      timeout: 180000,
+      adapter: [Function: httpAdapter],
+      xsrfCookieName: 'XSRF-TOKEN',
+      xsrfHeaderName: 'X-XSRF-TOKEN',
+      maxContentLength: -1,
+      maxBodyLength: -1,
+      validateStatus: [Function: validateStatus]
+    },
+    request: <ref *1> ClientRequest {
+      _events: [Object: null prototype],
+      _eventsCount: 7,
+      _maxListeners: undefined,
+      outputData: [],
+      outputSize: 0,
+      writable: true,
+      destroyed: false,
+      _last: true,
+      chunkedEncoding: false,
+      shouldKeepAlive: false,
+      _defaultKeepAlive: true,
+      useChunkedEncodingByDefault: true,
+      sendDate: false,
+      _removedConnection: false,
+      _removedContLen: false,
+      _removedTE: false,
+      _contentLength: null,
+      _hasBody: true,
+      _trailer: '',
+      finished: true,
+      _headerSent: true,
+      socket: [TLSSocket],
+      _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+        'Accept: application/json, text/plain, */*\r\n' +
+        'Content-Type: text/xml;charset=UTF-8\r\n' +
+        'user-agent: FortifID 1.0.25\r\n' +
+        'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+        'Content-Length: 1487\r\n' +
+        'Host: demo2.mvrs.com\r\n' +
+        'Connection: close\r\n' +
+        '\r\n',
+      _keepAliveTimeout: 0,
+      _onPendingData: [Function: noopPendingOutput],
+      agent: [Agent],
+      socketPath: undefined,
+      method: 'POST',
+      maxHeaderSize: undefined,
+      insecureHTTPParser: undefined,
+      path: '/AdrConnect/AdrConnectWebService.svc',
+      _ended: true,
+      res: [IncomingMessage],
+      aborted: false,
+      timeoutCb: null,
+      upgradeOrConnect: false,
+      parser: null,
+      maxHeadersCount: null,
+      reusedSocket: false,
+      host: 'demo2.mvrs.com',
+      protocol: 'https:',
+      _redirectable: [Writable],
+      [Symbol(kCapture)]: false,
+      [Symbol(kNeedDrain)]: false,
+      [Symbol(corked)]: 0,
+      [Symbol(kOutHeaders)]: [Object: null prototype]
+    },
+    data: ''
+  },
+  isAxiosError: true,
+  toJSON: [Function: toJSON]
+}
+2021-02-02T01:24:06.530Z E/ 
+[2021.02.02 01:24:06.532] [LOG] Error: Request failed with status code 400
+    at createError (/home/ec2-user/fortifid/node_modules/axios/lib/core/createError.js:16:15)
+    at settle (/home/ec2-user/fortifid/node_modules/axios/lib/core/settle.js:17:12)
+    at IncomingMessage.handleStreamEnd (/home/ec2-user/fortifid/node_modules/axios/lib/adapters/http.js:260:11)
+    at IncomingMessage.emit (events.js:327:22)
+    at IncomingMessage.EventEmitter.emit (domain.js:467:12)
+    at endReadableNT (internal/streams/readable.js:1327:12)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21) {
+  config: {
+    url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+    method: 'post',
+    data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+      '   <inCommunications>&lt;Communications&gt;\n' +
+      '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+      '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+      '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+      '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+      '   &lt;ReportTypes&gt;\n' +
+      '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+      '   &lt;/ReportTypes&gt;\n' +
+      '&lt;/Communications&gt;</inCommunications>\n' +
+      '   <inOrder>\n' +
+      '      <OrderXml>&lt;Order&gt;\n' +
+      '   &lt;License&gt;F202020204502&lt;/License&gt;\n' +
+      '   &lt;State&gt;\n' +
+      '      &lt;Abbrev&gt;FL&lt;/Abbrev&gt;\n' +
+      '   &lt;/State&gt;\n' +
+      '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+      '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+      '   &lt;DOB&gt;\n' +
+      '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/DOB&gt;\n' +
+      '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+      '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+      '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+      '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+      '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+      '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+      '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+      '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+      '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+      '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+      '   &lt;LicenseExpireDate&gt;\n' +
+      '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/LicenseExpireDate&gt;\n' +
+      '&lt;/Order&gt;</OrderXml>\n' +
+      '   </inOrder>\n' +
+      '</OrderInteractive>',
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'text/xml;charset=UTF-8',
+      'user-agent': 'FortifID 1.0.25',
+      soapAction: 'http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive',
+      'Content-Length': 1486
+    },
+    transformRequest: [ [Function: transformRequest] ],
+    transformResponse: [ [Function: transformResponse] ],
+    timeout: 180000,
+    adapter: [Function: httpAdapter],
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    maxContentLength: -1,
+    maxBodyLength: -1,
+    validateStatus: [Function: validateStatus]
+  },
+  request: <ref *1> ClientRequest {
+    _events: [Object: null prototype] {
+      socket: [Function (anonymous)],
+      abort: [Function (anonymous)],
+      aborted: [Function (anonymous)],
+      connect: [Function (anonymous)],
+      error: [Function (anonymous)],
+      timeout: [Function (anonymous)],
+      prefinish: [Function: requestOnPrefinish]
+    },
+    _eventsCount: 7,
+    _maxListeners: undefined,
+    outputData: [],
+    outputSize: 0,
+    writable: true,
+    destroyed: false,
+    _last: true,
+    chunkedEncoding: false,
+    shouldKeepAlive: false,
+    _defaultKeepAlive: true,
+    useChunkedEncodingByDefault: true,
+    sendDate: false,
+    _removedConnection: false,
+    _removedContLen: false,
+    _removedTE: false,
+    _contentLength: null,
+    _hasBody: true,
+    _trailer: '',
+    finished: true,
+    _headerSent: true,
+    socket: TLSSocket {
+      _tlsOptions: [Object],
+      _secureEstablished: true,
+      _securePending: false,
+      _newSessionPending: false,
+      _controlReleased: true,
+      secureConnecting: false,
+      _SNICallback: null,
+      servername: 'demo2.mvrs.com',
+      alpnProtocol: false,
+      authorized: true,
+      authorizationError: null,
+      encrypted: true,
+      _events: [Object: null prototype],
+      _eventsCount: 10,
+      connecting: false,
+      _hadError: false,
+      _parent: null,
+      _host: 'demo2.mvrs.com',
+      _readableState: [ReadableState],
+      _maxListeners: undefined,
+      _writableState: [WritableState],
+      allowHalfOpen: false,
+      _sockname: null,
+      _pendingData: null,
+      _pendingEncoding: '',
+      server: undefined,
+      _server: null,
+      ssl: [TLSWrap],
+      _requestCert: true,
+      _rejectUnauthorized: true,
+      parser: null,
+      _httpMessage: [Circular *1],
+      [Symbol(res)]: [TLSWrap],
+      [Symbol(verified)]: true,
+      [Symbol(pendingSession)]: null,
+      [Symbol(async_id_symbol)]: 52,
+      [Symbol(kHandle)]: [TLSWrap],
+      [Symbol(kSetNoDelay)]: false,
+      [Symbol(lastWriteQueueSize)]: 0,
+      [Symbol(timeout)]: null,
+      [Symbol(kBuffer)]: null,
+      [Symbol(kBufferCb)]: null,
+      [Symbol(kBufferGen)]: null,
+      [Symbol(kCapture)]: false,
+      [Symbol(kBytesRead)]: 0,
+      [Symbol(kBytesWritten)]: 0,
+      [Symbol(connect-options)]: [Object],
+      [Symbol(RequestTimeout)]: undefined
+    },
+    _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+      'Accept: application/json, text/plain, */*\r\n' +
+      'Content-Type: text/xml;charset=UTF-8\r\n' +
+      'user-agent: FortifID 1.0.25\r\n' +
+      'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+      'Content-Length: 1486\r\n' +
+      'Host: demo2.mvrs.com\r\n' +
+      'Connection: close\r\n' +
+      '\r\n',
+    _keepAliveTimeout: 0,
+    _onPendingData: [Function: noopPendingOutput],
+    agent: Agent {
+      _events: [Object: null prototype],
+      _eventsCount: 2,
+      _maxListeners: undefined,
+      defaultPort: 443,
+      protocol: 'https:',
+      options: [Object],
+      requests: {},
+      sockets: [Object],
+      freeSockets: {},
+      keepAliveMsecs: 1000,
+      keepAlive: false,
+      maxSockets: Infinity,
+      maxFreeSockets: 256,
+      scheduling: 'fifo',
+      maxTotalSockets: Infinity,
+      totalSocketCount: 8,
+      maxCachedSessions: 100,
+      _sessionCache: [Object],
+      [Symbol(kCapture)]: false
+    },
+    socketPath: undefined,
+    method: 'POST',
+    maxHeaderSize: undefined,
+    insecureHTTPParser: undefined,
+    path: '/AdrConnect/AdrConnectWebService.svc',
+    _ended: true,
+    res: IncomingMessage {
+      _readableState: [ReadableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      socket: [TLSSocket],
+      httpVersionMajor: 1,
+      httpVersionMinor: 1,
+      httpVersion: '1.1',
+      complete: true,
+      headers: [Object],
+      rawHeaders: [Array],
+      trailers: {},
+      rawTrailers: [],
+      aborted: false,
+      upgrade: false,
+      url: '',
+      method: null,
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      client: [TLSSocket],
+      _consuming: false,
+      _dumped: false,
+      req: [Circular *1],
+      responseUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      redirects: [],
+      [Symbol(kCapture)]: false,
+      [Symbol(RequestTimeout)]: undefined
+    },
+    aborted: false,
+    timeoutCb: null,
+    upgradeOrConnect: false,
+    parser: null,
+    maxHeadersCount: null,
+    reusedSocket: false,
+    host: 'demo2.mvrs.com',
+    protocol: 'https:',
+    _redirectable: Writable {
+      _writableState: [WritableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      _options: [Object],
+      _ended: true,
+      _ending: true,
+      _redirectCount: 0,
+      _redirects: [],
+      _requestBodyLength: 1486,
+      _requestBodyBuffers: [],
+      _onNativeResponse: [Function (anonymous)],
+      _currentRequest: [Circular *1],
+      _currentUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      _timeout: Timeout {
+        _idleTimeout: -1,
+        _idlePrev: null,
+        _idleNext: null,
+        _idleStart: 427,
+        _onTimeout: null,
+        _timerArgs: undefined,
+        _repeat: null,
+        _destroyed: true,
+        [Symbol(refed)]: true,
+        [Symbol(kHasPrimitive)]: false,
+        [Symbol(asyncId)]: 87,
+        [Symbol(triggerId)]: 55
+      },
+      [Symbol(kCapture)]: false
+    },
+    [Symbol(kCapture)]: false,
+    [Symbol(kNeedDrain)]: false,
+    [Symbol(corked)]: 0,
+    [Symbol(kOutHeaders)]: [Object: null prototype] {
+      accept: [Array],
+      'content-type': [Array],
+      'user-agent': [Array],
+      soapaction: [Array],
+      'content-length': [Array],
+      host: [Array]
+    }
+  },
+  response: {
+    status: 400,
+    statusText: 'Bad Request',
+    headers: {
+      date: 'Tue, 02 Feb 2021 01:24:06 GMT',
+      'content-length': '0',
+      connection: 'close',
+      server: 'Microsoft-IIS/8.5',
+      'x-powered-by': 'ASP.NET'
+    },
+    config: {
+      url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      method: 'post',
+      data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+        '   <inCommunications>&lt;Communications&gt;\n' +
+        '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+        '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+        '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+        '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+        '   &lt;ReportTypes&gt;\n' +
+        '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+        '   &lt;/ReportTypes&gt;\n' +
+        '&lt;/Communications&gt;</inCommunications>\n' +
+        '   <inOrder>\n' +
+        '      <OrderXml>&lt;Order&gt;\n' +
+        '   &lt;License&gt;F202020204502&lt;/License&gt;\n' +
+        '   &lt;State&gt;\n' +
+        '      &lt;Abbrev&gt;FL&lt;/Abbrev&gt;\n' +
+        '   &lt;/State&gt;\n' +
+        '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+        '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+        '   &lt;DOB&gt;\n' +
+        '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/DOB&gt;\n' +
+        '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+        '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+        '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+        '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+        '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+        '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+        '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+        '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+        '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+        '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+        '   &lt;LicenseExpireDate&gt;\n' +
+        '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/LicenseExpireDate&gt;\n' +
+        '&lt;/Order&gt;</OrderXml>\n' +
+        '   </inOrder>\n' +
+        '</OrderInteractive>',
+      headers: [Object],
+      transformRequest: [Array],
+      transformResponse: [Array],
+      timeout: 180000,
+      adapter: [Function: httpAdapter],
+      xsrfCookieName: 'XSRF-TOKEN',
+      xsrfHeaderName: 'X-XSRF-TOKEN',
+      maxContentLength: -1,
+      maxBodyLength: -1,
+      validateStatus: [Function: validateStatus]
+    },
+    request: <ref *1> ClientRequest {
+      _events: [Object: null prototype],
+      _eventsCount: 7,
+      _maxListeners: undefined,
+      outputData: [],
+      outputSize: 0,
+      writable: true,
+      destroyed: false,
+      _last: true,
+      chunkedEncoding: false,
+      shouldKeepAlive: false,
+      _defaultKeepAlive: true,
+      useChunkedEncodingByDefault: true,
+      sendDate: false,
+      _removedConnection: false,
+      _removedContLen: false,
+      _removedTE: false,
+      _contentLength: null,
+      _hasBody: true,
+      _trailer: '',
+      finished: true,
+      _headerSent: true,
+      socket: [TLSSocket],
+      _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+        'Accept: application/json, text/plain, */*\r\n' +
+        'Content-Type: text/xml;charset=UTF-8\r\n' +
+        'user-agent: FortifID 1.0.25\r\n' +
+        'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+        'Content-Length: 1486\r\n' +
+        'Host: demo2.mvrs.com\r\n' +
+        'Connection: close\r\n' +
+        '\r\n',
+      _keepAliveTimeout: 0,
+      _onPendingData: [Function: noopPendingOutput],
+      agent: [Agent],
+      socketPath: undefined,
+      method: 'POST',
+      maxHeaderSize: undefined,
+      insecureHTTPParser: undefined,
+      path: '/AdrConnect/AdrConnectWebService.svc',
+      _ended: true,
+      res: [IncomingMessage],
+      aborted: false,
+      timeoutCb: null,
+      upgradeOrConnect: false,
+      parser: null,
+      maxHeadersCount: null,
+      reusedSocket: false,
+      host: 'demo2.mvrs.com',
+      protocol: 'https:',
+      _redirectable: [Writable],
+      [Symbol(kCapture)]: false,
+      [Symbol(kNeedDrain)]: false,
+      [Symbol(corked)]: 0,
+      [Symbol(kOutHeaders)]: [Object: null prototype]
+    },
+    data: ''
+  },
+  isAxiosError: true,
+  toJSON: [Function: toJSON]
+}
+2021-02-02T01:24:06.534Z E/ 
+[2021.02.02 01:24:06.536] [LOG] Error: Request failed with status code 400
+    at createError (/home/ec2-user/fortifid/node_modules/axios/lib/core/createError.js:16:15)
+    at settle (/home/ec2-user/fortifid/node_modules/axios/lib/core/settle.js:17:12)
+    at IncomingMessage.handleStreamEnd (/home/ec2-user/fortifid/node_modules/axios/lib/adapters/http.js:260:11)
+    at IncomingMessage.emit (events.js:327:22)
+    at IncomingMessage.EventEmitter.emit (domain.js:467:12)
+    at endReadableNT (internal/streams/readable.js:1327:12)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21) {
+  config: {
+    url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+    method: 'post',
+    data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+      '   <inCommunications>&lt;Communications&gt;\n' +
+      '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+      '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+      '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+      '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+      '   &lt;ReportTypes&gt;\n' +
+      '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+      '   &lt;/ReportTypes&gt;\n' +
+      '&lt;/Communications&gt;</inCommunications>\n' +
+      '   <inOrder>\n' +
+      '      <OrderXml>&lt;Order&gt;\n' +
+      '   &lt;License&gt;M202090145301&lt;/License&gt;\n' +
+      '   &lt;State&gt;\n' +
+      '      &lt;Abbrev&gt;MD&lt;/Abbrev&gt;\n' +
+      '   &lt;/State&gt;\n' +
+      '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+      '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+      '   &lt;DOB&gt;\n' +
+      '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/DOB&gt;\n' +
+      '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+      '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+      '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+      '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+      '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+      '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+      '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+      '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+      '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+      '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+      '   &lt;LicenseExpireDate&gt;\n' +
+      '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/LicenseExpireDate&gt;\n' +
+      '&lt;/Order&gt;</OrderXml>\n' +
+      '   </inOrder>\n' +
+      '</OrderInteractive>',
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'text/xml;charset=UTF-8',
+      'user-agent': 'FortifID 1.0.25',
+      soapAction: 'http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive',
+      'Content-Length': 1486
+    },
+    transformRequest: [ [Function: transformRequest] ],
+    transformResponse: [ [Function: transformResponse] ],
+    timeout: 180000,
+    adapter: [Function: httpAdapter],
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    maxContentLength: -1,
+    maxBodyLength: -1,
+    validateStatus: [Function: validateStatus]
+  },
+  request: <ref *1> ClientRequest {
+    _events: [Object: null prototype] {
+      socket: [Function (anonymous)],
+      abort: [Function (anonymous)],
+      aborted: [Function (anonymous)],
+      connect: [Function (anonymous)],
+      error: [Function (anonymous)],
+      timeout: [Function (anonymous)],
+      prefinish: [Function: requestOnPrefinish]
+    },
+    _eventsCount: 7,
+    _maxListeners: undefined,
+    outputData: [],
+    outputSize: 0,
+    writable: true,
+    destroyed: false,
+    _last: true,
+    chunkedEncoding: false,
+    shouldKeepAlive: false,
+    _defaultKeepAlive: true,
+    useChunkedEncodingByDefault: true,
+    sendDate: false,
+    _removedConnection: false,
+    _removedContLen: false,
+    _removedTE: false,
+    _contentLength: null,
+    _hasBody: true,
+    _trailer: '',
+    finished: true,
+    _headerSent: true,
+    socket: TLSSocket {
+      _tlsOptions: [Object],
+      _secureEstablished: true,
+      _securePending: false,
+      _newSessionPending: false,
+      _controlReleased: true,
+      secureConnecting: false,
+      _SNICallback: null,
+      servername: 'demo2.mvrs.com',
+      alpnProtocol: false,
+      authorized: true,
+      authorizationError: null,
+      encrypted: true,
+      _events: [Object: null prototype],
+      _eventsCount: 10,
+      connecting: false,
+      _hadError: false,
+      _parent: null,
+      _host: 'demo2.mvrs.com',
+      _readableState: [ReadableState],
+      _maxListeners: undefined,
+      _writableState: [WritableState],
+      allowHalfOpen: false,
+      _sockname: null,
+      _pendingData: null,
+      _pendingEncoding: '',
+      server: undefined,
+      _server: null,
+      ssl: [TLSWrap],
+      _requestCert: true,
+      _rejectUnauthorized: true,
+      parser: null,
+      _httpMessage: [Circular *1],
+      [Symbol(res)]: [TLSWrap],
+      [Symbol(verified)]: true,
+      [Symbol(pendingSession)]: null,
+      [Symbol(async_id_symbol)]: 67,
+      [Symbol(kHandle)]: [TLSWrap],
+      [Symbol(kSetNoDelay)]: false,
+      [Symbol(lastWriteQueueSize)]: 0,
+      [Symbol(timeout)]: null,
+      [Symbol(kBuffer)]: null,
+      [Symbol(kBufferCb)]: null,
+      [Symbol(kBufferGen)]: null,
+      [Symbol(kCapture)]: false,
+      [Symbol(kBytesRead)]: 0,
+      [Symbol(kBytesWritten)]: 0,
+      [Symbol(connect-options)]: [Object],
+      [Symbol(RequestTimeout)]: undefined
+    },
+    _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+      'Accept: application/json, text/plain, */*\r\n' +
+      'Content-Type: text/xml;charset=UTF-8\r\n' +
+      'user-agent: FortifID 1.0.25\r\n' +
+      'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+      'Content-Length: 1486\r\n' +
+      'Host: demo2.mvrs.com\r\n' +
+      'Connection: close\r\n' +
+      '\r\n',
+    _keepAliveTimeout: 0,
+    _onPendingData: [Function: noopPendingOutput],
+    agent: Agent {
+      _events: [Object: null prototype],
+      _eventsCount: 2,
+      _maxListeners: undefined,
+      defaultPort: 443,
+      protocol: 'https:',
+      options: [Object],
+      requests: {},
+      sockets: [Object],
+      freeSockets: {},
+      keepAliveMsecs: 1000,
+      keepAlive: false,
+      maxSockets: Infinity,
+      maxFreeSockets: 256,
+      scheduling: 'fifo',
+      maxTotalSockets: Infinity,
+      totalSocketCount: 8,
+      maxCachedSessions: 100,
+      _sessionCache: [Object],
+      [Symbol(kCapture)]: false
+    },
+    socketPath: undefined,
+    method: 'POST',
+    maxHeaderSize: undefined,
+    insecureHTTPParser: undefined,
+    path: '/AdrConnect/AdrConnectWebService.svc',
+    _ended: true,
+    res: IncomingMessage {
+      _readableState: [ReadableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      socket: [TLSSocket],
+      httpVersionMajor: 1,
+      httpVersionMinor: 1,
+      httpVersion: '1.1',
+      complete: true,
+      headers: [Object],
+      rawHeaders: [Array],
+      trailers: {},
+      rawTrailers: [],
+      aborted: false,
+      upgrade: false,
+      url: '',
+      method: null,
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      client: [TLSSocket],
+      _consuming: false,
+      _dumped: false,
+      req: [Circular *1],
+      responseUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      redirects: [],
+      [Symbol(kCapture)]: false,
+      [Symbol(RequestTimeout)]: undefined
+    },
+    aborted: false,
+    timeoutCb: null,
+    upgradeOrConnect: false,
+    parser: null,
+    maxHeadersCount: null,
+    reusedSocket: false,
+    host: 'demo2.mvrs.com',
+    protocol: 'https:',
+    _redirectable: Writable {
+      _writableState: [WritableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      _options: [Object],
+      _ended: true,
+      _ending: true,
+      _redirectCount: 0,
+      _redirects: [],
+      _requestBodyLength: 1486,
+      _requestBodyBuffers: [],
+      _onNativeResponse: [Function (anonymous)],
+      _currentRequest: [Circular *1],
+      _currentUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      _timeout: Timeout {
+        _idleTimeout: -1,
+        _idlePrev: null,
+        _idleNext: null,
+        _idleStart: 427,
+        _onTimeout: null,
+        _timerArgs: undefined,
+        _repeat: null,
+        _destroyed: true,
+        [Symbol(refed)]: true,
+        [Symbol(kHasPrimitive)]: false,
+        [Symbol(asyncId)]: 96,
+        [Symbol(triggerId)]: 70
+      },
+      [Symbol(kCapture)]: false
+    },
+    [Symbol(kCapture)]: false,
+    [Symbol(kNeedDrain)]: false,
+    [Symbol(corked)]: 0,
+    [Symbol(kOutHeaders)]: [Object: null prototype] {
+      accept: [Array],
+      'content-type': [Array],
+      'user-agent': [Array],
+      soapaction: [Array],
+      'content-length': [Array],
+      host: [Array]
+    }
+  },
+  response: {
+    status: 400,
+    statusText: 'Bad Request',
+    headers: {
+      date: 'Tue, 02 Feb 2021 01:24:06 GMT',
+      'content-length': '0',
+      connection: 'close',
+      server: 'Microsoft-IIS/8.5',
+      'x-powered-by': 'ASP.NET'
+    },
+    config: {
+      url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      method: 'post',
+      data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+        '   <inCommunications>&lt;Communications&gt;\n' +
+        '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+        '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+        '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+        '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+        '   &lt;ReportTypes&gt;\n' +
+        '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+        '   &lt;/ReportTypes&gt;\n' +
+        '&lt;/Communications&gt;</inCommunications>\n' +
+        '   <inOrder>\n' +
+        '      <OrderXml>&lt;Order&gt;\n' +
+        '   &lt;License&gt;M202090145301&lt;/License&gt;\n' +
+        '   &lt;State&gt;\n' +
+        '      &lt;Abbrev&gt;MD&lt;/Abbrev&gt;\n' +
+        '   &lt;/State&gt;\n' +
+        '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+        '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+        '   &lt;DOB&gt;\n' +
+        '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/DOB&gt;\n' +
+        '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+        '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+        '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+        '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+        '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+        '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+        '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+        '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+        '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+        '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+        '   &lt;LicenseExpireDate&gt;\n' +
+        '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/LicenseExpireDate&gt;\n' +
+        '&lt;/Order&gt;</OrderXml>\n' +
+        '   </inOrder>\n' +
+        '</OrderInteractive>',
+      headers: [Object],
+      transformRequest: [Array],
+      transformResponse: [Array],
+      timeout: 180000,
+      adapter: [Function: httpAdapter],
+      xsrfCookieName: 'XSRF-TOKEN',
+      xsrfHeaderName: 'X-XSRF-TOKEN',
+      maxContentLength: -1,
+      maxBodyLength: -1,
+      validateStatus: [Function: validateStatus]
+    },
+    request: <ref *1> ClientRequest {
+      _events: [Object: null prototype],
+      _eventsCount: 7,
+      _maxListeners: undefined,
+      outputData: [],
+      outputSize: 0,
+      writable: true,
+      destroyed: false,
+      _last: true,
+      chunkedEncoding: false,
+      shouldKeepAlive: false,
+      _defaultKeepAlive: true,
+      useChunkedEncodingByDefault: true,
+      sendDate: false,
+      _removedConnection: false,
+      _removedContLen: false,
+      _removedTE: false,
+      _contentLength: null,
+      _hasBody: true,
+      _trailer: '',
+      finished: true,
+      _headerSent: true,
+      socket: [TLSSocket],
+      _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+        'Accept: application/json, text/plain, */*\r\n' +
+        'Content-Type: text/xml;charset=UTF-8\r\n' +
+        'user-agent: FortifID 1.0.25\r\n' +
+        'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+        'Content-Length: 1486\r\n' +
+        'Host: demo2.mvrs.com\r\n' +
+        'Connection: close\r\n' +
+        '\r\n',
+      _keepAliveTimeout: 0,
+      _onPendingData: [Function: noopPendingOutput],
+      agent: [Agent],
+      socketPath: undefined,
+      method: 'POST',
+      maxHeaderSize: undefined,
+      insecureHTTPParser: undefined,
+      path: '/AdrConnect/AdrConnectWebService.svc',
+      _ended: true,
+      res: [IncomingMessage],
+      aborted: false,
+      timeoutCb: null,
+      upgradeOrConnect: false,
+      parser: null,
+      maxHeadersCount: null,
+      reusedSocket: false,
+      host: 'demo2.mvrs.com',
+      protocol: 'https:',
+      _redirectable: [Writable],
+      [Symbol(kCapture)]: false,
+      [Symbol(kNeedDrain)]: false,
+      [Symbol(corked)]: 0,
+      [Symbol(kOutHeaders)]: [Object: null prototype]
+    },
+    data: ''
+  },
+  isAxiosError: true,
+  toJSON: [Function: toJSON]
+}
+2021-02-02T01:24:06.537Z E/ 
+[2021.02.02 01:24:06.602] [LOG] Error: Request failed with status code 400
+    at createError (/home/ec2-user/fortifid/node_modules/axios/lib/core/createError.js:16:15)
+    at settle (/home/ec2-user/fortifid/node_modules/axios/lib/core/settle.js:17:12)
+    at IncomingMessage.handleStreamEnd (/home/ec2-user/fortifid/node_modules/axios/lib/adapters/http.js:260:11)
+    at IncomingMessage.emit (events.js:327:22)
+    at IncomingMessage.EventEmitter.emit (domain.js:467:12)
+    at endReadableNT (internal/streams/readable.js:1327:12)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21) {
+  config: {
+    url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+    method: 'post',
+    data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+      '   <inCommunications>&lt;Communications&gt;\n' +
+      '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+      '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+      '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+      '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+      '   &lt;ReportTypes&gt;\n' +
+      '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+      '   &lt;/ReportTypes&gt;\n' +
+      '&lt;/Communications&gt;</inCommunications>\n' +
+      '   <inOrder>\n' +
+      '      <OrderXml>&lt;Order&gt;\n' +
+      '   &lt;License&gt;20209301&lt;/License&gt;\n' +
+      '   &lt;State&gt;\n' +
+      '      &lt;Abbrev&gt;TX&lt;/Abbrev&gt;\n' +
+      '   &lt;/State&gt;\n' +
+      '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+      '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+      '   &lt;DOB&gt;\n' +
+      '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/DOB&gt;\n' +
+      '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+      '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+      '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+      '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+      '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+      '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+      '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+      '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+      '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+      '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+      '   &lt;LicenseExpireDate&gt;\n' +
+      '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+      '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+      '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+      '   &lt;/LicenseExpireDate&gt;\n' +
+      '&lt;/Order&gt;</OrderXml>\n' +
+      '   </inOrder>\n' +
+      '</OrderInteractive>',
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'text/xml;charset=UTF-8',
+      'user-agent': 'FortifID 1.0.25',
+      soapAction: 'http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive',
+      'Content-Length': 1481
+    },
+    transformRequest: [ [Function: transformRequest] ],
+    transformResponse: [ [Function: transformResponse] ],
+    timeout: 180000,
+    adapter: [Function: httpAdapter],
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    maxContentLength: -1,
+    maxBodyLength: -1,
+    validateStatus: [Function: validateStatus]
+  },
+  request: <ref *1> ClientRequest {
+    _events: [Object: null prototype] {
+      socket: [Function (anonymous)],
+      abort: [Function (anonymous)],
+      aborted: [Function (anonymous)],
+      connect: [Function (anonymous)],
+      error: [Function (anonymous)],
+      timeout: [Function (anonymous)],
+      prefinish: [Function: requestOnPrefinish]
+    },
+    _eventsCount: 7,
+    _maxListeners: undefined,
+    outputData: [],
+    outputSize: 0,
+    writable: true,
+    destroyed: false,
+    _last: true,
+    chunkedEncoding: false,
+    shouldKeepAlive: false,
+    _defaultKeepAlive: true,
+    useChunkedEncodingByDefault: true,
+    sendDate: false,
+    _removedConnection: false,
+    _removedContLen: false,
+    _removedTE: false,
+    _contentLength: null,
+    _hasBody: true,
+    _trailer: '',
+    finished: true,
+    _headerSent: true,
+    socket: TLSSocket {
+      _tlsOptions: [Object],
+      _secureEstablished: true,
+      _securePending: false,
+      _newSessionPending: false,
+      _controlReleased: true,
+      secureConnecting: false,
+      _SNICallback: null,
+      servername: 'demo2.mvrs.com',
+      alpnProtocol: false,
+      authorized: true,
+      authorizationError: null,
+      encrypted: true,
+      _events: [Object: null prototype],
+      _eventsCount: 10,
+      connecting: false,
+      _hadError: false,
+      _parent: null,
+      _host: 'demo2.mvrs.com',
+      _readableState: [ReadableState],
+      _maxListeners: undefined,
+      _writableState: [WritableState],
+      allowHalfOpen: false,
+      _sockname: null,
+      _pendingData: null,
+      _pendingEncoding: '',
+      server: undefined,
+      _server: null,
+      ssl: [TLSWrap],
+      _requestCert: true,
+      _rejectUnauthorized: true,
+      parser: null,
+      _httpMessage: [Circular *1],
+      [Symbol(res)]: [TLSWrap],
+      [Symbol(verified)]: true,
+      [Symbol(pendingSession)]: null,
+      [Symbol(async_id_symbol)]: 36,
+      [Symbol(kHandle)]: [TLSWrap],
+      [Symbol(kSetNoDelay)]: false,
+      [Symbol(lastWriteQueueSize)]: 0,
+      [Symbol(timeout)]: null,
+      [Symbol(kBuffer)]: null,
+      [Symbol(kBufferCb)]: null,
+      [Symbol(kBufferGen)]: null,
+      [Symbol(kCapture)]: false,
+      [Symbol(kBytesRead)]: 0,
+      [Symbol(kBytesWritten)]: 0,
+      [Symbol(connect-options)]: [Object],
+      [Symbol(RequestTimeout)]: undefined
+    },
+    _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+      'Accept: application/json, text/plain, */*\r\n' +
+      'Content-Type: text/xml;charset=UTF-8\r\n' +
+      'user-agent: FortifID 1.0.25\r\n' +
+      'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+      'Content-Length: 1481\r\n' +
+      'Host: demo2.mvrs.com\r\n' +
+      'Connection: close\r\n' +
+      '\r\n',
+    _keepAliveTimeout: 0,
+    _onPendingData: [Function: noopPendingOutput],
+    agent: Agent {
+      _events: [Object: null prototype],
+      _eventsCount: 2,
+      _maxListeners: undefined,
+      defaultPort: 443,
+      protocol: 'https:',
+      options: [Object],
+      requests: {},
+      sockets: [Object],
+      freeSockets: {},
+      keepAliveMsecs: 1000,
+      keepAlive: false,
+      maxSockets: Infinity,
+      maxFreeSockets: 256,
+      scheduling: 'fifo',
+      maxTotalSockets: Infinity,
+      totalSocketCount: 1,
+      maxCachedSessions: 100,
+      _sessionCache: [Object],
+      [Symbol(kCapture)]: false
+    },
+    socketPath: undefined,
+    method: 'POST',
+    maxHeaderSize: undefined,
+    insecureHTTPParser: undefined,
+    path: '/AdrConnect/AdrConnectWebService.svc',
+    _ended: true,
+    res: IncomingMessage {
+      _readableState: [ReadableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      socket: [TLSSocket],
+      httpVersionMajor: 1,
+      httpVersionMinor: 1,
+      httpVersion: '1.1',
+      complete: true,
+      headers: [Object],
+      rawHeaders: [Array],
+      trailers: {},
+      rawTrailers: [],
+      aborted: false,
+      upgrade: false,
+      url: '',
+      method: null,
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      client: [TLSSocket],
+      _consuming: false,
+      _dumped: false,
+      req: [Circular *1],
+      responseUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      redirects: [],
+      [Symbol(kCapture)]: false,
+      [Symbol(RequestTimeout)]: undefined
+    },
+    aborted: false,
+    timeoutCb: null,
+    upgradeOrConnect: false,
+    parser: null,
+    maxHeadersCount: null,
+    reusedSocket: false,
+    host: 'demo2.mvrs.com',
+    protocol: 'https:',
+    _redirectable: Writable {
+      _writableState: [WritableState],
+      _events: [Object: null prototype],
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      _options: [Object],
+      _ended: true,
+      _ending: true,
+      _redirectCount: 0,
+      _redirects: [],
+      _requestBodyLength: 1481,
+      _requestBodyBuffers: [],
+      _onNativeResponse: [Function (anonymous)],
+      _currentRequest: [Circular *1],
+      _currentUrl: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      _timeout: Timeout {
+        _idleTimeout: -1,
+        _idlePrev: null,
+        _idleNext: null,
+        _idleStart: 426,
+        _onTimeout: null,
+        _timerArgs: undefined,
+        _repeat: null,
+        _destroyed: true,
+        [Symbol(refed)]: true,
+        [Symbol(kHasPrimitive)]: false,
+        [Symbol(asyncId)]: 78,
+        [Symbol(triggerId)]: 40
+      },
+      [Symbol(kCapture)]: false
+    },
+    [Symbol(kCapture)]: false,
+    [Symbol(kNeedDrain)]: false,
+    [Symbol(corked)]: 0,
+    [Symbol(kOutHeaders)]: [Object: null prototype] {
+      accept: [Array],
+      'content-type': [Array],
+      'user-agent': [Array],
+      soapaction: [Array],
+      'content-length': [Array],
+      host: [Array]
+    }
+  },
+  response: {
+    status: 400,
+    statusText: 'Bad Request',
+    headers: {
+      date: 'Tue, 02 Feb 2021 01:24:06 GMT',
+      'content-length': '0',
+      connection: 'close',
+      server: 'Microsoft-IIS/8.5',
+      'x-powered-by': 'ASP.NET'
+    },
+    config: {
+      url: 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc',
+      method: 'post',
+      data: '<OrderInteractive xmlns="http://adrconnect.mvrs.com/adrconnect/2013/04/">\n' +
+        '   <inCommunications>&lt;Communications&gt;\n' +
+        '   &lt;Account&gt;K1625&lt;/Account&gt;\n' +
+        '   &lt;UserID&gt;01&lt;/UserID&gt;\n' +
+        '   &lt;Password&gt;u9sm8uhv!B&lt;/Password&gt;\n' +
+        '   &lt;DeviceID format="encoded"&gt;&lt;/DeviceID&gt;\n' +
+        '   &lt;ReportTypes&gt;\n' +
+        '      &lt;Type&gt;XML2.03&lt;/Type&gt;\n' +
+        '   &lt;/ReportTypes&gt;\n' +
+        '&lt;/Communications&gt;</inCommunications>\n' +
+        '   <inOrder>\n' +
+        '      <OrderXml>&lt;Order&gt;\n' +
+        '   &lt;License&gt;20209301&lt;/License&gt;\n' +
+        '   &lt;State&gt;\n' +
+        '      &lt;Abbrev&gt;TX&lt;/Abbrev&gt;\n' +
+        '   &lt;/State&gt;\n' +
+        '   &lt;FirstName&gt;ANNET&lt;/FirstName&gt;\n' +
+        '   &lt;LastName&gt;CATERO&lt;/LastName&gt;\n' +
+        '   &lt;DOB&gt;\n' +
+        '      &lt;Year&gt;1911&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;10&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/DOB&gt;\n' +
+        '   &lt;Handling&gt;DL&lt;/Handling&gt;\n' +
+        '   &lt;Misc&gt;CUST01PERSONA03GUID&lt;/Misc&gt;\n' +
+        '   &lt;Billing&gt;CUST01PERSONA03GUID&lt;/Billing&gt;\n' +
+        '   &lt;ProductID&gt;LV&lt;/ProductID&gt;\n' +
+        '   &lt;Purpose&gt;AA&lt;/Purpose&gt;\n' +
+        '   &lt;Subtype&gt;ST&lt;/Subtype&gt;\n' +
+        '   &lt;DocumentType&gt;License&lt;/DocumentType&gt;\n' +
+        '   &lt;Address1&gt;8142 OLD SUNRIDGE DR&lt;/Address1&gt;\n' +
+        '   &lt;InfoCity&gt;ELLABELL&lt;/InfoCity&gt;\n' +
+        '   &lt;InfoZipcode&gt;31308&lt;/InfoZipcode&gt;\n' +
+        '   &lt;LicenseExpireDate&gt;\n' +
+        '      &lt;Year&gt;2006&lt;/Year&gt;\n' +
+        '      &lt;Month&gt;1&lt;/Month&gt;\n' +
+        '      &lt;Day&gt;1&lt;/Day&gt;\n' +
+        '   &lt;/LicenseExpireDate&gt;\n' +
+        '&lt;/Order&gt;</OrderXml>\n' +
+        '   </inOrder>\n' +
+        '</OrderInteractive>',
+      headers: [Object],
+      transformRequest: [Array],
+      transformResponse: [Array],
+      timeout: 180000,
+      adapter: [Function: httpAdapter],
+      xsrfCookieName: 'XSRF-TOKEN',
+      xsrfHeaderName: 'X-XSRF-TOKEN',
+      maxContentLength: -1,
+      maxBodyLength: -1,
+      validateStatus: [Function: validateStatus]
+    },
+    request: <ref *1> ClientRequest {
+      _events: [Object: null prototype],
+      _eventsCount: 7,
+      _maxListeners: undefined,
+      outputData: [],
+      outputSize: 0,
+      writable: true,
+      destroyed: false,
+      _last: true,
+      chunkedEncoding: false,
+      shouldKeepAlive: false,
+      _defaultKeepAlive: true,
+      useChunkedEncodingByDefault: true,
+      sendDate: false,
+      _removedConnection: false,
+      _removedContLen: false,
+      _removedTE: false,
+      _contentLength: null,
+      _hasBody: true,
+      _trailer: '',
+      finished: true,
+      _headerSent: true,
+      socket: [TLSSocket],
+      _header: 'POST /AdrConnect/AdrConnectWebService.svc HTTP/1.1\r\n' +
+        'Accept: application/json, text/plain, */*\r\n' +
+        'Content-Type: text/xml;charset=UTF-8\r\n' +
+        'user-agent: FortifID 1.0.25\r\n' +
+        'soapAction: http://adrconnect.mvrs.com/adrconnect/2013/04/IAdrConnectWebService/OrderInteractive\r\n' +
+        'Content-Length: 1481\r\n' +
+        'Host: demo2.mvrs.com\r\n' +
+        'Connection: close\r\n' +
+        '\r\n',
+      _keepAliveTimeout: 0,
+      _onPendingData: [Function: noopPendingOutput],
+      agent: [Agent],
+      socketPath: undefined,
+      method: 'POST',
+      maxHeaderSize: undefined,
+      insecureHTTPParser: undefined,
+      path: '/AdrConnect/AdrConnectWebService.svc',
+      _ended: true,
+      res: [IncomingMessage],
+      aborted: false,
+      timeoutCb: null,
+      upgradeOrConnect: false,
+      parser: null,
+      maxHeadersCount: null,
+      reusedSocket: false,
+      host: 'demo2.mvrs.com',
+      protocol: 'https:',
+      _redirectable: [Writable],
+      [Symbol(kCapture)]: false,
+      [Symbol(kNeedDrain)]: false,
+      [Symbol(corked)]: 0,
+      [Symbol(kOutHeaders)]: [Object: null prototype]
+    },
+    data: ''
+  },
+  isAxiosError: true,
+  toJSON: [Function: toJSON]
+}
+2021-02-02T01:24:06.604Z E/ 

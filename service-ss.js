@@ -93,7 +93,7 @@ const createSoapEnvelope = (name, data) => {
 }
 
 const callSoapFunction = async (name, data) => {
-    logger.debug(`callSoapFunction [${name}] start...`);
+    //logger.debug(`callSoapFunction [${name}] start...`);
 
     const xml = createSoapEnvelope(name, data);
     if (!xml) {
@@ -123,7 +123,7 @@ const callSoapFunction = async (name, data) => {
         } = response;
         //console.log(statusCode);
         const duration = utils.time() - start;
-        logger.debug(`callSoapFunction [${name}] done ${utils.toFixedPlaces(duration, 2)}ms`);
+        //logger.debug(`callSoapFunction [${name}] done ${utils.toFixedPlaces(duration, 2)}ms`);
 
         return body;
     } catch (error) {
@@ -164,12 +164,16 @@ const getCommunications = () => {
     return comm;
 }
 
-const getOrder = () => {
+const getOrder = (license, state) => {
+
+    license = license || 'V20203901';
+    state = state || 'AZ';
+
     const order = {
         Order: {
-            License: 'W2020987693401',
+            License: license,
             State: {
-                Abbrev: 'WI'
+                Abbrev: state
             },
             FirstName: 'ANNET',
             LastName: 'CATERO',
@@ -198,11 +202,11 @@ const getOrder = () => {
     return order;
 }
 
-const orderInteractive = async () => {
+const orderInteractive = async (license, state) => {
     const data = {
         inCommunications: convert.js2xml(getCommunications(), js2Options),
         inOrder: {
-            OrderXml: convert.js2xml(getOrder(), js2Options)
+            OrderXml: convert.js2xml(getOrder(license, state), js2Options)
         }
     }
 
@@ -213,14 +217,15 @@ const orderInteractive = async () => {
             return;
         }
 
-        logger.silly(body);
-        let index = body.indexOf('<Data>&lt;![CDATA[');
-        if (index > -1) {
-            let end = body.indexOf(']]&gt;</Data>', index);
-            let data = body.substr(index + 18, end - index - 18);
-            data = utils.unescapeHTML(data);
-            console.log(data);
-        }
+        let x = prettyData.pd.xml(body);
+        logger.silly('Results:', x);
+        // let index = body.indexOf('<Data>&lt;![CDATA[');
+        // if (index > -1) {
+        //     let end = body.indexOf(']]&gt;</Data>', index);
+        //     let data = body.substr(index + 18, end - index - 18);
+        //     data = utils.unescapeHTML(data);
+        //     //console.log(data);
+        // }
     } catch (error) {
         logger.error(error);
     }
@@ -288,10 +293,37 @@ const receiveRecords = async () => {
 
 }
 
+const test001 = async () => {
+
+    let data = {
+        'V20203901': 'AZ',
+        '202094501': 'CO',
+        'F202020204502': 'FL',
+        'F202020204503': 'FL',
+        '020LV4301': 'IA',
+        'M202090145301': 'MD',
+        //2.02E+12	MT
+        //2.02E+12	MT
+        '20209301': 'TX',
+        'W2020987693401': 'WI'
+    }
+
+    Object.keys(data).forEach(async (license) => {
+        const state = data[license];
+        //logger.debug(`license: ${license} state: ${state}`);
+        await orderInteractive(license, state);
+
+    })
+}
+
 (async () => {
     //await loadParams();
+
     //await changePassword();
     //await orderInteractive();
     //await sendOrders();
-    await receiveRecords();
+    //await receiveRecords();
+
+    await test001();
+
 })();
