@@ -103,13 +103,13 @@ It requires the [REST Client (humao.rest-client)](https://marketplace.visualstud
 ## Dynamic Code
 We're able to also upload and execute code on the fly without any recompilation. 
 
-We would then have an approval and evaluation process.
+We would then have an evaluation, testing, and approval  process.
 
 The code is run in a sandbox so the code will only have access to built-in javascript functions which we can easily limit and to functions and data we give each script access to.
 
 See api-v1.http under # Dynamic Code # for proof-of-concept examples.
 
-When submitting code for evaluation we would have something similar in our database:
+When submitting code for evaluation we would have something similar to this:
 ```json
 {
   "id": "uuid",

@@ -9,7 +9,58 @@ const soapRequest = require('./soap');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
-const TEMPLATES = {};
+// const Logger = require('./logger').Logger;
+// const myLogger = new Logger();
+
+const fastify = require('fastify')({
+    logger: false
+})
+
+fastify.get('/:params', async (request, reply) => {
+    console.log(request.body)
+    console.log(request.query)
+    console.log(request.params)
+    console.log(request.headers)
+    console.log(request.raw)
+    console.log(request.id)
+    console.log(request.ip)
+    console.log(request.ips)
+    console.log(request.hostname)
+    console.log(request.protocol)
+    request.log.info('some info')
+    reply.type('application/json').code(200);
+
+    return {
+        service: 'samba'
+    }
+})
+
+fastify.post('/order-interactive', async (request, reply) => {
+    const body = request.body;
+    let data = await orderInteractive(body.license, body.state);
+    if(!body.full) {
+        data = extractData(data) || data;
+    }
+
+    if (data) {
+        reply.type('application/xml').code(200);
+        return data;
+    } else {
+
+    }
+});
+
+fastify.listen(8996, (err, address) => {
+    if (err) throw err
+    logger.info(`HTTP server is listening on ${address}`);
+})
+
+fastify.addHook('onResponse', async (request, reply) => {
+    // Some code
+    //await asyncMethod()
+    // console.log(request);
+    // console.log(reply);
+})
 
 const js2Options = {
     spaces: 3,
@@ -17,7 +68,8 @@ const js2Options = {
     fullTagEmptyElement: true,
     ignoreDeclaration: false,
     ignoreInstruction: false,
-    ignoreAttributes: false
+    ignoreAttributes: false,
+    ignoreCdata: false
 };
 
 //TEST!
@@ -53,15 +105,6 @@ const loadParams = async () => {
     }
 }
 
-
-const loadTemplates = async () => {
-    logger.debug('Loading templates...');
-    const start = utils.time();
-    await utils.loadTemplates('./templates/samba/', TEMPLATES);
-    const duration = utils.time() - start;
-    logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
-}
-
 const createSoapEnvelope = (name, data) => {
     const soapBody = {};
 
@@ -85,10 +128,24 @@ const createSoapEnvelope = (name, data) => {
 
     try {
         const xml = convert.js2xml(envelope, js2Options);
-        logger.silly(xml);
+        //logger.silly(xml);
         return xml;
     } catch (error) {
         logger.error(error);
+    }
+}
+
+const extractData = (body) => {
+    if (!body) {
+        return;
+    }
+
+    let index = body.indexOf('<Data>&lt;![CDATA[');
+    if (index > -1) {
+        let end = body.indexOf(']]&gt;</Data>', index);
+        let data = body.substr(index + 18, end - index - 18);
+        data = utils.unescapeHTML(data);
+        return data;
     }
 }
 
@@ -171,73 +228,80 @@ const getOrder = (license, state) => {
 
     const order = {
         Order: {
-            License: license,
-            State: {
-                Abbrev: state
-            },
-            FirstName: 'ANNET',
-            LastName: 'CATERO',
-            DOB: {
-                Year: 1911,
-                Month: 10,
-                Day: 1
-            },
-            Handling: 'DL',
-            Misc: 'CUST01PERSONA03GUID',
+            Handling: 'OL',
+            Misc: 'LICENSE VALIDATION Test',
             Billing: 'CUST01PERSONA03GUID',
+            State: {
+                Abbrev: state,
+                Full: ''
+            },
+            Subtype: 'ST',
             ProductID: 'LV',
             Purpose: 'AA',
-            Subtype: 'ST',
-            DocumentType: 'License',
-            Address1: '8142 OLD SUNRIDGE DR',
-            InfoCity: 'ELLABELL',
-            InfoZipcode: '31308',
-            LicenseExpireDate: {
-                Year: 2006,
-                Month: 1,
-                Day: 1
-            }
+            License: license,
+            FirstName: 'JOHN',
+            LastName: 'DOE',
+            DocumentCategory: 1,
+            DOB: {
+                Year: '1990',
+                Month: '06',
+                Day: '04'
+            },
+            // DocumentType: 'License',
+            // Address1: '8142 OLD SUNRIDGE DR',
+            // InfoCity: 'ELLABELL',
+            // InfoZipcode: '31308',
+            // LicenseExpireDate: {
+            //     Year: 2006,
+            //     Month: 1,
+            //     Day: 1
+            // }
         }
     };
     return order;
 }
 
+
 const orderInteractive = async (license, state) => {
     const data = {
-        inCommunications: convert.js2xml(getCommunications(), js2Options),
+        inCommunications: {
+            "_cdata": convert.js2xml(getCommunications(), js2Options)
+        },
         inOrder: {
-            OrderXml: convert.js2xml(getOrder(license, state), js2Options)
+            OrderXml: {
+                "_cdata": convert.js2xml(getOrder(license, state), js2Options)
+            }
         }
     }
 
-    const body = await callSoapFunction('OrderInteractive', data);
+    return await callSoapFunction('OrderInteractive', data);
 
-    try {
-        if (!body) {
-            return;
-        }
+    // try {
+    //     if (!body) {
+    //         return;
+    //     }
 
-        let x = prettyData.pd.xml(body);
-        logger.silly('Results:', x);
-        // let index = body.indexOf('<Data>&lt;![CDATA[');
-        // if (index > -1) {
-        //     let end = body.indexOf(']]&gt;</Data>', index);
-        //     let data = body.substr(index + 18, end - index - 18);
-        //     data = utils.unescapeHTML(data);
-        //     //console.log(data);
-        // }
-    } catch (error) {
-        logger.error(error);
-    }
+    //     let data = extractData(body) || body;
+    //     return data;
+    //     // let x = prettyData.pd.xml(data);
+    //     // logger.silly(x);
+    // } catch (error) {
+    //     logger.error(error);
+    // }
 }
 
 const sendOrders = async () => {
     const data = {
-        inCommunication: convert.js2xml(getCommunications(), js2Options),
+        inCommunication: {
+            "_cdata": convert.js2xml(getCommunications(), js2Options)
+        },
         inOrders: [{
-            OrderXml: [
-                convert.js2xml(getOrder(), js2Options),
-                convert.js2xml(getOrder(), js2Options)
+            OrderXml: [{
+                    "_cdata": convert.js2xml(getOrder(), js2Options)
+                },
+                {
+                    "_cdata": convert.js2xml(getOrder(), js2Options)
+                }
             ],
         }]
     }
@@ -249,16 +313,9 @@ const sendOrders = async () => {
             return;
         }
 
-        let x = prettyData.pd.xml(body);
+        let data = extractData(body) || body;
+        let x = prettyData.pd.xml(data);
         logger.silly(x);
-
-        // let index = body.indexOf('<Data>&lt;![CDATA[');
-        // if (index > -1) {
-        //     let end = body.indexOf(']]&gt;</Data>', index);
-        //     let data = body.substr(index + 18, end - index - 18);
-        //     data = utils.unescapeHTML(data);
-        //     console.log(data);
-        // }
     } catch (error) {
         logger.error(error);
     }
@@ -267,7 +324,9 @@ const sendOrders = async () => {
 const receiveRecords = async () => {
 
     const data = {
-        inCommunications: convert.js2xml(getCommunications(), js2Options)
+        inCommunications: {
+            "_cdata": convert.js2xml(getCommunications(), js2Options)
+        }
     }
 
     const body = await callSoapFunction('ReceiveRecords', data);
@@ -277,16 +336,9 @@ const receiveRecords = async () => {
             return;
         }
 
-        let x = prettyData.pd.xml(body);
+        let data = extractData(body) || body;
+        let x = prettyData.pd.xml(data);
         logger.silly(x);
-
-        // let index = body.indexOf('<Data>&lt;![CDATA[');
-        // if (index > -1) {
-        //     let end = body.indexOf(']]&gt;</Data>', index);
-        //     let data = body.substr(index + 18, end - index - 18);
-        //     data = utils.unescapeHTML(data);
-        //     console.log(data);
-        // }
     } catch (error) {
         logger.error(error);
     }
@@ -324,6 +376,6 @@ const test001 = async () => {
     //await sendOrders();
     //await receiveRecords();
 
-    await test001();
+    //await test001();
 
 })();

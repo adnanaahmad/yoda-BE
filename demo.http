@@ -4,8 +4,8 @@
 
 # Change this to the base url of the did service. 
 #@base_url = https://dev.barbarians.com:8999
-@base_url = https://api.dev.fortifid.com:8999
-#@base_url = http://127.0.0.1:8998
+//@base_url = https://api.dev.fortifid.com:8999
+@base_url = http://127.0.0.1:8998
 
 ###
 # Generate URL for DirectID Connect 
@@ -75,17 +75,37 @@ content-type: text/plain
 
 'use strict';
 
-return data.a + data.b;
+return data.a * data.b;
 
 ###
-# Submit Code #2 (subtract)
+# Run Code #1 (add)
 # Just proof of concept
-POST {{base_url}}/directid/code-submit?id=subtract
+POST {{base_url}}/directid/code-run?id=add
+content-type: application/json
+
+{
+    "a": 120,
+    "b": 50
+}
+
+###
+# Submit Code #2 
+# Just proof of concept
+POST {{base_url}}/directid/code-submit?id=fin
 content-type: text/plain
 
 'use strict';
 
-return data.a - data.b;
+const uniqueArray = [...new Set(data)];
+return uniqueArray
+
+###
+# Run Code #2 (subtract)
+# Just proof of concept
+POST {{base_url}}/directid/code-run?id=fin
+content-type: application/json
+
+[1, 1, 2, 3, 5, 5, 1]
 
 ###
 # Submit Code #3 (did_1)
@@ -115,7 +135,7 @@ if(summary) {
         count: 0,
         
     }
-//*
+
     for(let i = 0;i<100;i++) {
       output.count++;
     }
@@ -133,7 +153,7 @@ if(summary) {
     output.months = total;
     output.total = Math.round(output.total);
     output.average = Math.round(output.total / total); 
-//*/
+
 }
 
 if (meta) {
@@ -219,28 +239,6 @@ content-type: application/json
     }
 }
 
-###
-# Run Code #1 (add)
-# Just proof of concept
-POST {{base_url}}/directid/code-run?id=add
-content-type: application/json
-
-{
-    "a": 120,
-    "b": 50
-}
-
-###
-# Run Code #2 (subtract)
-# Just proof of concept
-POST {{base_url}}/directid/code-run?id=subtract
-content-type: application/json
-
-{
-    "a": 100,
-    "b": 50
-}
-
 
 ###
 # Run Code #4 (complex)
@@ -291,17 +289,4 @@ GET http://169.254.169.254/latest/dynamic/instance-identity/document
   "phone_number": "12066597857",
   "url": "https://bit.ly/3sr6Xg6",
   "request_timestamp": 1610424271524
-}
-
-###
-@base_url = http://127.0.0.1:8996
-
-
-POST {{base_url}}/order-interactive
-content-type: application/json
-
-{
-    "license": "V20203901",
-    "state": "AZ",
-    "full": true
 }

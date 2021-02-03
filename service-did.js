@@ -683,6 +683,11 @@ const httpHandler = async (req, res) => {
                     }
 
                     const duration = utils.time() - start;
+                    // console.log(results)
+                    // if(Array.isArray(results)) {
+                    //     results =results.join(',');
+                    // }
+                   
                     let returnData = {
                         results: results,
                         duration: duration
@@ -706,6 +711,7 @@ const httpHandler = async (req, res) => {
         function codeSubmit() {
             if (bodyData) {
                 let id = parsed.query.id;
+                
                 let async = typeof (parsed.query.async) !== 'undefined' ? parsed.query.async : false;
 
                 let data = {

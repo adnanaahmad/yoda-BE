@@ -53,7 +53,7 @@ const formatterDate = ({
 
 const createLogger = (logGroupName, logStreamName) => {
 
-  let cloud = process.env.RUN_MODE !== 'DEV' && typeof(logGroupName) !== 'undefined';
+  let cloud = process.env.RUN_MODE !== 'DEV' && typeof (logGroupName) !== 'undefined';
 
   const logger = new winston.createLogger({
     level: 'error',
@@ -66,7 +66,7 @@ const createLogger = (logGroupName, logStreamName) => {
   if (cloud) {
     const cloudwatchConfig = {
       level: process.env.LOG_LEVEL || 'http',
-      logGroupName: logGroupName ||process.env.LOG_GROUP_NAME || 'service-did',
+      logGroupName: logGroupName || process.env.LOG_GROUP_NAME || 'service-did',
       logStreamName: logStreamName || process.env.INSTANCE_ID || 'default',
       messageFormatter: formatter
     }
@@ -77,15 +77,14 @@ const createLogger = (logGroupName, logStreamName) => {
       format: winston.format.printf(formatterDate),
     }))
   }
-  
+
   return logger;
 }
 
 const logger = createLogger('service-did');
 
 //TODO
-const doLog = (type, message, extra)=> {
-}
+const doLog = (type, message, extra) => {}
 
 const error = (message, extra) => logger.log('error', message, extra);
 const warn = (message, extra) => logger.log('warn', message, extra);
@@ -94,6 +93,36 @@ const http = (message, extra) => logger.log('http:', message, extra);
 const verbose = (message, extra) => logger.log('verbose', message, extra);
 const debug = (message, extra) => logger.log('debug', message, extra);
 const silly = (message, extra) => logger.log('silly', message, extra);
+
+class Logger {
+  constructor(...args) {
+    console.log(args, 'HA!');
+    this.args = args;
+  }
+  info(msg) {
+    console.log("info", msg);
+  }
+  error(msg) {
+    console.log("error", msg);
+  }
+  debug(msg) {
+    console.log("debug", msg);
+  }
+  fatal(msg) {
+    console.log("fatal", msg);
+  }
+  warn(msg) {
+    console.log("warn", msg);
+  }
+  trace(msg) {
+    console.log("trace", msg);
+  }
+
+  child() {
+    console.log('YO!');
+    return new Logger();
+  }
+}
 
 module.exports = {
   logger,
@@ -105,4 +134,5 @@ module.exports = {
   verbose,
   debug,
   silly,
+  Logger,
 }
