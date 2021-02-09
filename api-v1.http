@@ -303,5 +303,5 @@ content-type: application/json
 {
     "license": "V20203901",
     "state": "AZ",
-    "full": true
+    "full": false
 }

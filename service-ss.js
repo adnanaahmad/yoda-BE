@@ -55,6 +55,8 @@ fastify.listen(8996, (err, address) => {
     logger.info(`HTTP server is listening on ${address}`);
 })
 
+//#fisglobal
+
 fastify.addHook('onResponse', async (request, reply) => {
     // Some code
     //await asyncMethod()
