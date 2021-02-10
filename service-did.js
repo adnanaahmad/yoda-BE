@@ -421,7 +421,6 @@ const httpHandler = async (req, res) => {
 
     let logRequest = true;
 
-
     let method;
     let path;
     let ip;
@@ -810,11 +809,12 @@ const httpHandler = async (req, res) => {
             let transaction_id = bodyData.transaction_id;
             let account = bodyData.account;
 
-            if(account) {
+            if(account && account.length > 0) {
                 account = `${account}:`
             } else {
                 account = '';
             }
+
             if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
 
                 const output = {};
