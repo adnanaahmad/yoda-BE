@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = class Data {
+export default class Data {
     constructor(key, value) {
         this.#key = key;
         this.#value = value;
@@ -27,7 +27,7 @@ module.exports = class Data {
             return true;
         }       
 
-        if(!data && this.#key || this.#value) {
+        if(!data && (this.#key || this.#value)) {
             return false;
         }
 

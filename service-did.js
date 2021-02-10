@@ -6,6 +6,8 @@ const https = require('https');
 const logger = require('./logger').logger;
 const utils = require('./utils');
 const nameMatch = require('./name-match');
+const forwarder = require('./forwarder');
+
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
@@ -43,11 +45,6 @@ const paramList = require('./params.json');
 const paramKeys = Object.keys(paramList);
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-
-// TODO:
-// Note: According to DirectID this is the only IP address source that they use for their hooks.
-// May want to use the parameter store for this in the future.
-const DIRECTID_SOURCE_IP = '51.11.21.163';
 
 const consents = {};
 
@@ -741,10 +738,8 @@ const httpHandler = async (req, res) => {
             }
         }
 
-        function webhook() {
-            // if (PARAMS.api_whitelist.indexOf(ip) === -1) {
-            // }
-            if (DIRECTID_SOURCE_IP !== ip) {
+        async function webhook() {
+            if (PARAMS.api_whitelist.indexOf(ip) === -1) {
                 utils.sendText(res, 'IP address not allowed.', 403);
                 logger.warn('IP address not allowed.');
                 return;
@@ -754,10 +749,14 @@ const httpHandler = async (req, res) => {
                 //TODO!
                 if (key === PARAMS.webhook_secret) {
                     if (bodyData && bodyData.consentId) {
+
                         //if(bodyData.dataAvailability === 'Complete') {
                         let consentId = bodyData.consentId;
-
                         utils.sendData(res, 'OK');
+                        
+                        if(await forwarder.checkUrl(bodyData, parsed.search, req.headers)) {
+                            return;
+                        }
 
                         logger.info(`${consentId} - dataAvailability: ${bodyData.dataAvailability}.`);
 
@@ -809,14 +808,19 @@ const httpHandler = async (req, res) => {
             let request_id = bodyData.request_id;
             let customer_id = bodyData.customer_id;
             let transaction_id = bodyData.transaction_id;
+            let account = bodyData.account;
 
+            if(account) {
+                account = `${account}:`
+            } else {
+                account = '';
+            }
             if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
 
                 const output = {};
                 try {
-                    let url_ref = encodeURIComponent(`${transaction_id}:${customer_id}`);
+                    let url_ref = encodeURIComponent(`${account}${transaction_id}:${customer_id}`);
                     let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${url_ref}`;
-
 
                     let short_url = true;
                     if (typeof (bodyData.shorten_url) !== 'undefined') {

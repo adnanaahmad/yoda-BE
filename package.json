@@ -1,6 +1,6 @@
 {
   "name": "didservice",
-  "version": "1.0.25",
+  "version": "1.0.27",
   "description": "DirectID micro service.",
   "main": "service-did.js",
   "scripts": {
@@ -12,11 +12,11 @@
     "@types/express": "^4.17.11",
     "@types/qs": "^6.9.4",
     "atob": "^2.1.2",
-    "aws-sdk": "^2.834.0",
+    "aws-sdk": "^2.841.0",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "big-integer": "^1.6.48",
-    "bull": "^3.20.0",
+    "bull": "^3.20.1",
     "console-stamp": "^3.0.0-rc4.3",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",

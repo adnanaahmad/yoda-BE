@@ -5,6 +5,7 @@ const logger = require('./logger').createLogger('service-ss');
 const convert = require('xml-js');
 const prettyData = require('pretty-data');
 const soapRequest = require('./soap');
+const awsClient = require('./aws-client');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
@@ -231,15 +232,16 @@ const getOrder = (license, state) => {
     const order = {
         Order: {
             Handling: 'OL',
-            Misc: 'LICENSE VALIDATION Test',
-            Billing: 'CUST01PERSONA03GUID',
+            Purpose: 'AA',
+            ProductID: 'LV',
+            Subtype: 'ST',
+            DocumentType: 'License',
+            Misc: 'LICENSE VALIDATION Test', //personaID
+            Billing: 'CUST01PERSONA03GUID', //personaID
             State: {
                 Abbrev: state,
                 Full: ''
             },
-            Subtype: 'ST',
-            ProductID: 'LV',
-            Purpose: 'AA',
             License: license,
             FirstName: 'JOHN',
             LastName: 'DOE',
@@ -249,7 +251,7 @@ const getOrder = (license, state) => {
                 Month: '06',
                 Day: '04'
             },
-            // DocumentType: 'License',
+           
             // Address1: '8142 OLD SUNRIDGE DR',
             // InfoCity: 'ELLABELL',
             // InfoZipcode: '31308',
@@ -379,5 +381,22 @@ const test001 = async () => {
     //await receiveRecords();
 
     //await test001();
+    let customer_account_id = '60D7A8C1-2A10-42D9-8AD1-DC0F1C81E6D6';
+
+    const params = {
+        TableName: 'CUSTOMER_ACCOUNT',
+        KeyConditionExpression: '#c = :c',
+        ExpressionAttributeValues: {
+            ':c': customer_account_id,
+        },
+        ExpressionAttributeNames: {
+            "#c": "customer_account_id",
+        },
+    };
+
+    let data = await awsClient.docQuery(params);
+    if (data) {
+        console.log(data);
+    }
 
 })();

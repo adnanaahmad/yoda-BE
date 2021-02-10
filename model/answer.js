@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = class Answer {
+export default class Answer {
     #parameters = [];
     constructor(parameters) {
         if (parameters) {

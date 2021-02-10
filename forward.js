@@ -89,17 +89,19 @@ const httpHandler = async (req, res) => {
             }
             utils.sendData(res, 'OK');
 
+
             let d = {
                 data: bodyData,
                 url: 'https://webhook.site/998784e8-227e-4246-8a85-05e63d6bcb0f',
                 method: method
             }
+
             if(parsed.search) {
                 d.query = parsed.search 
             }
             
-            handlerWebhookQ.add(d);
-
+            //handlerWebhookQ.add(d);
+            console.log(d);
         } catch (e) {
             console.error(e);
             try {

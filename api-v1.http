@@ -3,8 +3,8 @@
 # We will need to secure them nevertheless.
 
 # Change this to the base url of the did service. 
-#@base_url = https://dev.barbarians.com:8999
-@base_url = https://api.dev.fortifid.com:8999
+@base_url = https://dev.barbarians.com:8999
+#@base_url = https://api.dev.fortifid.com:8999
 #@base_url = http://127.0.0.1:8998
 
 ###
@@ -35,10 +35,11 @@ content-type: application/json
 # For some reason this is not working in some environments.
 # < ./data/directid_consent.json
 # So inlining it.
+#"{{income.response.body.$.transaction_id}}",
 {
     "consentId": "{{$guid}}",
     "applicationId": "11e3cccb-5511-4e5f-adb6-e6ec82081f08",
-    "customerReference": "{{income.response.body.$.transaction_id}}",
+    "customerReference": "dev:abc:def",
     "providerAuthentication": "Error",
     "dataAvailability": "Complete",
     "paymentConfirmation": null,
@@ -294,7 +295,7 @@ GET http://169.254.169.254/latest/dynamic/instance-identity/document
 }
 
 ###
-@base_url = http://127.0.0.1:8996
+#@base_url = http://127.0.0.1:8996
 
 
 POST {{base_url}}/order-interactive
