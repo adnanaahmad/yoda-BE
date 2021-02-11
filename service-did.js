@@ -72,22 +72,41 @@ Object.freeze(incomeDirectIDResponseStatus);
 
 const shortenUrl = async (url, token, full = false) => {
 
+    // const data = {
+    //     "long_url": url
+    // };
+
+    // const headers = {
+    //     "Authorization": `Bearer ${token}`
+    // };
+    // const start = utils.time();
+    // try {
+    //     const results = await utils.fetchData('https://api-ssl.bitly.com/v4/shorten', data, headers);
+    //     const duration = utils.time() - start;
+    //     logger.info(`Url shortened to [${results.link}] in ${utils.toFixedPlaces(duration, 2)}ms`);
+    //     console.log(results);
+    //     return full ? results : results.link;
+    // } catch (error) {
+    //     logger.error(error);
+    // }
+
     const data = {
         "long_url": url
     };
 
-    const headers = {
-        "Authorization": `Bearer ${token}`
-    };
+    const headers = {};
+
     const start = utils.time();
     try {
-        const results = await utils.fetchData('https://api-ssl.bitly.com/v4/shorten', data, headers);
+        const results = await utils.fetchData('https://m0d.us', data, headers);
         const duration = utils.time() - start;
         logger.info(`Url shortened to [${results.link}] in ${utils.toFixedPlaces(duration, 2)}ms`);
+
         return full ? results : results.link;
     } catch (error) {
         logger.error(error);
     }
+
 }
 
 const requestBankData = async (consentId, customerReference) => {

@@ -39,7 +39,7 @@ content-type: application/json
 {
     "consentId": "{{$guid}}",
     "applicationId": "11e3cccb-5511-4e5f-adb6-e6ec82081f08",
-    "customerReference": "dev:abc:def",
+    "customerReference": "test:abc:def",
     "providerAuthentication": "Error",
     "dataAvailability": "Complete",
     "paymentConfirmation": null,

@@ -27,7 +27,7 @@ const checkUrl = async (data, query, headers)=> {
         data.customerReference = `${parts[1]}:${parts[2]}`;
         switch(parts[0]) {
             case 'test': {
-                url = 'https://webhook.site/b9550492-0c96-4b91-a495-43e93af1069c';
+                //url = 'https://webhook.site/b9550492-0c96-4b91-a495-43e93af1069c';
                 break;
             }
             case 'dev': {{
