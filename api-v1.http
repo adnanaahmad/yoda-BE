@@ -3,10 +3,10 @@
 # We will need to secure them nevertheless.
 
 # Change this to the base url of the did service. 
-@base_url = https://dev.barbarians.com:8999
+#@base_url = https://dev.barbarians.com:8999
 #@base_url = https://api.dev.fortifid.com:8999
 #@base_url = http://127.0.0.1:8998
-
+@base_url = https://m0d.us/forwarder
 ###
 # Generate URL for DirectID Connect 
 #
@@ -29,7 +29,7 @@ content-type: application/json
 
 #@transaction_id = {{income.response.body.$.transaction_id}}
 #@transaction_id=8b1f82e0-d942-4029-82ba-d0a9e610b76d 
-POST {{base_url}}/directid/webhook?key=kPgqykCWhR82ePaU4fWOufpcfSW3VqDrR
+POST {{base_url}}/directid?key=kPgqykCWhR82ePaU4fWOufpcfSW3VqDrR
 content-type: application/json
 
 # For some reason this is not working in some environments.
@@ -39,7 +39,7 @@ content-type: application/json
 {
     "consentId": "{{$guid}}",
     "applicationId": "11e3cccb-5511-4e5f-adb6-e6ec82081f08",
-    "customerReference": "test:abc:def",
+    "customerReference": "barb:abc:def",
     "providerAuthentication": "Error",
     "dataAvailability": "Complete",
     "paymentConfirmation": null,

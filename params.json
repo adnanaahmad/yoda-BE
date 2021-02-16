@@ -6,6 +6,7 @@
     "bank_data_url": "/config/directid/directid.api.bank_data_url",
     "revoke_consent_url": "/config/directid/directid.api.revoke_consent_url",
     "income_verification_url": "/config/directid/directid.api.income_verification_url",
+    "url_prefix": "/config/directid/directid.service.url_prefix",
     "http_port": "/config/directid/directid.service.http_port",
     "https_port": "/config/directid/directid.service.https_port",
     "email_subject": "/config/directid/directid.service.email_subject",

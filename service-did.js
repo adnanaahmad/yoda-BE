@@ -6,8 +6,6 @@ const https = require('https');
 const logger = require('./logger').logger;
 const utils = require('./utils');
 const nameMatch = require('./name-match');
-const forwarder = require('./forwarder');
-
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
@@ -94,7 +92,9 @@ const shortenUrl = async (url, token, full = false) => {
         "long_url": url
     };
 
-    const headers = {};
+    const headers = {
+        "Authorization": `Bearer ${token}`
+    };
 
     const start = utils.time();
     try {
@@ -144,7 +144,7 @@ const requestBankData = async (consentId, customerReference) => {
 const revokeConsent = async (consentId) => {
     logger.info(`${consentId} - Revoking consent...`);
     const headers = {
-        'content-type': 'application/x-www-form-urlencoded',
+        'content-type': 'application/json',
         'authorization': `Bearer ${oauth2.TOKENS[TOKEN_IDS.consent].access_token}`
     };
 
@@ -154,7 +154,7 @@ const revokeConsent = async (consentId) => {
 
         data = await utils.fetchData(utils.parseTemplate(PARAMS.revoke_consent_url, {
             '%CONSENT_ID%': consentId
-        }), undefined, headers, 'get');
+        }), undefined, headers, 'post');
 
         const duration = utils.time() - start;
 
@@ -249,14 +249,22 @@ const requestIncomeVerification = async (consentId, customerReference) => {
         return;
     }
 
+
+    let transaction_id;
+    let customer_id ;
+
     const parts = customerReference.split(':');
-    if (parts.length !== 2) {
+    if (parts.length === 3) {
+        transaction_id = parts[1];
+        customer_id = parts[2];
+    }
+    else if (parts.length === 2) {
+        transaction_id = parts[0];
+        customer_id = parts[1];
+    } else {
         logger.error('requestIncomeVerification - Invalid customer reference.', customerReference);
         return;
     }
-
-    const transaction_id = parts[0];
-    const customer_id = parts[1];
 
     const meta = META[transaction_id];
     if (!meta) {
@@ -764,17 +772,11 @@ const httpHandler = async (req, res) => {
             }
 
             if (method === 'POST') {
-                //TODO!
                 if (key === PARAMS.webhook_secret) {
                     if (bodyData && bodyData.consentId) {
-
                         //if(bodyData.dataAvailability === 'Complete') {
                         let consentId = bodyData.consentId;
                         utils.sendData(res, 'OK');
-                        
-                        if(await forwarder.checkUrl(bodyData, parsed.search, req.headers)) {
-                            return;
-                        }
 
                         logger.info(`${consentId} - dataAvailability: ${bodyData.dataAvailability}.`);
 
@@ -790,7 +792,7 @@ const httpHandler = async (req, res) => {
 
                             const funcs = [];
                             //funcs.push(saveWebhook(consent));
-                            logger.debug('Webhook consent received', consent);
+                            logger.silly('Webhook consent received', consent);
                             funcs.push(requestIncomeVerification(consentId, customerReference));
 
                             if (PARAMS.request_bank_data) {
@@ -813,12 +815,15 @@ const httpHandler = async (req, res) => {
                         }
                     } else {
                         utils.sendData(res, 'Invalid or missing body.', 422);
+                        logger.warn('Invalid or missing body.');
                     }
                 } else {
                     utils.sendData(res, 'Invalid key', 401);
+                    logger.warn('Invalid key.');
                 }
             } else {
                 utils.sendData(res, 'Method not allowed', 405);
+                logger.warn('Method not allowe.');
             }
         }
 
@@ -838,6 +843,10 @@ const httpHandler = async (req, res) => {
 
                 const output = {};
                 try {
+                    if(account.length === 0 && PARAMS.url_prefix && PARAMS.url_prefix.length > 0) {
+                        account = `${PARAMS.url_prefix}:`;
+                    }
+
                     let url_ref = encodeURIComponent(`${account}${transaction_id}:${customer_id}`);
                     let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${url_ref}`;
 
@@ -926,6 +935,7 @@ const httpHandler = async (req, res) => {
                 logger.info(`Generated income url`, output);
             } else {
                 utils.sendData(res, 'Missing parameter', 422);
+                logger.warn(`Missing parameter`, output);
             }
         }
     }

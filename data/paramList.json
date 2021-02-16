@@ -65,6 +65,11 @@
     "Value": "false"
   },
   {
+    "Name": "/config/directid/directid.service.url_prefix",
+    "Type": "String",
+    "Value": ""
+  },
+  {
     "Name": "/config/directid/directid.service.sms_text",
     "Type": "String",
     "Value": "From FortifID: please use the following link to complete the verification steps: %URL%"

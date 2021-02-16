@@ -29,7 +29,8 @@
           "api_whitelist": "",
           "cache_tokens": "false",
           "email_subject": "Verification steps",
-          "match_name": "false"
+          "match_name": "false",
+          "url_prefix":""
         }
       },
       "scheduler": {
