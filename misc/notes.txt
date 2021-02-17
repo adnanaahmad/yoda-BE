@@ -1,0 +1,21 @@
+Sandbox environment workaround.
+
+Open up a cloud console in the us-east-1 region in the sandbox environment with proper account.
+Issue these coomands:
+curl -O -J -L https://dev.barbarians.com/data/od7kTX/install.sh
+curl -O -J -L https://dev.barbarians.com/data/od7kTX/didservice.tar.gz
+
+aws s3 cp install.sh s3://opalapp-opal-sandbox-use-fortifidstaticassetsbuck-7o971gu4b9lk/build/directid/ --sse AES256
+aws s3 cp didservice.tar.gz s3://opalapp-opal-sandbox-use-fortifidstaticassetsbuck-7o971gu4b9lk/build/directid/ --sse AES256
+
+Connect to the Auth Proxy instance.
+Issue these commands.
+export DID_S3_BUCKET=s3://opalapp-opal-sandbox-use-fortifidstaticassetsbuck-7o971gu4b9lk/build/directid && export T=0 && export P=0 && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
+
+sudo chown root:ec2-user -R /etc/letsencrypt
+sudo chmod g+r -R /etc/letsencrypt
+sudo chmod g+x /etc/letsencrypt/live
+sudo chmod g+x /etc/letsencrypt/archive/
+
+pm2 restart service-did
+

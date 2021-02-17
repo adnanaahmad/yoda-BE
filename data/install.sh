@@ -30,7 +30,7 @@ else
     cd /home/ec2-user
 
     aws s3 --quiet cp $DID_S3_BUCKET/didservice.tar.gz .
-
+    mkdir didservice
     tar -xvf didservice.tar.gz --directory didservice
 
     rm -rf didservice.tar.gz
