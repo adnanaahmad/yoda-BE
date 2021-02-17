@@ -5,6 +5,7 @@ variables:
   DID_S3_BUCKET_US_E1: "s3://opalapp-opal-dev-use1-ap-fortifidstaticassetsbuck-fcko7emh9u2i/build/directid/"
   DID_S3_BUCKET_US_W1: "s3://opalapp-opal-dev-usw1-ap-fortifidstaticassetsbuck-kgbssmqm2man/build/directid/"
   DID_S3_BUCKET_US_W2: "s3://fortifid-opalv2-dev-usw2-fortifidstaticassetsbuck-45sqjyoln3uf/build/directid/"
+  #DID_S3_BUCKET_SANDBOX_US_E1: "s3://opalapp-opal-sandbox-use-fortifidstaticassetsbuck-7o971gu4b9l/build/directid/"
 
 deploy:
   #image: python:latest

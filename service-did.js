@@ -420,7 +420,7 @@ const sendFile = async (res, filename) => {
 
 const restart = () => {
     if (pm2Connected) {
-        pm2.restart("index", (err, val) => {
+        pm2.restart("service-did", (err, val) => {
             if (err) {
                 logger.error(err)
             } else {
