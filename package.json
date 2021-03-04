@@ -1,6 +1,6 @@
 {
   "name": "didservice",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "description": "DirectID micro service.",
   "main": "service-did.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",
     "fastify": "^3.11.0",
-    "lzutf8": "^0.5.8",
+    "lzutf8": "^0.6.0",
     "minimist": "^1.2.5",
     "node-fetch": "^2.6.1",
     "nodemailer": "^6.4.17",
@@ -34,6 +34,5 @@
     "winston": "^3.3.3",
     "winston-cloudwatch": "^2.5.0",
     "xml-js": "^1.6.11"
-  },
-  "devDependencies": {}
+  }
 }
