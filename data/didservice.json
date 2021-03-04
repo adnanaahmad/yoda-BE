@@ -20,7 +20,6 @@
           "ddb_partition_income": "CustomerAccountID",
           "ddb_sort_income": "RequestTimestamp",
           "email_text": "From FortifID: please use the following link to complete the verification steps: %URL%",
-          "incoming_webhook": "",
           "request_bank_data": "false",
           "demo_enabled": "false",
           "sms_text": "From FortifID: please use the following link to complete the verification steps: %URL%",
@@ -39,9 +38,6 @@
       }
     },
     "shared": {
-      "bitly": {
-        "access_token": ""
-      },
       "email": {
         "ses": {
           "password": "",

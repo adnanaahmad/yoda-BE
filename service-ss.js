@@ -367,7 +367,8 @@ const test001 = async () => {
     Object.keys(data).forEach(async (license) => {
         const state = data[license];
         //logger.debug(`license: ${license} state: ${state}`);
-        await orderInteractive(license, state);
+        let v = await orderInteractive(license, state);
+        console.log(v);
 
     })
 }
@@ -380,23 +381,23 @@ const test001 = async () => {
     //await sendOrders();
     //await receiveRecords();
 
-    //await test001();
-    let customer_account_id = '60D7A8C1-2A10-42D9-8AD1-DC0F1C81E6D6';
+    await test001();
+    // let customer_account_id = '60D7A8C1-2A10-42D9-8AD1-DC0F1C81E6D6';
 
-    const params = {
-        TableName: 'CUSTOMER_ACCOUNT',
-        KeyConditionExpression: '#c = :c',
-        ExpressionAttributeValues: {
-            ':c': customer_account_id,
-        },
-        ExpressionAttributeNames: {
-            "#c": "customer_account_id",
-        },
-    };
+    // const params = {
+    //     TableName: 'CUSTOMER_ACCOUNT',
+    //     KeyConditionExpression: '#c = :c',
+    //     ExpressionAttributeValues: {
+    //         ':c': customer_account_id,
+    //     },
+    //     ExpressionAttributeNames: {
+    //         "#c": "customer_account_id",
+    //     },
+    // };
 
-    let data = await awsClient.docQuery(params);
-    if (data) {
-        console.log(data);
-    }
+    // let data = await awsClient.docQuery(params);
+    // if (data) {
+    //     console.log(data);
+    // }
 
 })();

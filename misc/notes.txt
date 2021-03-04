@@ -19,3 +19,40 @@ sudo chmod g+x /etc/letsencrypt/archive/
 
 export DID_S3_BUCKET=s3://opalapp-opal-sandbox-use-fortifidstaticassetsbuck-7o971gu4b9lk/build/directid && export T=0 && export P=0 && aws s3 cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
 
+
+aws s3 cp test.txt s3://opalapp-opal-sandbox-use-fortifidstaticassetsbuck-7o971gu4b9lk/build/directid/ --sse AES256
+
+aws s3 cp test.txt s3://s3://opalapp-opal-testing-usw-fortifidstaticassetsbuck-lr6d1ah5y5np/build/directid/ --sse AES256
+
+Microservices Architecture
+Standalone
+Redis Cluster Queues
+Dynamic Queues
+Extremely fast
+Push vs Polling
+
+Monolithic
+Decoupling
+
+Foundation
+Libraries
+Templates
+Logging
+Authentication
+Transports
+Rest API
+SOAP
+AWS related
+
+Quickly and Consistently
+
+Data providers
+Samba Safety
+Neustar
+
+Audio Processing
+Conversion
+Automatic Speech Recognition
+Natural Language Processing
+Intent
+ANalytics

@@ -93,7 +93,7 @@ const shortenUrl = async (url, token, full = false) => {
     };
 
     const headers = {
-        "Authorization": `Bearer ${token}`
+        //"Authorization": `Bearer ${token}`
     };
 
     const start = utils.time();
@@ -855,8 +855,8 @@ const httpHandler = async (req, res) => {
                         short_url = bodyData.shorten_url;
                     }
 
-                    if (short_url && PARAMS.bitly) {
-                        let short = await shortenUrl(url, PARAMS.bitly);
+                    if (short_url) {
+                        let short = await shortenUrl(url);
                         url = short || url;
                     }
 

@@ -50,11 +50,6 @@
     "Value": "From FortifID: please use the following link to complete the verification steps: %URL%"
   },
   {
-    "Name": "/config/directid/directid.service.incoming_webhook",
-    "Type": "String",
-    "Value": ""
-  },
-  {
     "Name": "/config/directid/directid.service.request_bank_data",
     "Type": "String",
     "Value": "false"
@@ -130,11 +125,6 @@
     "Value": "false"
   },
   {
-    "Name": "/config/shared/bitly.access_token",
-    "Type": "SecureString",
-    "Value": ""
-  },
-  {
     "Name": "/config/shared/email.ses.password",
     "Type": "SecureString",
     "Value": ""
@@ -157,7 +147,7 @@
   {
     "Name": "/config/shared/email.ses.from",
     "Type": "String",
-    "Value": "Barbarians Dev <dev@barbarians.com>"
+    "Value": ""
   },
   {
     "Name": "/config/shared/email.ses.smtp_server",

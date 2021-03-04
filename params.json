@@ -22,6 +22,5 @@
     "ddb_partition_income": "/config/directid/directid.service.ddb_partition_income",
     "ddb_sort_income": "/config/directid/directid.service.ddb_sort_income",
     "request_bank_data": "/config/directid/directid.service.request_bank_data",
-    "bitly": "/config/shared/bitly.access_token",
     "apigw_cfg" : "/config/apigw/configuration/apigw.cfg"
 }
