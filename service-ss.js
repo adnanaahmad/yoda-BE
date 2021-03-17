@@ -76,6 +76,7 @@ const js2Options = {
 };
 
 //TEST!
+//Famouse_03
 const password = 'u9sm8uhv!B';
 
 //const  url = 'https://adrconnect.mvrs.com/adrconnect/adrconnectwebservice.svc?singlewsdl';
@@ -159,7 +160,12 @@ const callSoapFunction = async (name, data) => {
     if (!xml) {
         return;
     }
+
+    //Famouse_03
+    //
+    //const url = 'http://localhost:8088/ws/';
     const url = 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc';
+
     const headers = {
         'user-agent': `FortifID ${SCRIPT_INFO.version}`,
         'Content-Type': 'text/xml;charset=UTF-8',
@@ -368,7 +374,9 @@ const test001 = async () => {
         const state = data[license];
         //logger.debug(`license: ${license} state: ${state}`);
         let v = await orderInteractive(license, state);
-        console.log(v);
+        if(v) {
+            console.log(extractData(v));
+        }
 
     })
 }

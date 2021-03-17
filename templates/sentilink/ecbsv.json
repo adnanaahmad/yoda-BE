@@ -1,0 +1,12 @@
+{
+    "application": {
+        "application_id": "APP-9923452319",
+        "application_created": "2020-05-02T16:47:36",
+        "first_name": "John",
+        "last_name": "Doe",
+        "dob": "1990-12-30",
+        "ssn": "123456789"
+    },
+    "signature_type": "electronic",
+    "consent_valid_days": 30
+}

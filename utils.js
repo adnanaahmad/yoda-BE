@@ -842,14 +842,15 @@ const loadJSONAsync = async (file) => {
 }
 
 
-const loadTemplates = async (templates_dir, templates) => {
+const loadTemplates = async (templates_dir, templates, asObjects = false) => {
     templates = templates || {};
     let files = await dirRead(templates_dir);
     for (let index = 0; index < files.length; index++) {
         const file = files[index];
         let key = getFilenameWithoutExtension(file);
         let filename = templates_dir + file;
-        templates[key] = await fileRead(filename, 'utf-8');
+        let data = await fileRead(filename, 'utf-8');
+        templates[key] = asObjects ? JSON.parse(data): data;
     }
     return templates;
 }

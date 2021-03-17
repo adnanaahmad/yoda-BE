@@ -1,0 +1,50 @@
+{
+    "application": {
+        "application_id": "APP-6923452319",
+        "application_created": "2017-05-02T15:23:10",
+        "user_id": "6923452319",
+        "user_created": "2017-03-22T17:55:51",
+        "first_name": "John",
+        "last_name": "Doe",
+        "dob": "1990-12-30",
+        "ssn": "111111100",
+        "address_line_1": "1600 Pennsylvania Ave.",
+        "address_line_2": "Suite 3",
+        "city": "San Francisco",
+        "state_code": "CA",
+        "zipcode": "99999",
+        "country_code": "USA",
+        "phone": "4155550000",
+        "email": "johndoe@email.com",
+        "device_id": "JAKasi321CJXKSj9",
+        "ip_address": "255.255.255.255",
+        "ein": "234567891",
+        "business_name": "SentiLink Corp.",
+        "business_url": "www.sentilink.com",
+        "alt_address_line_1": "171 2nd ST",
+        "alt_address_line_2": "Flr 4",
+        "alt_zipcode": "94105",
+        "alt_city": "San Francisco",
+        "alt_state_code": "CA",
+        "alt_country_code": "USA",
+        "alt_phone": "4155550000",
+        "alt_email": "johndoeother@email.com",
+        "loan_amount": "5000",
+        "loan_currency": "USD",
+        "lead_type": "organic",
+        "metadata": {
+            "any_additional_data": "that_you_want"
+        }
+    },
+    "scores": [{
+            "score_name": "sentilink_abuse_score"
+        },
+        {
+            "score_name": "sentilink_first_party_synthetic_score"
+        },
+        {
+            "score_name": "sentilink_third_party_synthetic_score"
+        }
+    ],
+   "extra_data":[] 
+}
