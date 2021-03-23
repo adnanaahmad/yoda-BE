@@ -15,12 +15,11 @@ const fastify = require('fastify')({
 })
 
 const TEMPLATES = {};
-//TODO!
-//-SANDBOX-
-const ACCOUNT= '01F0HAQNBFR03ZAPKKKQFBHG1J';
-const TOKEN = '5L9C5GA9BM7QU9TJ7B4L71IJR1DR4C9N';
+const ACCOUNT= process.env.SL_ACCOUNT;
+const TOKEN = process.env.SL_TOKEN;
+
 const auth = Buffer.from(ACCOUNT + ":" + TOKEN).toString("base64");;
-//
+console.log(auth);
 
 fastify.get('/:params', async (request, reply) => {
     console.log(request.body)
@@ -173,7 +172,8 @@ const loadTemplates = async () => {
 
 (async () => {
 
-    await awsClient.getParametersByPath('/config/');
+    let params = await awsClient.getParametersByPath('/config/');
+    console.log(params);
 
     await loadTemplates();
 

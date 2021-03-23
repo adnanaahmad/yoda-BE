@@ -51,13 +51,23 @@ const getParametersByPath = async (path, filters) => {
   }
 
   try {
-    const result = await ssm.getParametersByPath(params).promise();
+    let repeat = false;
+    let values = [];
+    do {
+      repeat = false;
+      const result = await ssm.getParametersByPath(params).promise();
+      if (result) {
+        if(result.NextToken) {
+          repeat = true;
+          params.NextToken = result.NextToken;
+        } else {
+          delete params.NextToken;
+        }
+        values = [...values, ...result.Parameters];
+      }
+    } while (repeat);
 
-    if (result) {
-      console.log(result);
-      let value = result.Parameter.Value;
-      return value;
-    }
+    return values;
   } catch (error) {
     logger.error('getParametersByPath', path, error);
   }
