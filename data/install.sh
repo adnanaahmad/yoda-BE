@@ -11,6 +11,9 @@
 # us-west-2
 #export DID_S3_BUCKET=s3://fortifid-opalv2-dev-usw2-fortifidstaticassetsbuck-45sqjyoln3uf/build/directid && export T=0 && export P=0 && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
 
+# sandbox us-east-1
+#export DID_S3_BUCKET=s3://opalapp-opal-sandbox-use-fortifidstaticassetsbuck-7o971gu4b9lk/build/directid && export T=0 && export P=0 && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
+
 # global
 #export DID_S3_BUCKET=https://dev.barbarians.com/data/od7kTX && export T=0 && export P=0 && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
 #curl -O -J -L https://dev.barbarians.com/data/od7kTX didservice.tar.gz
@@ -36,7 +39,7 @@ else
     sudo chmod g+x /etc/letsencrypt/archive/
     ###########################################
 
-    aws s3 --quiet cp $DID_S3_BUCKET/didservice.tar.gz .
+    aws s3 cp $DID_S3_BUCKET/didservice.tar.gz .
     
     mkdir  /home/ec2-user/didservice
 

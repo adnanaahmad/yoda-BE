@@ -20,8 +20,7 @@ const TEMPLATES = {};
 const ACCOUNT= '01F0HAQNBFR03ZAPKKKQFBHG1J';
 const TOKEN = '5L9C5GA9BM7QU9TJ7B4L71IJR1DR4C9N';
 const auth = Buffer.from(ACCOUNT + ":" + TOKEN).toString("base64");;
-
-
+//
 
 fastify.get('/:params', async (request, reply) => {
     console.log(request.body)
@@ -124,13 +123,7 @@ const request = async (endpoint, data) => {
       }
 }
 
-const loadTemplates = async () => {
-    logger.debug('Loading templates...');
-    const start = utils.time();
-    await utils.loadTemplates('./templates/sentilink/', TEMPLATES, true);
-    const duration = utils.time() - start;
-    logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
-}
+
 
 const getUser = async(manifest = false, clustering = false)=> {
     let data = {...TEMPLATES['user']};
@@ -170,15 +163,24 @@ const getUserComplete = async()=> {
     return await request('user/complete', data);
 }
 
-
+const loadTemplates = async () => {
+    logger.debug('Loading templates...');
+    const start = utils.time();
+    await utils.loadTemplates('./templates/sentilink/', TEMPLATES, true);
+    const duration = utils.time() - start;
+    logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
+}
 
 (async () => {
+
+    await awsClient.getParametersByPath('/config/');
+
     await loadTemplates();
 
-    await getUser(false, true);
+    //await getUser(false, true);
 
     //await getEcbsv(); //401: "Missing rate limit for ecbsv. Please contact support@sentilink.com to enable this product."
     await getUserComplete();
     //Device fingerprinting
-    
+
 })();

@@ -39,6 +39,30 @@ const getParameter = async (name) => {
   }
 };
 
+const getParametersByPath = async (path, filters) => {
+  const params = {
+    Path: path,
+    Recursive: true,
+    WithDecryption: true
+  };
+
+  if(filters) {
+    params.ParameterFilters = filters;
+  }
+
+  try {
+    const result = await ssm.getParametersByPath(params).promise();
+
+    if (result) {
+      console.log(result);
+      let value = result.Parameter.Value;
+      return value;
+    }
+  } catch (error) {
+    logger.error('getParametersByPath', path, error);
+  }
+};
+
 const putParameter = async (name, value, type = 'SecureString', dataType = 'text', overwrite = false) => {
   const params = {
     Name: name,
@@ -147,6 +171,7 @@ const scan = async (params) => {
 module.exports = {
   getParameter,
   putParameter,
+  getParametersByPath,
   putDDBItem,
   updateDDBItem,
   query,
