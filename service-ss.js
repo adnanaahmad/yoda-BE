@@ -7,6 +7,7 @@ const prettyData = require('pretty-data');
 const soapRequest = require('./soap');
 const awsClient = require('./aws-client');
 
+
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
@@ -17,41 +18,60 @@ const fastify = require('fastify')({
     logger: false
 })
 
-fastify.get('/:params', async (request, reply) => {
-    console.log(request.body)
-    console.log(request.query)
-    console.log(request.params)
-    console.log(request.headers)
-    console.log(request.raw)
-    console.log(request.id)
-    console.log(request.ip)
-    console.log(request.ips)
-    console.log(request.hostname)
-    console.log(request.protocol)
-    request.log.info('some info')
-    reply.type('application/json').code(200);
+const ALLOWED_STATES = ['AR', 'AZ', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'MA', 'MD', 'ME', 'MI', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NJ', 'NM', 'PA', 'RI', 'SD', 'TN', 'TX', 'VA', 'VT', 'WA', 'WI', 'WY'];
 
+function unescapeHTML(escapedHTML) {
+    return escapedHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&#xD;/g, '').replace(/&#xA;/g, '').replace(/\[0x9\]/g, '  ');
+}
+
+
+fastify.get('/:params', async (request, reply) => {
+    // console.log(request.body)
+    // console.log(request.query)
+    // console.log(request.params)
+    // console.log(request.headers)
+    // console.log(request.raw)
+    // console.log(request.id)
+    // console.log(request.ip)
+    // console.log(request.ips)
+    // console.log(request.hostname)
+    // console.log(request.protocol)
+    // request.log.info('some info')
+    const now = Date.now();
+    reply.type('application/json').code(200);
+    const data = {
+        ...SCRIPT_INFO,
+        start: utils.startTime,
+        time: now,
+        uptime: (now - utils.startTime),
+    };
     return {
-        service: 'samba'
+        server: data
     }
 })
 
 fastify.post('/order-interactive', async (request, reply) => {
-    const body = request.body;
-    let data = await orderInteractive(body.license, body.state);
-    if(!body.full) {
-        data = extractData(data) || data;
+    const body = utils.flattenObject2(request.body);
+    if(!body.issuing_state || ALLOWED_STATES.indexOf( body.issuing_state) === -1) {
+        reply.type('application/json').code(417);
+        return {error: 'STATE NOT SUPPORTED'};
     }
 
+    let data = await orderInteractive(body);
+
     if (data) {
-        reply.type('application/xml').code(200);
+        data = extractData(data);
+        if(data) {
+            data = extractResult(data);
+        }
+        reply.type('application/json').code(200);
         return data;
     } else {
 
     }
 });
 
-fastify.listen(8996, (err, address) => {
+fastify.listen(8000, (err, address) => {
     if (err) throw err
     logger.info(`HTTP server is listening on ${address}`);
 })
@@ -77,30 +97,28 @@ const js2Options = {
 
 //TEST!
 //Famouse_03
-const password = 'u9sm8uhv!B';
+const account = process.env.SS_ACCOUNT;
+const userId = process.env.SS_USER_ID;
+const password = process.env.SS_PASSWORD;
 
-//const  url = 'https://adrconnect.mvrs.com/adrconnect/adrconnectwebservice.svc?singlewsdl';
-//const url = 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc?singleWsdl';
+
 const loadParams = async () => {
     //TODO:
 
     logger.debug(`[${SCRIPT_INFO.name}] Loading parameters...`);
-    const funcs = [];
+    //const funcs = [];
     const start = utils.time();
 
-    funcs.push(awsClient.getParameter('/config/sambasafety/sambasafety.credentials.soap-user'));
-    funcs.push(awsClient.getParameter('/config/sambasafety/sambasafety.credentials.soap-password'));
-    funcs.push(awsClient.getParameter('/config/sambasafety/sambasafety.credentials.account'));
-
-    funcs.push(awsClient.getParameter('/config/sambasafety/sambasafety.service-location'));
-    funcs.push(awsClient.getParameter('/config/sambasafety/sambasafety.soap-action'));
+    const results = await awsClient.getParametersByPath('/config/sambasafety/', undefined, true);
 
     try {
-        let results = await Promise.all(funcs);
+
         const duration = utils.time() - start;
-        logger.debug(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+        //logger.debug(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+        
         if (results) {
-            logger.debug(results);
+            console.log(JSON.stringify(results, null, 2));
+            //logger.debug(results);
         } else {
             logger.warn(`[${SCRIPT_INFO.name}] Unable to retrieve parameters.`);
         }
@@ -153,6 +171,50 @@ const extractData = (body) => {
     }
 }
 
+const nativeType = (value) => {
+    var nValue = Number(value);
+    if (!isNaN(nValue)) {
+        return nValue;
+    }
+    var bValue = value.toLowerCase();
+    if (bValue === 'true') {
+        return true;
+    } else if (bValue === 'false') {
+        return false;
+    }
+    return value;
+}
+
+const removeJsonTextAttribute = (value, parentElement) => {
+    try {
+        var keyNo = Object.keys(parentElement._parent).length;
+        var keyName = Object.keys(parentElement._parent)[keyNo - 1];
+        parentElement._parent[keyName] = nativeType(value);
+    } catch (e) {}
+}
+
+const options = {
+    compact: true,
+    trim: true,
+    ignoreDeclaration: true,
+    ignoreInstruction: true,
+    ignoreAttributes: true,
+    ignoreComment: true,
+    ignoreCdata: true,
+    ignoreDoctype: true,
+    textFn: removeJsonTextAttribute,
+};
+
+const extractResult = (xml)=> {
+    let ndx = xml.indexOf('<Result>');
+    if (ndx > -1) {
+        let ndx2 = xml.indexOf('</Result>');
+        xml = unescapeHTML(xml.substr(ndx, ndx2 - ndx + 10));
+        let result =  convert.xml2js(xml, options);
+        return result.Result;
+    }
+}
+
 const callSoapFunction = async (name, data) => {
     //logger.debug(`callSoapFunction [${name}] start...`);
 
@@ -160,12 +222,12 @@ const callSoapFunction = async (name, data) => {
     if (!xml) {
         return;
     }
-
+    //console.log(xml)
     //Famouse_03
     //
     //const url = 'http://localhost:8088/ws/';
     const url = 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc';
-
+    //const url = 'https://adrconnect.mvrs.com/AdrConnect/AdrConnectWebService.svc';
     const headers = {
         'user-agent': `FortifID ${SCRIPT_INFO.version}`,
         'Content-Type': 'text/xml;charset=UTF-8',
@@ -197,13 +259,13 @@ const callSoapFunction = async (name, data) => {
     }
 }
 
-const changePassword = async () => {
+const changePassword = async (newPassword) => {
 
     let data = {
         inAccountID: 'K1625',
         InUserID: '01', //inUserId //DOCS!
         inCurrentPassword: password,
-        inNewPassword: 'u9sm8uhv!C',
+        inNewPassword: newPassword,
     };
 
     const body = await callSoapFunction('ChangePassword', data);
@@ -214,8 +276,8 @@ const changePassword = async () => {
 const getCommunications = () => {
     const comm = {
         Communications: {
-            Account: 'K1625',
-            UserID: '01',
+            Account: account,
+            UserID: userId,
             Password: password,
             DeviceID: {
                 "_attributes": {
@@ -230,61 +292,67 @@ const getCommunications = () => {
     return comm;
 }
 
-const getOrder = (license, state) => {
+const orderMap = {
+    first_name: 'FirstName',
+    last_name: 'LastName',
+    middle_name: 'MiddleName',
+    line1: 'Address1',
+    city: 'InfoCity',
+    zip_code: 'InfoZipcode',
+    persona_id: 'Misc'
+}
 
-    license = license || 'V20203901';
-    state = state || 'AZ';
+const formatDateObject = (date)=> {
+    //let dt = new Date(date);
+    const parts = date.split('-');
+    return {
+        Year: parts[0],
+        Month: parts[1],
+        Day : parts[2]
+    }
 
+}
+
+const getOrder = (data) => {
     const order = {
-        Order: {
             Handling: 'OL',
             Purpose: 'AA',
             ProductID: 'LV',
             Subtype: 'ST',
             DocumentType: 'License',
-            Misc: 'LICENSE VALIDATION Test', //personaID
-            Billing: 'CUST01PERSONA03GUID', //personaID
-            State: {
-                Abbrev: state,
-                Full: ''
-            },
-            License: license,
-            FirstName: 'JOHN',
-            LastName: 'DOE',
             DocumentCategory: 1,
-            DOB: {
-                Year: '1990',
-                Month: '06',
-                Day: '04'
-            },
-           
-            // Address1: '8142 OLD SUNRIDGE DR',
-            // InfoCity: 'ELLABELL',
-            // InfoZipcode: '31308',
-            // LicenseExpireDate: {
-            //     Year: 2006,
-            //     Month: 1,
-            //     Day: 1
-            // }
+            State: {
+                Abbrev: '',
+                Full: ''
+            }
         }
-    };
-    return order;
+    
+    utils.copyData(data, orderMap, order);
+
+    order.License = data.license_number;
+    order.Billing = data.persona_id;
+    order.State.Abbrev = data.issuing_state;
+    order.DOB = formatDateObject(data.birth_date);
+    order.LicenseExpireDate = formatDateObject(data.expiration_date);
+
+    return { Order: order};
 }
 
 
-const orderInteractive = async (license, state) => {
-    const data = {
+const orderInteractive = async (data) => {
+
+    const output = {
         inCommunications: {
             "_cdata": convert.js2xml(getCommunications(), js2Options)
         },
         inOrder: {
             OrderXml: {
-                "_cdata": convert.js2xml(getOrder(license, state), js2Options)
+                "_cdata": convert.js2xml(getOrder(data), js2Options)
             }
         }
     }
 
-    return await callSoapFunction('OrderInteractive', data);
+    return await callSoapFunction('OrderInteractive', output);
 
     // try {
     //     if (!body) {
@@ -389,7 +457,10 @@ const test001 = async () => {
     //await sendOrders();
     //await receiveRecords();
 
-    await test001();
+    //let date = new Date('2006-01-01');
+    //console.log(date.toISOString());
+
+    //await test001();
     // let customer_account_id = '60D7A8C1-2A10-42D9-8AD1-DC0F1C81E6D6';
 
     // const params = {
@@ -408,4 +479,10 @@ const test001 = async () => {
     //     console.log(data);
     // }
 
+    //const id = utils.flattenObject2(JSON.parse(await utils.fileRead(__dirname + '/tmp/id-cisco.json', 'utf-8')));
+    //const id = utils.flattenObject2(JSON.parse(await utils.fileRead(__dirname + '/tmp/id.json', 'utf-8')));
+    //let data = await orderInteractive(id);
+
+    //if(data) {
+    //}
 })();

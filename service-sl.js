@@ -12,7 +12,7 @@ logger.info(SCRIPT_INFO);
 
 const fastify = require('fastify')({
     logger: false
-})
+});
 
 const TEMPLATES = {};
 const ACCOUNT= process.env.SL_ACCOUNT;
@@ -22,33 +22,18 @@ const auth = Buffer.from(ACCOUNT + ":" + TOKEN).toString("base64");;
 console.log(auth);
 
 fastify.get('/:params', async (request, reply) => {
-    console.log(request.body)
-    console.log(request.query)
-    console.log(request.params)
-    console.log(request.headers)
-    console.log(request.raw)
-    console.log(request.id)
-    console.log(request.ip)
-    console.log(request.ips)
-    console.log(request.hostname)
-    console.log(request.protocol)
-    request.log.info('some info')
     reply.type('application/json').code(200);
-
     return {
-        service: 'samba'
+        service: 'sentilink'
     }
 })
 
-fastify.post('/order-interactive', async (request, reply) => {
+fastify.post('/user', async (request, reply) => {
     const body = request.body;
-    let data = await orderInteractive(body.license, body.state);
-    if(!body.full) {
-        data = extractData(data) || data;
-    }
-
+    
+    let data = '';
     if (data) {
-        reply.type('application/xml').code(200);
+        reply.type('application/json').code(200);
         return data;
     } else {
 
@@ -138,7 +123,7 @@ const getUser = async(manifest = false, clustering = false)=> {
         data.extra_data.push({'type': 'clusters'});
     }
 
-    //data.scores.push({score_name: 'sentilink_id_theft_score'}); //400 error: "Malformed Request: Invalid score <sentilink_id_theft_score> of version <>"
+    data.scores.push({score_name: 'sentilink_id_theft_score'}); //400 error: "Malformed Request: Invalid score <sentilink_id_theft_score> of version <>"
     //ssn:
     //111111100 : all 100
     // last 4: 1100 - 1999 = 100 - 999
@@ -171,16 +156,12 @@ const loadTemplates = async () => {
 }
 
 (async () => {
-
-    let params = await awsClient.getParametersByPath('/config/');
-    console.log(params);
-
     await loadTemplates();
 
-    //await getUser(false, true);
+    await getUser(true, true);
 
-    //await getEcbsv(); //401: "Missing rate limit for ecbsv. Please contact support@sentilink.com to enable this product."
-    await getUserComplete();
+    await getEcbsv(); //401: "Missing rate limit for ecbsv. Please contact support@sentilink.com to enable this product."
+    //await getUserComplete();
     //Device fingerprinting
 
 })();

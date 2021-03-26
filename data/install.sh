@@ -16,7 +16,7 @@
 
 # global
 #export DID_S3_BUCKET=https://dev.barbarians.com/data/od7kTX && export T=0 && export P=0 && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
-#curl -O -J -L https://dev.barbarians.com/data/od7kTX didservice.tar.gz
+#curl -O -J -L https://dev.barbarians.com/data/od7kTX/didservice.tar.gz
 
 
 FILE=/home/ec2-user/fortifid/.env

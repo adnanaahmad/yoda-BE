@@ -39,7 +39,7 @@ const getParameter = async (name) => {
   }
 };
 
-const getParametersByPath = async (path, filters) => {
+const getParametersByPath = async (path, filters, simple = false) => {
   const params = {
     Path: path,
     Recursive: true,
@@ -66,6 +66,14 @@ const getParametersByPath = async (path, filters) => {
         values = [...values, ...result.Parameters];
       }
     } while (repeat);
+
+    if(simple && values) {
+      let temp ={};
+      values.forEach(value=> {
+        temp[value.Name.substr(value.Name.lastIndexOf('/') + 1)] = value.Value;
+      })
+      values = temp;
+    }
 
     return values;
   } catch (error) {

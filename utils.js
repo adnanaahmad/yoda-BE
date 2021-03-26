@@ -513,15 +513,15 @@ function sendMessage(res, statusCode, headers, data, cors) {
 }
 
 
-const copyData = (source, map) => {
-    let data = {};
+const copyData = (source, map, dest) => {
+    dest = dest || {};
 
     Object.keys(map).forEach(field => {
         if (source.hasOwnProperty(field)) {
-            data[map[field]] = source[field];
+            dest[map[field]] = source[field];
         }
     })
-    return data;
+    return dest;
 }
 
 
@@ -820,6 +820,23 @@ const flattenObject = (obj) => {
     return results;
 }
 
+const flattenObject2 = (obj) => {
+    if(!obj) {
+        return;
+    }
+    const flattened = {}
+  
+    Object.keys(obj).forEach((key) => {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        Object.assign(flattened, flattenObject2(obj[key]))
+      } else {
+        flattened[key] = obj[key]
+      }
+    })
+  
+    return flattened
+  }
+
 const loadJSON = (file) => {
     if (file && fs.existsSync(file)) {
         let json = JSON.parse(fs.readFileSync(file, 'utf-8'));
@@ -1081,6 +1098,7 @@ module.exports = {
     baseAlpha,
     contentTypes,
     flattenObject,
+    flattenObject2,
     parseDotNotation,
     toUrlSafeBase64,
     fromUrlSafeBase64,
