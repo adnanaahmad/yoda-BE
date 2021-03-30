@@ -1,7 +1,7 @@
 'use strict';
 /*jshint esversion: 8 */
 const utils = require('./utils');
-const logger = require('./logger').createLogger('service-neustar');
+const logger = require('./logger').createLogger('service-veriff');
 const awsClient = require('./aws-client');
 const axios = require('axios');
 const fs = require('fs');
@@ -11,9 +11,11 @@ const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 logger.info(SCRIPT_INFO);
 
 const fastify = require('fastify')({
-    logger: false
+    logger: false,
+    //http2: true,
+    trustProxy: true,
+    //ignoreTrailingSlash: true    
 })
-
 
 const handlerTwilioQ = require('./handler-twilio');
 const handlerEmailQ = require('./handler-email');
@@ -22,6 +24,19 @@ const TEMPLATES = {};
 const STATUS = {};
 const VERIFIED = {};
 
+const validateUser = async () => {
+    // let verified = await utils.comparePassword(code, hash);
+
+    // let hash = await utils.hashPassword(code);
+}
+
+
+//TODO!
+const IP_WHITELIST = [
+    '97.68.181.170',
+    '13.59.147.223',
+    '18.218.55.219'
+]
 
 const shortenUrl = async (url, token, full = false) => {
     const data = {
@@ -47,17 +62,16 @@ const shortenUrl = async (url, token, full = false) => {
 
 fastify.post('/webhook', async (request, reply) => {
     const body = request.body;
-    if(body) {
+    if (body) {
         console.log(body);
-        const v = body.verification; 
-        if(v) {
+        const v = body.verification;
+        if (v) {
             //TODO!
             let data = {
                 ...v
-
             };
             VERIFIED[v.id] = data;
-        }else {
+        } else {
             STATUS[body.id] = body;
         }
     }
@@ -76,27 +90,32 @@ const sms_text = 'From FortifID: please use the following link to complete the I
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
     const id = request.params.id;
-    const data = {status: 'waiting'};
-    if(id) {
+    const data = {
+        status: 'waiting'
+    };
+
+    console.log(request.ip, `check-request ${id}`);
+
+    if (id) {
         let record;
-        if(id.startsWith(':')) {
-            record = utils.findObjectByFieldValue(STATUS, 'vendorData', id);
-            if(!record) {
-                record = utils.findObjectByFieldValue(VERIFIED, 'vendorData', id);
+        if (id.startsWith(':')) {
+            record = utils.findObjectByFieldValue(VERIFIED, 'vendorData', id);
+            if (!record) {
+                record = utils.findObjectByFieldValue(STATUS, 'vendorData', id);
             }
-            if(record) {
+            if (record) {
                 data.id = record.id;
             }
-        }else {
+        } else {
             record = VERIFIED[id];
-            if(!record) {
+            if (!record) {
                 record = STATUS[id];
             }
         }
-        
-        if(record) {
+
+        if (record) {
             data.status = record.status || record.action;
-            if(record.reason !== null) {
+            if (record.reason !== null) {
                 data.reason = record.reason;
             }
         }
@@ -108,12 +127,11 @@ fastify.get('/check-request/:id', async (request, reply) => {
 fastify.post('/generate-id-url', async (request, reply) => {
     //const body = typeof(request.body) === 'string' ? JSON.parse(request.body) : request.body;
     const body = request.body;
-    if(body) {
-
+    if (body) {
         console.log(body);
         body.start = Date.now();
         //TODO!
-        let transaction_id = body.transaction_id ;
+        let transaction_id = body.transaction_id;
         body.url = `https://i.dev.fortifid.com/demo/veriff?ref=${encodeURIComponent(transaction_id)}`
 
         let short = await shortenUrl(body.url);
@@ -168,7 +186,17 @@ fastify.post('/generate-id-url', async (request, reply) => {
     return body;
 })
 
-
+fastify.addHook("onRequest", async (request, reply) => {
+    try {
+        
+        console.log(IP_WHITELIST.indexOf(request.ip));
+        //console.log('HERE!');
+        //reply.send('YOU WILL NOT PASS!!!!');
+        //await request.jwtVerify()
+    } catch (err) {
+        reply.send(err)
+    }
+})
 
 fastify.listen(8004, (err, address) => {
     if (err) throw err
