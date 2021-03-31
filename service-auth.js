@@ -39,7 +39,7 @@ fastify.get('/create', async (request, reply) => {
     delete copy.client_secret;
 
     CACHE[data.client_id] = copy;
-
+    awsClient.putDDBItem('AUTH', copy);
     reply.type('application/json').code(200);
     return data;
 
@@ -48,7 +48,8 @@ fastify.get('/create', async (request, reply) => {
 fastify.post('/token', async (request, reply) => {
     const body = request.body;
     let data = {};
-
+    let error;
+    let code = 200;
     // const data = {
     //     grant_type: "client_credentials",
     //     client_id: utils.randomString(20),
@@ -64,6 +65,23 @@ fastify.post('/token', async (request, reply) => {
         let data ={};
         try {
             let record = CACHE[body.client_id];
+            if(!record) {
+                var params = {
+                    TableName : "AUTH",
+                    KeyConditionExpression: "#client_id = :client_id",
+                    ExpressionAttributeNames:{
+                        "#client_id": "client_id"
+                    },
+                    ExpressionAttributeValues: {
+                        ":client_id": body.client_id
+                    }
+                };
+                let results = await awsClient.docQuery(params);
+                if(results && results.Count > 0) {
+                    record = results.Items[0];
+                }
+            }
+
             if(record) {
                 passed = await utils.comparePassword(body.client_secret, record.hash);
      
@@ -72,24 +90,38 @@ fastify.post('/token', async (request, reply) => {
                         client_id: body.client_id,
                         created: Date.now()
                     };
-                  
-
-                    data.token = jwt.sign(d, process.env.JWT, {
-                        expiresIn: '1d'
-                    });
-                    console.log('d', data);
+                    try {
+                        let token = jwt.sign(d, process.env.JWT, {
+                            expiresIn: '12h'
+                        });
+                        data.token = token;
+                        reply.type('application/json').code(200).send(data);
+                    } catch (e) {
+                        console.log(error); 
+                        code = 500;
+                        error  = e.message;                     
+                    }
                 } else {
-                    data.error = 'Invalid client_secret.';
+                    error = 'Invalid client_secret.';
+                    code = 401;
                 }
             }else {
-                data.error = 'Invalid client_id';
+                error = 'Invalid client_id.';
+                code = 401;
             }            
-        } catch (error) {
-            data.error = error.message;
-            console.log(error);
+        } catch (e) {
+            error  = e.message;
+            code = 500;                     
         }
+    } else {
+        error = 'Missing parameters.';
+        code = 422;
     }
-    reply.type('application/json').code(200);
+    if(error) {
+        data.error = error;
+        console.log(error);
+    }
+    reply.type('application/json').code(code);
     return data;
 });
 

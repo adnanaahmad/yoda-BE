@@ -5,6 +5,7 @@ const logger = require('./logger').createLogger('service-veriff');
 const awsClient = require('./aws-client');
 const axios = require('axios');
 const fs = require('fs');
+const net = require('net');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
@@ -14,7 +15,14 @@ const fastify = require('fastify')({
     logger: false,
     //http2: true,
     trustProxy: true,
-    //ignoreTrailingSlash: true    
+    ignoreTrailingSlash: true
+})
+
+fastify.register(require('fastify-raw-body'), {
+    field: 'rawBody',
+    global: false,
+    encoding: 'utf8',
+    runFirst: true
 })
 
 const handlerTwilioQ = require('./handler-twilio');
@@ -32,11 +40,15 @@ const validateUser = async () => {
 
 
 //TODO!
-const IP_WHITELIST = [
-    '97.68.181.170',
-    '13.59.147.223',
-    '18.218.55.219'
+
+const RESTRICTED_ROUTES = [
+    '/generate-id-url',
+    '/check-request'
 ]
+
+let IP_WHITELIST = [];
+
+const KEYS = {};
 
 const shortenUrl = async (url, token, full = false) => {
     const data = {
@@ -60,10 +72,52 @@ const shortenUrl = async (url, token, full = false) => {
 
 }
 
-fastify.post('/webhook', async (request, reply) => {
+const loadParams = async () => {
+    KEYS[process.env.VERIFF_KEY] = process.env.VERIFF_PASSWORD;
+    KEYS[process.env.VERIFF_KEY_TEST] = process.env.VERIFF_PASSWORD_TEST;
+    IP_WHITELIST = JSON.parse(await utils.fileRead('./veriff-ips.json', 'utf-8'));
+}
+
+fastify.post('/webhook', {
+    config: {
+        rawBody: true
+    }
+}, async (request, reply) => {
+
+    // TODO! https://developers.veriff.com/#handling-security
+    const auth_client = request.headers['x-auth-client'];
+    const signature = request.headers['x-signature'];
+    //console.log(request.headers);
+    //console.log(auth_client, signature);
+    if (!auth_client || !signature) {
+        logger.info('Authentication required.');
+        reply.type('application/json').code(401).send({
+            error: 'Authentication required.'
+        });
+        return;
+    }
+
+    const key = KEYS[auth_client];
+    if (!key) {
+        logger.info('Invalid client id.');
+        reply.type('application/json').code(401).send({
+            error: 'Invalid client id.'
+        });
+        return;
+    }
+
+    const sig = utils.hash(`${request.rawBody}${key}`, 'sha256', 'hex');
+    if (sig !== signature) {
+        logger.info('Signature mismatch.');
+        reply.type('application/json').code(401).send({
+            error: 'Signature mismatch.'
+        });
+        return;
+    }
+
     const body = request.body;
     if (body) {
-        console.log(body);
+        logger.silly(body);
         const v = body.verification;
         if (v) {
             //TODO!
@@ -86,15 +140,67 @@ fastify.post('/webhook', async (request, reply) => {
 const email_subject = 'ID Verification Steps';
 const sms_text = 'From FortifID: please use the following link to complete the ID verification steps: %URL%'
 
+const checkIP = async (request, reply) => {
+    try {
+        if (IP_WHITELIST.indexOf(request.ip) === -1) {
+            let data = {
+                status: 'error',
+                reason: `IP address not allowed. ${request.ip}`,
+                code: 403
+            }
+            reply.type('application/json').code(403).send(data);
+            logger.warn(data);
+            return false;
+        } else {
+            return true;
+        }
+    } catch (err) {
+        reply.send(err)
+    }
+
+}
+
+fastify.get('/add-ip/:ip', async (request, reply) => {
+    const ip = request.params.ip || request.ip;
+    logger.info(ip);
+    if (process.env.IP_KEY !== request.query.key) {
+        reply.type('application/json').code(401);
+        return {
+            error: 'Authentication required.'
+        };
+    }
+
+    if(!net.isIP(ip)) {
+        reply.type('application/json').code(422);
+        return {
+            error: `Invalid IP address format. ${ip}`
+        };
+    }
+    
+    if(IP_WHITELIST.indexOf(ip) > -1) {
+        reply.type('application/json').code(422);
+        return {
+            error: `IP address ${ip} already whitelisted.`
+        };
+    }
+    
+    IP_WHITELIST.push(ip);
+    reply.type('application/json').code(200).send({ status: 'sucess', message: `IP address ${ip}whitelisted.`});
+    await fileWrite(`./veriff-ips.json`, JSON.stringify(IP_WHITELIST, null, 2));
+})
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
+    if (!await checkIP(request, reply)) {
+        return;
+    }
+
     const id = request.params.id;
     const data = {
         status: 'waiting'
     };
 
-    console.log(request.ip, `check-request ${id}`);
+    logger.info(request.ip, `check-request ${id}`);
 
     if (id) {
         let record;
@@ -125,10 +231,14 @@ fastify.get('/check-request/:id', async (request, reply) => {
 })
 
 fastify.post('/generate-id-url', async (request, reply) => {
+    if (!await checkIP(request, reply)) {
+        return;
+    }
+
     //const body = typeof(request.body) === 'string' ? JSON.parse(request.body) : request.body;
     const body = request.body;
     if (body) {
-        console.log(body);
+        logger.silly(body);
         body.start = Date.now();
         //TODO!
         let transaction_id = body.transaction_id;
@@ -187,15 +297,7 @@ fastify.post('/generate-id-url', async (request, reply) => {
 })
 
 fastify.addHook("onRequest", async (request, reply) => {
-    try {
-        
-        console.log(IP_WHITELIST.indexOf(request.ip));
-        //console.log('HERE!');
-        //reply.send('YOU WILL NOT PASS!!!!');
-        //await request.jwtVerify()
-    } catch (err) {
-        reply.send(err)
-    }
+    //console.log(request.routerPath); 
 })
 
 fastify.listen(8004, (err, address) => {
@@ -204,5 +306,7 @@ fastify.listen(8004, (err, address) => {
 });
 
 (async () => {
+    await loadParams();
+    console.log(IP_WHITELIST, IP_WHITELIST.length);
 
 })();
