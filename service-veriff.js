@@ -87,8 +87,6 @@ fastify.post('/webhook', {
     // TODO! https://developers.veriff.com/#handling-security
     const auth_client = request.headers['x-auth-client'];
     const signature = request.headers['x-signature'];
-    //console.log(request.headers);
-    //console.log(auth_client, signature);
     if (!auth_client || !signature) {
         logger.info('Authentication required.');
         reply.type('application/json').code(401).send({
@@ -160,9 +158,10 @@ const checkIP = async (request, reply) => {
 
 }
 
-fastify.get('/add-ip/:ip', async (request, reply) => {
+//Not REST standard but I wanted this to be easy to use
+fastify.get('/ip-add/:ip', async (request, reply) => {
     const ip = request.params.ip || request.ip;
-    logger.info(ip);
+    logger.info('/ip-add', ip);
     if (process.env.IP_KEY !== request.query.key) {
         reply.type('application/json').code(401);
         return {
@@ -185,9 +184,21 @@ fastify.get('/add-ip/:ip', async (request, reply) => {
     }
     
     IP_WHITELIST.push(ip);
-    reply.type('application/json').code(200).send({ status: 'sucess', message: `IP address ${ip}whitelisted.`});
-    await fileWrite(`./veriff-ips.json`, JSON.stringify(IP_WHITELIST, null, 2));
+    reply.type('application/json').code(200).send({ status: 'sucess', message: `IP address ${ip} whitelisted.`});
+    await utils.fileWrite(`./veriff-ips.json`, JSON.stringify(IP_WHITELIST, null, 2));
 })
+
+fastify.get('/ip-list', async (request, reply) => {
+    if (process.env.IP_KEY !== request.query.key) {
+        reply.type('application/json').code(401);
+        return {
+            error: 'Authentication required.'
+        };
+    }
+
+    reply.type('application/json').code(200).send(IP_WHITELIST);
+})
+
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
@@ -307,6 +318,6 @@ fastify.listen(8004, (err, address) => {
 
 (async () => {
     await loadParams();
-    console.log(IP_WHITELIST, IP_WHITELIST.length);
+    logger.silly(IP_WHITELIST, IP_WHITELIST.length);
 
 })();
