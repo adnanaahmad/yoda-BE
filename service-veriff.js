@@ -40,6 +40,7 @@ const validateUser = async () => {
 
 
 //TODO!
+const WHITELISTING = true;
 
 const RESTRICTED_ROUTES = [
     '/generate-id-url',
@@ -140,6 +141,11 @@ const sms_text = 'From FortifID: please use the following link to complete the I
 
 const checkIP = async (request, reply) => {
     try {
+
+        if(!WHITELISTING) {
+            return true;
+        }
+
         if (IP_WHITELIST.indexOf(request.ip) === -1) {
             let data = {
                 status: 'error',
@@ -202,9 +208,9 @@ fastify.get('/ip-list', async (request, reply) => {
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
-    if (!await checkIP(request, reply)) {
-        return;
-    }
+    // if (!await checkIP(request, reply)) {
+    //     return;
+    // }
 
     const id = request.params.id;
     const data = {

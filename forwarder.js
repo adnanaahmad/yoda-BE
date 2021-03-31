@@ -30,9 +30,9 @@ const checkUrl = async (data, query, headers)=> {
                 //url = 'https://webhook.site/b9550492-0c96-4b91-a495-43e93af1069c';
                 break;
             }
-            case 'dev': {{
+            case 'dev': {
                 break;
-            }}
+            }
         }
 
         if(url) {

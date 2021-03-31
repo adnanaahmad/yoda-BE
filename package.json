@@ -12,7 +12,7 @@
     "@types/express": "^4.17.11",
     "@types/qs": "^6.9.6",
     "atob": "^2.1.2",
-    "aws-sdk": "^2.876.0",
+    "aws-sdk": "^2.877.0",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "big-integer": "^1.6.48",
