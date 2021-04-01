@@ -49,6 +49,36 @@ const sms_text = 'From FortifID: please use the following link to complete the S
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
+    let code = 404;
+    const id = request.params.id;
+    const data = {
+        status: 'not found'
+    };
+
+    //logger.info(request.ip, `check-request ${id}`);
+
+    if (id) {
+        let record = STATUS[id];
+        if (record) {
+            data.status = record.status;
+            if (record.reason !== null) {
+                data.reason = record.reason;
+            }
+
+            if(record.verified) {
+                data.verified = record.verified;
+            }
+            code = 200;
+        }
+    }
+    reply.type('application/json').code(code);
+
+    return data;
+})
+
+fastify.get('/verify/:id', async (request, reply) => {
+    const now = Date.now();
+    let code = 404;
     // if (!await checkIP(request, reply)) {
     //     return;
     // }
@@ -58,18 +88,28 @@ fastify.get('/check-request/:id', async (request, reply) => {
         status: 'not found'
     };
 
-    logger.info(request.ip, `check-request ${id}`);
+    logger.info(request.ip, `verify ${id}`);
 
     if (id) {
         let record = STATUS[id];
         if (record) {
-            data.status = record.status || record.action;
-            if (record.reason !== null) {
-                data.reason = record.reason;
+            code = 200;
+            if(record.status === 'sent') {
+                data.verified = now;
+                data.status = 'verified';
+
+                record.verified = now;
+                record.status = data.status; 
+            } else if(record.status === 'verified'){
+                data.status = 'used';
+            } else {
+                data.status = record.status;
+                data.verified = record.verified;
             }
-        }
+            //TODO: Expiration!
+        } 
     }
-    reply.type('application/json').code(200);
+    reply.type('application/json').code(code);
 
     return data;
 })
@@ -80,7 +120,7 @@ fastify.post('/generate-mfa-url', async (request, reply) => {
     let code = 200;
     const data = {
         start: Date.now(),
-        sent: false
+        status: 'declined'
     };
 
     if (body && body.phone_number) {
@@ -95,10 +135,11 @@ fastify.post('/generate-mfa-url', async (request, reply) => {
                 transaction_id: transaction_id,
                 numbers: phone_number
             };
-            
+
             //delete body.phone_number;
             let results = await handlerTwilioQ.lookup(lookup);
             if (results) {
+                //TODO!
                 if (results.countryCode === 'US' && results.carrier !== null && typeof (results.carrier) === 'object') {
                     let carrier = results.carrier;
                     if (carrier.type === 'mobile') {
@@ -106,13 +147,22 @@ fastify.post('/generate-mfa-url', async (request, reply) => {
                         data.url = `https://i.dev.fortifid.com/mfa-validate?ref=${encodeURIComponent(transaction_id)}`
                         let short = await utils.shortenUrl(data.url);
                         data.url = short || data.url;
-                        lookup.text =  utils.parseTemplate(sms_text, {
+                        lookup.text = utils.parseTemplate(sms_text, {
                             '%URL%': data.url
                         })
 
                         handlerTwilioQ.add(lookup);
-                        data.sent = true;
-                    }
+                        STATUS[transaction_id] = {
+                            status: 'sent',
+                            start: data.start
+                        };
+
+                        data.status = 'sent';
+                    } else {
+                        data.reason = 'Must use a valid cell phone number (no VOIP or land lines accepted)';
+                    } 
+                } else {
+                    data.reason = 'Invalid or unknown carrier data.';
                 }
             }
 

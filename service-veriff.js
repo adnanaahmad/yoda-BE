@@ -197,7 +197,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
         status: 'waiting'
     };
 
-    logger.info(request.ip, `check-request ${id}`);
+    //logger.info(request.ip, `check-request ${id}`);
 
     if (id) {
         let record;
