@@ -1,7 +1,7 @@
 'use strict';
 /*jshint esversion: 8 */
 const utils = require('./utils');
-const logger = require('./logger').createLogger('service-veriff');
+const logger = require('./logger').createLogger('service-mfa');
 utils.setLogger(logger);
 
 const awsClient = require('./aws-client');
@@ -20,13 +20,6 @@ const fastify = require('fastify')({
     ignoreTrailingSlash: true
 })
 
-fastify.register(require('fastify-raw-body'), {
-    field: 'rawBody',
-    global: false,
-    encoding: 'utf8',
-    runFirst: true
-})
-
 const handlerTwilioQ = require('./handler-twilio');
 const handlerEmailQ = require('./handler-email');
 
@@ -36,7 +29,6 @@ const VERIFIED = {};
 
 const validateUser = async () => {
     // let verified = await utils.comparePassword(code, hash);
-
     // let hash = await utils.hashPassword(code);
 }
 
@@ -54,8 +46,6 @@ let IP_WHITELIST = [];
 const KEYS = {};
 
 const loadParams = async () => {
-    KEYS[process.env.VERIFF_KEY] = process.env.VERIFF_PASSWORD;
-    KEYS[process.env.VERIFF_KEY_TEST] = process.env.VERIFF_PASSWORD_TEST;
     IP_WHITELIST = JSON.parse(await utils.fileRead('./veriff-ips.json', 'utf-8'));
 }
 
@@ -116,7 +106,7 @@ fastify.post('/webhook', {
 });
 
 //TODO! params!
-const email_subject = 'ID Verification steps';
+const email_subject = 'ID Verification Steps';
 const sms_text = 'From FortifID: please use the following link to complete the ID verification steps: %URL%'
 
 const checkIP = async (request, reply) => {
@@ -305,4 +295,5 @@ fastify.listen(8004, (err, address) => {
 (async () => {
     await loadParams();
     logger.silly(IP_WHITELIST, IP_WHITELIST.length);
+
 })();

@@ -49,4 +49,16 @@ pm2 save
 
 https://dev.barbarians.com/data/od7kTX/alex-1.0.0.jar
 
+
+sudo su ec2-user
+cd /home/ec2-user/didservice/templates/emails
+curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/directid_email.html
+
+cd /home/ec2-user/didservice
+curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/service-did.js
+curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/utils.js
+pm2 restart service-did
+
+
+
 curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/alex-1.0.0.jar

@@ -5,6 +5,8 @@ const http = require('http');
 const https = require('https');
 const logger = require('./logger').logger;
 const utils = require('./utils');
+utils.setLogger(logger);
+
 const nameMatch = require('./name-match');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
@@ -66,48 +68,6 @@ const handlerEmailQ = require('./handler-email');
 const incomeDirectIDResponseStatus = require('./response-status.json');
 
 Object.freeze(incomeDirectIDResponseStatus);
-
-
-const shortenUrl = async (url, token, full = false) => {
-
-    // const data = {
-    //     "long_url": url
-    // };
-
-    // const headers = {
-    //     "Authorization": `Bearer ${token}`
-    // };
-    // const start = utils.time();
-    // try {
-    //     const results = await utils.fetchData('https://api-ssl.bitly.com/v4/shorten', data, headers);
-    //     const duration = utils.time() - start;
-    //     logger.info(`Url shortened to [${results.link}] in ${utils.toFixedPlaces(duration, 2)}ms`);
-    //     console.log(results);
-    //     return full ? results : results.link;
-    // } catch (error) {
-    //     logger.error(error);
-    // }
-
-    const data = {
-        "long_url": url
-    };
-
-    const headers = {
-        //"Authorization": `Bearer ${token}`
-    };
-
-    const start = utils.time();
-    try {
-        const results = await utils.fetchData('https://m0d.us', data, headers);
-        const duration = utils.time() - start;
-        logger.info(`Url shortened to [${results.link}] in ${utils.toFixedPlaces(duration, 2)}ms`);
-
-        return full ? results : results.link;
-    } catch (error) {
-        logger.error(error);
-    }
-
-}
 
 const requestBankData = async (consentId, customerReference) => {
     logger.info(`${customerReference} - Requesting bank data...`);
@@ -856,7 +816,7 @@ const httpHandler = async (req, res) => {
                     }
 
                     if (short_url) {
-                        let short = await shortenUrl(url);
+                        let short = await utils.shortenUrl(url);
                         url = short || url;
                     }
 
@@ -995,17 +955,26 @@ const initTokens = async () => {
 const loadParams = async () => {
     logger.debug(`[${SCRIPT_INFO.name}] Loading parameters...`);
     const funcs = [];
-
-    if (process.env.APIGWCMD) {
-        //All we really care about is if it was launched with local config 
-        let ARGS = utils.toArgs2(process.env.APIGWCMD);
-        if (ARGS.localpath) {
-            let index = paramKeys.indexOf('apigw_cfg');
-            if (index > -1) {
-                paramKeys.splice(index, 1);
-            }
-            PARAMS.apigw_cfg = await utils.loadJSONAsync(ARGS.localpath);
+    try {
+        if(typeof(process.env.LOCAL_CERT) === 'string' && typeof(process.env.LOCAL_KEY) === 'string') {
+            logger.debug("Loading env certificates...");
+            delete PARAMS.apigw_cfg;
+            PARAMS.server_crt = await utils.loadFile(process.env.LOCAL_CERT);
+            PARAMS.server_key = await utils.loadFile(process.env.LOCAL_KEY);
         }
+        else if (process.env.APIGWCMD) {
+            //All we really care about is if it was launched with local config 
+            let ARGS = utils.toArgs2(process.env.APIGWCMD);
+            if (ARGS.localpath) {
+                let index = paramKeys.indexOf('apigw_cfg');
+                if (index > -1) {
+                    paramKeys.splice(index, 1);
+                }
+                PARAMS.apigw_cfg = await utils.loadJSONAsync(ARGS.localpath);
+            }
+        }
+    } catch (error) {
+        logger.error(error);        
     }
 
     const start = utils.time();
@@ -1070,7 +1039,7 @@ const loadParams = async () => {
                 PARAMS.demo_enabled = utils.parseBoolean(PARAMS.demo_enabled);
             }
 
-            if (typeof (PARAMS.apigw_cfg) === 'object') {
+            if (typeof(PARAMS.server_crt) === 'undefined' && typeof(PARAMS.apigw_cfg) === 'object') {
                 let transport = PARAMS.apigw_cfg.transport;
                 if (transport) {
                     if (transport.local_certificate) {

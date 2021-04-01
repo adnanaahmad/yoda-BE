@@ -19,6 +19,8 @@ const BigInt = require('big-integer');
 const loadNs = process.hrtime();
 const loadMs = new Date().getTime();
 
+let _logger;
+
 require('dotenv').config();
 
 require('console-stamp')(console, {
@@ -1015,6 +1017,39 @@ const getBody = async (req) => {
     });
 }
 
+//TOD: The url needs to be dyanmic and the token
+const shortenUrl = async (url, token, full = false,) => {
+    const data = {
+        "long_url": url
+    };
+
+    const headers = {
+        //"Authorization": `Bearer ${token}`
+    };
+
+    const start = time();
+    try {
+        //TODO
+        const results = await fetchData('https://i.dev.fortifid.com/s/', data, headers);
+        const duration = time() - start;
+        if(_logger) {
+            _logger.info(`Url shortened to [${results.link}] in ${toFixedPlaces(duration, 2)}ms`);
+        }
+        return full ? results : results.link;
+    } catch (error) {
+        if(_logger) {
+            _logger.error(error);
+        } else {
+            console.log(error);
+        }
+    }
+
+}
+
+const setLogger = (logger)=> {
+    _logger = logger;
+}
+
 const getRandomIntInclusive = (min, max) => {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -1121,5 +1156,7 @@ module.exports = {
     getUUID,
     unescapeHTML,
     escapeHTML,
-    fetchWithTimeout
+    fetchWithTimeout,
+    shortenUrl,
+    setLogger
 }
