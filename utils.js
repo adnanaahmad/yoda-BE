@@ -798,7 +798,6 @@ const getUUID = () => {
     return uuidv4();
 }
 
-
 const flattenObject = (obj) => {
     let results = {};
 
