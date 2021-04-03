@@ -65,7 +65,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
                 data.reason = record.reason;
             }
 
-            if(record.verified) {
+            if (record.verified) {
                 data.verified = record.verified;
             }
             code = 200;
@@ -94,20 +94,20 @@ fastify.get('/verify/:id', async (request, reply) => {
         let record = STATUS[id];
         if (record) {
             code = 200;
-            if(record.status === 'sent') {
+            if (record.status === 'sent') {
                 data.verified = now;
                 data.status = 'verified';
 
                 record.verified = now;
-                record.status = data.status; 
-            } else if(record.status === 'verified'){
+                record.status = data.status;
+            } else if (record.status === 'verified') {
                 data.status = 'used';
             } else {
                 data.status = record.status;
                 data.verified = record.verified;
             }
             //TODO: Expiration!
-        } 
+        }
     }
     reply.type('application/json').code(code);
 
@@ -128,7 +128,7 @@ fastify.post('/generate-mfa-url', async (request, reply) => {
         //TODO!
         let transaction_id = body.transaction_id || utils.getUUID();
         data.transaction_id = transaction_id;
-
+        let send = body.send;
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
             let lookup = {
@@ -138,34 +138,52 @@ fastify.post('/generate-mfa-url', async (request, reply) => {
 
             //delete body.phone_number;
             let results = await handlerTwilioQ.lookup(lookup);
+
             if (results) {
                 //TODO!
-                if (results.countryCode === 'US' && results.carrier !== null && typeof (results.carrier) === 'object') {
+                logger.silly(results);
+                if (results instanceof Error) {
+                    data.reason = results.status === 404 ? 'Invalid phone number or number not found.' : results.message;
+                } else if (results.countryCode === 'US' && results.carrier !== null && typeof (results.carrier) === 'object') {
                     let carrier = results.carrier;
                     if (carrier.type === 'mobile') {
 
-                        data.url = `https://i.dev.fortifid.com/mfa-validate?ref=${encodeURIComponent(transaction_id)}`
-                        let short = await utils.shortenUrl(data.url);
-                        data.url = short || data.url;
-                        lookup.text = utils.parseTemplate(sms_text, {
-                            '%URL%': data.url
-                        })
+                        if (send) {
+                            data.url = `https://i.dev.fortifid.com/mfa-validate?ref=${encodeURIComponent(transaction_id)}`
+                            let short = await utils.shortenUrl(data.url);
+                            data.url = short || data.url;
 
-                        handlerTwilioQ.add(lookup);
+                            lookup.text = utils.parseTemplate(sms_text, {
+                                '%URL%': data.url
+                            });
+
+                            handlerTwilioQ.add(lookup);
+                        }
+
+                        data.status = send ? 'sent' : 'lookup';
                         STATUS[transaction_id] = {
-                            status: 'sent',
+                            status: data.status,
                             start: data.start
                         };
 
-                        data.status = 'sent';
                     } else {
-                        data.reason = 'Must use a valid cell phone number (no VOIP or land lines accepted)';
-                    } 
+                        data.reason = 'Must use a valid mobile phone number (no VOIP or landlines accepted)';
+                    }
                 } else {
                     data.reason = 'Invalid or unknown carrier data.';
                 }
             }
 
+            if (results.moreInfo) {
+                delete results.moreInfo;
+            }
+
+            if (results.url) {
+                delete results.url;
+            }
+
+            delete results.addOns;
+            delete results.level;
             data.lookup = results;
         }
     } else {
