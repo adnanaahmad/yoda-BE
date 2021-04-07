@@ -52,7 +52,7 @@ paths:
           #format: uuid
       responses:
         '200':
-          $ref: '#/components/responses/Success'
+          $ref: '#/components/responses/SuccessStatus'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '403':
@@ -78,13 +78,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/RequestResults'  
+    SuccessStatus:
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResults'               
     UnauthorizedError:
       description: Access token is missing or invalid
     Forbidden:
       description: Method Not Allowed      
     MethodNotAllowed:
       description: Method Not Allowed
-
   schemas:
     Request:
       required:
@@ -110,6 +115,11 @@ components:
       type: string
       description: Request Status
       enum: [not_found, invalid, sent, waiting, approved, declined, expired, used]
+    StatusResults:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'          
     RequestResults:
       type: object
       properties:

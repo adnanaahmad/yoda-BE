@@ -17,7 +17,18 @@ const hasUser = (request, reply) => {
     
 }
 
-const getAuth = (request) => {
+const createToken = (data, expiration, secretOrPrivateKey)=> {
+    secretOrPrivateKey = secretOrPrivateKey || process.env.JWT;
+    expiration = expiration || '1h';
+    let token = jwt.sign(data, secretOrPrivateKey, {
+        expiresIn: expiration
+    });
+
+    return token;
+}
+
+const getAuth = (request, secretOrPrivateKey) => {
+    secretOrPrivateKey = secretOrPrivateKey || process.env.JWT;
     try {
         const jwtToken = request.headers.authorization;
         if(!jwtToken) {
@@ -32,7 +43,7 @@ const getAuth = (request) => {
         if (flatToken.indexOf(jwtBearer) === 0) {
             flatToken = flatToken.substring(jwtBearer.length);
         }
-        let decoded = jwt.verify(flatToken, process.env.JWT);
+        let decoded = jwt.verify(flatToken, secretOrPrivateKey);
         if (decoded) {
             decoded.sig = utils.cleanName(flatToken.substring(flatToken.lastIndexOf('.')));
             request.user  = decoded;
@@ -45,4 +56,5 @@ const getAuth = (request) => {
 
 module.exports = {
     getAuth,
+    createToken
 }

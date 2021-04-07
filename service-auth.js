@@ -3,9 +3,7 @@
 const utils = require('./utils');
 const logger = require('./logger').createLogger('service-auth');
 const awsClient = require('./aws-client');
-const axios = require('axios');
-const fs = require('fs');
-const jwt = require("jsonwebtoken");
+const authJWT =  require('./auth-jwt');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
@@ -63,22 +61,16 @@ const validateUser = async () => {
 
 fastify.post('/create', async (request, reply) => {
     
-    if (process.env.API_KEY !== request.query.key) {
-        reply.type('application/json').code(401);
-        return {
-            error: 'Authentication required.'
-        };
+    if(!request.user || request.user.level < 1000) {
+        if (process.env.API_KEY !== request.query.key) {
+            reply.type('application/json').code(401);
+            return {
+                error: 'Authentication required.'
+            };
+        }
     }
-    const body = request.body;
-    
 
-    const data = {
-        full_name: body.full_name,
-        role: body.role,
-        client_id: utils.randomString(32),
-        client_secret: utils.randomSrringCrypt(32),
-        created: Date.now()
-    }
+    const body = request.body;
 
     const rate_limit = {
         credits_add_per_minute: 0,
@@ -86,10 +78,24 @@ fastify.post('/create', async (request, reply) => {
         credits_max: 100
     } 
 
-    const copy = {
-        ...data,
+    const data = {
+        name: body.name,
+        notes: body.notes,
+        role: body.role,
+        client_id: utils.randomString(32),
+        client_secret: utils.randomSrringCrypt(32),
+        created: Date.now(),
+        expiration: 0,
+        status: 1, 
+        level: 1,
+        parent_id: body.parent_id,
         rate_limit
+    }
+    
+    const copy = {
+        ...data
     };
+
     copy.hash = await utils.hashPassword(copy.client_secret);
     delete copy.client_secret;
 
@@ -122,7 +128,7 @@ fastify.post('/token', async (request, reply) => {
 
     client_id = client_id || body.client_id;
     client_secret = client_secret || body.client_secret;
-
+    let refresh = body.refresh;
     let data = {};
     let error;
     let code = 200;
@@ -139,9 +145,9 @@ fastify.post('/token', async (request, reply) => {
         let passed = false;
         let data = {};
         try {
-            let record = CACHE[client_id];
+            let record = refresh? undefined:  CACHE[client_id];
             if (!record) {
-                var params = {
+                let params = {
                     TableName: "AUTH",
                     KeyConditionExpression: "#client_id = :client_id",
                     ExpressionAttributeNames: {
@@ -151,6 +157,7 @@ fastify.post('/token', async (request, reply) => {
                         ":client_id": client_id
                     }
                 };
+
                 let results = await awsClient.docQuery(params);
                 if (results && results.Count > 0) {
                     record = results.Items[0];
@@ -163,14 +170,15 @@ fastify.post('/token', async (request, reply) => {
                 if (passed) {
                     let d = {
                         client_id: client_id,
-
-                        created: Date.now()
+                        name: record.name,
+                        role: record.role,
+                        level: record.level,
+                        created: record.created,
+                        status: record.status 
                     };
-                    try {
-                        let token = jwt.sign(d, process.env.JWT, {
-                            expiresIn: '1h'
-                        });
 
+                    try {
+                        let token = authJWT.createToken(d);
                         data.token_type = 'Bearer';
                         data.expires_in = 3600;
                         data.access_token = token;
@@ -274,15 +282,7 @@ fastify.get('/ip-list', async (request, reply) => {
 })
 
 fastify.addHook("onRequest", async (request, reply) => {
-    try {
-        // console.log(request.headers);
-        // console.log(request.body);
-        // console.log('HERE!');
-        //reply.send('YOU WILL NOT PASS!!!!');
-        //await request.jwtVerify()
-    } catch (err) {
-        reply.send(err)
-    }
+    authJWT.getAuth(request);
 })
 
 fastify.listen(7999, (err, address) => {
