@@ -12,6 +12,8 @@ const bcrypt = require('bcrypt');
 const BCRYPT_SALT_ROUNDS = 10;
 const fetch = require("node-fetch");
 const LZUTF8 = require('lzutf8');
+const dayjs = require('dayjs');
+
 const {
     v4: uuidv4
 } = require('uuid');
@@ -1049,6 +1051,12 @@ const setLogger = (logger)=> {
     _logger = logger;
 }
 
+const sameDate = (date1, date2)=> {
+    let d1 = dayjs(date1);
+    let d2 = dayjs(date2);
+    return d1.isValid() && d2.isValid() && d1.isSame(d2);
+}
+
 const getRandomIntInclusive = (min, max) => {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -1157,5 +1165,6 @@ module.exports = {
     escapeHTML,
     fetchWithTimeout,
     shortenUrl,
-    setLogger
+    setLogger,
+    sameDate
 }

@@ -9,6 +9,9 @@ const axios = require('axios');
 const fs = require('fs');
 const net = require('net');
 
+const authJWT =  require('./auth-jwt');
+
+
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
@@ -52,7 +55,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
     let code = 404;
     const id = request.params.id;
     const data = {
-        status: 'not found'
+        status: 'not_found'
     };
 
     //logger.info(request.ip, `check-request ${id}`);
@@ -85,7 +88,7 @@ fastify.get('/verify/:id', async (request, reply) => {
 
     const id = request.params.id;
     const data = {
-        status: 'not found'
+        status: 'not_found'
     };
 
     logger.info(request.ip, `verify ${id}`);
@@ -114,12 +117,18 @@ fastify.get('/verify/:id', async (request, reply) => {
     return data;
 })
 
-fastify.post('/generate-mfa-url', async (request, reply) => {
+fastify.post('/generate-url', async (request, reply) => {
     //const body = typeof(request.body) === 'string' ? JSON.parse(request.body) : request.body;
+    if(!request.user) {
+        reply.type('application/json').code(401);
+
+        return {error: 'Unauthorized', code: 401};
+    }
+
     let body = request.body;
     let code = 200;
     const data = {
-        start: Date.now(),
+        created: Date.now(),
         status: 'declined'
     };
 
@@ -128,7 +137,7 @@ fastify.post('/generate-mfa-url', async (request, reply) => {
         //TODO!
         let transaction_id = body.transaction_id || utils.getUUID();
         data.transaction_id = transaction_id;
-        let send = body.send;
+        let send = true;//body.send;
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
             let lookup = {
@@ -144,28 +153,32 @@ fastify.post('/generate-mfa-url', async (request, reply) => {
                 logger.silly(results);
                 if (results instanceof Error) {
                     data.reason = results.status === 404 ? 'Invalid phone number or number not found.' : results.message;
-                } else if (results.countryCode === 'US' && results.carrier !== null && typeof (results.carrier) === 'object') {
+                } else if (results.carrier !== null && typeof (results.carrier) === 'object') {
                     let carrier = results.carrier;
+
                     if (carrier.type === 'mobile') {
-
-                        if (send) {
-                            data.url = `https://i.dev.fortifid.com/mfa-validate?ref=${encodeURIComponent(transaction_id)}`
-                            let short = await utils.shortenUrl(data.url);
-                            data.url = short || data.url;
-
-                            lookup.text = utils.parseTemplate(sms_text, {
-                                '%URL%': data.url
-                            });
-
-                            handlerTwilioQ.add(lookup);
+                        //TODO!
+                        if(results.countryCode === 'US') {
+                            if (send) {
+                                data.url = `https://i.dev.fortifid.com/mfa-validate?ref=${encodeURIComponent(transaction_id)}`
+                                let short = await utils.shortenUrl(data.url);
+                                data.url = short || data.url;
+    
+                                lookup.text = utils.parseTemplate(sms_text, {
+                                    '%URL%': data.url
+                                });
+    
+                                handlerTwilioQ.add(lookup);
+                            }
+    
+                            data.status = send ? 'sent' : 'lookup';
+                            STATUS[transaction_id] = {
+                                status: data.status,
+                                created: data.created
+                            };
+                        } else {
+                            data.reason = `Unsupported country: ${results.countryCode}`;    
                         }
-
-                        data.status = send ? 'sent' : 'lookup';
-                        STATUS[transaction_id] = {
-                            status: data.status,
-                            start: data.start
-                        };
-
                     } else {
                         data.reason = 'Must use a valid mobile phone number (no VOIP or landlines accepted)';
                     }
@@ -184,7 +197,7 @@ fastify.post('/generate-mfa-url', async (request, reply) => {
 
             delete results.addOns;
             delete results.level;
-            data.lookup = results;
+            //data.lookup = results;
         }
     } else {
         code = 422;
@@ -199,6 +212,7 @@ fastify.post('/generate-mfa-url', async (request, reply) => {
 })
 
 fastify.addHook("onRequest", async (request, reply) => {
+    authJWT.getAuth(request);
     //console.log(request.routerPath); 
 })
 
@@ -206,6 +220,11 @@ fastify.listen(7997, (err, address) => {
     if (err) throw err
     logger.info(`HTTP server is listening on ${address}`);
 });
+
+// fastify.ready(err => {
+//     if (err) throw err
+//     fastify.swagger()
+// })
 
 (async () => {
     await loadParams();

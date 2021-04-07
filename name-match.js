@@ -3,6 +3,8 @@
 
 const similarity = require('string-similarity');
 
+let debug = false;
+
 const prefixes = [
     'Alderman',
     'Dr',
@@ -61,13 +63,35 @@ const compare =(a, b, ignoreMiddle = false)=> {
     }
 
     if(a === b) {
-        return 1;
+        //Hyst an indicator that it was an exact match
+        return 1.2;
+    }
+    
+    if(debug) {
+        console.log(a , '~', b);
     }
 
     a = clean(a, true);
     b = clean(b, true);
 
+    if(a === b) {
+        //Hyst an indicator that it was an exact match
+        return a.split(' ').length > 2 ? 1.3 : 1.1;
+    }
+
+
     if(ignoreMiddle) {
+        const removeMiddle = (name)=> {
+            const parts = name.split(' ');
+            if(parts.length > 2) {
+                return parts[0] + ' ' + parts[parts.length -1]; 
+            } else  {
+                return name;
+            }
+
+        }
+        a = removeMiddle(a);
+        b = removeMiddle(b);
         //TODO
     }
 
@@ -75,20 +99,32 @@ const compare =(a, b, ignoreMiddle = false)=> {
     // https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient
     // Mostly better than Levenshtein distance 
     // https://en.wikipedia.org/wiki/Levenshtein_distance
+    if(debug) {
+        console.log(a , '~', b);
+    }
     return similarity.compareTwoStrings(a, b);
 }
 
 function test() {
+    debug = true;
     console.log(pattern);
     console.log(compare('Mr Cisco Caceres, M.D.', 'Cisco Caceres'));
     console.log(compare('Mr Cisco Gerardo Caceres', 'Mister Cisco G Caceres'));
-    console.log(compare('Cisco Gerardo Caceres', 'Cisco G. Caceres'));
+    console.log(compare('Cisco Gerardo Caceres', 'Cisco G. Caceres', false));
+
+    console.log(compare('Cisco Gerardo Caceres', 'Cisco G. Caceres', true));
 
     console.log(compare('Mr T Greenr', 'Mr T Greenr'));
     console.log(compare('Mr T Greenr', 'T Greenr'));
     console.log(compare('Mr T Greenr', 'Thomas Greenr'));
     console.log(compare('Mr T Greenr', 'T Green'));
     console.log(compare('Mr T Greenr', 'Mr T'));
+    console.log(compare('Mr T Greenr', 'Mr T'));
+
+    console.log(compare('Vincent        zhou', 'WEI MIN Zhou', true));
+    console.log(compare('FRANCIS GERARD LACSON', 'Francis Gerard Lacson', true));
+
+    debug = false;
 }
 
 (async () => {
@@ -103,6 +139,8 @@ function test() {
     })
 
     pattern = new RegExp(combined.join('|'), 'g');
+    //test();
+
 })();
 
 

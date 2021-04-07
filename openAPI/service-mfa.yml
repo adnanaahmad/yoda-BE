@@ -1,0 +1,136 @@
+openapi: 3.0.1
+info:
+  title: FortifID Secure MFA
+  description: ""
+  contact:
+    email: api@fortifid.com
+  version: 1.0.0
+externalDocs:
+  description: FortifID website
+  url: https://fortifid.com
+servers:
+- url: https://i.dev.fortifid.com/mfa/v1
+paths:
+  /generate-url:
+    post:
+      tags:
+      - generate-url
+      summary: Generate and send request to phone number.
+      operationId: generateUrl
+      requestBody:
+        description: The request to create.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/Forbidden'          
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+      security:
+      - Bearer: []
+      x-codegen-request-body-name: request
+  /check-request/{transaction_id}:
+    get:
+      tags:
+      - check-request
+      summary: Check request status.
+      operationId: checkRequest
+      parameters:
+      - name: transaction_id
+        in: path
+        description: Transaction ID of MFA to check.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/Forbidden'          
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+components:
+  responses:
+    Success:
+      description: Successful operation
+      headers:
+        X-Rate-Limit:
+          description: calls per hour allowed by the user
+          schema:
+            type: integer
+            format: int32
+        X-Expires-After:
+          description: date in UTC when token expires
+          schema:
+            type: string
+            format: date-time
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RequestResults'  
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    Forbidden:
+      description: Method Not Allowed      
+    MethodNotAllowed:
+      description: Method Not Allowed
+
+  schemas:
+    Request:
+      required:
+      - phone_number
+      type: object
+      properties:
+        full_name:
+          type: string
+          example: Cisco Caceres
+        phone_number:
+          type: string
+          example: +1206 659 7857
+    Status:
+      type: string
+      description: Request Status
+      enum: [declined, invalid, not_found, sent, lookup, verified, expired, used]
+    RequestResults:
+      type: object
+      properties:
+        created:
+          type: integer
+          format: int64
+          example: 1617659912179
+        transaction_id:
+          type: string
+          description: ""
+          format: uuid
+          example: e7e42ba2-1783-4406-b920-edc681608a2d
+        reason:
+          type: string
+          example: Must use a valid mobile phone number (no VOIP or landlines accepted)
+        status:
+          $ref: '#/components/schemas/Status'
+      xml:
+        name: RequestResults
+  securitySchemes:
+    request_auth:
+      type: oauth2
+      description: "Use the access_token from the results as a Bearer token."
+      flows:
+        clientCredentials:
+          tokenUrl: https://i.dev.fortifid.com/auth/v1/token
+          scopes:
+            write:request: create requests
+            read:request: read your request
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
