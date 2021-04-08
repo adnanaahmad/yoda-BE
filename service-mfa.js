@@ -10,7 +10,7 @@ const fs = require('fs');
 const net = require('net');
 
 const authJWT =  require('./auth-jwt');
-
+const authCert =  require('./auth-client-cert');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
@@ -118,6 +118,7 @@ fastify.get('/verify/:id', async (request, reply) => {
 })
 
 fastify.post('/generate-url', async (request, reply) => {
+    await authCert.checkHeaders(request);
     //const body = typeof(request.body) === 'string' ? JSON.parse(request.body) : request.body;
     if(!request.user) {
         reply.type('application/json').code(401);
@@ -212,8 +213,7 @@ fastify.post('/generate-url', async (request, reply) => {
 })
 
 fastify.addHook("onRequest", async (request, reply) => {
-    authJWT.getAuth(request);
-    //console.log(request.routerPath); 
+    //authJWT.getAuth(request);
 })
 
 fastify.listen(7997, (err, address) => {
