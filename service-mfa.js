@@ -9,6 +9,8 @@ const axios = require('axios');
 const fs = require('fs');
 const net = require('net');
 
+const cache = require('./cache');
+
 const authJWT =  require('./auth-jwt');
 const authCert =  require('./auth-client-cert');
 
@@ -25,24 +27,14 @@ const fastify = require('fastify')({
 
 const handlerTwilioQ = require('./handler-twilio');
 
-const TEMPLATES = {};
 const STATUS = {};
-const VERIFIED = {};
-
-//TODO!
-const WHITELISTING = true;
 
 const RESTRICTED_ROUTES = [
     '/generate-id-url',
     '/check-request'
 ]
 
-let IP_WHITELIST = [];
-
-const KEYS = {};
-
 const loadParams = async () => {
-    //IP_WHITELIST = JSON.parse(await utils.fileRead('./veriff-ips.json', 'utf-8'));
 }
 
 //TODO! params!
@@ -61,7 +53,9 @@ fastify.get('/check-request/:id', async (request, reply) => {
     //logger.info(request.ip, `check-request ${id}`);
 
     if (id) {
-        let record = STATUS[id];
+        //let record = STATUS[id];
+        let record = cache.get(cache.getKey('mfa', id));
+
         if (record) {
             data.status = record.status;
             if (record.reason !== null) {
@@ -94,7 +88,8 @@ fastify.get('/verify/:id', async (request, reply) => {
     logger.info(request.ip, `verify ${id}`);
 
     if (id) {
-        let record = STATUS[id];
+        //let record = STATUS[id];
+        let record = cache.get(cache.getKey('mfa', id));
         if (record) {
             code = 200;
             if (record.status === 'sent') {
@@ -173,10 +168,16 @@ fastify.post('/generate-url', async (request, reply) => {
                             }
     
                             data.status = send ? 'sent' : 'lookup';
-                            STATUS[transaction_id] = {
+
+                            cache.set(cache.getKey('mfa', transaction_id), {
                                 status: data.status,
                                 created: data.created
-                            };
+                            });
+
+                            // STATUS[transaction_id] = {
+                            //     status: data.status,
+                            //     created: data.created
+                            // };
                         } else {
                             data.reason = `Unsupported country: ${results.countryCode}`;    
                         }
