@@ -16,9 +16,77 @@ const getAsync = promisify(client.get).bind(client);
 
 const DEFAULT_EXPIRATION = ms('1w');
 
-const set = async (key, value, expiration) => {
-    try {
+const getKey = (type, id)=> {
+    return `${type}:${id}`;
+}
 
+//DAX
+//ttl
+
+const setP = async (_type, key, value, expiration) => {
+    try {
+        _type = _type || '_shared_';
+
+        const data = {
+            type: _type,
+            key,
+            value,
+            created: Math.round(Date.now() / 1000),
+            status: 1
+        }
+
+        const type = typeof(expiration); 
+        if(type === 'string') {
+            expiration = ms(expiration);
+        }
+
+        if(expiration > 0 ) {
+            data.expiresAt =  data.created + expiration;
+        }
+
+        await awsClient.putDDBItem('CACHE', data);
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const getP = async (_type, key) => {
+    try {
+        _type = _type || '_shared_';
+        let result = await awsClient.getDDBItem('CACHE', { type: _type, key});
+
+        if (result && result.Item) {
+            let data =  result.Item
+            if(data && data.value) {
+                return data.value;
+            }
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const get = async (_type, key) => {
+    let value;
+    try {
+        _type = _type || '_shared_';
+        key = getKey(_type, key);
+        value = await getAsync(key);
+        if(utils.isJSON(value)) {
+            value = JSON.parse(value);
+        }
+    } catch (error) {
+        console.log(error);
+    }
+    return value;
+}
+
+const set = async (_type, key, value, expiration) => {
+    try {
+        _type = _type || '_shared_';
+        key = getKey(_type, key);
+        
         if(typeof(value) === 'object') {
             value = JSON.stringify(value);
         }
@@ -32,7 +100,7 @@ const set = async (key, value, expiration) => {
         } 
 
         if(expiration > 0) {
-            expiration = Math.round(expiration / 1000);
+            //expiration = expiration;
             client.expire(key, expiration);
         }
     } catch (error) {
@@ -40,87 +108,21 @@ const set = async (key, value, expiration) => {
     }
 }
 
-const setP = async (key, value, expiration) => {
-    try {
-
-        const data = {
-            key: key,
-            value: value,
-            created: Date.now()
-        }
-
-        const type = typeof(expiration); 
-        if(type === 'string') {
-            expiration = ms(expiration);
-        }
-
-        if(expiration > 0) {
-            data.expiresAt = data.created + expiration;
-        }
-
-        await awsClient.putDDBItem('CACHE', data);
-
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-const getP = async (key) => {
-    try {
-        let params = {
-            TableName: "CACHE",
-            KeyConditionExpression: "#key = :key",
-            ExpressionAttributeNames: {
-                "#key": "key"
-            },
-            ExpressionAttributeValues: {
-                ":key": key
-            }
-        };
-    
-        let results = await awsClient.docQuery(params);
-        if (results && results.Count > 0) {
-            let data =  results.Items[0];
-            if(data && data.value) {
-                return data.value;
-            }
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-const get = async (key) => {
-    let value;
-    try {
-        value = await getAsync(key);
-        if(utils.isJSON(value)) {
-            value = JSON.parse(value);
-        }
-    } catch (error) {
-        console.log(error);
-    }
-    return value;
-}
-
-const getKey = (type, id)=> {
-    return `${type}:${id}`;
-}
-
 (async () => {
+    client.on("error", (error) => {
+        console.error(error);
+    });
+
+
     // const data = {
     //     name: 'Cisco',
     //     wife: 'MJ',
     //     now: Date.now()
     // }
 
-    client.on("error", (error) => {
-        console.error(error);
-    });
+    //  await set('test', 'bleah', data, 30);
 
-    // await setP('bleah', data, '1h');
-
-    // console.log(await getP('bleah'));
+    // console.log(await get('test', 'bleah'));
 
 })();
 

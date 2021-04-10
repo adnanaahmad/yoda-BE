@@ -12,7 +12,7 @@
     "@types/express": "^4.17.11",
     "@types/qs": "^6.9.4",
     "atob": "^2.1.2",
-    "aws-sdk": "^2.882.0",
+    "aws-sdk": "^2.884.0",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "big-integer": "^1.6.48",
@@ -41,7 +41,7 @@
     "twilio": "^3.60.0",
     "uuid": "^8.3.2",
     "winston": "^3.3.3",
-    "winston-cloudwatch": "^2.5.0",
+    "winston-cloudwatch": "^2.5.1",
     "xml-js": "^1.6.11"
   }
 }

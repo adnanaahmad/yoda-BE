@@ -98,14 +98,27 @@ const putParameter = async (name, value, type = 'SecureString', dataType = 'text
 };
 
 const putDDBItem = async (table, data) => {
-  //TODO
-  let params = {
+  const params = {
     TableName: table,
     Item: data
   };
 
   try {
     return await DynamoDB.put(params).promise();
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+const getDDBItem = async (table, key) => {
+
+  const params = {
+    TableName: table,
+    Key: key
+  };
+  
+  try {
+    return await DynamoDB.get(params).promise();
   } catch (error) {
     logger.error(error);
   }
@@ -139,6 +152,8 @@ const createTable = async (params) => {
   }
 }
 
+
+
 const docQuery = async (params) => {
   try {
     return await DynamoDB.query(params).promise();
@@ -154,7 +169,6 @@ const docScan = async (params) => {
     logger.error(error);
   }
 }
-
 
 const docDelete = async (params) => {
   try {
@@ -181,7 +195,6 @@ const scan = async (params) => {
   }
 }
 
-
 (async () => {
 
 })();
@@ -191,6 +204,7 @@ module.exports = {
   putParameter,
   getParametersByPath,
   putDDBItem,
+  getDDBItem,
   updateDDBItem,
   query,
   scan,

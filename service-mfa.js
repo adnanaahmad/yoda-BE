@@ -54,7 +54,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
 
     if (id) {
         //let record = STATUS[id];
-        let record = cache.get(cache.getKey('mfa', id));
+        let record = await cache.get('mfa', id);
 
         if (record) {
             data.status = record.status;
@@ -89,7 +89,7 @@ fastify.get('/verify/:id', async (request, reply) => {
 
     if (id) {
         //let record = STATUS[id];
-        let record = cache.get(cache.getKey('mfa', id));
+        let record = await cache.get('mfa', id);
         if (record) {
             code = 200;
             if (record.status === 'sent') {
@@ -98,6 +98,8 @@ fastify.get('/verify/:id', async (request, reply) => {
 
                 record.verified = now;
                 record.status = data.status;
+                //TODO!
+                await cache.set('mfa', id, record);
             } else if (record.status === 'verified') {
                 data.status = 'used';
             } else {
@@ -107,6 +109,7 @@ fastify.get('/verify/:id', async (request, reply) => {
             //TODO: Expiration!
         }
     }
+
     reply.type('application/json').code(code);
 
     return data;
@@ -169,10 +172,10 @@ fastify.post('/generate-url', async (request, reply) => {
     
                             data.status = send ? 'sent' : 'lookup';
 
-                            cache.set(cache.getKey('mfa', transaction_id), {
+                            await cache.set('mfa', transaction_id, {
                                 status: data.status,
                                 created: data.created
-                            });
+                            }, '1d');
 
                             // STATUS[transaction_id] = {
                             //     status: data.status,
