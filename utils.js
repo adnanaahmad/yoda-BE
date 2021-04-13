@@ -13,6 +13,8 @@ const BCRYPT_SALT_ROUNDS = 10;
 const fetch = require("node-fetch");
 const LZUTF8 = require('lzutf8');
 const dayjs = require('dayjs');
+const url = require('url');
+const ipRangeCheck = require("ip-range-check");
 
 const {
     v4: uuidv4
@@ -255,6 +257,10 @@ const syncFileTime = (source, dest) => {
 
 const toFixedPlaces = (value, places) => {
     return parseFloat(value.toFixed(places));
+}
+
+const beep = ()=> {
+    process.stdout.write('\x07')
 }
 
 const formatBytes = (bytes, decimals = 2) => {
@@ -824,21 +830,21 @@ const flattenObject = (obj) => {
 }
 
 const flattenObject2 = (obj) => {
-    if(!obj) {
+    if (!obj) {
         return;
     }
     const flattened = {}
-  
+
     Object.keys(obj).forEach((key) => {
-      if (typeof obj[key] === 'object' && obj[key] !== null) {
-        Object.assign(flattened, flattenObject2(obj[key]))
-      } else {
-        flattened[key] = obj[key]
-      }
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+            Object.assign(flattened, flattenObject2(obj[key]))
+        } else {
+            flattened[key] = obj[key]
+        }
     })
-  
+
     return flattened
-  }
+}
 
 const loadJSON = (file) => {
     if (file && fs.existsSync(file)) {
@@ -870,7 +876,7 @@ const loadTemplates = async (templates_dir, templates, asObjects = false) => {
         let key = getFilenameWithoutExtension(file);
         let filename = templates_dir + file;
         let data = await fileRead(filename, 'utf-8');
-        templates[key] = asObjects ? JSON.parse(data): data;
+        templates[key] = asObjects ? JSON.parse(data) : data;
     }
     return templates;
 }
@@ -884,19 +890,21 @@ const loadFile = async (file) => {
 }
 
 async function fetchWithTimeout(resource, options) {
-    const { timeout = 8000 } = options;
-    
+    const {
+        timeout = 8000
+    } = options;
+
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
-  
+
     const response = await fetch(resource, {
-      ...options,
-      signal: controller.signal  
+        ...options,
+        signal: controller.signal
     });
     clearTimeout(id);
-  
+
     return response;
-  }
+}
 
 const toUrlSafeBase64 = (text) => {
     let safe = Buffer.from(text).toString('base64')
@@ -1019,7 +1027,7 @@ const getBody = async (req) => {
 }
 
 //TOD: The url needs to be dyanmic and the token
-const shortenUrl = async (url, token, full = false,) => {
+const shortenUrl = async (url, token, full = false, ) => {
     const data = {
         "long_url": url
     };
@@ -1033,12 +1041,12 @@ const shortenUrl = async (url, token, full = false,) => {
         //TODO
         const results = await fetchData('https://i.dev.fortifid.com/s/', data, headers);
         const duration = time() - start;
-        if(_logger) {
+        if (_logger) {
             _logger.info(`Url shortened to [${results.link}] in ${toFixedPlaces(duration, 2)}ms`);
         }
         return full ? results : results.link;
     } catch (error) {
-        if(_logger) {
+        if (_logger) {
             _logger.error(error);
         } else {
             console.log(error);
@@ -1047,11 +1055,11 @@ const shortenUrl = async (url, token, full = false,) => {
 
 }
 
-const setLogger = (logger)=> {
+const setLogger = (logger) => {
     _logger = logger;
 }
 
-const sameDate = (date1, date2)=> {
+const sameDate = (date1, date2) => {
     let d1 = dayjs(date1);
     let d2 = dayjs(date2);
     return d1.isValid() && d2.isValid() && d1.isSame(d2);
@@ -1065,16 +1073,35 @@ const getRandomIntInclusive = (min, max) => {
 
 function escapeHTML(unsafe) {
     return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
- }
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
- function unescapeHTML(escapedHTML) {
-    return escapedHTML.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&#xD;/g, '').replace(/&#xA;/g, '');
-  }
+function unescapeHTML(escapedHTML) {
+    return escapedHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&#xD;/g, '').replace(/&#xA;/g, '');
+}
+
+const redisOptsFromUrl = (urlString)=> {
+    const redisOpts = {};
+    try {
+      const redisUrl = url.parse(urlString);
+      redisOpts.port = Number(redisUrl.port) || 6379;
+      redisOpts.host = redisUrl.hostname;
+      redisOpts.db = redisUrl.pathname ? Number(redisUrl.pathname.split("/")[1]) : 0;
+      if (redisUrl.auth) {
+        redisOpts.password = redisUrl.auth.split(":")[1];
+      }
+      if (redisUrl.protocol === "rediss:") {
+        redisOpts.tls = {};
+      }
+    } catch (e) {
+        console.log(e);
+    }
+    return redisOpts;
+  };
 
 module.exports = {
     isEntryPoint,
@@ -1166,5 +1193,8 @@ module.exports = {
     fetchWithTimeout,
     shortenUrl,
     setLogger,
-    sameDate
+    sameDate,
+    redisOptsFromUrl,
+    beep,
+    ipRangeCheck
 }

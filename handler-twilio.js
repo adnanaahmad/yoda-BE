@@ -104,9 +104,21 @@ const add = async (data) => {
 
 const startQueue = () => {
     logger.info('Twilio queue handler started.');
-    Q.getQ(Q.names.alert_twilio).process(async (job, done) => {
+    Q.getQ(Q.names.handler_twilio).process(async (job, done) => {
         done(await add(job.data));
     });
+}
+
+const test = async ()=> {
+    console.log('TEST!');
+
+    let data = {
+        transaction_id: utils.getUUID(),
+        numbers: '206-659-7857',
+        text: `HELLO! The time is ${new Date().toISOString()}`
+    };
+
+    Q.getQ(Q.names.handler_twilio).add(data);
 }
 
 const loadParams = async () => {
@@ -150,6 +162,7 @@ const loadParams = async () => {
     if (ready) {
         if (!SCRIPT_INFO.library_mode) {
             startQueue();
+            //test();
         }
     }
 })();

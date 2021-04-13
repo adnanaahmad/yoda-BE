@@ -1,0 +1,173 @@
+swagger: '2.0'
+info:
+  contact:
+    email: api@fortifid.com
+  description: ''
+  title: FortifID Secure MFA
+  version: 1.0.0
+host: i.dev.fortifid.com
+basePath: /mfa/v1
+schemes:
+  - https
+paths:
+  '/generate-url':
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: The request to create.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Request'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            X-Expires-After:
+              description: date in UTC when token expires
+              format: date-time
+              type: string
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              format: int32
+              type: integer
+          schema:
+            $ref: '#/definitions/RequestResults'
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: Method Not Allowed
+        '405':
+          description: Method Not Allowed
+      security:
+        - Bearer: []
+      tags:
+        - generate-url
+      operationId: generateUrl
+      summary: Generate and send request to phone number.
+      x-codegen-request-body-name: request
+  '/check-request/{transaction_id}':
+    get:
+      produces:
+        - application/json
+      parameters:
+        - description: Transaction ID of MFA to check.
+          format: uuid
+          in: path
+          name: transaction_id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/StatusResults'
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: Method Not Allowed
+        '405':
+          description: Method Not Allowed
+      tags:
+        - check-request
+      operationId: checkRequest
+      summary: Check request status.
+definitions:
+  Request:
+    properties:
+      full_name:
+        example: Cisco Caceres
+        type: string
+      phone_number:
+        example: +1206 659 7857
+        type: string
+    required:
+      - phone_number
+    type: object
+  RequestResults:
+    properties:
+      created:
+        example: 1617659912179
+        format: int64
+        type: integer
+      reason:
+        example: Must use a valid mobile phone number (no VOIP or landlines accepted)
+        type: string
+      status:
+        $ref: '#/definitions/Status'
+      transaction_id:
+        description: ''
+        example: e7e42ba2-1783-4406-b920-edc681608a2d
+        format: uuid
+        type: string
+    type: object
+    xml:
+      name: RequestResults
+  Status:
+    description: Request Status
+    enum:
+      - declined
+      - invalid
+      - not_found
+      - sent
+      - lookup
+      - verified
+      - expired
+      - used
+    type: string
+  StatusResults:
+    properties:
+      status:
+        $ref: '#/definitions/Status'
+    type: object
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
+  request_auth:
+    description: Use the access_token from the results as a Bearer token.
+    flow: application
+    scopes:
+      'read:request': read your request
+      'write:request': create requests
+    tokenUrl: 'https://i.dev.fortifid.com/auth/v1/token'
+    type: oauth2
+externalDocs:
+  description: FortifID website
+  url: 'https://fortifid.com'
+x-components:
+  responses:
+    Forbidden:
+      description: Method Not Allowed
+    MethodNotAllowed:
+      description: Method Not Allowed
+    Success:
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/RequestResults'
+      description: Successful operation
+      headers:
+        X-Expires-After:
+          description: date in UTC when token expires
+          schema:
+            format: date-time
+            type: string
+        X-Rate-Limit:
+          description: calls per hour allowed by the user
+          schema:
+            format: int32
+            type: integer
+    SuccessStatus:
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/StatusResults'
+      description: Successful operation
+    UnauthorizedError:
+      description: Access token is missing or invalid

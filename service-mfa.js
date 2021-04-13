@@ -11,8 +11,7 @@ const net = require('net');
 
 const cache = require('./cache');
 
-const authJWT =  require('./auth-jwt');
-const authCert =  require('./auth-client-cert');
+const authMain =  require('./auth-main');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
@@ -25,7 +24,11 @@ const fastify = require('fastify')({
     ignoreTrailingSlash: true
 })
 
-const handlerTwilioQ = require('./handler-twilio');
+const twilioUtils = require('./handler-twilio');
+
+const Q = require('./utils-q');
+const handlerTwilioQ = Q.getQ(Q.names.handler_twilio);
+const handlerWebhookQ = Q.getQ(Q.names.handler_webhook);
 
 const STATUS = {};
 
@@ -89,17 +92,25 @@ fastify.get('/verify/:id', async (request, reply) => {
 
     if (id) {
         //let record = STATUS[id];
-        let record = await cache.get('mfa', id);
+        let record = await cache.getP('mfa', id);
         if (record) {
             code = 200;
             if (record.status === 'sent') {
                 data.verified = now;
                 data.status = 'verified';
 
+                if(record.request_reference) {
+                    data.request_reference = record.request_reference;
+                }
+
+                if(record.redirect_url) {
+                    data.redirect_url = record.redirect_url;
+                }
+
                 record.verified = now;
                 record.status = data.status;
                 //TODO!
-                await cache.set('mfa', id, record);
+                await cache.setP('mfa', id, record, undefined, true);
             } else if (record.status === 'verified') {
                 data.status = 'used';
             } else {
@@ -116,14 +127,11 @@ fastify.get('/verify/:id', async (request, reply) => {
 })
 
 fastify.post('/generate-url', async (request, reply) => {
-    await authCert.checkHeaders(request);
-    //const body = typeof(request.body) === 'string' ? JSON.parse(request.body) : request.body;
-    if(!request.user) {
-        reply.type('application/json').code(401);
-
-        return {error: 'Unauthorized', code: 401};
+    if(!await authMain.checkHeaders(request, reply)) {
+        return;
     }
 
+    //const body = typeof(request.body) === 'string' ? JSON.parse(request.body) : request.body;
     let body = request.body;
     let code = 200;
     const data = {
@@ -136,7 +144,7 @@ fastify.post('/generate-url', async (request, reply) => {
         //TODO!
         let transaction_id = body.transaction_id || utils.getUUID();
         data.transaction_id = transaction_id;
-        let send = true;//body.send;
+        let send = typeof(body.send) === 'boolean' ? body.send : true;
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
             let lookup = {
@@ -145,7 +153,7 @@ fastify.post('/generate-url', async (request, reply) => {
             };
 
             //delete body.phone_number;
-            let results = await handlerTwilioQ.lookup(lookup);
+            let results = await twilioUtils.lookup(lookup);
 
             if (results) {
                 //TODO!
@@ -172,10 +180,21 @@ fastify.post('/generate-url', async (request, reply) => {
     
                             data.status = send ? 'sent' : 'lookup';
 
-                            await cache.set('mfa', transaction_id, {
+                            let save = {
+                                customer_id: request.user.CustomerAccountID,
                                 status: data.status,
-                                created: data.created
-                            }, '1d');
+                                created: data.created,
+                            };
+
+                            if(typeof(body.redirect_url) !== 'undefined') {
+                                save.redirect_url = body.redirect_url;
+                            }
+
+                            if(typeof(body.request_reference) !== 'undefined') {
+                                save.request_reference = body.request_reference;
+                            }
+
+                            await cache.setP('mfa', transaction_id, save, '1w', true);
 
                             // STATUS[transaction_id] = {
                             //     status: data.status,
@@ -218,6 +237,16 @@ fastify.post('/generate-url', async (request, reply) => {
 
 fastify.addHook("onRequest", async (request, reply) => {
     //authJWT.getAuth(request);
+})
+
+
+fastify.addHook('onResponse', async (request, reply) => {
+    if(request.user) {
+
+        // let log = {
+        //     customer_id: user.
+        // }
+    }
 })
 
 fastify.listen(7997, (err, address) => {

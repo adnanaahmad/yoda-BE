@@ -62,6 +62,7 @@ const add = async(data)=> {
         //TODO: cache and retry (?)
         return;
     }
+
     let results;
     try {
         //TODO: Should we save the id?
@@ -94,7 +95,7 @@ const add = async(data)=> {
 
 const startQueue = ()=> {
     logger.info('Email queue handler started.');
-    Q.getQ(Q.names.alert_email).process(async (job, done) => {
+    Q.getQ(Q.names.handler_email).process(async (job, done) => {
         done(await add(job.data));
     });
 }
@@ -164,12 +165,27 @@ const loadTemplates = async () => {
     logger.debug(`Templates loaded. ${utils.toFixedPlaces(duration, 2)}ms`);
 }
 
+const test = async ()=> {
+    console.log('TEST!');
+    //utils.beep();
+    let data = {
+        transaction_id: utils.getUUID(),
+        email: 'cisco801@gmail.com',
+        name: 'Cisco Caceres',
+        subject: 'test',
+        body: 'Hello there!',
+    };
+
+    Q.getQ(Q.names.handler_email).add(data);
+}
+
 (async () => {
     await loadParams();
     if(ready) {
         await loadTemplates();
         if(!SCRIPT_INFO.library_mode) {
             startQueue();
+            //test();
         }
     }
 })();

@@ -1,13 +1,12 @@
 'use strict';
 /*jshint esversion: 8 */
 const bull = require('bull');
+const utils = require('./utils');
 
 //TODO!
-let redisUrl = 'redis://dev.rzmimv.0001.use1.cache.amazonaws.com:6379';
-//redis-cli -h dev.rzmimv.0001.use1.cache.amazonaws.com:6379
-//nc -v dev.rzmimv.0001.use1.cache.amazonaws.com 6379
 
-
+let redisUrl = process.env.REDIS_URL;
+//nc -v url port
 const QUEUES = {};
 
 const names = {
@@ -17,19 +16,29 @@ const names = {
 };
 
 let postQ;
-let postQNames = [names.post_process , names.nlp_df, names.analytics];
+let postQNames = [names.post_process, names.analytics];
 
 const getQ = (key, options) => {
     let q = QUEUES[key];
-    if (typeof(q) === 'undefined') {
+    if (typeof (q) === 'undefined') {
         q = setQ(key, undefined, options);
     }
     return q;
 };
 
 const setQ = (key, url, options) => {
+
     url = url || redisUrl;
-    let q = new bull(key, url, options);
+    if (typeof (url) === 'string') {
+        options = {
+            ...options || jobOptsRemove,
+            //prefix: '{FID}',
+            redis: utils.redisOptsFromUrl(url)
+        };
+    }
+
+    //let q = new bull(key, url, options);
+    let q = new bull(key, options);
     QUEUES[key] = q;
     return q;
 };
@@ -48,8 +57,9 @@ const jobOptsRemove = {
 
 const addQ = (key, data, options) => {
     try {
+
         let q = getQ(key);
-        if (typeof(q) === 'undefined') {
+        if (typeof (q) === 'undefined') {
             q = setQ(key);
         }
 
@@ -69,15 +79,15 @@ const initAll = () => {
     });
 };
 
-const addToPostQ = (data)=> {
-    if(!postQ) {
+const addToPostQ = (data) => {
+    if (!postQ) {
         postQ = {};
-        postQNames.forEach( id => {
+        postQNames.forEach(id => {
             postQ[id] = getQ(id, jobOptsRemove);
         });
     };
 
-    postQNames.forEach( id => {
+    postQNames.forEach(id => {
         postQ[id].add(data);
     });
 }

@@ -48,14 +48,28 @@ const add = async(data)=> {
 const startQueue = ()=> {
     logger.info('Webhook queue handler started.');
 
-    Q.getQ(Q.names.alert_webhook).process(async (job, done) => {
+    Q.getQ(Q.names.handler_webhook).process(async (job, done) => {
         done(await add(job.data));
     });
 }
 
+
+const test = async ()=> {
+    console.log('TEST!');
+    let data = {
+        transaction_id: utils.getUUID(),
+        url: 'https://webhook.site/f7e207e6-15dc-4806-8cd2-b49ac78690d9',
+        data: { text: `HELLO! The time is ${new Date().toISOString()}`}
+    };
+
+    Q.getQ(Q.names.handler_webhook).add(data);
+}
+
+
 (async () => {
     if(!SCRIPT_INFO.library_mode) {
         startQueue();
+        //test();
     } 
 })();
 
