@@ -19,6 +19,7 @@ const getAuthz = async (certId)=> {
 }
 
 const checkHeaders = async (request, reply)=> {
+    //return true;
     let reason = 'Unauthorized';
     let code = 401;
     //TODO: All this should be done in the apigw!

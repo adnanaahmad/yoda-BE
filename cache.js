@@ -5,7 +5,7 @@ const awsClient = require('./aws-client');
 
 const redis = require("redis");
 const NodeCache = require("node-cache");
-
+const crypt = require('./crypt');
 
 const ms = require('ms');
 const {
@@ -32,6 +32,18 @@ const getKey = (type, id) => {
     return `${type}:${id}`;
 }
 
+const sanitize = (value) => {
+        //Sanitize!
+    if (typeof (value) === 'object') {
+        delete value.value;
+        Object.keys(value).forEach(key => {
+            if (key.startsWith('_')) {
+                delete value[key];
+            }
+        })
+    }
+}
+
 //DAX
 //ttl
 //TODO! Must be careful with the extra names!!!!
@@ -50,6 +62,10 @@ const setP = async (type, key, value, expiration, flat) => {
             _status: 1
         }
 
+        if(typeof(value.pii) !== 'undefined') {
+            value.pii = crypt.encrypt(value.pii);
+        }
+
         const dataType = typeof (expiration);
         if (dataType === 'string') {
             expiration = Math.round(ms(expiration) / 1000);
@@ -59,22 +75,14 @@ const setP = async (type, key, value, expiration, flat) => {
             data._expiresAt = data._created + expiration;
         }
 
-        //Sanitize!
-        if(typeof(value) === 'object') {
-            delete value.value;
-            Object.keys(value).forEach( key=> {
-                if(key.startsWith('_')) {
-                    delete value[key];
-                }
-            })
-        }
+        sanitize(value);
 
-        if(flat) {
+        if (flat) {
             Object.assign(data, value);
         } else {
             data.value = value;
         }
-        
+
         await awsClient.putDDBItem('CACHE_01', data);
 
     } catch (error) {
@@ -95,20 +103,66 @@ const getP = async (type, key, defaultValue) => {
         if (result && result.Item) {
             let data = result.Item
             if (data && data.value) {
-                value =  data.value;
+                value = data.value;
             } else {
                 value = data;
             }
+            
+            // if(value && value.pii) {
+            //     value.pii = crypt.decrypt(value.pii);
+            // }
         }
     } catch (error) {
         console.log(error);
     }
 
-    if(typeof(value) === 'undefined') {
+    if (typeof (value) === 'undefined') {
         value = defaultValue;
     }
 
     return value;
+}
+
+const updateP = async (type, key, value, expiration, flat) => {
+    // if(!_type || !key || !value) {
+    //     return;
+    // }
+
+    try {
+        type = type || '_shared_';
+
+        key = {
+            _type: type,
+            _key: key
+        }
+
+        const data = {
+            _modified: Math.round(Date.now() / 1000),
+        }
+
+        const dataType = typeof (expiration);
+
+        if (dataType === 'string') {
+            expiration = Math.round(ms(expiration) / 1000);
+        }
+
+        if (expiration > 0) {
+            data._expiresAt = data._modified + expiration;
+        }
+
+        sanitize(value);
+
+        if (flat) {
+            Object.assign(data, value);
+        } else {
+            data.value = value;
+        }
+
+        await awsClient.updateDynamic('CACHE_01', key, data);
+
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 const decrementP = async (type, key, field) => {
@@ -118,13 +172,13 @@ const decrementP = async (type, key, field) => {
 
     try {
         type = type || '_shared_';
-        
+
         let result = await awsClient.decrementDDBItem('CACHE_01', {
             _type: type,
             _key: key
         }, field);
 
-        if(result && result.Attributes) {
+        if (result && result.Attributes) {
             return result.Attributes.value;
         }
     } catch (error) {
@@ -172,7 +226,7 @@ const get = async (type, key, defaultValue) => {
         console.log(error);
     }
 
-    if(typeof(value) === 'undefined') {
+    if (typeof (value) === 'undefined') {
         value = defaultValue;
     }
 
@@ -190,7 +244,7 @@ const setM = (type, key, value, expiration) => {
         if (dataType === 'undefined') {
             expiration = DEFAULT_EXPIRATION;
         } else if (dataType === 'string') {
-            expiration = Math.round(ms(expiration) /1000);
+            expiration = Math.round(ms(expiration) / 1000);
         }
 
         return MEMORY_CACHE.set(key, value, expiration);
@@ -210,7 +264,7 @@ const getM = (type, key, defaultValue) => {
         console.log(error);
     }
 
-    if(typeof(value) === 'undefined') {
+    if (typeof (value) === 'undefined') {
         value = defaultValue;
     }
 
@@ -241,12 +295,12 @@ const test = async () => {
     //console.log(duration, count);
 }
 
-const addCustomer = async (id)=> {
+const addCustomer = async (id) => {
     const rate_limit = {
         credits_add_per_minute: 0,
         credits_available: 100,
         credits_max: 100
-    } 
+    }
     await setP('rate_limit', id, rate_limit, '1y');
 }
 
@@ -256,8 +310,8 @@ const addCustomer = async (id)=> {
     });
     //console.log(ms('1y'));
     //await  addCustomer('D784DE76-A1F9-425D-BD57-2565411AA5A3');
-    
-   // test();
+
+    // test();
 })();
 
 module.exports = {
@@ -266,7 +320,9 @@ module.exports = {
     get,
     setP,
     getP,
+    updateP,
     decrementP,
     setM,
     getM,
+    crypt ,
 }

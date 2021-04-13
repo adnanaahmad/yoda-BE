@@ -277,13 +277,13 @@ const updateDynamic = async (table, keys, data) => {
       UpdateExpression: updateExpression,
       ExpressionAttributeValues: values,
       ExpressionAttributeNames: names,
-      ReturnValues: "ALL_NEW"
+      ReturnValues: "ALL_NEW" 
     };
-
-    logger.debug('updateDynamic - params', params);
+//UPDATED_NEW 
+    //logger.debug('updateDynamic - params', params);
     let result = await updateDDBItem(params);
 
-    logger.debug('updateDynamic - result', result);
+    //logger.debug('updateDynamic - result', result);
     if (result && result.Attributes) {
       result = result.Attributes;
     }
@@ -329,5 +329,6 @@ module.exports = {
   describeTable,
   createTable,
   incrementDDBItem,
-  decrementDDBItem
+  decrementDDBItem,
+  updateDynamic
 };

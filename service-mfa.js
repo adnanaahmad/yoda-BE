@@ -4,11 +4,6 @@ const utils = require('./utils');
 const logger = require('./logger').createLogger('service-mfa');
 utils.setLogger(logger);
 
-const awsClient = require('./aws-client');
-const axios = require('axios');
-const fs = require('fs');
-const net = require('net');
-
 const cache = require('./cache');
 
 const authMain =  require('./auth-main');
@@ -16,6 +11,8 @@ const authMain =  require('./auth-main');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
+
+const TABLE = 'mfa';
 
 const fastify = require('fastify')({
     logger: false,
@@ -30,19 +27,13 @@ const Q = require('./utils-q');
 const handlerTwilioQ = Q.getQ(Q.names.handler_twilio);
 const handlerWebhookQ = Q.getQ(Q.names.handler_webhook);
 
-const STATUS = {};
-
-const RESTRICTED_ROUTES = [
-    '/generate-id-url',
-    '/check-request'
-]
-
 const loadParams = async () => {
+
 }
 
 //TODO! params!
 const email_subject = 'MFA step';
-//Multi-factor authentication
+
 const sms_text = 'From FortifID: please use the following link to complete the Secure MFA step: %URL%'
 
 fastify.get('/check-request/:id', async (request, reply) => {
@@ -56,18 +47,26 @@ fastify.get('/check-request/:id', async (request, reply) => {
     //logger.info(request.ip, `check-request ${id}`);
 
     if (id) {
-        //let record = STATUS[id];
-        let record = await cache.get('mfa', id);
+        let record = await cache.getP(TABLE, id);
 
         if (record) {
             data.status = record.status;
-            if (record.reason !== null) {
+            if (record.reason) {
                 data.reason = record.reason;
             }
 
             if (record.verified) {
                 data.verified = record.verified;
             }
+
+            if(record.redirect_url) {
+                data.redirect_url = record.redirect_url;
+            }
+
+            if(record.request_reference) {
+                data.request_reference = record.request_reference;
+            }
+
             code = 200;
         }
     }
@@ -79,9 +78,6 @@ fastify.get('/check-request/:id', async (request, reply) => {
 fastify.get('/verify/:id', async (request, reply) => {
     const now = Date.now();
     let code = 404;
-    // if (!await checkIP(request, reply)) {
-    //     return;
-    // }
 
     const id = request.params.id;
     const data = {
@@ -92,7 +88,7 @@ fastify.get('/verify/:id', async (request, reply) => {
 
     if (id) {
         //let record = STATUS[id];
-        let record = await cache.getP('mfa', id);
+        let record = await cache.getP(TABLE, id);
         if (record) {
             code = 200;
             if (record.status === 'sent') {
@@ -109,8 +105,13 @@ fastify.get('/verify/:id', async (request, reply) => {
 
                 record.verified = now;
                 record.status = data.status;
-                //TODO!
-                await cache.setP('mfa', id, record, undefined, true);
+  
+                await cache.updateP(TABLE, id, {
+                    verified: now,
+                    status: data.status
+                }, undefined, true);
+
+
             } else if (record.status === 'verified') {
                 data.status = 'used';
             } else {
@@ -147,6 +148,7 @@ fastify.post('/generate-url', async (request, reply) => {
         let send = typeof(body.send) === 'boolean' ? body.send : true;
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
+
             let lookup = {
                 transaction_id: transaction_id,
                 numbers: phone_number
@@ -181,26 +183,26 @@ fastify.post('/generate-url', async (request, reply) => {
                             data.status = send ? 'sent' : 'lookup';
 
                             let save = {
-                                customer_id: request.user.CustomerAccountID,
                                 status: data.status,
                                 created: data.created,
                             };
 
-                            if(typeof(body.redirect_url) !== 'undefined') {
-                                save.redirect_url = body.redirect_url;
+                            if(request.user) {
+                                save.customer_id =  request.user.CustomerAccountID;
                             }
 
-                            if(typeof(body.request_reference) !== 'undefined') {
-                                save.request_reference = body.request_reference;
+                            let redirect_url = body.redirect_url;
+                            if(typeof(redirect_url) === 'string' && redirect_url.length > 0) {
+                                save.redirect_url = redirect_url;
                             }
-
-                            await cache.setP('mfa', transaction_id, save, '1w', true);
-
-                            // STATUS[transaction_id] = {
-                            //     status: data.status,
-                            //     created: data.created
-                            // };
-                        } else {
+                    
+                            let request_reference = body.request_reference;
+                            if(typeof(request_reference) === 'string' && request_reference.length > 0) {
+                                save.request_reference = request_reference;
+                            }
+                    
+                            await cache.setP(TABLE, transaction_id, save, '1w', true);
+                     } else {
                             data.reason = `Unsupported country: ${results.countryCode}`;    
                         }
                     } else {
@@ -221,16 +223,13 @@ fastify.post('/generate-url', async (request, reply) => {
 
             delete results.addOns;
             delete results.level;
-            //data.lookup = results;
         }
     } else {
         code = 422;
-        data = {
-            error: 'Missing parameter',
-            code: code,
-        }
+        data.error =  'Missing parameter';
     }
 
+    data.code = code;
     reply.type('application/json').code(code);
     return data;
 })
@@ -254,13 +253,6 @@ fastify.listen(7997, (err, address) => {
     logger.info(`HTTP server is listening on ${address}`);
 });
 
-// fastify.ready(err => {
-//     if (err) throw err
-//     fastify.swagger()
-// })
-
 (async () => {
     await loadParams();
-    //logger.silly(IP_WHITELIST, IP_WHITELIST.length);
-
 })();
