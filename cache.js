@@ -233,8 +233,6 @@ const get = async (type, key, defaultValue) => {
     return value;
 }
 
-
-
 const setM = (type, key, value, expiration) => {
     try {
         type = type || '_shared_';
@@ -295,21 +293,12 @@ const test = async () => {
     //console.log(duration, count);
 }
 
-const addCustomer = async (id) => {
-    const rate_limit = {
-        credits_add_per_minute: 0,
-        credits_available: 100,
-        credits_max: 100
-    }
-    await setP('rate_limit', id, rate_limit, '1y');
-}
+
 
 (async () => {
     redisClient.on("error", (error) => {
         console.error(error);
     });
-    //console.log(ms('1y'));
-    //await  addCustomer('D784DE76-A1F9-425D-BD57-2565411AA5A3');
 
     // test();
 })();
@@ -325,4 +314,8 @@ module.exports = {
     setM,
     getM,
     crypt ,
+    redis,
+    redisClient,
+    getAsync,
+    setAsync
 }

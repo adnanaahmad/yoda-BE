@@ -40,7 +40,7 @@ paths:
         '401':
           description: Access token is missing or invalid
         '403':
-          description: Method Not Allowed
+          description: Forbidden
         '405':
           description: Method Not Allowed
       security:
@@ -78,14 +78,6 @@ paths:
 definitions:
   Request:
     properties:
-      birth_date:
-        description: ''
-        example: '1980-01-01'
-        type: string
-      email_address:
-        description: ''
-        example: cisco801@gmail.com
-        type: string
       full_name:
         example: Cisco Caceres
         type: string
@@ -93,6 +85,20 @@ definitions:
         description: ''
         example: +1206 659 7857
         type: string
+      email_address:
+        description: ''
+        example: cisco801@gmail.com
+        type: string
+      birth_date:
+        description: ''
+        example: '1980-01-01'
+        type: string
+      request_reference:
+        example: application-1234
+        type: string
+      redirect_url:
+        example: https://fortifid.com
+        type: string         
     required:
       - phone_number
     type: object
@@ -117,9 +123,9 @@ definitions:
   Status:
     description: Request Status
     enum:
+      - sent
       - not_found
       - invalid
-      - sent
       - waiting
       - approved
       - declined

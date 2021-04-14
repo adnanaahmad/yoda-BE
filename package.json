@@ -26,6 +26,7 @@
     "fastify-file-upload": "^3.0.0",
     "fastify-formbody": "^5.0.0",
     "fastify-raw-body": "^3.1.0",
+    "ioredis": "^4.26.0",
     "ip-range-check": "^0.2.0",
     "jsonwebtoken": "^8.5.1",
     "lzutf8": "^0.6.0",

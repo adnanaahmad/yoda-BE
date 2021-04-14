@@ -3,33 +3,40 @@
 sudo su ec2-user 
 
 cd /homes/ec2-user
+mkdir dev
+mkdir test
 mkdir server
 mkdir utils
-mkdir dev
 
 sudo amazon-linux-extras install nginx1 -y
 sudo yum install socat git -y 
 
-sudo chown -R ec2-user:nginx /usr/share/nginx/html 
-sudo chown -R ec2-user:ec2-user /etc/nginx/ 
+sudo systemctl enable nginx.service
+sudo systemctl start nginx.service
+
+sudo chown -R ec2-user:nginx /usr/share/nginx/html/
+sudo chown -R ec2-user:ec2-user /etc/nginx/
 
 mkdir /etc/nginx/ssl 
 openssl dhparam -out /etc/nginx/ssl/dhparams.pem 2048 
 
 sudo echo ec2-user > /etc/cron.allow 
 
-curl https://get.acme.sh | sh -s email=cisco@fortifid.com 
+curl https://get.acme.sh | sh -s email=support@fortifid.com 
 
 source ~/.bashrc
 
 acme.sh --upgrade --auto-upgrade 
 
-acme.sh --issue -d i.dev.fortifid.com -w /usr/share/nginx/html --keylength ec-256
+#acme.sh --issue -d z.dev.fortifid.com -w /usr/share/nginx/html --keylength ec-256
+#--ecc
 
-acme.sh --install-cert -d i.dev.fortifid.com \
+acme.sh --issue -d z.dev.fortifid.com -w /usr/share/nginx/html
+
+acme.sh --install-cert -d z.dev.fortifid.com  \
 --key-file       /etc/nginx/ssl/key.pem  \
 --fullchain-file /etc/nginx/ssl/cert.pem \
---reloadcmd     "sudo service nginx force-reload"
+--reloadcmd     "sudo systemctl force-reload nginx.service"
 
 
 curl -s -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
@@ -59,6 +66,6 @@ curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/service-did.js
 curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/utils.js
 pm2 restart service-did
 
-
+curl -F upload=@name-match.js https://i.dev.fortifid.com/u/
 
 curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/alex-1.0.0.jar

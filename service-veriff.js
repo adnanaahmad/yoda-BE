@@ -36,7 +36,6 @@ const handlerTwilioQ = Q.getQ(Q.names.handler_twilio);
 const handlerEmailQ = Q.getQ(Q.names.handler_email);
 const handlerWebhookQ = Q.getQ(Q.names.handler_webhook);
 
-
 const RESTRICTED_ROUTES = [
     '/generate-url',
     '/check-request'
