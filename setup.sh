@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Which node version to use
-NODE=14.15.4
+NODE=14.16.1
 
 timestamp() {
   date +"%Y-%m-%d %H:%M:%S.%3N"
@@ -57,6 +57,11 @@ else
     CREATED=$(date +%s%N | cut -b1-13)
     echo "CREATED=$CREATED" > ./.env
 
+    if [ -n "$HOST" ];
+    then
+        echo "HOST=$HOST" >> ./.env
+    fi
+
     REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | awk -F\" '{print $4}')
     sudo -u ec2-user aws configure set region $REGION
     echo "AWS_REGION=$REGION" >> ./.env
@@ -83,7 +88,6 @@ else
         echo "APIGWCMD=\"$APIGWCMD\"" $ >> ./.env
     fi
 fi
-
 
 if [ -d ~/.pm2 -a ! -h ~/.pm2 ]; then
     log "PM2 already installed."
