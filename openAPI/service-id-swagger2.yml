@@ -3,10 +3,10 @@ info:
   contact:
     email: api@fortifid.com
   description: ''
-  title: FortifID ID Verification
+  title: FortifID Document Verification
   version: 1.0.0
 host: i.dev.fortifid.com
-basePath: /id/v1
+basePath: /doc/v1
 schemes:
   - https
 paths:

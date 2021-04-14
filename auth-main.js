@@ -84,18 +84,21 @@ const checkHeaders = async (request, reply) => {
                 }
 
                 if (passed) {
-                    let rateLimit = checkRateLimit(request);
-                    logger.silly(user.CustomerAccountID, rateLimit);
-                    if(rateLimit && rateLimit.remainingPoints > -1) {
-                         //RateLimit-Limit
-                         reply.headers['RateLimit-Remaining'] = rateLimit.remainingPoints; 
-                         request.user = user; 
-                         return true;
-                    } else {
-                        reply.headers['RateLimit-Remaining'] = 0;
-                        reason = 'Rate limit exceeded. Please contact help@fortifid.com.';
-                        code = 429;
-                    }
+                    request.user = user; 
+                    return true;
+
+                    // let rateLimit = checkRateLimit(request);
+                    // logger.silly(user.CustomerAccountID, rateLimit);
+                    // if(rateLimit && rateLimit.remainingPoints > -1) {
+                    //      //RateLimit-Limit
+                    //      reply.headers['RateLimit-Remaining'] = rateLimit.remainingPoints; 
+                    //      request.user = user; 
+                    //      return true;
+                    // } else {
+                    //     reply.headers['RateLimit-Remaining'] = 0;
+                    //     reason = 'Rate limit exceeded. Please contact help@fortifid.com.';
+                    //     code = 429;
+                    // }
                     // let rateLimit = await cache.decrementP('rate_limit', user.CustomerAccountID, 'value.credits_available');
                     //logger.silly(user.CustomerAccountID, rateLimit);
 

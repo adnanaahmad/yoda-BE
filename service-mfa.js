@@ -12,6 +12,11 @@ const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
 
+if(!SCRIPT_INFO.host) {
+    logger.error('HOST must be defined.');
+    process.exit(1);
+}
+
 const TABLE = 'mfa';
 
 const fastify = require('fastify')({
@@ -32,8 +37,6 @@ const loadParams = async () => {
 }
 
 //TODO! params!
-const email_subject = 'MFA step';
-
 const sms_text = 'From FortifID: please use the following link to complete the Secure MFA step: %URL%'
 
 fastify.get('/check-request/:id', async (request, reply) => {
@@ -87,7 +90,7 @@ fastify.get('/verify/:id', async (request, reply) => {
     logger.info(request.ip, `verify ${id}`);
 
     if (id) {
-        //let record = STATUS[id];
+ 
         let record = await cache.getP(TABLE, id);
         if (record) {
             code = 200;
@@ -110,8 +113,6 @@ fastify.get('/verify/:id', async (request, reply) => {
                     verified: now,
                     status: data.status
                 }, undefined, true);
-
-
             } else if (record.status === 'verified') {
                 data.status = 'used';
             } else {
@@ -123,7 +124,7 @@ fastify.get('/verify/:id', async (request, reply) => {
     }
 
     reply.type('application/json').code(code);
-
+    logger.silly(data);
     return data;
 })
 
@@ -169,7 +170,7 @@ fastify.post('/generate-url', async (request, reply) => {
                         //TODO!
                         if(results.countryCode === 'US') {
                             if (send) {
-                                data.url = `https://i.dev.fortifid.com/mfa-validate?ref=${encodeURIComponent(transaction_id)}`
+                                data.url = `https://${SCRIPT_INFO.host}/api/mfa?ref=${encodeURIComponent(transaction_id)}`
                                 let short = await utils.shortenUrl(data.url);
                                 data.url = short || data.url;
     

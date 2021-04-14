@@ -1,69 +1,111 @@
-const axios = require('axios').default;
-const logger = require('./logger').createLogger('forwarder');
-const timeout = 10000;
+'use strict';
+/*jshint esversion: 8 */
 
-const cleanString = (str) => {
-    if (typeof (str) !== "string" || str.length < 1)
-        return '';
+const fastify = require('fastify')({
+    logger: false,
+    trustProxy: true,
+    ignoreTrailingSlash: true
+})
 
-    let cleaned = str.replace(/(<([^>]+)>)|\r?\n|\r|[^\x20-\x7E]/ig, ' ').replace(/\s\s/g, '')
-        .trim();;
+const URLS = require('./urls.json')
 
-    return cleaned;
-}
+const objectToQueryString = (params) => Object.keys(params).map((key) => {
+    return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
+}).join('&');
 
-const checkUrl = async (data, query, headers)=> {
-    if(typeof(data) === 'undefined' || !query || !data.customerReference) {
-        
-        return;
-    }
-    
-    const customerReference =  data.customerReference;
-    const parts = customerReference.split(':');
+// fs.watch(buttonPressesLogFile, (event, filename) => {
+//     if (filename && event === 'change') {
+//         console.log(`${filename} file Changed`);
+//     }
+// });
 
-    if(parts.length === 3) {
-        
+const handleRequest = async (id, request, reply) => {
+    const now = Date.now();
+    try {
+        let body = request.body;
+        const query = request.query;
+        const search = objectToQueryString(query);
+        let code = (request.method === 'GET' || request.method === 'HEAD') ? 302 : 307;
         let url;
-        data.customerReference = `${parts[1]}:${parts[2]}`;
-        switch(parts[0]) {
-            case 'test': {
-                //url = 'https://webhook.site/b9550492-0c96-4b91-a495-43e93af1069c';
-                break;
-            }
-            case 'dev': {
-                break;
-            }
-        }
+        let extra;
 
-        if(url) {
-            url = `${url}${query}`;
-            let config = {
-                method: 'post',
-                url,
-                //headers,
-                data,
-                timeout,
-              }
-            try {
-                let results = await axios(config);
-                if(results) {
-                    logger.silly(`Results: ${results.status} ${results.statusText}`)
+        const checkBody = () => {
+            if (typeof (body) === 'string') {
+                try {
+                    body = JSON.parse(body);
+                } catch (error) {
+                    //TODO!
                 }
-            } catch (error) {   
-                const data = error.response;
-                let e = {
-                    status: data.status,
-                    error: cleanString(data.data)
-                };
-                logger.error(e);
             }
-
-            return true;
         }
-       
-    }    
+
+        if (typeof (id) === 'string' && id.length > 0) {
+            const urls = URLS[id];
+            if (urls) {
+                url = urls['_default_'];
+                switch (id) {
+                    case 'directid': {
+                        checkBody();
+                        if (body && body.customerReference) {
+                            const customerReference = body.customerReference;
+                            const parts = customerReference.split(':');
+                            if (parts.length === 3) {
+                                extra = parts[0];
+                                url = urls[extra];
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (url) {
+            if (search && search.length > 0) {
+                url = `${url}?${search}`;
+                //console.log(url);
+            }
+            reply.redirect(code, url);
+            let log = {
+                method: request.method,
+                ip: request.ip,
+                ts: now,
+                id: id,
+            }
+            if (extra) {
+                log.extra = extra;
+            }
+            console.log(log);
+        } else {
+            let data = {
+                code: 422,
+                error: 'Missing or invalid parameter.'
+            };
+            reply.type('application/json').code(422).send(data);
+        }
+
+        // let data = { code: 200, query, url};
+        // console.log(data);
+        // reply.type('application/json').code(200).send(data);
+
+    } catch (error) {
+        let data = {
+            code: 500,
+            error: error.message
+        };
+        reply.type('application/json').code(500).send(data);
+    }
 }
 
-module.exports = {
-    checkUrl,
-}
+fastify.post('/:id', async (request, reply) => {
+    handleRequest(request.params.id, request, reply);
+});
+
+fastify.get('/:id', async (request, reply) => {
+    handleRequest(request.params.id, request, reply);
+});
+
+fastify.listen(8997, (err, address) => {
+    if (err) throw err
+    console.log(`HTTP server is listening on ${address}`);
+});

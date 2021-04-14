@@ -1,0 +1,52 @@
+'use strict';
+/*jshint esversion: 8 */
+
+const fastify = require('fastify')({
+    logger: false,
+    trustProxy: true,
+    //ignoreTrailingSlash: true
+});
+
+const fileUpload = require('fastify-file-upload')
+
+fastify.register(fileUpload)
+
+fastify.post('/',  async (req, res)=> {
+  // some code to handle file
+  
+  const files = req.raw.files
+  // if (files === null || !files || Object.keys(req.files).length === 0) {
+  //   return res.status(400).send('No files were uploaded.');
+  // }
+
+  let fileArr = [];
+  for(let key in files){
+    const file = files[key]; 
+    fileArr.push({
+      name: file.name,
+      mimetype: file.mimetype
+    });
+
+    //TODO!
+    //console.log(req.query.key);
+
+    let upDir = __dirname + '/uploads/';
+    if(req.ip === '54.177.210.250') {
+      upDir = '/usr/share/nginx/html/data/od7kTXfGxDax/';
+    }
+
+    let uploadPath =  upDir + file.name;
+    file.mv(uploadPath, (err)=> {
+      if (err)
+        return res.status(500).send(err);
+  
+      //res.send('File uploaded!');
+    });
+  }
+  res.send(fileArr)
+})
+
+fastify.listen(3000, err => {
+  if (err) throw err
+  console.log(`server listening on ${fastify.server.address().port}`)
+})

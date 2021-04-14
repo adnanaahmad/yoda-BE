@@ -12,6 +12,11 @@ const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
 
+if(!SCRIPT_INFO.host) {
+    logger.error('HOST must be defined.');
+    process.exit(1);
+}
+
 const TABLE = 'veriff';
 
 const fastify = require('fastify')({
@@ -165,8 +170,8 @@ fastify.post('/webhook', {
 });
 
 //TODO! params!
-const email_subject = 'ID Verification steps';
-const sms_text = 'From FortifID: please use the following link to complete the ID verification steps: %URL%'
+const email_subject = 'Document Verification steps';
+const sms_text = 'From FortifID: please use the following link to complete the Document Verification steps: %URL%'
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
@@ -258,7 +263,7 @@ fastify.post('/generate-url', async (request, reply) => {
             pii: {}
         };
 
-        data.url = `https://i.dev.fortifid.com/demo/veriff?ref=${encodeURIComponent(transaction_id)}`
+        data.url = `https://${SCRIPT_INFO.host}/api/doc?ref=${encodeURIComponent(transaction_id)}`
 
         let short = await utils.shortenUrl(data.url);
         data.url = short || data.url;

@@ -27,6 +27,8 @@ let _logger;
 
 require('dotenv').config();
 
+const HOST = process.env.HOST;
+
 require('console-stamp')(console, {
     format: ':date(yyyy.mm.dd HH:MM:ss.l) :label',
     // datePrefix: '',
@@ -151,6 +153,8 @@ const getFileInfo = (file, doHash, extras) => {
         info.instance = process.env.INSTANCE_ID;
         info.log_level = process.env.LOG_LEVEL;
         info.run_mode = process.env.RUN_MODE;
+        info.hostname = process.env.HOSTNAME;
+        info.host = HOST;
     }
 
     return info;
@@ -1028,6 +1032,10 @@ const getBody = async (req) => {
 
 //TOD: The url needs to be dyanmic and the token
 const shortenUrl = async (url, token, full = false, ) => {
+    if(!HOST) {
+        return;
+    }
+
     const data = {
         "long_url": url
     };
@@ -1039,7 +1047,7 @@ const shortenUrl = async (url, token, full = false, ) => {
     const start = time();
     try {
         //TODO
-        const results = await fetchData('https://i.dev.fortifid.com/s/', data, headers);
+        const results = await fetchData(`https://${HOST}/s/`, data, headers);
         const duration = time() - start;
         if (_logger) {
             _logger.info(`Url shortened to [${results.link}] in ${toFixedPlaces(duration, 2)}ms`);

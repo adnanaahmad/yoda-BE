@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: FortifID ID Verification
+  title: FortifID Document Verification
   description: ""
   contact:
     email: api@fortifid.com
@@ -9,7 +9,7 @@ externalDocs:
   description: FortifID website
   url: https://fortifid.com
 servers:
-- url: https://i.dev.fortifid.com/id/v1
+- url: https://i.dev.fortifid.com/doc/v1
 paths:
   /generate-url:
     post:

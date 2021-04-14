@@ -1,0 +1,11 @@
+{
+    "directid": {
+        "_default_": "https://api.dev.fortifid.com:8999/directid/webhook", 
+        "production": "https://api-west-1.prod.fortifid.com:8999/directid/webhook",
+        "sandbox" : "https://api-east-1.sandbox.fortifid.com:8999/directid/webhook",
+        "staging": "https://api.staging.fortifid.com:8999/directid/webhook",
+        "testing": "https://webhook.site/b9550492-0c96-4b91-a495-43e93af1069c",
+        "dev": "https://api.dev.fortifid.com:8999/directid/webhook",
+        "barb": "https://dev.barbarians.com:8999/directid/webhook"
+    }
+}

@@ -66,6 +66,6 @@ curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/service-did.js
 curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/utils.js
 pm2 restart service-did
 
-curl -F upload=@name-match.js https://i.dev.fortifid.com/u/
+curl -F upload=@name-match.js https://i.dev.fortifid.com/u/?key=1234
 
 curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/alex-1.0.0.jar
