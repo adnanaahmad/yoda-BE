@@ -1,6 +1,8 @@
 'use strict';
 /*jshint esversion: 8 */
 const utils = require('./utils');
+const logger = require('./logger').createLogger('shortener');
+utils.setLogger(logger);
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 

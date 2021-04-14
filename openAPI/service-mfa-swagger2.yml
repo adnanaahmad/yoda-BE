@@ -93,6 +93,8 @@ definitions:
         type: string 
       send:
         example: true
+        default: true
+        description: Optional
         type: boolean
     required:
       - phone_number

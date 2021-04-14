@@ -108,9 +108,6 @@ definitions:
         example: 1617659912179
         format: int64
         type: integer
-      reason:
-        example: Transaction ID not found.
-        type: string
       status:
         $ref: '#/definitions/Status'
       transaction_id:
@@ -138,10 +135,6 @@ definitions:
         $ref: '#/definitions/Status'
     type: object
 securityDefinitions:
-  Bearer:
-    in: header
-    name: Authorization
-    type: apiKey
   request_auth:
     description: Use the access_token from the results as a Bearer token.
     flow: application
@@ -150,6 +143,10 @@ securityDefinitions:
       'write:request': create requests
     tokenUrl: 'https://i.dev.fortifid.com/auth/v1/token'
     type: oauth2
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
 externalDocs:
   description: FortifID website
   url: 'https://fortifid.com'

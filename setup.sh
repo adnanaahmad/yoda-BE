@@ -46,6 +46,8 @@ else
 fi
 npm install > /dev/null 2>&1
 
+mkdir .cache
+mkdir uploads
 
 
 if test -f "./.env"; then
