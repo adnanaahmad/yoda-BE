@@ -1,6 +1,6 @@
 {
   "name": "didservice",
-  "version": "1.0.34",
+  "version": "1.0.40",
   "description": "DirectID micro service.",
   "main": "service-did.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "@types/qs": "^6.9.4",
     "amazon-dax-client": "^1.2.5",
     "atob": "^2.1.2",
-    "aws-sdk": "^2.884.0",
+    "aws-sdk": "^2.886.0",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "big-integer": "^1.6.48",
@@ -39,13 +39,13 @@
     "pm2": "^4.5.4",
     "pretty-data": "^0.40.0",
     "rate-limiter-flexible": "^2.2.1",
-    "redis": "^3.1.0",
+    "redis": "^3.1.1",
     "sanitize-filename": "^1.6.3",
     "string-similarity": "^4.0.4",
     "twilio": "^3.60.0",
     "uuid": "^8.3.2",
     "winston": "^3.3.3",
-    "winston-cloudwatch": "^2.5.1",
+    "winston-cloudwatch": "^2.5.2",
     "xml-js": "^1.6.11"
   }
 }
