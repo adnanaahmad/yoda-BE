@@ -363,7 +363,7 @@
           redirect_url: $('#redirect_url').val(),
         };
 
-        if (data.email_address.length < 3 || data.phone_number.length < 9) {
+        if (data.email_address.length < 3 && data.phone_number.length < 9) {
           setOutput('<span style="color:red;">Email or phone number required</span>')
           return;
         }

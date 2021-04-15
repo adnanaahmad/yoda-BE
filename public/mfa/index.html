@@ -305,7 +305,7 @@
                 let data = {
                     ///transaction_id: uuid.v4(),
                     full_name: $('#full_name').val(),
-                    phone_number: $('#phone_number').val(),
+                    phone_number: $('#phone_number').val() || '',
                     send: $('#check-send').is(':checked'),
                     request_reference: $('#request_reference').val(),
                     redirect_url: $('#redirect_url').val(),
