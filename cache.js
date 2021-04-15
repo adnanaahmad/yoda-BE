@@ -313,7 +313,7 @@ const test = async () => {
         console.error(error);
     });
 
-    test();
+    //test();
 })();
 
 module.exports = {
