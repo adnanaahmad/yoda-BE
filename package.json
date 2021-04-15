@@ -1,12 +1,12 @@
 {
-  "name": "didservice",
-  "version": "1.0.40",
-  "description": "DirectID micro service.",
+  "name": "yoda",
+  "version": "1.0.42",
+  "description": "FortifID micro services and utilities.",
   "main": "service-did.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "cisco801@gmail.com",
+  "author": "cisco@fortifid.com",
   "license": "ISC",
   "dependencies": {
     "@types/express": "^4.17.11",
