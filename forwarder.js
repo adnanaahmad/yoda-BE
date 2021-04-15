@@ -25,10 +25,14 @@ const handleRequest = async (id, request, reply) => {
     try {
         let body = request.body;
         const query = request.query;
+        const method = request.method.toUpperCase(); 
         const search = objectToQueryString(query);
         let code = (request.method === 'GET' || request.method === 'HEAD') ? 302 : 307;
         let url;
-        let extra;
+        let sub;
+        let urlId;
+
+        //console.log(query, request.method, search);
 
         const checkBody = () => {
             if (typeof (body) === 'string') {
@@ -43,8 +47,6 @@ const handleRequest = async (id, request, reply) => {
         if (typeof (id) === 'string' && id.length > 0) {
             const subs = URLS[id];
             if (subs) {
-                let sub;
-                let urlId;
                 url = subs[DEFAULT];
                 switch (id) {
                     case 'directid': {
@@ -56,9 +58,13 @@ const handleRequest = async (id, request, reply) => {
                                 sub = 'webhook';
                                 urlId= parts[0];
                             }
-                        } else {
-                            sub = 'redirect';
-                            urlId = 'i.dev';
+                        } else if(method === 'GET' && query && query.customer_ref) {
+                            const customerReference = query.customer_ref;
+                            const parts = customerReference.split(':');
+                            if (parts.length === 3) {
+                                sub = 'redirect';
+                                urlId= parts[0];
+                            }
                         }
                         break;
                     }
@@ -83,18 +89,21 @@ const handleRequest = async (id, request, reply) => {
             if (search && search.length > 0) {
                 url = `${url}?${search}`;
             }
-            console.log(url);
+            //console.log(url);
 
             reply.redirect(code, url);
             let log = {
-                method: request.method,
+                method: method,
                 ip: request.ip,
                 ts: now,
                 id: id,
+                sub: sub,
             }
-            if (extra) {
-                log.extra = extra;
+
+            if (urlId) {
+                log.url_id = urlId;
             }
+
             console.log(log);
         } else {
             let data = {

@@ -447,7 +447,7 @@ const httpHandler = async (req, res) => {
             if (reqUrl.startsWith('/income/v1/')) {
                 reqUrl = reqUrl.replace('/income/v1/', '/directid/');
             } else if (reqUrl.startsWith('/generate-url') || reqUrl.startsWith('/check-request') ||
-                reqUrl.startsWith('/webhook')) {
+                reqUrl.startsWith('/webhook') || reqUrl.startsWith('/redirect')) {
                 reqUrl = `/directid${reqUrl}`;
             }
 
@@ -570,7 +570,7 @@ const httpHandler = async (req, res) => {
                 break;
             }
             case 'redirect': {
-
+                redirect();
                 break;
             }
             default: {
@@ -594,7 +594,30 @@ const httpHandler = async (req, res) => {
         }
 
         async function redirect() {
+            const query = parsed.query; 
+    
+            if(query && query.customer_ref) {
+                const customerReference = query.customer_ref;
+                const parts = customerReference.split(':');
+                if (parts.length === 3) {
+                    const transaction_id = parts[1];
+                    let record = META[transaction_id];
+                    if(!record) {
+                        record = DONE[transaction_id];
+                    }
 
+                    if(record && record.redirect_url) {
+                        let url = record.redirect_url;
+                        //TODO!
+                        //state=success
+                        //error
+                        const headers = {
+                            'Location': url
+                        }
+                        utils.sendMessage(res, 302, headers, 'Found');
+                    }
+                }
+            }            
         }
 
         async function webhook() {
