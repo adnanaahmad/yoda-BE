@@ -30,7 +30,7 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
 
         rm -rf didservice.tar.gz
         #TODO: actually check for success
-        echo Success.
+        log Success.
     fi
 else
     log "fortifid directory not found"
