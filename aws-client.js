@@ -15,6 +15,8 @@ const ddb = new AWS.DynamoDB();
 const AmazonDaxClient = require('amazon-dax-client');
 const ddbOptions = {};
 
+let hasDax = false;
+
 if (process.env.DAX_URL) {
   try {
     const dax = new AmazonDaxClient({
@@ -22,12 +24,15 @@ if (process.env.DAX_URL) {
       region: process.env.AWS_REGION
     });
     ddbOptions.service = dax;
+    hasDax = true;
   } catch (error) {
     logger.error(error);
   }
 }
 
-const ddbClient = new AWS.DynamoDB.DocumentClient(ddbOptions);
+const ddbClient = new AWS.DynamoDB.DocumentClient();
+
+const daxClient = hasDax ? new AWS.DynamoDB.DocumentClient(ddbOptions) : undefined;
 
 const getParameter = async (name) => {
   const params = {
@@ -114,20 +119,22 @@ const putParameter = async (name, value, type = 'SecureString', dataType = 'text
   }
 };
 
-const putDDBItem = async (table, data) => {
+const putDDBItem = async (table, data, dax = true) => {
   const params = {
     TableName: table,
     Item: data
   };
 
+  const client = hasDax && dax ? daxClient : ddbClient;
+
   try {
-    return await ddbClient.put(params).promise();
+    return await client.put(params).promise();
   } catch (error) {
     logger.error(error);
   }
 }
 
-const decrementDDBItem = async (table, key, field, value = 1) => {
+const decrementDDBItem = async (table, key, field, value = 1, dax = true) => {
   
   // const names = {};
   // const char = utils.baseAlpha.encode(1);
@@ -147,15 +154,17 @@ const decrementDDBItem = async (table, key, field, value = 1) => {
     ReturnValues: "UPDATED_NEW"
   };
 
+  const client = hasDax && dax ? daxClient : ddbClient;
+
   try {
-    return await ddbClient.update(params).promise();
+    return await client.update(params).promise();
   } catch (error) {
     logger.error(error);
     console.log(error);
   }
 }
 
-const incrementDDBItem = async (table, key, field, value = 1) => {
+const incrementDDBItem = async (table, key, field, value = 1, dax = true) => {
   const params = {
     TableName: table,
     Key: key,
@@ -165,31 +174,36 @@ const incrementDDBItem = async (table, key, field, value = 1) => {
     },
     ReturnValues: "UPDATED_NEW"
   };
+  
+  const client = hasDax && dax ? daxClient : ddbClient;
 
   try {
-    return await ddbClient.update(params).promise();
+    return await client.update(params).promise();
   } catch (error) {
     logger.error(error);
   }
 }
 
-const getDDBItem = async (table, key) => {
+const getDDBItem = async (table, key, dax = true) => {
 
   const params = {
     TableName: table,
     Key: key
   };
 
+  const client = hasDax && dax ? daxClient : ddbClient;
+
   try {
-    return await ddbClient.get(params).promise();
+    return await client.get(params).promise();
   } catch (error) {
     logger.error(error);
   }
 }
 
-const updateDDBItem = async (params) => {
+const updateDDBItem = async (params, dax = true) => {
   try {
-    return await ddbClient.update(params).promise();
+    const client = hasDax && dax ? daxClient : ddbClient;
+    return await client.update(params).promise();
   } catch (error) {
     logger.error(error);
   }
@@ -217,25 +231,28 @@ const createTable = async (params) => {
 
 
 
-const docQuery = async (params) => {
+const docQuery = async (params, dax = true) => {
   try {
-    return await ddbClient.query(params).promise();
+    const client = hasDax && dax ? daxClient : ddbClient;
+    return await client.query(params).promise();
   } catch (error) {
     logger.error(error);
   }
 }
 
-const docScan = async (params) => {
+const docScan = async (params, dax = true) => {
   try {
-    return await ddbClient.scan(params).promise();
+    const client = hasDax && dax ? daxClient : ddbClient;
+    return await client.scan(params).promise();
   } catch (error) {
     logger.error(error);
   }
 }
 
-const docDelete = async (params) => {
+const docDelete = async (params, dax = true) => {
   try {
-    return await ddbClient.delete(params).promise();
+    const client = hasDax && dax ? daxClient : ddbClient;
+    return await client.delete(params).promise();
   } catch (error) {
     logger.error(error);
   }
