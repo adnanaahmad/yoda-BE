@@ -37,11 +37,13 @@ const update = async (args) => {
             stdout,
             stderr
         } = await utils.execFile(`${__dirname}/data/update.sh`, args);
-
-        return {
+        let data = {
             output: stdout,
-            error: stderr
         }
+        if(typeof(stderr) === 'string' && stderr.length > 0) {
+            data.error = stderr
+        }
+        return data 
     } catch (error) {
         logger.error(error);
         return {error: error.message};
