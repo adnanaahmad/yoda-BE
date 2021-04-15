@@ -180,7 +180,7 @@ fastify.post('/generate-url', async (request, reply) => {
                         //TODO!
                         if (results.countryCode === 'US') {
                             if (send) {
-                                data.url = `https://${SCRIPT_INFO.host}/api/mfa?ref=${encodeURIComponent(transaction_id)}`
+                                data.url = `https://${SCRIPT_INFO.host}/mfa/v1?ref=${encodeURIComponent(transaction_id)}`
                                 let short = await utils.shortenUrl(data.url);
                                 data.url = short || data.url;
 

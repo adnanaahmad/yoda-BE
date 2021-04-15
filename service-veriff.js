@@ -271,7 +271,7 @@ fastify.post('/generate-url', async (request, reply) => {
             pii: {}
         };
 
-        data.url = `https://${SCRIPT_INFO.host}/api/doc?ref=${encodeURIComponent(transaction_id)}`
+        data.url = `https://${SCRIPT_INFO.host}/doc/v1?ref=${encodeURIComponent(transaction_id)}`
 
         let short = await utils.shortenUrl(data.url);
         data.url = short || data.url;
