@@ -276,31 +276,44 @@ const test = async () => {
         now: Date.now()
     }
 
-    const start = utils.time();
-    let count = 0;
-
-    //let results = await setP('test', `bleah-test`, data, '1h');
-    for (let index = 0; index < 100; index++) {
-        //let id = `bleah-`(index + ''.padStart(6, '0'));
-        let results = await setP('test', `bleah-${index}`, data, 3600);
-        //let results = await getP('test', `bleah-${index}`);
-        if (results) {
-            count++;
-        }
+    const redis = async()=> {
+        console.log('redis');
+        let start = utils.time();
+        await set('test', `bleah-test`, data, '1h');
+        console.log(await get('test', 'bleah-test'));
+        let duration = utils.time() - start;
+        console.log(duration);
     }
-    //console.log(await getP('test', 'bleah-test'));
-    const duration = utils.time() - start;
-    //console.log(duration, count);
+
+    const dax = async()=> {
+        console.log('DAX');
+        const start = utils.time();
+        await setP('test', `bleah-test`, data, '1h');
+        //console.log(await getP('test', 'bleah-test'));
+        let count = 0;
+        for (let index = 0; index < 100; index++) {
+            //let id = `bleah-`(index + ''.padStart(6, '0'));
+            //let results = await setP('test', `bleah-${index}`, data, 3600);
+            //let results = await getP('test', `bleah-${index}`);
+            let results = await getP('test', `bleah-test`);
+            if (results) {
+                count++;
+            }
+        }
+        const duration = utils.time() - start;
+        console.log(duration);
+    }
+    
+    await dax();
+    await redis()
 }
-
-
 
 (async () => {
     redisClient.on("error", (error) => {
         console.error(error);
     });
 
-    // test();
+    test();
 })();
 
 module.exports = {

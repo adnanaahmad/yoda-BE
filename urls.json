@@ -10,6 +10,8 @@
             "dev": "https://api.dev.fortifid.com:8999/directid/webhook",
             "i.dev": "https://i.dev.fortifid.com/income/v1/webhook",
             "z.dev": "https://z.dev.fortifid.com/income/v1/webhook",
+            "i.prod": "https://i.prod.fortifid.com/income/v1/webhook",
+            "z.prod": "https://z.prod.fortifid.com/income/v1/webhook",                
             "barb": "https://dev.barbarians.com:8999/directid/webhook"
         },
         "redirect": {
