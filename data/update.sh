@@ -9,5 +9,7 @@ tar -xvf didservice.tar.gz --directory fortifid
 rm -rf didservice.tar.gz
 
 cd fortifid
+pm2 restart all
+
 
 ./setup.sh
