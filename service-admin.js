@@ -62,6 +62,14 @@ const restart = () => {
     }
 }
 
+const importAccount = ()=> {
+    // let id = 'A99E264A82E3F746123C68098F2D116B6E483F289FB77DF3725314EFD30D258F';
+    // let data = await getAuthz(id);
+    // await utils.fileWrite( `./tmp/${id}.json`, JSON.stringify(data, null, 2));
+    // let json = JSON.parse(await utils.fileRead('./uploads/tmp.json'));
+    // awsClient.putDDBItem('USER_AUTHZ_TABLE', json);
+}
+
 fastify.get('/update', async (request, reply) => {
     let results = await update(['all']);
     
