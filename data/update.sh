@@ -19,10 +19,15 @@ testcmd () {
     command -v "$1" >/dev/null
 }
 
-cd /home/ec2-user
+FILE=/home/ec2-user/fortifid/.env
+if test -f "$FILE"; then
+    . $FILE
+fi
 
+cd /home/ec2-user
+ 
 if [ -d ./fortifid -a ! -h ./fortifid ]; then
-    log "Updating Yoda..."
+    log "Updating Yoda ["$HOST"]..."
     curl -s -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
     if [ -s "didservice.tar.gz" ]
     then 
