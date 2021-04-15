@@ -10,11 +10,6 @@ const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info('Startup', SCRIPT_INFO);
 
-if (!SCRIPT_INFO.host) {
-    logger.error('HOST must be defined.');
-    process.exit(1);
-}
-
 const authMain = require('./auth-main');
 
 const fastify = require('fastify')({
@@ -41,16 +36,21 @@ const update = async () => {
         const {
             stdout,
             stderr
-        } = await utils.execFile(`${__dirname}/data/install.sh`);
-        logger.debug(stdout, stderr);
+        } = await utils.execFile(`${__dirname}/data/update.sh`);
+
+        return {
+            output: stdout,
+            error: stderr
+        }
     } catch (error) {
         logger.error(error);
+        return {error: error.message};
     }
 }
 
 const restart = () => {
     if (pm2Connected) {
-        pm2.restart("service-did", (err, val) => {
+        pm2.restart("all", (err, val) => {
             if (err) {
                 logger.error(err)
             } else {
@@ -59,6 +59,13 @@ const restart = () => {
         });
     }
 }
+
+fastify.get('/update', async (request, reply) => {
+    let results = await update(request, reply);
+    
+    reply.type('application/json').code(200).send(results);
+    restart();
+})
 
 // //TODO: Extract these to separate files
 // async function handleSystem(action, bodyData, key) {
@@ -94,7 +101,19 @@ const restart = () => {
 //     }
 // }
 
+fastify.addHook("onRequest", async (request, reply) => {
+    if (!await authMain.checkHeaders(request, reply, 0, true)) {
+        return;
+    }
+});
+
+fastify.listen(9999, (err, address) => {
+    if (err) throw err
+    logger.info(`HTTP server is listening on ${address}`);
+});
+
 (async () => {
+    //await loadParams();
     try {
         pm2.connect((err) => {
             if (err) {

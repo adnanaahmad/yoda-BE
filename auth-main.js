@@ -49,7 +49,7 @@ const checkRateLimit = async (request, reply) => {
     return rateLimiterRes;
 }
 
-const checkHeaders = async (request, reply) => {
+const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) => {
     //return true;
     let reason = 'Unauthorized';
     let code = 401;
@@ -65,7 +65,6 @@ const checkHeaders = async (request, reply) => {
                 let certId = utils.hash(cert, 'sha256', 'hex').toUpperCase();
                 //request.user = certId;
                 let user = await getAuthz(certId);
-
 
                 let passed = false;
                 if (user) {
@@ -84,8 +83,14 @@ const checkHeaders = async (request, reply) => {
                 }
 
                 if (passed) {
-                    request.user = user; 
-                    return true;
+                    if(typeof(user.Level) !== 'number') {
+                        user.Level = 0;
+                    }
+
+                    if((!requireAdmin || user.Role === 'admin') &&  user.Level >= minLevel) {
+                        request.user = user; 
+                        return true;
+                    }
 
                     // let rateLimit = checkRateLimit(request);
                     // logger.silly(user.CustomerAccountID, rateLimit);

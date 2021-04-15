@@ -50,6 +50,7 @@ mkdir .cache
 mkdir uploads
 
 
+
 if test -f "./.env"; then
     log ".env already exist."
 else
@@ -146,6 +147,6 @@ then
 fi
 
 #log "Setting  execute permissions..."
-#chmod +x ./update.sh
+chmod +x ./data/update.sh
 
 log "Setup complete."
