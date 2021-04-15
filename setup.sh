@@ -122,12 +122,14 @@ pm2 start scheduler.js
 pm2 start shortener.js
 pm2 start uploader.js
 
+#pm2 start service-admin.js
+#pm2 start service-auth.js
+#pm2 start service-code.js
 #pm2 start service-ss.js
 #pm2 start service-neustar.js
 pm2 start service-did.js
 pm2 start service-mfa.js
 pm2 start service-veriff.js
-
 
 pm2 save
 
