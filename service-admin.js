@@ -31,12 +31,12 @@ const awsClient = require('./aws-client');
 
 let pm2Connected = false;
 
-const update = async () => {
+const update = async (args) => {
     try {
         const {
             stdout,
             stderr
-        } = await utils.execFile(`${__dirname}/data/update.sh`);
+        } = await utils.execFile(`${__dirname}/data/update.sh`, args);
 
         return {
             output: stdout,
@@ -54,14 +54,14 @@ const restart = () => {
             if (err) {
                 logger.error(err)
             } else {
-                logger.info(val);
+                //logger.info(val);
             }
         });
     }
 }
 
 fastify.get('/update', async (request, reply) => {
-    let results = await update(request, reply);
+    let results = await update(['all']);
     
     reply.type('application/json').code(200).send(results);
     restart();

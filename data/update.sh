@@ -21,14 +21,17 @@ testcmd () {
 
 cd /home/ec2-user
 
-
 if [ -d ./fortifid -a ! -h ./fortifid ]; then
     log "Updating Fortifid..."
-    curl -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
+    curl -s -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
+    if [ -s "didservice.tar.gz" ]
+    then 
+        tar -zxf didservice.tar.gz --directory fortifid
 
-    tar -xvf didservice.tar.gz --directory fortifid
-
-    rm -rf didservice.tar.gz
+        rm -rf didservice.tar.gz
+        #TODO: actually check for success
+        echo Success.
+    fi
 else
     log "fortifid directory not found"
 fi
