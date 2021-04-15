@@ -15,12 +15,9 @@ logger.info('Startup', SCRIPT_INFO);
 
 const url = require('url');
 const sanitize = require("sanitize-filename");
-const pm2 = require('pm2');
 const oauth2 = require('./auth-oauth2');
 
 const awsClient = require('./aws-client');
-
-let pm2Connected = false;
 
 // TODO: Just for testing and demos
 ///////////////////////////////////////////////////////////////
@@ -34,18 +31,13 @@ const WWW = {
 }
 ///////////////////////////////////////////////////////////////
 
-
 const PARAMS = {};
-
 const DONE = {};
 const META = {};
-const OPAL = {};
 
 //TODO!
 const paramList = require('./params.json');
 const paramKeys = Object.keys(paramList);
-
-const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 const consents = {};
 
@@ -56,14 +48,13 @@ const TOKEN_IDS = {
 
 Object.freeze(TOKEN_IDS);
 
-// TODO: Swap for next version
-// const Q = require('./utils-q');
-// const handlerTwilioQ = Q.getQ(Q.names.handler_twilio);
-// const handlerEmailQ = Q.getQ(Q.names.handler_email);
-// const handlerWebhookQ = Q.getQ(Q.names.handler_webhook);
+const Q = require('./utils-q');
+const handlerTwilioQ = Q.getQ(Q.names.handler_twilio);
+const handlerEmailQ = Q.getQ(Q.names.handler_email);
+//const handlerWebhookQ = Q.getQ(Q.names.handler_webhook);
 
-const handlerTwilioQ = require('./handler-twilio');
-const handlerEmailQ = require('./handler-email');
+// const handlerTwilioQ = require('./handler-twilio');
+// const handlerEmailQ = require('./handler-email');
 //const handlerWebhookQ = require('./handler-webhook');
 
 const incomeDirectIDResponseStatus = require('./response-status.json');
@@ -388,30 +379,6 @@ const sendFile = async (res, filename) => {
     }
 }
 
-const restart = () => {
-    if (pm2Connected) {
-        pm2.restart("service-did", (err, val) => {
-            if (err) {
-                logger.error(err)
-            } else {
-                logger.info(val);
-            }
-        });
-    }
-}
-
-const update = async () => {
-    try {
-        const {
-            stdout,
-            stderr
-        } = await utils.execFile(`${__dirname}/data/install.sh`);
-        logger.debug(stdout, stderr);
-    } catch (error) {
-        logger.error(error);
-    }
-}
-
 const httpHandler = async (req, res) => {
     const startTimer = utils.time();
     const now = Date.now();
@@ -552,10 +519,6 @@ const httpHandler = async (req, res) => {
                             await handleDirectID(action, bodyData, key);
                             break;
                         }
-                        case 'system': {
-                            await handleSystem(action, bodyData, key);
-                            break;
-                        }
                     }
                 } catch (e) {
                     logger.error(e);
@@ -590,40 +553,6 @@ const httpHandler = async (req, res) => {
         doLog();
     }
 
-    //TODO: Extract these to separate files
-    async function handleSystem(action, bodyData, key) {
-        if (key !== PARAMS.system_secret) {
-            utils.sendData(res, 'Invalid key', 401);
-            return;
-        }
-
-        switch (action) {
-            case 'restart': {
-                utils.sendData(res, 'OK');
-                restart();
-                break;
-            }
-            case 'update': {
-                utils.sendData(res, 'OK');
-                update();
-                break;
-            }
-            case 'server': {
-                const data = {
-                    ...SCRIPT_INFO,
-                    start: utils.startTime,
-                    time: now,
-                    uptime: (now - utils.startTime),
-                };
-                utils.sendData(res, data);
-                break;
-            }
-            default: {
-                utils.sendData(res, 'Not found.', 404);
-            }
-        }
-    }
-
     async function handleDirectID(action, bodyData, key) {
         switch (action) {
             case 'check-request':
@@ -644,16 +573,6 @@ const httpHandler = async (req, res) => {
 
                 break;
             }
-            case 'code-submit':
-            case 'codesubmit': {
-                codeSubmit();
-                break;
-            }
-            case 'code-run':
-            case 'coderun': {
-                await codeRun();
-                break;
-            }
             default: {
                 utils.sendData(res, 'Endpoint not found.', 404);
                 break;
@@ -671,84 +590,6 @@ const httpHandler = async (req, res) => {
                     logRequest = false;
                     utils.sendData(res, 'Not found or not ready.', 404);
                 }
-            }
-        }
-
-        async function codeRun() {
-            if (bodyData) {
-                let id = parsed.query.id;
-                let data = OPAL[id];
-                if (data) {
-                    const start = utils.time();
-                    let results;
-                    let error;
-                    try {
-                        if (data.async) {
-                            results = await data.func(bodyData);
-                        } else {
-                            results = data.func(bodyData);
-                        }
-                    } catch (err) {
-                        error = err;
-                        logger.warn('codeRun', err);
-                    }
-
-                    const duration = utils.time() - start;
-                    // console.log(results)
-                    // if(Array.isArray(results)) {
-                    //     results =results.join(',');
-                    // }
-
-                    let returnData = {
-                        results: results,
-                        duration: duration
-                    };
-
-                    if (error) {
-                        returnData.error = error;
-                    }
-                    utils.sendData(res, returnData);
-
-                    addLogExtra('results', returnData);
-                    //fun({a: 10, b: 20}).then(response => { console.log(response) });
-                } else {
-                    utils.sendData(res, 'Function not found.', 404);
-                }
-            } else {
-                utils.sendData(res, 'Missing parameter', 422);
-            }
-        }
-
-        function codeSubmit() {
-            if (bodyData) {
-                let id = parsed.query.id;
-
-                let async = typeof (parsed.query.async) !== 'undefined' ? parsed.query.async : false;
-
-                let data = {
-                    id: id,
-                    code: utils.compressString(bodyData),
-                    hash: utils.hash(bodyData, 'sha256'),
-                    created: Date.now(),
-                    status: 0,
-                    size: bodyData.length,
-                    async
-                };
-
-                try {
-                    utils.sendData(res, data);
-                    const func = async ?new AsyncFunction('data', bodyData): new Function('data', bodyData);
-                    OPAL[id] = {
-                        ...data,
-                        func
-                    };
-                    logger.debug('codeSubmit', data);
-                } catch (error) {
-                    utils.sendData(res, error);
-                    logger.warn('codeSubmit', error);
-                }
-            } else {
-                utils.sendData(res, 'Missing parameter', 422);
             }
         }
 
@@ -1110,16 +951,4 @@ const loadParams = async () => {
         logger.error(error.message)
     });
 
-    try {
-        pm2.connect((err) => {
-            if (err) {
-                logger.error(err);
-            } else {
-                pm2Connected = true;
-                logger.debug('pm2 connected.')
-            }
-        });
-    } catch (error) {
-        logger.error(error.message);
-    }
 })();

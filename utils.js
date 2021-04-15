@@ -264,7 +264,7 @@ const toFixedPlaces = (value, places) => {
     return parseFloat(value.toFixed(places));
 }
 
-const beep = ()=> {
+const beep = () => {
     process.stdout.write('\x07')
 }
 
@@ -1033,7 +1033,7 @@ const getBody = async (req) => {
 
 //TOD: The url needs to be dyanmic and the token
 const shortenUrl = async (url, token, full = false, ) => {
-    if(!HOST) {
+    if (!HOST) {
         return;
     }
 
@@ -1080,7 +1080,7 @@ const getRandomIntInclusive = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
 }
 
-const pathJoin = (...paths)=> {
+const pathJoin = (...paths) => {
     return path.join(...paths);
 }
 
@@ -1097,24 +1097,29 @@ function unescapeHTML(escapedHTML) {
     return escapedHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&#xD;/g, '').replace(/&#xA;/g, '');
 }
 
-const redisOptsFromUrl = (urlString)=> {
+const redisOptsFromUrl = (urlString) => {
     const redisOpts = {};
     try {
-      const redisUrl = url.parse(urlString);
-      redisOpts.port = Number(redisUrl.port) || 6379;
-      redisOpts.host = redisUrl.hostname;
-      redisOpts.db = redisUrl.pathname ? Number(redisUrl.pathname.split("/")[1]) : 0;
-      if (redisUrl.auth) {
-        redisOpts.password = redisUrl.auth.split(":")[1];
-      }
-      if (redisUrl.protocol === "rediss:") {
-        redisOpts.tls = {};
-      }
+        const redisUrl = url.parse(urlString);
+        redisOpts.port = Number(redisUrl.port) || 6379;
+        redisOpts.host = redisUrl.hostname;
+        redisOpts.db = redisUrl.pathname ? Number(redisUrl.pathname.split("/")[1]) : 0;
+        if (redisUrl.auth) {
+            redisOpts.password = redisUrl.auth.split(":")[1];
+        }
+        if (redisUrl.protocol === "rediss:") {
+            redisOpts.tls = {};
+        }
     } catch (e) {
         console.log(e);
     }
     return redisOpts;
-  };
+};
+
+//TODO! Since this is used by pretty much everything
+process.on('uncaughtException', (err) => {
+    console.log('uncaughtException', err);
+});
 
 module.exports = {
     isEntryPoint,
