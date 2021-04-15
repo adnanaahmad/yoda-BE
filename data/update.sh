@@ -22,7 +22,7 @@ testcmd () {
 cd /home/ec2-user
 
 if [ -d ./fortifid -a ! -h ./fortifid ]; then
-    log "Updating Fortifid..."
+    log "Updating Yoda..."
     curl -s -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
     if [ -s "didservice.tar.gz" ]
     then 
