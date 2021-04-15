@@ -8,6 +8,7 @@ const fastify = require('fastify')({
 })
 
 const URLS = require('./urls.json')
+const DEFAULT = '_default_';
 
 const objectToQueryString = (params) => Object.keys(params).map((key) => {
     return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
@@ -40,9 +41,11 @@ const handleRequest = async (id, request, reply) => {
         }
 
         if (typeof (id) === 'string' && id.length > 0) {
-            const urls = URLS[id];
-            if (urls) {
-                url = urls['_default_'];
+            const subs = URLS[id];
+            if (subs) {
+                let sub;
+                let urlId;
+                url = subs[DEFAULT];
                 switch (id) {
                     case 'directid': {
                         checkBody();
@@ -50,11 +53,27 @@ const handleRequest = async (id, request, reply) => {
                             const customerReference = body.customerReference;
                             const parts = customerReference.split(':');
                             if (parts.length === 3) {
-                                extra = parts[0];
-                                url = urls[extra];
+                                sub = 'webhook';
+                                urlId= parts[0];
                             }
+                        } else {
+                            sub = 'redirect';
+                            urlId = 'i.dev';
                         }
                         break;
+                    }
+                }
+
+                if(sub && urlId) {
+                    const urls = subs[sub];
+                    if(urls) {
+                        if(urls[urlId]) {
+                            url = urls[urlId];
+                        } else {
+                            if(urls[DEFAULT]) {
+                                url = urls[DEFAULT];
+                            } 
+                        }
                     }
                 }
             }
@@ -63,8 +82,9 @@ const handleRequest = async (id, request, reply) => {
         if (url) {
             if (search && search.length > 0) {
                 url = `${url}?${search}`;
-                //console.log(url);
             }
+            console.log(url);
+
             reply.redirect(code, url);
             let log = {
                 method: request.method,

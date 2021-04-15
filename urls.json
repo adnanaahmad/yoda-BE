@@ -1,11 +1,23 @@
 {
     "directid": {
-        "_default_": "https://api.dev.fortifid.com:8999/directid/webhook", 
-        "production": "https://api-west-1.prod.fortifid.com:8999/directid/webhook",
-        "sandbox" : "https://api-east-1.sandbox.fortifid.com:8999/directid/webhook",
-        "staging": "https://api.staging.fortifid.com:8999/directid/webhook",
-        "testing": "https://webhook.site/b9550492-0c96-4b91-a495-43e93af1069c",
-        "dev": "https://api.dev.fortifid.com:8999/directid/webhook",
-        "barb": "https://dev.barbarians.com:8999/directid/webhook"
+        "_default_": "https://www.fortifid.com",
+        "webhook": {
+            "_default_": "https://api.dev.fortifid.com:8999/directid/webhook",
+            "production": "https://api.prod.fortifid.com:8999/directid/webhook",
+            "sandbox": "https://api.sandbox.fortifid.com:8999/directid/webhook",
+            "staging": "https://api.staging.fortifid.com:8999/directid/webhook",
+            "testing": "https://webhook.site/b9550492-0c96-4b91-a495-43e93af1069c",
+            "dev": "https://api.dev.fortifid.com:8999/directid/webhook",
+            "i.dev": "https://i.dev.fortifid.com/income/v1/webhook",
+            "z.dev": "https://z.dev.fortifid.com/income/v1/webhook",
+            "barb": "https://dev.barbarians.com:8999/directid/webhook"
+        },
+        "redirect": {
+            "production": "https://api.prod.fortifid.com:8999/directid/redirect",
+            "sandbox": "https://api.sandbox.fortifid.com:8999/directid/redirect",
+            "dev": "https://api.dev.fortifid.com:8999/directid/redirect",
+            "i.dev": "https://i.dev.fortifid.com/income/v1/redirect",
+            "z.dev": "https://z.dev.fortifid.com/income/v1/redirect"
+        }
     }
 }

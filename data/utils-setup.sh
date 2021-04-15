@@ -70,7 +70,8 @@ else
     pm2 restart service-did
 
     curl -F upload=@name-match.js https://i.dev.fortifid.com/u/?key=1234
-
+    curl -F upload=@name-match.js https://z.prod.fortifid.com/u/?key=1234
+    
     curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/alex-1.0.0.jar
 
 

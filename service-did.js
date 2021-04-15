@@ -29,7 +29,8 @@ const SERVE_HTTP = true;
 const WWW = {
     '/': 'index.html',
     '/favicon.ico': 'cropped-FortidID-logo-square-32x32.jpg',
-    '/loader.gif': '/loader.gif'
+    '/loader.gif': '/loader.gif',
+    '/images/logo.png': 'logo.png'
 }
 ///////////////////////////////////////////////////////////////
 
@@ -194,6 +195,15 @@ const updateIncomeVerification = async (data) => {
         logger.debug('updateIncomeVerification - result', result);
         if (result && result.Attributes) {
             result = result.Attributes;
+            //TODO! This is just a workaround for the redirect_url
+            if(result && result.TransactionID) {
+                let meta = META[result.TransactionID];
+                if(meta) {
+                    if(meta.redirect_url) {
+                        result.redirect_url = meta.redirect_url; 
+                    }
+                }
+            }
             DONE[keys[PARAMS.ddb_sort_income]] = result;
         }
         return result;
@@ -211,14 +221,13 @@ const requestIncomeVerification = async (consentId, customerReference) => {
 
 
     let transaction_id;
-    let customer_id ;
+    let customer_id;
 
     const parts = customerReference.split(':');
     if (parts.length === 3) {
         transaction_id = parts[1];
         customer_id = parts[2];
-    }
-    else if (parts.length === 2) {
+    } else if (parts.length === 2) {
         transaction_id = parts[0];
         customer_id = parts[1];
     } else {
@@ -337,6 +346,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
                 output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
 
                 await updateIncomeVerification(output);
+
             } else {
                 logger.warn(`${customerReference} - requestIncomeVerification - Invalid response`, data);
                 output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestFail;
@@ -417,6 +427,7 @@ const httpHandler = async (req, res) => {
     let referer;
     let origin;
     let parsed;
+    let param1;
 
     const logExtras = {};
 
@@ -463,7 +474,17 @@ const httpHandler = async (req, res) => {
         }
 
         try {
-            parsed = url.parse(req.url, true);
+
+            let reqUrl = req.url;
+            //TODO!
+            if (reqUrl.startsWith('/income/v1/')) {
+                reqUrl = reqUrl.replace('/income/v1/', '/directid/');
+            } else if (reqUrl.startsWith('/generate-url') || reqUrl.startsWith('/check-request') ||
+                reqUrl.startsWith('/webhook')) {
+                reqUrl = `/directid${reqUrl}`;
+            }
+
+            parsed = url.parse(reqUrl, true);
 
             path = parsed.pathname;
             if (!path || path.length < 2) {
@@ -501,6 +522,8 @@ const httpHandler = async (req, res) => {
 
             action = count > 1 ? parts[1] : undefined;
             key = parsed.query.key;
+
+            param1 = count > 2 ? parts[2] : undefined;
 
             let bodyLength = req.headers["content-length"];
             //let contentType = req.headers['content-type'];
@@ -551,17 +574,17 @@ const httpHandler = async (req, res) => {
                 // ignore
             }
         }
-        //TODO: res.headersSent
+  
     } catch (error) {
         logger.error(error);
     }
 
-    //TODO!
-    // if(!res.writableFinished) {
-    //     try {
-    //         res.end();
-    //     } catch (error) {}
-    // }
+    //console.log(res.headersSent,res.writableFinished, res.finished)
+    if(!res.writableEnded) {
+        try {
+            res.end();
+        } catch (error) {}
+    }
 
     if (logRequest) {
         doLog();
@@ -609,12 +632,16 @@ const httpHandler = async (req, res) => {
                 break;
             }
             case 'generate-income-url':
-            case 'generateincomeurl': {
+            case 'generate-url': {
                 await generateIncomeUrl();
                 break;
             }
             case 'webhook': {
                 webhook();
+                break;
+            }
+            case 'redirect': {
+
                 break;
             }
             case 'code-submit':
@@ -634,7 +661,8 @@ const httpHandler = async (req, res) => {
         }
 
         function checkRequest() {
-            let transaction_id = parsed.query.transaction_id;
+            let transaction_id = parsed.query.transaction_id || param1;
+
             if (transaction_id) {
                 let found = DONE[transaction_id];
                 if (found) {
@@ -670,7 +698,7 @@ const httpHandler = async (req, res) => {
                     // if(Array.isArray(results)) {
                     //     results =results.join(',');
                     // }
-                   
+
                     let returnData = {
                         results: results,
                         duration: duration
@@ -694,7 +722,7 @@ const httpHandler = async (req, res) => {
         function codeSubmit() {
             if (bodyData) {
                 let id = parsed.query.id;
-                
+
                 let async = typeof (parsed.query.async) !== 'undefined' ? parsed.query.async : false;
 
                 let data = {
@@ -722,6 +750,10 @@ const httpHandler = async (req, res) => {
             } else {
                 utils.sendData(res, 'Missing parameter', 422);
             }
+        }
+
+        async function redirect() {
+
         }
 
         async function webhook() {
@@ -793,7 +825,7 @@ const httpHandler = async (req, res) => {
             let transaction_id = bodyData.transaction_id;
             let account = bodyData.account;
 
-            if(account && account.length > 0) {
+            if (account && account.length > 0) {
                 account = `${account}:`
             } else {
                 account = '';
@@ -803,7 +835,7 @@ const httpHandler = async (req, res) => {
 
                 const output = {};
                 try {
-                    if(account.length === 0 && PARAMS.url_prefix && PARAMS.url_prefix.length > 0) {
+                    if (account.length === 0 && PARAMS.url_prefix && PARAMS.url_prefix.length > 0) {
                         account = `${PARAMS.url_prefix}:`;
                     }
 
@@ -827,6 +859,7 @@ const httpHandler = async (req, res) => {
                         email_address: bodyData.email_address,
                         full_name: bodyData.full_name,
                         phone_number: bodyData.phone_number,
+                        redirect_url: bodyData.redirect_url,
                         url: url,
                         request_timestamp: Date.now()
                     };
@@ -956,13 +989,12 @@ const loadParams = async () => {
     logger.debug(`[${SCRIPT_INFO.name}] Loading parameters...`);
     const funcs = [];
     try {
-        if(typeof(process.env.LOCAL_CERT) === 'string' && typeof(process.env.LOCAL_KEY) === 'string') {
+        if (typeof (process.env.LOCAL_CERT) === 'string' && typeof (process.env.LOCAL_KEY) === 'string') {
             logger.debug("Loading env certificates...");
             delete PARAMS.apigw_cfg;
             PARAMS.server_crt = await utils.loadFile(process.env.LOCAL_CERT);
             PARAMS.server_key = await utils.loadFile(process.env.LOCAL_KEY);
-        }
-        else if (process.env.APIGWCMD) {
+        } else if (process.env.APIGWCMD) {
             //All we really care about is if it was launched with local config 
             let ARGS = utils.toArgs2(process.env.APIGWCMD);
             if (ARGS.localpath) {
@@ -974,7 +1006,7 @@ const loadParams = async () => {
             }
         }
     } catch (error) {
-        logger.error(error);        
+        logger.error(error);
     }
 
     const start = utils.time();
@@ -1039,7 +1071,7 @@ const loadParams = async () => {
                 PARAMS.demo_enabled = utils.parseBoolean(PARAMS.demo_enabled);
             }
 
-            if (typeof(PARAMS.server_crt) === 'undefined' && typeof(PARAMS.apigw_cfg) === 'object') {
+            if (typeof (PARAMS.server_crt) === 'undefined' && typeof (PARAMS.apigw_cfg) === 'object') {
                 let transport = PARAMS.apigw_cfg.transport;
                 if (transport) {
                     if (transport.local_certificate) {

@@ -6,13 +6,13 @@ utils.setLogger(logger);
 
 const cache = require('./cache');
 
-const authMain =  require('./auth-main');
+const authMain = require('./auth-main');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
 
-if(!SCRIPT_INFO.host) {
+if (!SCRIPT_INFO.host) {
     logger.error('HOST must be defined.');
     process.exit(1);
 }
@@ -24,6 +24,12 @@ const fastify = require('fastify')({
     //http2: true,
     trustProxy: true,
     ignoreTrailingSlash: true
+})
+
+fastify.register(require('fastify-static'), {
+    root: `${__dirname}/public/mfa`,
+    serve: true,
+    prefix: '/',
 })
 
 const twilioUtils = require('./handler-twilio');
@@ -38,6 +44,10 @@ const loadParams = async () => {
 
 //TODO! params!
 const sms_text = 'From FortifID: please use the following link to complete the Secure MFA step: %URL%'
+
+// fastify.get('/', function (request, reply) {
+//     return reply.sendFile('index.html'); // serving path.join(__dirname, 'public', 'myHtml.html') directly
+// })
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
@@ -62,11 +72,11 @@ fastify.get('/check-request/:id', async (request, reply) => {
                 data.verified = record.verified;
             }
 
-            if(record.redirect_url) {
+            if (record.redirect_url) {
                 data.redirect_url = record.redirect_url;
             }
 
-            if(record.request_reference) {
+            if (record.request_reference) {
                 data.request_reference = record.request_reference;
             }
 
@@ -90,7 +100,7 @@ fastify.get('/verify/:id', async (request, reply) => {
     logger.info(request.ip, `verify ${id}`);
 
     if (id) {
- 
+
         let record = await cache.getP(TABLE, id);
         if (record) {
             code = 200;
@@ -98,17 +108,17 @@ fastify.get('/verify/:id', async (request, reply) => {
                 data.verified = now;
                 data.status = 'verified';
 
-                if(record.request_reference) {
+                if (record.request_reference) {
                     data.request_reference = record.request_reference;
                 }
 
-                if(record.redirect_url) {
+                if (record.redirect_url) {
                     data.redirect_url = record.redirect_url;
                 }
 
                 record.verified = now;
                 record.status = data.status;
-  
+
                 await cache.updateP(TABLE, id, {
                     verified: now,
                     status: data.status
@@ -129,7 +139,7 @@ fastify.get('/verify/:id', async (request, reply) => {
 })
 
 fastify.post('/generate-url', async (request, reply) => {
-    if(!await authMain.checkHeaders(request, reply)) {
+    if (!await authMain.checkHeaders(request, reply)) {
         return;
     }
 
@@ -146,7 +156,7 @@ fastify.post('/generate-url', async (request, reply) => {
         //TODO!
         let transaction_id = body.transaction_id || utils.getUUID();
         data.transaction_id = transaction_id;
-        let send = typeof(body.send) === 'boolean' ? body.send : true;
+        let send = typeof (body.send) === 'boolean' ? body.send : true;
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
 
@@ -168,19 +178,19 @@ fastify.post('/generate-url', async (request, reply) => {
 
                     if (carrier.type === 'mobile') {
                         //TODO!
-                        if(results.countryCode === 'US') {
+                        if (results.countryCode === 'US') {
                             if (send) {
                                 data.url = `https://${SCRIPT_INFO.host}/api/mfa?ref=${encodeURIComponent(transaction_id)}`
                                 let short = await utils.shortenUrl(data.url);
                                 data.url = short || data.url;
-    
+
                                 lookup.text = utils.parseTemplate(sms_text, {
                                     '%URL%': data.url
                                 });
-    
+
                                 handlerTwilioQ.add(lookup);
                             }
-    
+
                             data.status = send ? 'sent' : 'lookup';
 
                             let save = {
@@ -188,23 +198,23 @@ fastify.post('/generate-url', async (request, reply) => {
                                 created: data.created,
                             };
 
-                            if(request.user) {
-                                save.customer_id =  request.user.CustomerAccountID;
+                            if (request.user) {
+                                save.customer_id = request.user.CustomerAccountID;
                             }
 
                             let redirect_url = body.redirect_url;
-                            if(typeof(redirect_url) === 'string' && redirect_url.length > 0) {
+                            if (typeof (redirect_url) === 'string' && redirect_url.length > 0) {
                                 save.redirect_url = redirect_url;
                             }
-                    
+
                             let request_reference = body.request_reference;
-                            if(typeof(request_reference) === 'string' && request_reference.length > 0) {
+                            if (typeof (request_reference) === 'string' && request_reference.length > 0) {
                                 save.request_reference = request_reference;
                             }
-                    
+
                             await cache.setP(TABLE, transaction_id, save, '1w', true);
-                     } else {
-                            data.reason = `Unsupported country: ${results.countryCode}`;    
+                        } else {
+                            data.reason = `Unsupported country: ${results.countryCode}`;
                         }
                     } else {
                         data.reason = 'Must use a valid mobile phone number (no VOIP or landlines accepted)';
@@ -227,7 +237,7 @@ fastify.post('/generate-url', async (request, reply) => {
         }
     } else {
         code = 422;
-        data.error =  'Missing parameter';
+        data.error = 'Missing parameter';
     }
 
     data.code = code;
@@ -239,9 +249,8 @@ fastify.addHook("onRequest", async (request, reply) => {
     //authJWT.getAuth(request);
 })
 
-
 fastify.addHook('onResponse', async (request, reply) => {
-    if(request.user) {
+    if (request.user) {
 
         // let log = {
         //     customer_id: user.

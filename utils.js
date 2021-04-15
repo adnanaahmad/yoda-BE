@@ -15,6 +15,7 @@ const LZUTF8 = require('lzutf8');
 const dayjs = require('dayjs');
 const url = require('url');
 const ipRangeCheck = require("ip-range-check");
+const path = require('path');
 
 const {
     v4: uuidv4
@@ -1079,6 +1080,10 @@ const getRandomIntInclusive = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
 }
 
+const pathJoin = (...paths)=> {
+    return path.join(...paths);
+}
+
 function escapeHTML(unsafe) {
     return unsafe
         .replace(/&/g, "&amp;")
@@ -1204,5 +1209,6 @@ module.exports = {
     sameDate,
     redisOptsFromUrl,
     beep,
-    ipRangeCheck
+    ipRangeCheck,
+    pathJoin
 }

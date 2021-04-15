@@ -26,12 +26,20 @@ const fastify = require('fastify')({
     ignoreTrailingSlash: true
 })
 
+fastify.register(require('fastify-static'), {
+    root: `${__dirname}/public/doc`,
+    serve: true,
+    prefix: '/',
+})
+
 fastify.register(require('fastify-raw-body'), {
     field: 'rawBody',
     global: false,
     encoding: 'utf8',
     runFirst: true
 })
+
+
 
 // const handlerTwilioQ = require('./handler-twilio');
 // const handlerEmailQ = require('./handler-email');
