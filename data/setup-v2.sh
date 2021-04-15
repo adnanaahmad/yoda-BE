@@ -12,10 +12,10 @@ else
     sudo su ec2-user 
 
     cd /homes/ec2-user
-    mkdir dev
-    mkdir test
-    mkdir server
-    mkdir utils
+    #mkdir dev
+    #mkdir test
+    #mkdir server
+    #mkdir utils
 
     sudo amazon-linux-extras install nginx1 -y
     sudo yum install socat git -y 

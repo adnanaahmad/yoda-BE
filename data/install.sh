@@ -28,7 +28,7 @@ if [ -z "$DID_S3_BUCKET" ]
 then
     echo "\$DID_S3_BUCKET not set."
 else
-    echo "DirectID Service setup starting..."
+    echo "Yoda setup starting..."
 
     cd /home/ec2-user
 
@@ -41,17 +41,17 @@ else
 
     aws s3 cp $DID_S3_BUCKET/didservice.tar.gz .
     
-    mkdir  /home/ec2-user/didservice
+    mkdir  /home/ec2-user/fortifid
 
-    tar -xvf didservice.tar.gz --directory didservice
+    tar -xvf didservice.tar.gz --directory fortifid
 
     rm -rf didservice.tar.gz
 
-    sudo chown -R ec2-user:ec2-user didservice
+    sudo chown -R ec2-user:ec2-user fortifid
 
-    cd didservice
+    cd fortifid
     
     sudo -u ec2-user bash -c "./setup.sh"
 
-    echo "DirectID Service setup finished."    
+    echo "Yoda setup finished."    
 fi
