@@ -75,6 +75,29 @@ const execCommand = async (file, args) => {
     }
 }
 
+//TODO!
+const getHosts = (id)=> {
+    let hosts = [];
+
+    if(!id || id === SCRIPT_INFO.host) {
+        hosts.push(SCRIPT_INFO.host);
+    } else if(id === 'all') {
+        hosts = {...HOSTS};
+        hosts.push(CRIPT_INFO.host);
+    } else  {
+         id.split(',').filter(Boolean).forEach(host=> {
+             
+            if(HOSTS.indexOf(host) > -1) {
+                hosts.push(host);
+            }
+         })
+        //TODO! comma sep
+        
+    }
+
+    return hosts;
+}
+
 const sendCommand = async (url, method, data) => {
     const options = {
         method,
@@ -98,6 +121,10 @@ const sendCommand = async (url, method, data) => {
     }
 }
 
+const getUrl = (host, endpoint)=> {
+    return `https://${host}${endpoint}`;
+}
+
 const sendHosts = async (hosts, endpoint, method, data) => {
     if (!axiosOptions.httpsAgent) {
         return;
@@ -111,7 +138,7 @@ const sendHosts = async (hosts, endpoint, method, data) => {
 
     const funcs = [];
     hosts.forEach(host => {
-        funcs.push(sendCommand(`https://${host}${endpoint}`, method, data));
+        funcs.push(sendCommand(getUrl(host, endpoint), method, data));
     });
 
     try {
@@ -129,10 +156,6 @@ const sendHosts = async (hosts, endpoint, method, data) => {
 
 const update = async (args) => {
     return await execCommand(`${__dirname}/data/update.sh`, args);
-}
-
-const pushUpdates = async (args) => {
-    return await execCommand(`${__dirname}/tmp/push-updates.sh`, args);
 }
 
 const restart = () => {
@@ -155,12 +178,6 @@ const importAccount = () => {
     // awsClient.putDDBItem('USER_AUTHZ_TABLE', json);
 }
 
-fastify.get('/update', async (request, reply) => {
-    let results = await update(['all']);
-
-    reply.type('application/json').code(200).send(results);
-    restart();
-})
 
 fastify.get('/push-updates', async (request, reply) => {
     let results = await sendHosts(HOSTS, '/admin/v1/update');
@@ -168,17 +185,82 @@ fastify.get('/push-updates', async (request, reply) => {
     reply.type('application/json').code(200).send(results);
 })
 
-fastify.get('/info', async (request, reply) => {
-    const now = Date.now();
-    const data = {
+
+const getInfo = ()=> {
+    return {
         ...SCRIPT_INFO,
-        time: now,
+        time: Date.now(),
         uptime: Math.round(process.uptime()),
     };
-    
-    reply.type('application/json').code(200).send(data);
+}
+
+const getCommandData = async (command)=> {
+    switch(command) {
+        case 'info': {
+            return getInfo();
+        }
+        case 'update': {
+            let results = await update();
+            if(typeof(process.env.NO_RESTART) === undefined) {
+                restart();
+            }
+
+            return results;
+        }
+    }
+}
+
+const getData = async (command, request, reply) => {
+    const endpoint = `/admin/v1/${command}`;
+
+    let results = [];
+    const id = request.params.id;
+
+    if(!id || id === 'all' || id === SCRIPT_INFO.host) {
+        let data = await getCommandData(command);
+        if(id === 'all') {
+            results = await sendHosts(HOSTS, endpoint);
+            if(results && results.output) {
+                results.output.push(data);
+            } else {
+                results = data;
+            }
+        } else {
+            results = data;
+        }
+    } else {
+        if(HOSTS.indexOf(id) > -1) {
+            results = await sendCommand(getUrl(id, endpoint));
+        }
+    }
+
+    reply.type('application/json').code(200).send(results);
+}
+
+fastify.get('/update', async (request, reply) => {
+    return getData('update', request, reply);
 })
 
+fastify.get('/update/:id', async (request, reply) => {
+    return getData('update', request, reply);
+})
+
+fastify.get('/info', async (request, reply) => {
+    return getData('info', request, reply);
+})
+
+fastify.get('/info/:id', async (request, reply) => {
+    return getData('info', request, reply);
+})
+
+fastify.get('/hosts', async (request, reply) => {
+    const hosts = [SCRIPT_INFO.host, ...HOSTS];
+    reply.type('application/json').code(200).send(hosts);
+})
+
+fastify.get('/host', async (request, reply) => {
+    reply.type('application/json').code(200).send({host: SCRIPT_INFO.host});
+})
 
 fastify.addHook("onRequest", async (request, reply) => {
     if (!await authMain.checkHeaders(request, reply, 0, true)) {
@@ -208,7 +290,7 @@ fastify.listen(9999, (err, address) => {
             console.log(error);
         }
     }
-
+    
     //await loadParams();
     try {
         pm2.connect((err) => {
