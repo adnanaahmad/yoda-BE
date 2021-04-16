@@ -160,13 +160,15 @@ const update = async (args) => {
 
 const restart = () => {
     if (pm2Connected) {
-        pm2.restart("all", (err, val) => {
-            if (err) {
-                logger.error(err)
-            } else {
-                //logger.info(val);
-            }
-        });
+        if(typeof(process.env.NO_RESTART) === 'undefined') {
+            pm2.restart("all", (err, val) => {
+                if (err) {
+                    logger.error(err)
+                } else {
+                    //logger.info(val);
+                }
+            });
+        }        
     }
 }
 
@@ -202,10 +204,7 @@ const getCommandData = async (command, data)=> {
             }
             case 'update': {
                 let results = await update();
-                if(typeof(process.env.NO_RESTART) === undefined) {
-                    restart();
-                }
-    
+                restart();
                 return results;
             }
             case 'cmd': {
