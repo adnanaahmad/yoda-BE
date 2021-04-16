@@ -134,8 +134,8 @@ const getFileInfo = (file, doHash, extras) => {
         start: startTime,
         path: file,
         name: getFilename(file),
-        created: stats.birthtimeMs,
-        modified: stats.mtimeMs,
+        created: Math.round(stats.birthtimeMs),
+        modified: Math.round(stats.mtimeMs),
         size: stats.size,
     };
 
@@ -148,8 +148,10 @@ const getFileInfo = (file, doHash, extras) => {
         const packageJSON = require('./package.json');
 
         info.version = packageJSON.version;
+        if(process.env.CREATED) {
+            info.installed =parseInt(process.env.CREATED); 
+        }
 
-        info.created = process.env.CREATED;
         info.region = process.env.AWS_REGION;
         info.instance = process.env.INSTANCE_ID;
         info.log_level = process.env.LOG_LEVEL;
