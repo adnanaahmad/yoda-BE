@@ -28,8 +28,6 @@ fastify.post('/',  async (req, res)=> {
     });
 
     //TODO!
-    //console.log(req.query.key);
-
     let upDir = __dirname + '/uploads/';
     if(req.ip === '54.177.210.250') {
       upDir = '/usr/share/nginx/html/data/od7kTXfGxDax/';
