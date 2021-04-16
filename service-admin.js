@@ -31,12 +31,12 @@ const awsClient = require('./aws-client');
 
 let pm2Connected = false;
 
-const update = async (args) => {
+const execCommand = async (file, args)=> {
     try {
         const {
             stdout,
             stderr
-        } = await utils.execFile(`${__dirname}/data/update.sh`, args);
+        } = await utils.execFile(file, args);
         let data = {
             output: stdout,
         }
@@ -48,6 +48,14 @@ const update = async (args) => {
         logger.error(error);
         return {error: error.message};
     }
+}
+
+const update = async (args) => {
+    return await execCommand(`${__dirname}/data/update.sh`, args);
+}
+
+const pushUpdates = async (args) => {
+    return await execCommand(`${__dirname}/tmp/push-updates.sh`, args);
 }
 
 const restart = () => {
@@ -75,6 +83,12 @@ fastify.get('/update', async (request, reply) => {
     
     reply.type('application/json').code(200).send(results);
     restart();
+})
+
+fastify.get('/push-updates', async (request, reply) => {
+    let results = await pushUpdates();
+    
+    reply.type('application/json').code(200).send(results);
 })
 
 // //TODO: Extract these to separate files
