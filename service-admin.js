@@ -43,10 +43,6 @@ const execCommand = async (command, args) => {
     try {
         const data = {};
 
-        if (SCRIPT_INFO.host) {
-            data.host = SCRIPT_INFO.host
-        }
-
         data.start = Date.now();
 
         const {
@@ -139,10 +135,6 @@ const sendHosts = async (hosts, endpoint, method, data) => {
 
     const results = {};
 
-    if (SCRIPT_INFO.host) {
-        results.host = SCRIPT_INFO.host
-    }
-
     const funcs = [];
     hosts.forEach(host => {
         funcs.push(sendCommand(getUrl(host, endpoint), method, data));
@@ -183,14 +175,12 @@ const restart = () => {
                 }
             });
             return {
-                status: 'Restarting all services.',
-                host: SCRIPT_INFO.host
+                status: 'Restarting all services.'
             }
         }
     }
     return {
-        error: 'Unable to restart.',
-        host: SCRIPT_INFO.host
+        error: 'Unable to restart.'
     };
 }
 
@@ -260,8 +250,7 @@ const getCommandData = async (command, data) => {
             }
             default:
                 return {
-                    error: 'Invalid command',
-                    host: SCRIPT_INFO.host
+                    error: 'Invalid command'
                 };
         }
     } catch (error) {
@@ -281,7 +270,7 @@ const getData = async (request, reply) => {
     if (!id || id === 'all' || id === SCRIPT_INFO.host) {
         let data = await getCommandData(command, body);
         if(data && !data.host) {
-            //data.host = SCRIPT_INFO.host;
+            data.host = SCRIPT_INFO.host;
         }
 
         if (id === 'all') {
