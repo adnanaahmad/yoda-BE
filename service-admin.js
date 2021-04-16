@@ -33,24 +33,30 @@ let pm2Connected = false;
 
 const execCommand = async (file, args)=> {
     try {
+        const data = {
+        };
+
+        if(SCRIPT_INFO.host) {
+            data.host = SCRIPT_INFO.host     
+        }
+
+        data.start = Date.now();
+
         const {
             stdout,
             stderr
         } = await utils.execFile(file, args);
-
-        if(stdout) {
-            stdout = stdout.split('\n');
-        }
-
-        let data = {
-            host: SCRIPT_INFO.host,
-            output: stdout,
-        }
         
+        data.end = Date.now();
+
+        if(typeof(stdout) === 'string' && stdout.length > 0) {
+            data.output = stdout.split('\n');
+        }
+
         if(typeof(stderr) === 'string' && stderr.length > 0) {
             data.error = stderr
         }
-        return data 
+        return data; 
     } catch (error) {
         logger.error(error);
         return {error: error.message};
