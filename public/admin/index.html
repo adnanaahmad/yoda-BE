@@ -49,7 +49,8 @@
             <br />
             <div class="form-group">
                 <label class="form-label" for="command">command</label>
-                <input id="command" class="form-input" type="text" placeholder="command" minlength="1" maxlength="64" required>
+                <input id="command" class="form-input" type="text" placeholder="command" minlength="1" maxlength="64"
+                    required>
             </div>
             <div class="form-group">
                 <label class="form-label" for="data">data</label>
@@ -207,14 +208,24 @@
                     setOutput('<span style="color:red;">Command required</span>', 0);
                     return;
                 }
+                let data = $('#data').val();
 
-                if(!command.startsWith('/')) {
+                try {
+                    if (data && data.length > 2) {
+                        let firstChar = data.substring(0, 1);
+
+                        if (firstChar === '[' || firstChar === '{')
+                            data = JSON.parse(data);
+                    }
+                } catch (e) {}
+
+
+                if (!command.startsWith('/')) {
                     command = `/${command}`;
                 }
 
                 setOutput('Requesting...', 0);
-                let results = await getAPIData(`${command}`, undefined, 'get');
-                console.log(results);
+                let results = await getAPIData(`${command}`, data, 'get');
                 setOutput('Finished', 0);
 
                 if (results) {
