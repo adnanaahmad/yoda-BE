@@ -51,7 +51,9 @@ const execCommand = async (command, args) => {
         const {
             stdout,
             stderr
-        } = await utils.execFile(command, args, {timeout: 30000});
+        } = await utils.execFile(command, args, {
+            timeout: 30000
+        });
 
         data.end = Date.now();
         data.duration = data.end - data.start;
@@ -76,23 +78,25 @@ const execCommand = async (command, args) => {
 }
 
 //TODO!
-const getHosts = (id)=> {
+const getHosts = (id) => {
     let hosts = [];
 
-    if(!id || id === SCRIPT_INFO.host) {
+    if (!id || id === SCRIPT_INFO.host) {
         hosts.push(SCRIPT_INFO.host);
-    } else if(id === 'all') {
-        hosts = {...HOSTS};
+    } else if (id === 'all') {
+        hosts = {
+            ...HOSTS
+        };
         hosts.push(CRIPT_INFO.host);
-    } else  {
-         id.split(',').filter(Boolean).forEach(host=> {
-             
-            if(HOSTS.indexOf(host) > -1) {
+    } else {
+        id.split(',').filter(Boolean).forEach(host => {
+
+            if (HOSTS.indexOf(host) > -1) {
                 hosts.push(host);
             }
-         })
+        })
         //TODO! comma sep
-        
+
     }
 
     return hosts;
@@ -117,11 +121,13 @@ const sendCommand = async (url, method, data) => {
         const result = await axios(options);
         return result.data;
     } catch (error) {
-        return error.message;
+        return {
+            error: error.message
+        };
     }
 }
 
-const getUrl = (host, endpoint)=> {
+const getUrl = (host, endpoint) => {
     return `https://${host}${endpoint}`;
 }
 
@@ -144,6 +150,13 @@ const sendHosts = async (hosts, endpoint, method, data) => {
     try {
         results.start = Date.now();
         results.output = await Promise.all(funcs);
+        if (results.output) {
+            results.output.forEach((output, index) => {
+                if (output.error) {
+                    output.host = hosts[index];
+                }
+            })
+        }
     } catch (error) {
         results.error = error.message;
     }
@@ -160,7 +173,7 @@ const update = async (args) => {
 
 const restart = () => {
     if (pm2Connected) {
-        if(typeof(process.env.NO_RESTART) === 'undefined') {
+        if (typeof (process.env.NO_RESTART) === 'undefined') {
             pm2.restart("all", (err, val) => {
                 if (err) {
                     logger.error(err)
@@ -168,10 +181,15 @@ const restart = () => {
                     //logger.info(val);
                 }
             });
-            return {status: 'Restarting all services.'}
-        }        
+            return {
+                status: 'Restarting all services.'
+            }
+        }
     }
-    return {error: 'Unable to restart.'};
+    return {
+        error: 'Unable to restart.',
+        host: SCRIPT_INFO.host
+    };
 }
 
 const importAccount = () => {
@@ -190,7 +208,7 @@ fastify.get('/push-updates', async (request, reply) => {
 })
 
 
-const getInfo = ()=> {
+const getInfo = () => {
     return {
         ...SCRIPT_INFO,
         time: Date.now(),
@@ -198,14 +216,16 @@ const getInfo = ()=> {
     };
 }
 
-const getCommandData = async (command, data)=> {
+const getCommandData = async (command, data) => {
     try {
-        switch(command) {
+        switch (command) {
             case 'info': {
                 return getInfo();
             }
             case 'health': {
-                return {status: 'OK'};
+                return {
+                    status: 'OK'
+                };
             }
             case 'restart': {
                 return restart();
@@ -217,12 +237,12 @@ const getCommandData = async (command, data)=> {
             }
             case 'cmd': {
                 let results;
-                if(data && data._args) {
+                if (data && data._args) {
                     let command = data._args.trim();
                     let args;
                     let ndx = command.indexOf(' ');
-                    if(ndx > -1) {
-                        args =  [command.substr(ndx + 1)];
+                    if (ndx > -1) {
+                        args = [command.substr(ndx + 1)];
                         command = command.substr(0, ndx);
                     }
 
@@ -230,22 +250,24 @@ const getCommandData = async (command, data)=> {
                     results = await execCommand(command, args);
                 }
 
-                if(typeof(results) === 'undefined') {
+                if (typeof (results) === 'undefined') {
                     results = {};
                 }
-    
+
                 return results;
             }
             default:
-                return { error: 'Invalid command'};
+                return {
+                    error: 'Invalid command'
+                };
         }
     } catch (error) {
-        return error.message;        
+        return error.message;
     }
 }
 
 const getData = async (request, reply) => {
-    let command = request.routerPath.split('/')[1]; 
+    let command = request.routerPath.split('/')[1];
     const endpoint = `/admin/v1/${command}`;
 
     const body = request.body || request.query;
@@ -253,11 +275,11 @@ const getData = async (request, reply) => {
     let results = [];
     const id = request.params.id;
     //TODO: post-execute
-    if(!id || id === 'all' || id === SCRIPT_INFO.host) {
+    if (!id || id === 'all' || id === SCRIPT_INFO.host) {
         let data = await getCommandData(command, body);
-        if(id === 'all') {
+        if (id === 'all') {
             results = await sendHosts(HOSTS, endpoint);
-            if(results && results.output) {
+            if (results && results.output) {
                 results.output.push(data);
             } else {
                 results = data;
@@ -266,8 +288,11 @@ const getData = async (request, reply) => {
             results = data;
         }
     } else {
-        if(HOSTS.indexOf(id) > -1) {
+        if (HOSTS.indexOf(id) > -1) {
             results = await sendCommand(getUrl(id, endpoint));
+            if (results && results.error) {
+                results.host = id;
+            }
         }
     }
 
@@ -308,7 +333,6 @@ fastify.get('/restart/:id', async (request, reply) => {
     return getData(request, reply);
 })
 
-
 fastify.get('/health', async (request, reply) => {
     return getData(request, reply);
 })
@@ -327,8 +351,10 @@ fastify.get('/hosts', async (request, reply) => {
 
 fastify.get('/host', async (request, reply) => {
     reply.type('application/json').code(200);
-    
-    return {host: SCRIPT_INFO.host};
+
+    return {
+        host: SCRIPT_INFO.host
+    };
 })
 
 fastify.addHook("onRequest", async (request, reply) => {
@@ -360,7 +386,7 @@ fastify.listen(9999, (err, address) => {
             console.log(error);
         }
     }
-    
+
     //await loadParams();
     try {
         pm2.connect((err) => {
