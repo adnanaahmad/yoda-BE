@@ -37,9 +37,16 @@ const execCommand = async (file, args)=> {
             stdout,
             stderr
         } = await utils.execFile(file, args);
+
+        if(stdout) {
+            stdout = stdout.split('\n');
+        }
+
         let data = {
+            host: SCRIPT_INFO.host,
             output: stdout,
         }
+        
         if(typeof(stderr) === 'string' && stderr.length > 0) {
             data.error = stderr
         }
