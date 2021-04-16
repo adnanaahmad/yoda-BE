@@ -32,6 +32,7 @@ fastify.register(require('fastify-static'), {
 
 //TODO! SCRIPT_INFO.host
 const HOSTS = ['i.dev.fortifid.com', 'i.prod.fortifid.com', 'z.prod.fortifid.com'];
+const ALLOWED_COMMANDS = ['pwd', 'ls', 'date', 'df', 'free'];
 
 const pm2 = require('pm2');
 
@@ -64,7 +65,7 @@ const execCommand = async (command, args) => {
         if (temp) {
             data.error = temp;
         }
-
+        
         return data;
     } catch (error) {
         logger.error(error);
@@ -99,15 +100,42 @@ const getHosts = (id) => {
     return hosts;
 }
 
-const sendCommand = async (url, method, data) => {
+const sendCommand = async (url, body, method, headers) => {
+
+    headers = headers || {};
+
+    let data;
+
+    if (!method) {
+        method = 'get';
+    } else {
+        method = method.toLowerCase();
+    }
+
+    //TODO
+    const bodyType = typeof (body);
+
+    // if (!headers['content-type'] && bodyType === 'object') {
+    //     headers['content-type'] = 'application/json';
+    // }
+
+    if (bodyType === 'object') {
+        if (headers['content-type'] === 'application/json') {
+            body = JSON.stringify(body);
+        } else {
+            body = new URLSearchParams(body);
+            url = `${url}${url.indexOf('?') > -1 ? '&' : '?'}${body}`;
+
+        }
+    }
+
     const options = {
         method,
         url,
-        //headers: headers,
+        headers: headers,
         //data,
         timeout: 10000,
         maxContentLength: Infinity,
-
     };
 
     if (axiosOptions.httpsAgent) {
@@ -128,7 +156,7 @@ const getUrl = (host, endpoint) => {
     return `https://${host}${endpoint}`;
 }
 
-const sendHosts = async (hosts, endpoint, method, data) => {
+const sendHosts = async (hosts, endpoint, data, method) => {
     if (!axiosOptions.httpsAgent) {
         return;
     }
@@ -137,7 +165,7 @@ const sendHosts = async (hosts, endpoint, method, data) => {
 
     const funcs = [];
     hosts.forEach(host => {
-        funcs.push(sendCommand(getUrl(host, endpoint), method, data));
+        funcs.push(sendCommand(getUrl(host, endpoint), data, method));
     });
 
     try {
@@ -238,8 +266,12 @@ const getCommandData = async (command, data) => {
                         command = command.substr(0, ndx);
                     }
 
-                    //TODO! Whitelist commands!!!!!                
-                    results = await execCommand(command, args);
+                    //TODO! Whitelist commands!!!!!            
+                    if(command.length > 0 && ALLOWED_COMMANDS.indexOf(command) > -1) {
+                        results = await execCommand(command, args);
+                    } else {
+                        results = {error: `Command ${command} not allowed.`}
+                    }
                 }
 
                 if (typeof (results) === 'undefined') {
@@ -274,7 +306,8 @@ const getData = async (request, reply) => {
         }
 
         if (id === 'all') {
-            results = await sendHosts(HOSTS, endpoint);
+            results = await sendHosts(HOSTS, endpoint, body);
+            
             if (results && results.output) {
                 results.output.push(data);
             } else {
@@ -284,8 +317,9 @@ const getData = async (request, reply) => {
             results = data;
         }
     } else {
+        //TODO: split!
         if (HOSTS.indexOf(id) > -1) {
-            results = await sendCommand(getUrl(id, endpoint));
+            results = await sendCommand(getUrl(id, endpoint), request.query, 'get');
             if (results && results.error) {
                 results.host = id;
             }
