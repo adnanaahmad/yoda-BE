@@ -168,8 +168,10 @@ const restart = () => {
                     //logger.info(val);
                 }
             });
+            return {status: 'Restarting all services.'}
         }        
     }
+    return {error: 'Unable to restart.'};
 }
 
 const importAccount = () => {
@@ -201,6 +203,12 @@ const getCommandData = async (command, data)=> {
         switch(command) {
             case 'info': {
                 return getInfo();
+            }
+            case 'health': {
+                return {status: 'OK'};
+            }
+            case 'restart': {
+                return restart();
             }
             case 'update': {
                 let results = await update();
@@ -244,7 +252,7 @@ const getData = async (request, reply) => {
 
     let results = [];
     const id = request.params.id;
-
+    //TODO: post-execute
     if(!id || id === 'all' || id === SCRIPT_INFO.host) {
         let data = await getCommandData(command, body);
         if(id === 'all') {
@@ -290,6 +298,25 @@ fastify.get('/cmd', async (request, reply) => {
 fastify.get('/cmd/:id', async (request, reply) => {
     return getData(request, reply);
 })
+
+
+fastify.get('/restart', async (request, reply) => {
+    return getData(request, reply);
+})
+
+fastify.get('/restart/:id', async (request, reply) => {
+    return getData(request, reply);
+})
+
+
+fastify.get('/health', async (request, reply) => {
+    return getData(request, reply);
+})
+
+fastify.get('/health/:id', async (request, reply) => {
+    return getData(request, reply);
+})
+
 
 fastify.get('/hosts', async (request, reply) => {
     const hosts = [SCRIPT_INFO.host, ...HOSTS];
