@@ -182,7 +182,8 @@ const restart = () => {
                 }
             });
             return {
-                status: 'Restarting all services.'
+                status: 'Restarting all services.',
+                host: SCRIPT_INFO.host
             }
         }
     }
@@ -258,7 +259,8 @@ const getCommandData = async (command, data) => {
             }
             default:
                 return {
-                    error: 'Invalid command'
+                    error: 'Invalid command',
+                    host: SCRIPT_INFO.host
                 };
         }
     } catch (error) {
