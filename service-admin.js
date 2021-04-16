@@ -48,7 +48,8 @@ const execCommand = async (file, args)=> {
         } = await utils.execFile(file, args);
         
         data.end = Date.now();
-
+        data.duration = data.end - data.start;
+        
         if(typeof(stdout) === 'string' && stdout.length > 0) {
             data.output = stdout.split('\n');
         }
