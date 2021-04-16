@@ -229,10 +229,13 @@ fastify.get('/push-updates', async (request, reply) => {
 
 
 const getInfo = () => {
+    const now = Date.now()
     return {
         ...SCRIPT_INFO,
-        time: Date.now(),
-        uptime: Math.round(process.uptime()),
+        time: now,
+        uptime:  now - SCRIPT_INFO.start,
+        
+        //uptime: Math.round(process.uptime()),
     };
 }
 
