@@ -49,14 +49,17 @@ const execCommand = async (file, args)=> {
         
         data.end = Date.now();
         data.duration = data.end - data.start;
-        
-        if(typeof(stdout) === 'string' && stdout.length > 0) {
-            data.output = stdout.split('\n');
-        }
 
-        if(typeof(stderr) === 'string' && stderr.length > 0) {
-            data.error = stderr
+        let temp = utils.splitLines(stdout);
+        if(temp) {
+            data.output = temp; 
         }
+        
+        temp = utils.splitLines(stderr);
+        if(temp) {
+            data.error = temp;
+        } 
+
         return data; 
     } catch (error) {
         logger.error(error);

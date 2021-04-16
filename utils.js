@@ -1097,6 +1097,12 @@ function unescapeHTML(escapedHTML) {
     return escapedHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&#xD;/g, '').replace(/&#xA;/g, '');
 }
 
+const splitLines = (data)=> {
+    if(typeof(data) === 'string' && data.length > 0) {
+        return data.split('\n').filter(Boolean);
+    }
+}
+
 const redisOptsFromUrl = (urlString) => {
     const redisOpts = {};
     try {
@@ -1215,5 +1221,6 @@ module.exports = {
     redisOptsFromUrl,
     beep,
     ipRangeCheck,
-    pathJoin
+    pathJoin,
+    splitLines
 }
