@@ -48,9 +48,10 @@ const lookup = async (data) => {
             results = await twilio.lookups.v1.phoneNumbers(data.numbers)
             //countryCode: 'US'
             .fetch({
-                    type: ['caller-name', 'carrier']
+                    //type: ['caller-name', 'carrier']
+                    type: ['carrier']
                 });
-
+            
             if (results) {
                 const duration = utils.time() - start;
                 logger.info(`[${id}] Lookup finished. ${utils.toFixedPlaces(duration, 2)}ms`);

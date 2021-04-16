@@ -32,13 +32,12 @@ const getKey = (type, id) => {
     return `${type}:${id}`;
 }
 
-const sanitize = (value) => {
-        //Sanitize!
-    if (typeof (value) === 'object') {
-        delete value.value;
-        Object.keys(value).forEach(key => {
-            if (key.startsWith('_')) {
-                delete value[key];
+const sanitize = (data) => {
+    if (typeof (data) === 'object') {
+        Object.keys(data).forEach(key => {
+            let item = data[key];
+            if (key.startsWith('_') || item === undefined) {
+                delete data[key];
             }
         })
     }
@@ -80,7 +79,7 @@ const setP = async (type, key, value, expiration, flat) => {
         if (flat) {
             Object.assign(data, value);
         } else {
-            data.value = value;
+            data._value = value;
         }
 
         await awsClient.putDDBItem('CACHE_01', data);
@@ -102,12 +101,11 @@ const getP = async (type, key, defaultValue) => {
 
         if (result && result.Item) {
             let data = result.Item
-            if (data && data.value) {
-                value = data.value;
+            if (data && data._value) {
+                value = data._value;
             } else {
                 value = data;
             }
-            
             // if(value && value.pii) {
             //     value.pii = crypt.decrypt(value.pii);
             // }
@@ -140,13 +138,14 @@ const updateP = async (type, key, value, expiration, flat) => {
             _modified: Math.round(Date.now() / 1000),
         }
 
-        const dataType = typeof (expiration);
+        let dataType = typeof (expiration);
 
         if (dataType === 'string') {
             expiration = Math.round(ms(expiration) / 1000);
+            dataType = typeof (expiration);
         }
 
-        if (expiration > 0) {
+        if (dataType === 'number' && expiration > 0) {
             data._expiresAt = data._modified + expiration;
         }
 
@@ -155,7 +154,7 @@ const updateP = async (type, key, value, expiration, flat) => {
         if (flat) {
             Object.assign(data, value);
         } else {
-            data.value = value;
+            data._value = value;
         }
 
         await awsClient.updateDynamic('CACHE_01', key, data);
@@ -273,8 +272,11 @@ const test = async () => {
     const data = {
         name: 'Cisco',
         wife: 'MJ',
-        now: Date.now()
+        now: Date.now(),
+        blank: undefined
     }
+
+    console.log(data);
 
     const redis = async()=> {
         console.log('redis');
@@ -288,24 +290,33 @@ const test = async () => {
     const dax = async()=> {
         console.log('DAX');
         const start = utils.time();
-        await setP('test', `bleah-test`, data, '1h');
+        await setP('test', `bleah-test`, data, '1h', true);
+        let results = await getP('test', `bleah-test`);
+        console.log(results);
+        await updateP('test', `bleah-test`, {name : 'The Cisco'}, '1h', true);
+
+        results = await getP('test', `bleah-test`);
+        console.log(results);
+
+        //await updateP('test', `bleah-test`, data, '1h');
+
         //console.log(await getP('test', 'bleah-test'));
-        let count = 0;
-        for (let index = 0; index < 100; index++) {
-            //let id = `bleah-`(index + ''.padStart(6, '0'));
-            //let results = await setP('test', `bleah-${index}`, data, 3600);
-            //let results = await getP('test', `bleah-${index}`);
-            let results = await getP('test', `bleah-test`);
-            if (results) {
-                count++;
-            }
-        }
+        // let count = 0;
+        // for (let index = 0; index < 100; index++) {
+        //     //let id = `bleah-`(index + ''.padStart(6, '0'));
+        //     //let results = await setP('test', `bleah-${index}`, data, 3600);
+        //     //let results = await getP('test', `bleah-${index}`);
+        //     let results = await getP('test', `bleah-test`);
+        //     if (results) {
+        //         count++;
+        //     }
+        // }
         const duration = utils.time() - start;
         console.log(duration);
     }
     
     await dax();
-    await redis()
+    //await redis()
 }
 
 (async () => {

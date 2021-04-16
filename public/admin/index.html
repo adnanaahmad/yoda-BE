@@ -225,6 +225,9 @@
                 }
 
                 setOutput('Requesting...', 0);
+                if(typeof(data) === 'string') {
+                    data = { _args: data};
+                }
                 let results = await getAPIData(`${command}`, data, 'get');
                 setOutput('Finished', 0);
 

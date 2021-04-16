@@ -258,7 +258,7 @@
               } else if (status === 'approved') {
                 transaction_id = undefined;
                 status =
-                  `<h1><span style="color:white;background-color: green;padding:10px 20px">APPROVED</span></h1>`;
+                  `<h1><span style="color:white;background-color:#42C27D;padding:10px 20px">AUTHENTICATED</span></h1>`;
               } else if (status === 'declined') {
                 transaction_id = undefined;
                 status =
@@ -374,7 +374,7 @@
 
         let results = await getAPIData('/generate-url', data, 'post');
         console.log(results);
-        if (typeof(results) !== 'object' || results.status === 'error') {
+        if (typeof (results) !== 'object' || results.status === 'error') {
           setOutput(`<span style="color:red;">ERROR: ${JSON.stringify(results)}</span>`);
         } else {
           divSendVerification.classList.add("d-none");

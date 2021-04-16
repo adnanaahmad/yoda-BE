@@ -122,7 +122,7 @@ fastify.get('/verify/:id', async (request, reply) => {
                 await cache.updateP(TABLE, id, {
                     verified: now,
                     status: data.status
-                }, undefined, true);
+                }, '10y', true);
             } else if (record.status === 'verified') {
                 data.status = 'used';
             } else {

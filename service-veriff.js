@@ -135,7 +135,7 @@ fastify.post('/webhook', {
                 }
     
                 if (v.status === 'approved' && person) {
-                    expiration = undefined;
+                    expiration = '10y';
                     if (record) {
                         let pii = record.pii;
                         if (pii) {
@@ -153,6 +153,8 @@ fastify.post('/webhook', {
                                     data.dobMatch = false;
                                 }
                                 data.pii = undefined;
+                                //TODO!
+                                delete data.pii;
                             }
                         }
                     }
@@ -334,7 +336,6 @@ fastify.post('/generate-url', async (request, reply) => {
         if (typeof (request_reference) === 'string' && request_reference.length > 0) {
             save.request_reference = request_reference;
         }
-
         await cache.setP(TABLE, transaction_id, save, '1w', true);
     } else {
         code = 422;

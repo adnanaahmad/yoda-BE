@@ -38,7 +38,7 @@ const awsClient = require('./aws-client');
 
 let pm2Connected = false;
 
-const execCommand = async (file, args) => {
+const execCommand = async (command, args) => {
     try {
         const data = {};
 
@@ -51,7 +51,7 @@ const execCommand = async (file, args) => {
         const {
             stdout,
             stderr
-        } = await utils.execFile(file, args);
+        } = await utils.execFile(command, args, {timeout: 30000});
 
         data.end = Date.now();
         data.duration = data.end - data.start;
@@ -194,30 +194,60 @@ const getInfo = ()=> {
     };
 }
 
-const getCommandData = async (command)=> {
-    switch(command) {
-        case 'info': {
-            return getInfo();
-        }
-        case 'update': {
-            let results = await update();
-            if(typeof(process.env.NO_RESTART) === undefined) {
-                restart();
+const getCommandData = async (command, data)=> {
+    try {
+        switch(command) {
+            case 'info': {
+                return getInfo();
             }
+            case 'update': {
+                let results = await update();
+                if(typeof(process.env.NO_RESTART) === undefined) {
+                    restart();
+                }
+    
+                return results;
+            }
+            case 'cmd': {
+                let results;
+                if(data && data._args) {
+                    let command = data._args.trim();
+                    let args;
+                    let ndx = command.indexOf(' ');
+                    if(ndx > -1) {
+                        args =  [command.substr(ndx + 1)];
+                        command = command.substr(0, ndx);
+                    }
 
-            return results;
+                    //TODO! Whitelist commands!!!!!                
+                    results = await execCommand(command, args);
+                }
+
+                if(typeof(results) === 'undefined') {
+                    results = {};
+                }
+    
+                return results;
+            }
+            default:
+                return { error: 'Invalid command'};
         }
+    } catch (error) {
+        return error.message;        
     }
 }
 
-const getData = async (command, request, reply) => {
+const getData = async (request, reply) => {
+    let command = request.routerPath.split('/')[1]; 
     const endpoint = `/admin/v1/${command}`;
+
+    const body = request.body || request.query;
 
     let results = [];
     const id = request.params.id;
 
     if(!id || id === 'all' || id === SCRIPT_INFO.host) {
-        let data = await getCommandData(command);
+        let data = await getCommandData(command, body);
         if(id === 'all') {
             results = await sendHosts(HOSTS, endpoint);
             if(results && results.output) {
@@ -234,38 +264,52 @@ const getData = async (command, request, reply) => {
         }
     }
 
-    reply.type('application/json').code(200).send(results);
+    reply.type('application/json').code(200);
+    return results;
 }
 
 fastify.get('/update', async (request, reply) => {
-    return getData('update', request, reply);
+    return getData(request, reply);
 })
 
 fastify.get('/update/:id', async (request, reply) => {
-    return getData('update', request, reply);
+    return getData(request, reply);
 })
 
 fastify.get('/info', async (request, reply) => {
-    return getData('info', request, reply);
+    return getData(request, reply);
 })
 
 fastify.get('/info/:id', async (request, reply) => {
-    return getData('info', request, reply);
+    return getData(request, reply);
+})
+
+fastify.get('/cmd', async (request, reply) => {
+    return getData(request, reply);
+})
+
+fastify.get('/cmd/:id', async (request, reply) => {
+    return getData(request, reply);
 })
 
 fastify.get('/hosts', async (request, reply) => {
     const hosts = [SCRIPT_INFO.host, ...HOSTS];
-    reply.type('application/json').code(200).send(hosts);
+    reply.type('application/json').code(200);
+
+    return hosts;
 })
 
 fastify.get('/host', async (request, reply) => {
-    reply.type('application/json').code(200).send({host: SCRIPT_INFO.host});
+    reply.type('application/json').code(200);
+    
+    return {host: SCRIPT_INFO.host};
 })
 
 fastify.addHook("onRequest", async (request, reply) => {
     if (!await authMain.checkHeaders(request, reply, 0, true)) {
         return;
     }
+    //console.log(request.routerPath, request.routerMethod);
 });
 
 fastify.listen(9999, (err, address) => {
