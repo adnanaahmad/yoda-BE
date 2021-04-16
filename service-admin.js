@@ -30,6 +30,7 @@ fastify.register(require('fastify-static'), {
     prefix: '/',
 })
 
+//TODO! SCRIPT_INFO.host
 const HOSTS = ['i.dev.fortifid.com', 'i.prod.fortifid.com', 'z.prod.fortifid.com'];
 
 const pm2 = require('pm2');
@@ -279,6 +280,10 @@ const getData = async (request, reply) => {
     //TODO: post-execute
     if (!id || id === 'all' || id === SCRIPT_INFO.host) {
         let data = await getCommandData(command, body);
+        if(data && !data.host) {
+            //data.host = SCRIPT_INFO.host;
+        }
+
         if (id === 'all') {
             results = await sendHosts(HOSTS, endpoint);
             if (results && results.output) {
