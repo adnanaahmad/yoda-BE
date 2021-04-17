@@ -109,3 +109,5 @@ t.js
 tmp/
 .cache/
 uploads/
+.params/
+

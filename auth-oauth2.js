@@ -65,6 +65,7 @@ const requestToken = async (id, url, client_id, client_secret, scope, grant_type
     logger.debug(`Requesting ${id} token...`);
     const headers = {
         'content-type': 'application/x-www-form-urlencoded'
+        //'content-type': 'application/json'
     };
 
     const body = {
@@ -83,10 +84,15 @@ const requestToken = async (id, url, client_id, client_secret, scope, grant_type
 
         const duration = utils.time() - start;
 
-        if (response && response.access_token && response.expires_in) {
+        if (response && response.access_token && (response.expires_in || response.expires_in_secs)) {
             TOKENS[id] = response;
+            if(response.expires_in_secs) {
+                response.expires_in = response.expires_in_secs;
+                delete response.expires_in_secs;
+            }
 
-            response.expires = Date.now() + response.expires_in * 1000;
+            response.expires = Date.now() + response.expires_in  * 1000;
+
             logger.debug(`Retrieved ${id} token. Expires on ${new Date(response.expires).toLocaleString()}. ${utils.toFixedPlaces(duration, 2)}ms`);
             if (cacheTokens) {
                 await saveFile('secure', id, response);

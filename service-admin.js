@@ -31,8 +31,13 @@ fastify.register(require('fastify-static'), {
 })
 
 //TODO! SCRIPT_INFO.host
-const HOSTS = ['i.dev.fortifid.com', 'i.prod.fortifid.com', 'z.prod.fortifid.com'];
-const ALLOWED_COMMANDS = ['pwd', 'ls', 'date', 'df', 'free'];
+const HOSTS = [
+    'i.dev.fortifid.com',
+    //'i.prod.fortifid.com',
+    //'z.prod.fortifid.com'
+];
+
+const ALLOWED_COMMANDS = ['pwd', 'ls', 'date', 'df', 'free', 'npm'];
 
 const pm2 = require('pm2');
 
@@ -65,7 +70,7 @@ const execCommand = async (command, args) => {
         if (temp) {
             data.error = temp;
         }
-        
+
         return data;
     } catch (error) {
         logger.error(error);
@@ -233,8 +238,8 @@ const getInfo = () => {
     return {
         ...SCRIPT_INFO,
         time: now,
-        uptime:  now - SCRIPT_INFO.start,
-        
+        uptime: now - SCRIPT_INFO.start,
+
         //uptime: Math.round(process.uptime()),
     };
 }
@@ -270,10 +275,12 @@ const getCommandData = async (command, data) => {
                     }
 
                     //TODO! Whitelist commands!!!!!            
-                    if(command.length > 0 && ALLOWED_COMMANDS.indexOf(command) > -1) {
+                    if (command.length > 0 && ALLOWED_COMMANDS.indexOf(command) > -1) {
                         results = await execCommand(command, args);
                     } else {
-                        results = {error: `Command ${command} not allowed.`}
+                        results = {
+                            error: `Command ${command} not allowed.`
+                        }
                     }
                 }
 
@@ -304,13 +311,13 @@ const getData = async (request, reply) => {
     //TODO: post-execute
     if (!id || id === 'all' || id === SCRIPT_INFO.host) {
         let data = await getCommandData(command, body);
-        if(data && !data.host) {
+        if (data && !data.host) {
             data.host = SCRIPT_INFO.host;
         }
 
         if (id === 'all') {
             results = await sendHosts(HOSTS, endpoint, body);
-            
+
             if (results && results.output) {
                 results.output.push(data);
             } else {
@@ -373,7 +380,6 @@ fastify.get('/health', async (request, reply) => {
 fastify.get('/health/:id', async (request, reply) => {
     return getData(request, reply);
 })
-
 
 fastify.get('/hosts', async (request, reply) => {
     const hosts = [SCRIPT_INFO.host, ...HOSTS];

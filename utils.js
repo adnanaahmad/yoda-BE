@@ -754,12 +754,9 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
                     data = await response.blob();
                 } else {
                     data = await response.text();
-                    if (data && data.length > 1) {
+                    if (isJSON(data)) {
                         try {
-                            let firstChar = data.substring(0, 1);
-                            if (firstChar === '[' || firstChar === '{') {
-                                data = JSON.parse(data);
-                            }
+                            data = JSON.parse(data);
                         } catch (e) {}
                     }
                 }
@@ -979,7 +976,7 @@ const isJSON = (data) => {
 
     const dataType = typeof (data);
     if (dataType === 'string' && data.length > 1) {
-        let firstChar = data.substring(0, 1);
+        let firstChar = data.trim().substring(0, 1);
         //let lastChar = data.slice(-1);
         //return (firstChar === '{' && lastChar === '}') || (firstChar === '[' && lastChar === ']');
         return (firstChar === '{' || firstChar === '[');
