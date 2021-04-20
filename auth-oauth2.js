@@ -9,7 +9,7 @@ let renewTimer;
 
 const TOKENS = {};
 const REQUESTS = {};
-
+const KEYS = [];
 //TODO!
 const saveFile = async (type, id, data) => {
     if (!data) {
@@ -35,29 +35,43 @@ const loadFile = async (type, id) => {
     }
 }
 
-const addRequest = (id, token_url, client_id, client_secret, scope, grant_type = 'client_credentials')=> {
-    REQUESTS[id] = {id, token_url, client_id, client_secret, scope, grant_type};
+const addRequest = (id, token_url, client_id, client_secret, scope, grant_type = 'client_credentials') => {
+    KEYS.push(id);
+    REQUESTS[id] = {
+        id,
+        token_url,
+        client_id,
+        client_secret,
+        scope,
+        grant_type,
+        headers: {}
+    };
+}
+
+const getRequest = (id) => {
+    return REQUESTS[id];
 }
 
 const checkToken = async (id) => {
-    let cached = TOKENS[id];
-    if (!cached && cacheTokens) {
-        cached = await loadFile('secure', id);
-        if (cached) {
-            TOKENS[id] = cached;
+    let token = TOKENS[id];
+    if (!token && cacheTokens) {
+        token = await loadFile('secure', id);
+        if (token) {
+            TOKENS[id] = token;
             logger.debug(`Loaded cached ${id} token.`);
         }
     }
 
-    if (cached) {
-        cached.checking = false;
-        if (cached.expires - 300000 - Date.now() > 0) {
+    if (token) {
+        const seconds = Math.round((token.expires - 300000 - Date.now()) / 1000); 
+        token.checking = false;
+        if (seconds > 0) {
             return true;
         }
     }
 }
 
-const requestToken = async (id, url, client_id, client_secret, scope, grant_type = 'client_credentials') => {
+const requestToken = async (id, url, client_id, client_secret, scope, grant_type = 'client_credentials', extraHeaders) => {
     if (await checkToken(id)) {
         return;
     }
@@ -74,26 +88,26 @@ const requestToken = async (id, url, client_id, client_secret, scope, grant_type
         client_secret: client_secret
     }
 
-    if(scope) {
+    if (scope) {
         body.scope = scope;
     }
 
     try {
         const start = utils.time();
-        const response = await utils.fetchData(url, body, headers);
+        const response = await utils.fetchData(url, body, headers, 'post', undefined, true, extraHeaders);
 
         const duration = utils.time() - start;
 
         if (response && response.access_token && (response.expires_in || response.expires_in_secs)) {
-            TOKENS[id] = response;
-            if(response.expires_in_secs) {
+            
+            if (response.expires_in_secs) {
                 response.expires_in = response.expires_in_secs;
                 delete response.expires_in_secs;
             }
-
-            response.expires = Date.now() + response.expires_in  * 1000;
-
-            logger.debug(`Retrieved ${id} token. Expires on ${new Date(response.expires).toLocaleString()}. ${utils.toFixedPlaces(duration, 2)}ms`);
+  
+            response.expires = Date.now() + (response.expires_in * 1000);
+            TOKENS[id] = response;
+            logger.debug(`Retrieved ${id} token. Expires on ${new Date(response.expires).toISOString()} (${Math.round(response.expires_in / 60)} minutes). ${utils.toFixedPlaces(duration, 2)}ms`);
             if (cacheTokens) {
                 await saveFile('secure', id, response);
             }
@@ -111,13 +125,15 @@ const checkTokens = async () => {
 
     const tokenFuncs = [];
 
-    Object.keys(REQUESTS).forEach(key=> {
+    Object.keys(REQUESTS).forEach(key => {
         let req = REQUESTS[key];
-        tokenFuncs.push(requestToken(req.id, req.token_url, req.client_id, req.client_secret, req.scope, req.grant_type));
+        tokenFuncs.push(requestToken(req.id,
+            req.token_url, req.client_id, req.client_secret, req.scope, req.grant_type, req.headers));
+
     });
 
     let wait = 30000;
-    if(tokenFuncs.length > 0) {
+    if (tokenFuncs.length > 0) {
         try {
             await Promise.all(tokenFuncs);
         } catch (error) {
@@ -131,11 +147,11 @@ const checkTokens = async () => {
     }, wait);
 }
 
-const  start =  async ()=> {
+const start = async () => {
     await checkTokens();
 }
 
-const stop =  ()=> {
+const stop = () => {
     clearTimeout(renewTimer);
 }
 
@@ -143,6 +159,7 @@ module.exports = {
     addRequest,
     start,
     stop,
+    getRequest,
     cacheTokens,
     TOKENS,
 }

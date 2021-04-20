@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>FortifID Demo</title>
+    <title>FortifID| Income Verification</title>
     <meta name="author" content="cisco@barbarians.com">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.9/spectre.min.css"
@@ -17,14 +17,32 @@
             font-size: smaller;
             color: rgb(32, 31, 31);
         }
+
+        .w300 {
+            min-width: 300px;
+        }
+
+        hr {
+            max-width: 200px;
+        }
+
+        #logo {
+            width: 300px;
+        }
     </style>
 </head>
 
 <body>
     <br />
     <div class="container grid-lg">
-        <div>
-            <strong>DirectID Income Verification Demo</strong>
+        <div class="text-center">
+            <img id="logo" src="/images/logo.png" alt="FortifID Logo">
+            <br /><br />
+            <h5>Income Verification</h5>
+            <hr />
+        </div>
+        <div class="w300">
+            <br />
             <div class="form-group">
                 <label class="form-label" for="customer_id">Customer Id</label>
                 <input id="customer_id" class="form-input" type="text" placeholder="Customer Id" minlength="1"
@@ -56,15 +74,9 @@
                     maxlength="64" readonly>
             </div>
             <div class="form-group">
-                <label class="form-label" for="account">Account</label>
-                <input id="account" class="form-input" type="text" placeholder="Account e.g. dev or test" minlength="1"
+                <label class="form-label" for="account">Server</label>
+                <input id="account" class="form-input" type="text" placeholder="Server e.g. dev or test or i.dev" minlength="1"
                     maxlength="16">
-            </div>
-            <div class="form-group">
-                <label class="form-switch">
-                    <input id="check-shorten_url" type="checkbox" checked>
-                    <i class="form-icon"></i> Shorten URL
-                </label>
             </div>
             <div id="div-url">&nbsp;</div>
             <br />
@@ -92,11 +104,11 @@
             let divOutput = $("#output");
 
             let port = window.location.port || '';
-            if (port.length === 0) {
-                port = '8999';
+            if (port.length > 0) {
+                port = `:${port}`;
             }
 
-            let BASE_URL = `${window.location.protocol}//${window.location.hostname}:${port}`;
+            let BASE_URL = `${window.location.protocol}//${window.location.hostname}${port}/income/v1`;
 
             $("#btn-main").hide();
 
@@ -194,7 +206,7 @@
                     method = method.toLowerCase();
                 }
 
-                let url = `${BASE_URL}/directid${endpoint}`;
+                let url = `${BASE_URL}${endpoint}`;
                 let options = {
                     method: method,
                     headers: headers,
@@ -262,7 +274,7 @@
                     setOutput(line, 0);
 
                     let res = await fetch(
-                        `${BASE_URL}/directid/check-request?transaction_id=${transactionId}`);
+                        `${BASE_URL}/check-request/${transactionId}`);
                     checking = false;
                     if (res.ok) {
                         let data = await res.json();
@@ -303,14 +315,13 @@
                     email_address: $('#email_address').val(),
                     phone_number: $('#phone_number').val(),
                     account: $('#account').val(),
-
-                    shorten_url: $('#check-shorten_url').is(':checked')
+                    redirect_url: $('#redirect_url').val(),
                 };
 
                 $('#request_id').val(data.request_id);
 
                 setOutput('Loading...', 0);
-                let results = await getAPIData('/generate-income-url', data, 'post');
+                let results = await getAPIData('/generate-url', data, 'post');
 
                 setOutput('Results:', 0);
 

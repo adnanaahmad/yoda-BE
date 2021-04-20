@@ -12,10 +12,10 @@ const {
     promisify
 } = require('util');
 
-const redisClient = redis.createClient(process.env.REDIS_URL);
+let redisClient;
 
-const setAsync = promisify(redisClient.set).bind(redisClient);
-const getAsync = promisify(redisClient.get).bind(redisClient);
+let setAsync; 
+let getAsync;
 
 const DEFAULT_EXPIRATION_MS = ms('1w');
 const DEFAULT_EXPIRATION = Math.round(DEFAULT_EXPIRATION_MS / 1000);
@@ -268,6 +268,18 @@ const getM = (type, key, defaultValue) => {
     return value;
 }
 
+const initRedis = async()=> {
+    if(typeof(process.env.REDIS_URL) !=='undefined') {
+        redisClient =  redis.createClient(process.env.REDIS_URL);
+        redisClient.on("error", (error) => {
+            console.error(error);
+        });
+        
+        setAsync = promisify(redisClient.set).bind(redisClient);
+        getAsync = promisify(redisClient.get).bind(redisClient);
+    } 
+}
+
 const test = async () => {
     const data = {
         name: 'Cisco',
@@ -320,9 +332,7 @@ const test = async () => {
 }
 
 (async () => {
-    redisClient.on("error", (error) => {
-        console.error(error);
-    });
+    await initRedis();
 
     //test();
 })();

@@ -34,9 +34,8 @@ fastify.register(require('fastify-static'), {
 
 const twilioUtils = require('./handler-twilio');
 
-const Q = require('./utils-q');
-const handlerTwilioQ = Q.getQ(Q.names.handler_twilio);
-const handlerWebhookQ = Q.getQ(Q.names.handler_webhook);
+const handler = require('./utils-handlers');
+handler.init();
 
 const loadParams = async () => {
 
@@ -188,7 +187,7 @@ fastify.post('/generate-url', async (request, reply) => {
                                     '%URL%': data.url
                                 });
 
-                                handlerTwilioQ.add(lookup);
+                                handler.twilio(lookup);
                             }
 
                             data.status = send ? 'sent' : 'lookup';

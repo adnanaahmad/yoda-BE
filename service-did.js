@@ -21,11 +21,13 @@ const awsClient = require('./aws-client');
 
 // TODO: Just for testing and demos
 ///////////////////////////////////////////////////////////////
-const baseDir = `${__dirname}/demo/`
+const baseDir = `${__dirname}/public/income/`
 const SERVE_HTTP = true;
 const WWW = {
     '/': 'index.html',
-    '/favicon.ico': 'cropped-FortidID-logo-square-32x32.jpg',
+    '/thanks': 'thanks.html',
+    '/thanks.html': 'thanks.html',
+    '/favicon.ico': '/favicon.ico',
     '/loader.gif': '/loader.gif',
     '/images/logo.png': 'logo.png'
 }
@@ -48,18 +50,13 @@ const TOKEN_IDS = {
 
 Object.freeze(TOKEN_IDS);
 
-const Q = require('./utils-q');
-const handlerTwilioQ = Q.getQ(Q.names.handler_twilio);
-const handlerEmailQ = Q.getQ(Q.names.handler_email);
-//const handlerWebhookQ = Q.getQ(Q.names.handler_webhook);
-
-// const handlerTwilioQ = require('./handler-twilio');
-// const handlerEmailQ = require('./handler-email');
-//const handlerWebhookQ = require('./handler-webhook');
+const handler = require('./utils-handlers');
+handler.init();
 
 const incomeDirectIDResponseStatus = require('./response-status.json');
 
 Object.freeze(incomeDirectIDResponseStatus);
+
 
 const requestBankData = async (consentId, customerReference) => {
     logger.info(`${customerReference} - Requesting bank data...`);
@@ -364,6 +361,7 @@ const sendFile = async (res, filename) => {
 
         filename = sanitize(filename);
         let file = baseDir + filename;
+      
         if (await utils.fileExists(file)) {
             let content = await utils.fileRead(file);
 
@@ -594,30 +592,37 @@ const httpHandler = async (req, res) => {
         }
 
         async function redirect() {
-            const query = parsed.query; 
-    
+            const query = parsed.query;
+            //TODO! 
+            let redirectUrl;
             if(query && query.customer_ref) {
+                addLogExtra('query', query);
                 const customerReference = query.customer_ref;
                 const parts = customerReference.split(':');
                 if (parts.length === 3) {
                     const transaction_id = parts[1];
+                    //TODO: Check for error?
                     let record = META[transaction_id];
                     if(!record) {
                         record = DONE[transaction_id];
                     }
 
                     if(record && record.redirect_url) {
-                        let url = record.redirect_url;
-                        //TODO!
-                        //state=success
-                        //error
-                        const headers = {
-                            'Location': url
-                        }
-                        utils.sendMessage(res, 302, headers, 'Found');
+                        redirectUrl = record.redirect_url;
                     }
                 }
-            }            
+            } 
+
+            redirectUrl = redirectUrl || 'thanks';
+            //const otherParams = utils.queryStringToObject(redirectUrl, true);
+            //console.log(otherParams)
+            //const newQuery = {...query};
+            redirectUrl = `${redirectUrl}${(redirectUrl.indexOf('?') > -1 ?'&': '?')}${new URLSearchParams(query)}`;
+            console.log(redirectUrl);
+            const headers = {
+                'Location': redirectUrl
+            }
+            utils.sendMessage(res, 302, headers, 'Found');
         }
 
         async function webhook() {
@@ -742,7 +747,7 @@ const httpHandler = async (req, res) => {
                                 '%URL%': returnData.url
                             })
                         };
-                        handlerTwilioQ.add(data);
+                        handler.twilio(data);
 
                         delete returnData.phone_number;
                     }
@@ -770,8 +775,7 @@ const httpHandler = async (req, res) => {
                             data.name = full_name;
                         }
 
-                        handlerEmailQ.add(data);
-
+                        handler.email(data);
                         delete returnData.email_address;
                     }
 

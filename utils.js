@@ -691,19 +691,25 @@ const flatten = (data, prefix) => {
     return results;
 }
 
-const queryStringToObject = (query) => {
+const queryStringToObject = (query, parse = false) => {
     try {
+        if(parse) {
+            const index = query.indexOf('?');
+            if(index > -1) {
+                query = query.substr(index + 1);
+            } 
+        }
+
         return JSON.parse('{"' + query.replace(/&/g, '","').replace(/=/g, '":"') + '"}', (key, value) => key === "" ? value : decodeURIComponent(value));
     } catch (error) {}
-    return undefined;
+    return {};
 }
 
 const objectToQueryString = (params) => Object.keys(params).map((key) => {
     return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
 }).join('&');
 
-
-const fetchData = async (url, body, headers, method = 'post', responseType, throwError = true) => {
+const fetchData = async (url, body, headers, method = 'post', responseType, throwError = true, returnHeaders) => {
     headers = headers || {};
 
     let data;
@@ -749,6 +755,10 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
         response = await fetch(url, config);
         //response = await fetchWithTimeout(url, config);
         if (response) {
+            if(returnHeaders) {
+                Object.assign(returnHeaders, response.headers);
+            }
+
             if (response.ok) {
                 if (responseType === 'blob') {
                     data = await response.blob();

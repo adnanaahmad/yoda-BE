@@ -35,9 +35,8 @@ fastify.register(require('fastify-static'), {
     prefix: '/',
 })
 
-const Q = require('./utils-q');
-const handlerTwilioQ = Q.getQ(Q.names.handler_twilio);
-const handlerWebhookQ = Q.getQ(Q.names.handler_webhook);
+const handler = require('./utils-handlers');
+handler.init();
 
 const loadParams = async () => {
 

@@ -34,9 +34,8 @@ fastify.register(require('fastify-static'), {
     prefix: '/',
 })
 
-const Q = require('./utils-q');
-const handlerTwilioQ = Q.getQ(Q.names.handler_twilio);
-const handlerWebhookQ = Q.getQ(Q.names.handler_webhook);
+const handler = require('./utils-handlers');
+handler.init();
 
 const loadParams = async () => {
 
@@ -117,8 +116,5 @@ fastify.listen(PORT, (err, address) => {
     oauth2.cacheTokens = false;
     oauth2.addRequest('syntheticid', OAUTH_URL, 'CEffVkM7ffWiRNzxdFZbAKcrCgcQ1BAC', 'cIthhWf2FR7rN13s', ['https://api.equifax.com/business/syntheticid/v1']);
     await oauth2.start();
-    
-    // let test = JSON.parse("\n            {\n                \"access_token\": \"GxprFPD4uRZkx8JWeLcBl95rG3ef\",\n                \"expires_in_secs\": 1449,\n                \"scope\": \"https://api.equifax.com/business/syntheticid/v1\"\n            }\n            ");
-
-    // console.log(test);
+    console.log(oauth2.TOKENS);    
 })();

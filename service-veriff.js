@@ -39,15 +39,8 @@ fastify.register(require('fastify-raw-body'), {
     runFirst: true
 })
 
-
-
-// const handlerTwilioQ = require('./handler-twilio');
-// const handlerEmailQ = require('./handler-email');
-const Q = require('./utils-q');
-
-const handlerTwilioQ = Q.getQ(Q.names.handler_twilio);
-const handlerEmailQ = Q.getQ(Q.names.handler_email);
-const handlerWebhookQ = Q.getQ(Q.names.handler_webhook);
+const handler = require('./utils-handlers');
+handler.init();
 
 const RESTRICTED_ROUTES = [
     '/generate-url',
@@ -287,7 +280,7 @@ fastify.post('/generate-url', async (request, reply) => {
                     '%URL%': data.url
                 })
             };
-            handlerTwilioQ.add(d);
+            handler.twilio(d);
         }
 
         let email_address = body.email_address;
@@ -311,7 +304,7 @@ fastify.post('/generate-url', async (request, reply) => {
             if (full_name) {
                 d.name = full_name;
             }
-            handlerEmailQ.add(d);
+            handler.email(d);
         }
 
         let dob = body.birth_date;
