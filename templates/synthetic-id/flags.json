@@ -1,0 +1,28 @@
+{
+    "transactionId": "1026025250052287",
+    "deliveryChannel": "IDFS",
+    "cnx": "732876906117",
+    "cid": "01D43FAA9C6E5684CE",
+    "query": "WC",
+    "transactionTimestamp": 1553188658,
+    "memberNumber": "327CG12345",
+    "synthetic2RulesCategory": "Credit Card",
+    "hitCode": "1",
+    "ipAddress": "123.11.11.123",
+    "identity": {
+      "firstName": "John",
+      "middleName": "K",
+      "lastName": "Doe",
+      "ssn": "666666666",
+      "dob": "20180320",
+      "address": {
+        "addressLine1": "123 S Main St",
+        "addressLine2": "APT 1111",
+        "city": "Atlanta",
+        "state": "GA",
+        "zip": "30324"
+      },
+      "email": "abc@gmail.com",
+      "phone": "5299412369"
+    }
+  }

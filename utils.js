@@ -148,8 +148,8 @@ const getFileInfo = (file, doHash, extras) => {
         const packageJSON = require('./package.json');
 
         info.version = packageJSON.version;
-        if(process.env.CREATED) {
-            info.installed =parseInt(process.env.CREATED); 
+        if (process.env.CREATED) {
+            info.installed = parseInt(process.env.CREATED);
         }
 
         info.region = process.env.AWS_REGION;
@@ -691,13 +691,31 @@ const flatten = (data, prefix) => {
     return results;
 }
 
+const camelToSnakeCaseObject = (obj) => {
+    Object.keys(obj).forEach(key => {
+        let newName = camelToSnakeCase(key);
+        if (newName !== key) {
+            obj[newName] = obj[key];
+            delete obj[key];
+        }
+    })
+}
+
+const camelToSnakeCase = string => string.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+
+const snakeToCamel = (string) => {
+    return string.replace(/(_\w)/g, (m) => {
+        return m[1].toUpperCase();
+    });
+}
+
 const queryStringToObject = (query, parse = false) => {
     try {
-        if(parse) {
+        if (parse) {
             const index = query.indexOf('?');
-            if(index > -1) {
+            if (index > -1) {
                 query = query.substr(index + 1);
-            } 
+            }
         }
 
         return JSON.parse('{"' + query.replace(/&/g, '","').replace(/=/g, '":"') + '"}', (key, value) => key === "" ? value : decodeURIComponent(value));
@@ -755,7 +773,7 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
         response = await fetch(url, config);
         //response = await fetchWithTimeout(url, config);
         if (response) {
-            if(returnHeaders) {
+            if (returnHeaders) {
                 Object.assign(returnHeaders, response.headers);
             }
 
@@ -1106,10 +1124,26 @@ function unescapeHTML(escapedHTML) {
     return escapedHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&#xD;/g, '').replace(/&#xA;/g, '');
 }
 
-const splitLines = (data)=> {
-    if(typeof(data) === 'string' && data.length > 0) {
+const splitLines = (data) => {
+    if (typeof (data) === 'string' && data.length > 0) {
         return data.split('\n').filter(Boolean);
     }
+}
+
+const numbersOnly = (data, asString = true) => {
+    if (typeof (data) === 'undefined') {
+        return  asString ? '' : 0;
+    }
+
+    let results = (data + '').match(/\d+/g).join('');
+    return asString ? results : parseInt(results);
+}
+
+const formatDate = (date, format) => {
+    if (!date || !format) {
+        return '';
+    }
+    return dayjs(date).format(format);
 }
 
 const redisOptsFromUrl = (urlString) => {
@@ -1231,5 +1265,8 @@ module.exports = {
     beep,
     ipRangeCheck,
     pathJoin,
-    splitLines
+    splitLines,
+    camelToSnakeCaseObject,
+    formatDate,
+    numbersOnly
 }

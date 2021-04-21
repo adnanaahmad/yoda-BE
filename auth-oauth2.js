@@ -147,6 +147,13 @@ const checkTokens = async () => {
     }, wait);
 }
 
+const getToken =(id)=> {
+    const auth = TOKENS[id];
+    if(auth) {
+        return auth.access_token;
+    }
+}
+
 const start = async () => {
     await checkTokens();
 }
@@ -161,5 +168,6 @@ module.exports = {
     stop,
     getRequest,
     cacheTokens,
+    getToken,
     TOKENS,
 }
