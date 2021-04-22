@@ -614,7 +614,9 @@ const httpHandler = async (req, res) => {
                 }
             } 
 
-            redirectUrl = redirectUrl || parsed.port === null ? 'thanks': '/thanks';
+            //redirectUrl = redirectUrl || parsed.port === null ? 'thanks': '/thanks';
+            redirectUrl = redirectUrl || reqUrl.startsWith('/directid') ? '/thanks': 'thanks';
+            
             //const otherParams = utils.queryStringToObject(redirectUrl, true);
             //console.log(otherParams)
             //const newQuery = {...query};
