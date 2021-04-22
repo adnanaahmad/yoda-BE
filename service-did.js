@@ -393,6 +393,7 @@ const httpHandler = async (req, res) => {
     let origin;
     let parsed;
     let param1;
+    let reqUrl;
 
     const logExtras = {};
 
@@ -440,7 +441,7 @@ const httpHandler = async (req, res) => {
 
         try {
 
-            let reqUrl = req.url;
+            reqUrl = req.url;
             //TODO!
             if (reqUrl.startsWith('/income/v1/')) {
                 reqUrl = reqUrl.replace('/income/v1/', '/directid/');
@@ -613,12 +614,12 @@ const httpHandler = async (req, res) => {
                 }
             } 
 
-            redirectUrl = redirectUrl || 'thanks';
+            redirectUrl = redirectUrl || parsed.port === null ? 'thanks': '/thanks';
             //const otherParams = utils.queryStringToObject(redirectUrl, true);
             //console.log(otherParams)
             //const newQuery = {...query};
             redirectUrl = `${redirectUrl}${(redirectUrl.indexOf('?') > -1 ?'&': '?')}${new URLSearchParams(query)}`;
-            console.log(redirectUrl);
+            //console.log(redirectUrl);
             const headers = {
                 'Location': redirectUrl
             }
