@@ -49,8 +49,6 @@ npm install > /dev/null 2>&1
 mkdir .cache
 mkdir uploads
 
-
-
 if test -f "./.env"; then
     log ".env already exist."
 else
@@ -114,14 +112,14 @@ fi
 
 # To ensure we start all the correct services.
 # TODO: Make this conditional
-pm2 start handler-email.js
-pm2 start handler-twilio.js
-pm2 start handler-webhook.js
+#pm2 start handler-email.js
+#pm2 start handler-twilio.js
+#pm2 start handler-webhook.js
 
 pm2 start scheduler.js
 #pm2 start forwarder.js
-pm2 start shortener.js
-pm2 start uploader.js
+#pm2 start shortener.js
+#pm2 start uploader.js
 
 #pm2 start service-admin.js
 #pm2 start service-auth.js
@@ -129,8 +127,8 @@ pm2 start uploader.js
 #pm2 start service-ss.js
 #pm2 start service-neustar.js
 pm2 start service-did.js
-pm2 start service-mfa.js
-pm2 start service-veriff.js
+#pm2 start service-mfa.js
+#pm2 start service-veriff.js
 
 pm2 save
 

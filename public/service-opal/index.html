@@ -1,0 +1,187 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>FortifID | OPAL</title>
+    <meta name="author" content="cisco@barbarians.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.9/spectre.min.css"
+        integrity="sha512-9RIcp1f4CE6dEuYX9085tXaEbYd1ap04d2Av1ub/dwuT33WbfbHStDdQ+shKrp5wzZzleh5DOg+7ABSnaQP/nQ=="
+        crossorigin="anonymous" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/a11y-dark.min.css">
+
+    <link rel="stylesheet" data-name="vs/editor/editor.main"
+        href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.23.0/min/vs/editor/editor.main.min.css">
+
+    <style>
+        .center {
+            margin: 0 auto;
+        }
+
+
+        hr {
+            max-width: 200px;
+        }
+
+        #logo {
+            width: 300px;
+        }
+
+        .code {
+            color: black;
+        }
+
+        #code-editor {
+            height: 400px;
+            border: 1px solid black;
+        }
+
+        .w300 {
+            min-width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container grid-lg">
+        <br />
+        <div class="text-center">
+            <img id="logo" src="/images/logo.png" alt="FortifID Logo">
+            <br /><br />
+            <h5>OPAL</h5>
+            <hr />
+        </div>
+        <div id="form" class="w300">
+            <br />
+            <div id="code-editor" class="form-group"></div>
+            <button id="btn-run" class="btn btn-primary">Run &nbsp;▶</button>
+            <br /><br />
+        </div>
+        <br />
+        <div id="output" class="text-center"></div>
+    </div>
+    <br />
+    <br />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.23.0/min/vs/loader.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.0.slim.min.js"
+        integrity="sha256-MlusDLJIP1GRgLrOflUQtshyP0TwT/RHXsI1wWGnQhs=" crossorigin="anonymous"></script>
+    <script>
+        (async () => {
+            "use strict";
+            const divOutput = $("#output");
+
+            let editor;
+            const CODE_START = '// Your code starts below this line ** Only modify below this line ** ';
+            const CODE_END = '// Your code ends above this line ** Only modify above this line **';
+            const CODE_SAMPLE = `const data = {
+    "auv": "Y",
+    "idcb": "Y",
+    "inquiry": "Y",
+    "final_assessment": "Y",
+    "assessment_level": "1",
+    "id_discrepancy": "Y",
+    "active_auth_users": "1",
+    "terminated_users": "2",
+    "shared_ssn": "Y",
+    "verified_ssn": "Y",
+    "invalid_ssn": "Y",
+    "shared_address": "Y",
+    "identity_confirmation1": "Y",
+    "identity_confirmation2": "Y",
+    "death_master_hit": "Y"
+};`;
+            let codeStart = `// This is the sample data for this data provider
+${CODE_SAMPLE}
+
+const STATUS = {
+    sucess: 'success',
+    fail: 'fail',
+    error: 'error'
+}
+
+let results = { 
+    status: STATUS.success
+};
+
+${CODE_START}
+
+${CODE_END}
+return results;`;
+
+            require.config({
+                paths: {
+                    'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.23.0/min/vs'
+                }
+            });
+            window.MonacoEnvironment = {
+                getWorkerUrl: () => proxy
+            };
+            let proxy = URL.createObjectURL(new Blob([`
+    self.MonacoEnvironment = {
+        baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.23.0/min'
+    };
+    importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.23.0/min/vs/base/worker/workerMain.min.js');
+`], {
+                type: 'text/javascript'
+            }));
+
+            require(["vs/editor/editor.main"], function () {
+                editor = monaco.editor.create(document.getElementById('code-editor'), {
+                    value: codeStart,
+                    language: 'javascript',
+                    theme: 'vs-dark',
+                    automaticLayout: true
+                });
+            });
+
+            const setOutput = (str, mode = 1, br = true) => {
+                if (br)
+                    str += '<br/>';
+
+                switch (mode) {
+                    case 0:
+                        divOutput.html(str);
+                        break;
+                    case -1:
+                        divOutput.prepend(str);
+                        break;
+                    default:
+                        divOutput.append(str);
+                }
+            }
+
+            $('#btn-run').on("click", async () => {
+                let code = editor.getValue();
+                const index = code.indexOf(CODE_START);
+                const index_end = code.indexOf(CODE_END);
+
+                if (index > -1 && index_end > index) {
+                    code = code.substr(index + CODE_START.length + 1, index_end - index - CODE_START
+                        .length - 1).trim();
+                    let str =
+                        `<pre><code class="text-left javascript">${code}</code></pre>`;
+                    setOutput(str, 0);
+
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+
+                } else {
+                    code = undefined;
+                }
+
+            })
+
+        })();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/languages/javascript.min.js"></script>
+
+</body>
+
+</html>

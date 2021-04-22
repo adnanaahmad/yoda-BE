@@ -28,7 +28,7 @@ let _logger;
 
 require('dotenv').config();
 
-const HOST = process.env.HOST;
+const HOST = process.env.HOST || 'i.dev.fortifid.com';
 
 require('console-stamp')(console, {
     format: ':date(yyyy.mm.dd HH:MM:ss.l) :label',

@@ -1,21 +1,24 @@
 'use strict';
 /*jshint esversion: 8 */
+const NAME = 'SambaSafety';
+const TABLE = 'service-ss';
+const PORT = 1971;
+
 const utils = require('./utils');
-const logger = require('./logger').createLogger('service-ss');
+const logger = require('./logger').createLogger(TABLE);
 const convert = require('xml-js');
 const prettyData = require('pretty-data');
 const soapRequest = require('./soap');
 const awsClient = require('./aws-client');
 
-
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
-// const Logger = require('./logger').Logger;
-// const myLogger = new Logger();
 
 const fastify = require('fastify')({
-    logger: false
+    logger: false,
+    trustProxy: true,
+    ignoreTrailingSlash: true
 })
 
 const ALLOWED_STATES = ['AR', 'AZ', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'MA', 'MD', 'ME', 'MI', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NJ', 'NM', 'PA', 'RI', 'SD', 'TN', 'TX', 'VA', 'VT', 'WA', 'WI', 'WY'];
@@ -25,32 +28,7 @@ function unescapeHTML(escapedHTML) {
 }
 
 
-fastify.get('/:params', async (request, reply) => {
-    // console.log(request.body)
-    // console.log(request.query)
-    // console.log(request.params)
-    // console.log(request.headers)
-    // console.log(request.raw)
-    // console.log(request.id)
-    // console.log(request.ip)
-    // console.log(request.ips)
-    // console.log(request.hostname)
-    // console.log(request.protocol)
-    // request.log.info('some info')
-    const now = Date.now();
-    reply.type('application/json').code(200);
-    const data = {
-        ...SCRIPT_INFO,
-        start: utils.startTime,
-        time: now,
-        uptime: (now - utils.startTime),
-    };
-    return {
-        server: data
-    }
-})
-
-fastify.post('/order-interactive', async (request, reply) => {
+fastify.post('/query', async (request, reply) => {
     const body = utils.flattenObject2(request.body);
     if(!body.issuing_state || ALLOWED_STATES.indexOf( body.issuing_state) === -1) {
         reply.type('application/json').code(417);
@@ -71,18 +49,9 @@ fastify.post('/order-interactive', async (request, reply) => {
     }
 });
 
-fastify.listen(8000, (err, address) => {
+fastify.listen(PORT, (err, address) => {
     if (err) throw err
-    logger.info(`HTTP server is listening on ${address}`);
-})
-
-//#fisglobal
-
-fastify.addHook('onResponse', async (request, reply) => {
-    // Some code
-    //await asyncMethod()
-    // console.log(request);
-    // console.log(reply);
+    logger.info(`${NAME} server is listening on ${address}`);
 })
 
 const js2Options = {
@@ -242,7 +211,7 @@ const callSoapFunction = async (name, data) => {
             url: url,
             headers: headers,
             xml: xml,
-            timeout: 180000
+            timeout: 30000
         });
 
         const {
