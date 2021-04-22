@@ -27,9 +27,9 @@ const WWW = {
     '/': 'index.html',
     '/thanks': 'thanks.html',
     '/thanks.html': 'thanks.html',
-    'favicon.ico': 'favicon.ico',
-    'loader.gif': 'loader.gif',
-    'logo.png': 'logo.png'
+    '/favicon.ico': 'favicon.ico',
+    '/loader.gif': 'loader.gif',
+    '/logo.png': 'logo.png'
 }
 ///////////////////////////////////////////////////////////////
 
