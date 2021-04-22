@@ -184,11 +184,11 @@ const updateIncomeVerification = async (data) => {
         if (result && result.Attributes) {
             result = result.Attributes;
             //TODO! This is just a workaround for the redirect_url
-            if(result && result.TransactionID) {
+            if (result && result.TransactionID) {
                 let meta = META[result.TransactionID];
-                if(meta) {
-                    if(meta.redirect_url) {
-                        result.redirect_url = meta.redirect_url; 
+                if (meta) {
+                    if (meta.redirect_url) {
+                        result.redirect_url = meta.redirect_url;
                     }
                 }
             }
@@ -361,7 +361,7 @@ const sendFile = async (res, filename) => {
 
         filename = sanitize(filename);
         let file = baseDir + filename;
-      
+
         if (await utils.fileExists(file)) {
             let content = await utils.fileRead(file);
 
@@ -394,6 +394,7 @@ const httpHandler = async (req, res) => {
     let parsed;
     let param1;
     let reqUrl;
+    let useNew = false;
 
     const logExtras = {};
 
@@ -444,9 +445,11 @@ const httpHandler = async (req, res) => {
             reqUrl = req.url;
             //TODO!
             if (reqUrl.startsWith('/income/v1/')) {
+                useNew = true;
                 reqUrl = reqUrl.replace('/income/v1/', '/directid/');
             } else if (reqUrl.startsWith('/generate-url') || reqUrl.startsWith('/check-request') ||
                 reqUrl.startsWith('/webhook') || reqUrl.startsWith('/redirect')) {
+                useNew = true;
                 reqUrl = `/directid${reqUrl}`;
             }
 
@@ -536,13 +539,13 @@ const httpHandler = async (req, res) => {
                 // ignore
             }
         }
-  
+
     } catch (error) {
         logger.error(error);
     }
 
     //console.log(res.headersSent,res.writableFinished, res.finished)
-    if(!res.writableEnded) {
+    if (!res.writableEnded) {
         try {
             res.end();
         } catch (error) {}
@@ -596,7 +599,7 @@ const httpHandler = async (req, res) => {
             const query = parsed.query;
             //TODO! 
             let redirectUrl;
-            if(query && query.customer_ref) {
+            if (query && query.customer_ref) {
                 addLogExtra('query', query);
                 const customerReference = query.customer_ref;
                 const parts = customerReference.split(':');
@@ -604,19 +607,18 @@ const httpHandler = async (req, res) => {
                     const transaction_id = parts[1];
                     //TODO: Check for error?
                     let record = META[transaction_id];
-                    if(!record) {
+                    if (!record) {
                         record = DONE[transaction_id];
                     }
 
-                    if(record && record.redirect_url) {
+                    if (record && record.redirect_url) {
                         redirectUrl = record.redirect_url;
                     }
                 }
-            } 
+            }
 
-            //redirectUrl = redirectUrl || parsed.port === null ? 'thanks': '/thanks';
-            redirectUrl = redirectUrl || reqUrl.startsWith('/directid') ? '/thanks': 'thanks';
-            
+            redirectUrl = redirectUrl || useNew ? 'thanks' : '/thanks';
+
             //const otherParams = utils.queryStringToObject(redirectUrl, true);
             //console.log(otherParams)
             //const newQuery = {...query};
