@@ -33,6 +33,15 @@
         .w300 {
             min-width: 300px;
         }
+
+        #btn-redirect {
+            background: #0376BC;
+            width: 268px;
+            border-radius: 3px;
+            font-size: x-large;
+            color:white;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -157,7 +166,7 @@
                             `<h4><span style="color:white;background-color:#42C27D;padding:5px 10px">AUTHENTICATED</span></h4>`;
                         if (record.redirect_url && hasRef) {
                             status +=
-                                `<br/><br/><button id="btn-redirect"  data-url="${record.redirect_url}" class="btn btn-primary">Continue</button>`
+                                `<br/><br/><button id="btn-redirect" data-url="${record.redirect_url}" class="text-center">Continue</button>`
                         }
                     } else if (status === 'declined') {
                         transaction_id = undefined;
@@ -191,10 +200,10 @@
                 }
             }
 
-            $(document).on('click', '#btn-redirect', (event)=>{ 
+            $(document).on('click', '#btn-redirect', (event) => {
                 window.location = $('#btn-redirect').data('url');
             });
-            
+
             const outputResults = (data, mode = 1, br = true) => {
                 let isJSON = false;
                 let content;

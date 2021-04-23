@@ -14,7 +14,6 @@ const createParams =()=> {
         utils.parseDotNotation(name, field.Value, fields);
     });
 
-
     utils.fileWrite('./data/didservice.json', JSON.stringify(fields, null, 2));
 }
 
