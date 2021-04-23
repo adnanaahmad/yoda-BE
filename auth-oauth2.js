@@ -10,6 +10,10 @@ let renewTimer;
 const TOKENS = {};
 const REQUESTS = {};
 const KEYS = [];
+
+//TODO!
+const GRACE_PERIOD = 2 * 60 * 1000;
+
 //TODO!
 const saveFile = async (type, id, data) => {
     if (!data) {
@@ -35,7 +39,7 @@ const loadFile = async (type, id) => {
     }
 }
 
-const addRequest = (id, token_url, client_id, client_secret, scope, grant_type = 'client_credentials') => {
+const addRequest = (id, token_url, client_id, client_secret, scope, grant_type = 'client_credentials', extraData, extraHeaders) => {
     KEYS.push(id);
     REQUESTS[id] = {
         id,
@@ -44,7 +48,9 @@ const addRequest = (id, token_url, client_id, client_secret, scope, grant_type =
         client_secret,
         scope,
         grant_type,
-        headers: {}
+        responseHeaders: {},
+        extraData,
+        extraHeaders
     };
 }
 
@@ -63,7 +69,7 @@ const checkToken = async (id) => {
     }
 
     if (token) {
-        const seconds = Math.round((token.expires - 300000 - Date.now()) / 1000); 
+        const seconds = Math.round((token.expires - GRACE_PERIOD - Date.now()) / 1000);
         token.checking = false;
         if (seconds > 0) {
             return true;
@@ -71,21 +77,46 @@ const checkToken = async (id) => {
     }
 }
 
-const requestToken = async (id, url, client_id, client_secret, scope, grant_type = 'client_credentials', extraHeaders) => {
-    if (await checkToken(id)) {
-        return;
+const requestToken = async (req) => {
+    const {
+        id
+    } = req;
+    try {
+        if (await checkToken(id)) {
+            return;
+        }
+    } catch (error) {
+        console.log(error)
     }
+
+    //id, url, client_id, client_secret, scope, grant_type = 'client_credentials', 
+    let {
+        token_url,
+        client_id,
+        client_secret,
+        scope,
+        grant_type,
+        responseHeaders,
+        extraData,
+        extraHeaders
+    } = req;
+
+    grant_type = grant_type || 'client_credentials';
+    //req.token_url, req.client_id, req.client_secret, req.scope, req.grant_type, req.headers
+    //TODO: refresh_token
 
     logger.debug(`Requesting ${id} token...`);
     const headers = {
-        'content-type': 'application/x-www-form-urlencoded'
+        'content-type': 'application/x-www-form-urlencoded',
+        ...extraHeaders
         //'content-type': 'application/json'
     };
 
     const body = {
         grant_type: grant_type,
         client_id: client_id,
-        client_secret: client_secret
+        client_secret: client_secret,
+        ...extraData
     }
 
     if (scope) {
@@ -94,17 +125,17 @@ const requestToken = async (id, url, client_id, client_secret, scope, grant_type
 
     try {
         const start = utils.time();
-        const response = await utils.fetchData(url, body, headers, 'post', undefined, true, extraHeaders);
+        const response = await utils.fetchData(token_url, body, headers, 'post', undefined, true, responseHeaders);
 
         const duration = utils.time() - start;
 
         if (response && response.access_token && (response.expires_in || response.expires_in_secs)) {
-            
+
             if (response.expires_in_secs) {
                 response.expires_in = response.expires_in_secs;
                 delete response.expires_in_secs;
             }
-  
+
             response.expires = Date.now() + (response.expires_in * 1000);
             TOKENS[id] = response;
             logger.debug(`Retrieved ${id} token. Expires on ${new Date(response.expires).toISOString()} (${Math.round(response.expires_in / 60)} minutes). ${utils.toFixedPlaces(duration, 2)}ms`);
@@ -120,16 +151,12 @@ const requestToken = async (id, url, client_id, client_secret, scope, grant_type
 }
 
 const checkTokens = async () => {
-
     clearTimeout(renewTimer);
 
     const tokenFuncs = [];
 
     Object.keys(REQUESTS).forEach(key => {
-        let req = REQUESTS[key];
-        tokenFuncs.push(requestToken(req.id,
-            req.token_url, req.client_id, req.client_secret, req.scope, req.grant_type, req.headers));
-
+        tokenFuncs.push(requestToken(REQUESTS[key]));
     });
 
     let wait = 30000;
@@ -147,9 +174,9 @@ const checkTokens = async () => {
     }, wait);
 }
 
-const getToken =(id)=> {
+const getToken = (id) => {
     const auth = TOKENS[id];
-    if(auth) {
+    if (auth) {
         return auth.access_token;
     }
 }

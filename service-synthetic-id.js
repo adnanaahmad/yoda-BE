@@ -1,7 +1,11 @@
 'use strict';
 /*jshint esversion: 8 */
+const NAME = 'Synthetic Fraud';
+const TABLE = 'synthetic-id';
+const PORT = 8978;
+
 const utils = require('./utils');
-const logger = require('./logger').createLogger('service-synthetic-id');
+const logger = require('./logger').createLogger(TABLE);
 utils.setLogger(logger);
 
 const cache = require('./cache');
@@ -18,9 +22,7 @@ if (!SCRIPT_INFO.host) {
     process.exit(1);
 }
 
-const NAME = 'Synthetic Fraud';
-const TABLE = 'synthetic-id';
-const PORT = 8978;
+const params = require('./params');
 
 const TEMPLATES = {};
 
@@ -32,17 +34,13 @@ const fastify = require('fastify')({
 })
 
 fastify.register(require('fastify-static'), {
-    root: `${__dirname}/public/synthetic-id`,
+    root: `${__dirname}/public/${TABLE}`,
     serve: true,
     prefix: '/',
 })
 
 const handler = require('./utils-handlers');
 handler.init();
-
-const loadParams = async () => {
-
-}
 
 const doRequest = async (data, customerId) => {
 
@@ -150,12 +148,8 @@ fastify.listen(PORT, (err, address) => {
 });
 
 (async () => {
-    await loadParams();
-    const OAUTH_URL = 'https://api.sandbox.equifax.com/v1/oauth/token';
-    const scopes = 'https://api.equifax.com/business/syntheticid/v1';
-    oauth2.cacheTokens = false;
-    oauth2.addRequest(TABLE, OAUTH_URL, 'CEffVkM7ffWiRNzxdFZbAKcrCgcQ1BAC', 'cIthhWf2FR7rN13s', scopes);
+    const p = await params.init(TABLE);
+    oauth2.addRequest(TABLE, p.token_url, p.client_id , p.client_secret, p.scopes);
     await oauth2.start();
     //await utils.loadTemplates('./templates/syntheticid/', TEMPLATES, true);
-    //await utils.timeout(1000);
 })();

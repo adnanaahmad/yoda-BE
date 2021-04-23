@@ -259,6 +259,12 @@
                 transaction_id = undefined;
                 status =
                   `<h1><span style="color:white;background-color:#42C27D;padding:10px 20px">AUTHENTICATED</span></h1>`;
+                  
+                if (results.redirect_url && hasRef) {
+                  status +=
+                    `<br/><br/><button id="btn-redirect"  data-url="${results.redirect_url}" class="btn btn-primary">Continue</button>`
+                }
+
               } else if (status === 'declined') {
                 transaction_id = undefined;
                 status =
@@ -348,6 +354,10 @@
           //startTime = Date.now();
           //getRequestStatus();
         }
+      });
+
+      $(document).on('click', '#btn-redirect', (event) => {
+        window.location = $('#btn-redirect').data('url');
       });
 
       btnUrl.addEventListener("click", async () => {

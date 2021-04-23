@@ -86,8 +86,8 @@
         <br />
         <div id="output" class="text-center"></div>
     </div>
-    <br/>
-    <br/>
+    <br />
+    <br />
     <script src="https://code.jquery.com/jquery-3.5.0.slim.min.js"
         integrity="sha256-MlusDLJIP1GRgLrOflUQtshyP0TwT/RHXsI1wWGnQhs=" crossorigin="anonymous"></script>
     <script>
@@ -95,7 +95,7 @@
             "use strict";
 
             const BASE_URL = `${window.location.protocol}//${window.location.hostname}/mfa/v1`;
-            
+
             const params = new URLSearchParams(window.location.search);
             let hasRef = params && params.has('ref');
             let divOutput = $("#output");
@@ -155,6 +155,10 @@
                         transaction_id = undefined;
                         status =
                             `<h4><span style="color:white;background-color:#42C27D;padding:5px 10px">AUTHENTICATED</span></h4>`;
+                        if (record.redirect_url && hasRef) {
+                            status +=
+                                `<br/><br/><button id="btn-redirect"  data-url="${record.redirect_url}" class="btn btn-primary">Continue</button>`
+                        }
                     } else if (status === 'declined') {
                         transaction_id = undefined;
                         status =
@@ -187,6 +191,10 @@
                 }
             }
 
+            $(document).on('click', '#btn-redirect', (event)=>{ 
+                window.location = $('#btn-redirect').data('url');
+            });
+            
             const outputResults = (data, mode = 1, br = true) => {
                 let isJSON = false;
                 let content;
@@ -287,6 +295,7 @@
             if (hasRef) {
                 transaction_id = params.get('ref');
                 let response = await getAPIData(`/verify/${transaction_id}`);
+
                 console.log(response);
                 getRequestStatus(response);
             } else {

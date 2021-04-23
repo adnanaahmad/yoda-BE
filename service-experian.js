@@ -1,8 +1,8 @@
 'use strict';
 /*jshint esversion: 8 */
-const NAME = 'Base';
-const TABLE = 'base';
-const PORT = 5678;
+const NAME = 'Experian';
+const TABLE = 'experian';
+const PORT = 5433;
 
 const utils = require('./utils');
 const logger = require('./logger').createLogger(TABLE);
@@ -11,10 +11,12 @@ utils.setLogger(logger);
 const cache = require('./cache');
 
 const authMain = require('./auth-main');
+const oauth2 = require('./auth-oauth2');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
+const params = require('./params');
 
 if (!SCRIPT_INFO.host) {
     logger.error('HOST must be defined.');
@@ -36,10 +38,6 @@ fastify.register(require('fastify-static'), {
 
 const handler = require('./utils-handlers');
 handler.init();
-
-const loadParams = async () => {
-
-}
 
 fastify.get('/check-request/:id', async (request, reply) => {
     let data = {};
@@ -83,7 +81,7 @@ fastify.post('/generate-url', async (request, reply) => {
 
     if (body && body.phone_number) {
         logger.silly(body);
-        
+
     } else {
         code = 422;
         data.error = 'Missing parameter';
@@ -108,5 +106,13 @@ fastify.listen(PORT, (err, address) => {
 });
 
 (async () => {
-    await loadParams();
+    const p = await params.init(TABLE);
+
+    oauth2.addRequest(TABLE, p.url, p.client_id, p.client_secret, undefined, 'password', {
+        username: p.username,
+        password: p.password
+    });
+
+    await oauth2.start();
+    //console.log(oauth2.TOKENS);
 })();
