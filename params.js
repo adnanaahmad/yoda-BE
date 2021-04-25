@@ -8,12 +8,12 @@ let _path;
 
 let PARAMS;
 
-const init = async (path) => {
+const init =  (path) => {
     _path = path;
-    let file = `${__dirname}/config/${path}.json`;
-    PARAMS = await utils.loadJSONAsync(file);
+    let file = `${__dirname}${path}.json`;
+    PARAMS = utils.loadJSON(file);
     if (!PARAMS) {
-        //TODO!
+        PARAMS = awsClient.getParametersByPathSync(path, undefined, true);
     }
     return PARAMS;
 }
@@ -30,9 +30,10 @@ const getAll = ()=> {
 
 })();
 
-module.exports = {
-    init,
-    get,
-    getAll,
-    default: ()=>getAll()
-}
+module.exports = init;
+// module.exports = {
+//     init,
+//     get,
+//     getAll,
+//     default: init
+// }

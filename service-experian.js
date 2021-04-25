@@ -1,12 +1,19 @@
 'use strict';
 /*jshint esversion: 8 */
+
 const NAME = 'Experian';
 const TABLE = 'experian';
-const PORT = 5433;
+const CONFIG_PATH = '/config/experian/experian';
 
 const utils = require('./utils');
 const logger = require('./logger').createLogger(TABLE);
 utils.setLogger(logger);
+
+const params = require('./params')(CONFIG_PATH);
+if(!params) {
+    logger.error('No parameters defined.');
+    process.exit(1);
+}
 
 const cache = require('./cache');
 
@@ -16,7 +23,7 @@ const oauth2 = require('./auth-oauth2');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
-const params = require('./params');
+
 
 if (!SCRIPT_INFO.host) {
     logger.error('HOST must be defined.');
@@ -100,17 +107,15 @@ fastify.addHook('onResponse', async (request, reply) => {
 
 })
 
-fastify.listen(PORT, (err, address) => {
+fastify.listen(params.port, (err, address) => {
     if (err) throw err
     logger.info(`HTTP server is listening on ${address}`);
 });
 
 (async () => {
-    const p = await params.init(TABLE);
-
-    oauth2.addRequest(TABLE, p.url, p.client_id, p.client_secret, undefined, 'password', {
-        username: p.username,
-        password: p.password
+    oauth2.addRequest(TABLE, params.url, params.client_id, params.client_secret, undefined, 'password', {
+        username: params.username,
+        password: params.password
     });
 
     await oauth2.start();

@@ -2,11 +2,18 @@
 /*jshint esversion: 8 */
 const NAME = 'Synthetic Fraud';
 const TABLE = 'synthetic-id';
-const PORT = 8978;
+const CONFIG_PATH = '/config/equifax/synthetic-id';
 
+//TODO: Helper function for logger and params
 const utils = require('./utils');
 const logger = require('./logger').createLogger(TABLE);
 utils.setLogger(logger);
+
+const params = require('./params')(CONFIG_PATH);
+if(!params) {
+    logger.error('No parameters defined.');
+    process.exit(1);
+}
 
 const cache = require('./cache');
 
@@ -21,8 +28,6 @@ if (!SCRIPT_INFO.host) {
     logger.error('HOST must be defined.');
     process.exit(1);
 }
-
-const params = require('./params');
 
 const TEMPLATES = {};
 
@@ -142,14 +147,14 @@ fastify.post('/query', async (request, reply) => {
     return data;
 })
 
-fastify.listen(PORT, (err, address) => {
+fastify.listen(params.port, (err, address) => {
     if (err) throw err
     logger.info(`HTTP server is listening on ${address}`);
 });
 
 (async () => {
-    const p = await params.init(TABLE);
-    oauth2.addRequest(TABLE, p.token_url, p.client_id , p.client_secret, p.scopes);
+    oauth2.addRequest(TABLE, params.token_url, params.client_id , params.client_secret, params.scopes);
     await oauth2.start();
+    init();
     //await utils.loadTemplates('./templates/syntheticid/', TEMPLATES, true);
 })();

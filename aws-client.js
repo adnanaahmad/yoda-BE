@@ -61,6 +61,48 @@ const getParameter = async (name) => {
   }
 };
 
+const getParametersByPathSync = (path, filters, simple = false) => {
+  const params = {
+    Path: path,
+    Recursive: true,
+    WithDecryption: true
+  };
+
+  if (filters) {
+    params.ParameterFilters = filters;
+  }
+
+  try {
+    let repeat = false;
+    let values = [];
+    do {
+      repeat = false;
+      const result = ssm.getParametersByPath(params);
+      if (result) {
+        if (result.NextToken) {
+          repeat = true;
+          params.NextToken = result.NextToken;
+        } else {
+          delete params.NextToken;
+        }
+        values = [...values, ...result.Parameters];
+      }
+    } while (repeat);
+
+    if (simple && values) {
+      let temp = {};
+      values.forEach(value => {
+        temp[value.Name.substr(value.Name.lastIndexOf('/') + 1)] = value.Value;
+      })
+      values = temp;
+    }
+
+    return values;
+  } catch (error) {
+    logger.error('getParametersByPath', path, error);
+  }
+};
+
 const getParametersByPath = async (path, filters, simple = false) => {
   const params = {
     Path: path,
@@ -229,8 +271,6 @@ const createTable = async (params) => {
   }
 }
 
-
-
 const docQuery = async (params, dax = true) => {
   try {
     const client = hasDax && dax ? daxClient : ddbClient;
@@ -335,6 +375,7 @@ module.exports = {
   getParameter,
   putParameter,
   getParametersByPath,
+  getParametersByPathSync,
   putDDBItem,
   getDDBItem,
   updateDDBItem,

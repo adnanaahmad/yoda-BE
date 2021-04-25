@@ -1,8 +1,20 @@
 'use strict';
 /*jshint esversion: 8 */
+
+const NAME = 'Document Verification';
+const TABLE = 'veriff';
+
+const CONFIG_PATH = '/config/veriff/doc';
+
 const utils = require('./utils');
-const logger = require('./logger').createLogger('service-veriff');
+const logger = require('./logger').createLogger(TABLE);
 utils.setLogger(logger);
+
+const params = require('./params')(CONFIG_PATH);
+if(!params) {
+    logger.error('No parameters defined.');
+    process.exit(1);
+}
 
 const nameMatch = require('./name-match');
 const cache = require('./cache');
@@ -16,8 +28,6 @@ if(!SCRIPT_INFO.host) {
     logger.error('HOST must be defined.');
     process.exit(1);
 }
-
-const TABLE = 'veriff';
 
 const fastify = require('fastify')({
     logger: false,
@@ -50,8 +60,8 @@ const RESTRICTED_ROUTES = [
 const KEYS = {};
 
 const loadParams = async () => {
-    KEYS[process.env.VERIFF_KEY] = process.env.VERIFF_PASSWORD;
-    KEYS[process.env.VERIFF_KEY_TEST] = process.env.VERIFF_PASSWORD_TEST;
+    KEYS[params.client_id] = params.client_secret;
+    KEYS[params.client_id_test] = params.client_secret_test;
 }
 
 const verifySignature = (request, reply) => {
@@ -172,10 +182,6 @@ fastify.post('/webhook', {
     }
 });
 
-//TODO! params!
-const email_subject = 'Document Verification steps';
-const sms_text = 'From FortifID: please use the following link to complete the Document Verification steps: %URL%'
-
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
     let code = 404;
@@ -276,7 +282,7 @@ fastify.post('/generate-url', async (request, reply) => {
             let d = {
                 transaction_id: transaction_id,
                 numbers: phone_number,
-                text: utils.parseTemplate(sms_text, {
+                text: utils.parseTemplate(params.sms_text, {
                     '%URL%': data.url
                 })
             };
@@ -286,7 +292,7 @@ fastify.post('/generate-url', async (request, reply) => {
         let email_address = body.email_address;
 
         if (utils.validateEmail(email_address)) {
-            let subject = email_subject;
+            let subject = params.email_subject;
 
             let replacements = {
                 "%EMAIL%": email_address,
@@ -345,7 +351,7 @@ fastify.addHook("onRequest", async (request, reply) => {
     //authJWT.getAuth(request);
 })
 
-fastify.listen(8004, (err, address) => {
+fastify.listen(params.port, (err, address) => {
     if (err) throw err
     logger.info(`HTTP server is listening on ${address}`);
 });

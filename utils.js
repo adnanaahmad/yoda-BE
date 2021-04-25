@@ -880,8 +880,12 @@ const flattenObject2 = (obj) => {
 
 const loadJSON = (file) => {
     if (file && fs.existsSync(file)) {
-        let json = JSON.parse(fs.readFileSync(file, 'utf-8'));
-        return json;
+        try {
+            let json = JSON.parse(fs.readFileSync(file, 'utf-8'));
+            return json;
+        } catch (error) {
+
+        }
     }
 }
 

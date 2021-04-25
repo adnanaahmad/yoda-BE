@@ -163,7 +163,7 @@
                     if (status === 'verified') {
                         transaction_id = undefined;
                         status =
-                            `<h4><span style="color:white;background-color:#42C27D;padding:5px 10px">AUTHENTICATED</span></h4>`;
+                            `<h3><span style="color:white;background-color:#42C27D;padding:5px 10px">AUTHENTICATED</span></h3>`;
                         if (record.redirect_url && hasRef) {
                             status +=
                                 `<br/><br/><button id="btn-redirect" data-url="${record.redirect_url}" class="text-center">Continue</button>`
@@ -171,17 +171,17 @@
                     } else if (status === 'declined') {
                         transaction_id = undefined;
                         status =
-                            `<h4><span style="color:white;background-color: red;padding:5px 10px">DECLINED</span></h4>`;
+                            `<h3><span style="color:white;background-color: red;padding:5px 10px">DECLINED</span></h3>`;
                     } else if (status === 'error') {
 
                     } else if (status === 'used') {
                         transaction_id = undefined;
                         status =
-                            `<h4><span style="color:white;background-color: orange;padding:5px 10px">ALREADY AUTHENTICATED</span></h4>`;
+                            `<h3><span style="color:white;background-color: orange;padding:5px 10px">ALREADY AUTHENTICATED</span></h3>`;
                     } else if (status === 'lookup') {
                         transaction_id = undefined;
                         status =
-                            `<h4><span style="color:white;background-color: blue;padding:5px 10px">LOOKUP RESULTS</span></h4>`;
+                            `<h3><span style="color:white;background-color: blue;padding:5px 10px">LOOKUP RESULTS</span></h3>`;
                     }
                     if (record.reason) {
                         status = `${status}${record.reason}`;

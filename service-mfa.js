@@ -1,11 +1,22 @@
 'use strict';
 /*jshint esversion: 8 */
+
+const NAME = 'Secure MFA';
+const TABLE = 'mfa';
+const CONFIG_PATH = '/config/twilio/mfa';
+
 const utils = require('./utils');
-const logger = require('./logger').createLogger('service-mfa');
+const logger = require('./logger').createLogger(TABLE);
 utils.setLogger(logger);
 
-const cache = require('./cache');
+const params = require('./params')(CONFIG_PATH);
+if(!params) {
+    logger.error('No parameters defined.');
+    process.exit(1);
+}
 
+
+const cache = require('./cache');
 const authMain = require('./auth-main');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
@@ -16,8 +27,6 @@ if (!SCRIPT_INFO.host) {
     logger.error('HOST must be defined.');
     process.exit(1);
 }
-
-const TABLE = 'mfa';
 
 const fastify = require('fastify')({
     logger: false,
@@ -36,13 +45,6 @@ const twilioUtils = require('./handler-twilio');
 
 const handler = require('./utils-handlers');
 handler.init();
-
-const loadParams = async () => {
-
-}
-
-//TODO! params!
-const sms_text = 'From FortifID: please use the following link to complete the Secure MFA step: %URL%'
 
 // fastify.get('/', function (request, reply) {
 //     return reply.sendFile('index.html'); // serving path.join(__dirname, 'public', 'myHtml.html') directly
@@ -183,7 +185,7 @@ fastify.post('/generate-url', async (request, reply) => {
                                 let short = await utils.shortenUrl(data.url);
                                 data.url = short || data.url;
 
-                                lookup.text = utils.parseTemplate(sms_text, {
+                                lookup.text = utils.parseTemplate(params.sms_text, {
                                     '%URL%': data.url
                                 });
 
@@ -257,11 +259,11 @@ fastify.addHook('onResponse', async (request, reply) => {
     }
 })
 
-fastify.listen(7997, (err, address) => {
+fastify.listen(params.port, (err, address) => {
     if (err) throw err
     logger.info(`HTTP server is listening on ${address}`);
 });
 
 (async () => {
-    await loadParams();
+
 })();
