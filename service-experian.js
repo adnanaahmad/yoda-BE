@@ -113,7 +113,7 @@ fastify.listen(params.port, (err, address) => {
 });
 
 (async () => {
-    oauth2.addRequest(TABLE, params.url, params.client_id, params.client_secret, undefined, 'password', {
+    oauth2.addRequest(TABLE, params.url, params.client_id, params.client_secret, params.scope, 'password', {
         username: params.username,
         password: params.password
     });

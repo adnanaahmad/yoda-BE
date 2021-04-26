@@ -13,6 +13,7 @@ const names = {
     handler_twilio: 'handler_twilio',
     handler_email: 'handler_email',
     handler_webhook: 'handler_webhook',
+    handler_sns: 'handler_sns',
 };
 
 let postQ;

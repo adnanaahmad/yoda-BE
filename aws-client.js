@@ -8,7 +8,7 @@ AWS.config.update({
 
 const ssm = new AWS.SSM();
 const ddb = new AWS.DynamoDB();
-
+const sns = new AWS.SNS();
 
 //TODO: Amazon's library causes this: Warning: Accessing non-existent property 'INVALID_ALT_NUMBER' of module exports inside circular dependency 
 // export NODE_NO_WARNINGS=1
@@ -176,8 +176,22 @@ const putDDBItem = async (table, data, dax = true) => {
   }
 }
 
+
+const sendSNS = async (number, message) => {
+  const params = {
+    Message: message,
+    PhoneNumber: number,
+  };
+
+  try {
+    return await sns.publish(params).promise();
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
 const decrementDDBItem = async (table, key, field, value = 1, dax = true) => {
-  
+
   // const names = {};
   // const char = utils.baseAlpha.encode(1);
 
@@ -216,7 +230,7 @@ const incrementDDBItem = async (table, key, field, value = 1, dax = true) => {
     },
     ReturnValues: "UPDATED_NEW"
   };
-  
+
   const client = hasDax && dax ? daxClient : ddbClient;
 
   try {
@@ -334,9 +348,9 @@ const updateDynamic = async (table, keys, data) => {
       UpdateExpression: updateExpression,
       ExpressionAttributeValues: values,
       ExpressionAttributeNames: names,
-      ReturnValues: "ALL_NEW" 
+      ReturnValues: "ALL_NEW"
     };
-//UPDATED_NEW 
+    //UPDATED_NEW 
     //logger.debug('updateDynamic - params', params);
     let result = await updateDDBItem(params);
 
@@ -388,5 +402,6 @@ module.exports = {
   createTable,
   incrementDDBItem,
   decrementDDBItem,
-  updateDynamic
+  updateDynamic,
+  sendSNS
 };
