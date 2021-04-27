@@ -541,6 +541,13 @@ const copyData = (source, map, dest) => {
     return dest;
 }
 
+const shuffleArray = (array) => {
+    const len = array.length;
+    for (let i = len - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
 
 const findObjectByFieldValue = (arr, field, value, all = false, asObject = false, keyField) => {
 
@@ -1136,7 +1143,7 @@ const splitLines = (data) => {
 
 const numbersOnly = (data, asString = true) => {
     if (typeof (data) === 'undefined') {
-        return  asString ? '' : 0;
+        return asString ? '' : 0;
     }
 
     let results = (data + '').match(/\d+/g).join('');
@@ -1272,5 +1279,6 @@ module.exports = {
     splitLines,
     camelToSnakeCaseObject,
     formatDate,
-    numbersOnly
+    numbersOnly,
+    shuffleArray
 }

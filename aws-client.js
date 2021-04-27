@@ -10,15 +10,88 @@ const ssm = new AWS.SSM();
 const ddb = new AWS.DynamoDB();
 const sns = new AWS.SNS();
 
-//TODO: Amazon's library causes this: Warning: Accessing non-existent property 'INVALID_ALT_NUMBER' of module exports inside circular dependency 
-// export NODE_NO_WARNINGS=1
-const AmazonDaxClient = require('amazon-dax-client');
 const ddbOptions = {};
+
+// var https = require('https');
+// var agent = new https.Agent({
+//   maxSockets: 5000
+// });
+
+// const tsClient = new AWS.TimestreamWrite({
+//   maxRetries: 10,
+//   httpOptions: {
+//     timeout: 20000,
+//     agent: agent
+//   }
+// });
+
+// async function writeRecordsWithCommonAttributes() {
+//   console.log("Writing records with common attributes");
+//   const currentTime = Date.now().toString(); // Unix time in milliseconds
+
+//   const dimensions = [{
+//       'Name': 'region',
+//       'Value': 'us-east-1'
+//     },
+//     {
+//       'Name': 'az',
+//       'Value': 'az1'
+//     },
+//     {
+//       'Name': 'hostname',
+//       'Value': 'host1'
+//     }
+//   ];
+
+//   const commonAttributes = {
+//     'Dimensions': dimensions,
+//     'MeasureValueType': 'DOUBLE',
+//     'Time': currentTime.toString()
+//   };
+
+//   const cpuUtilization = {
+//     'MeasureName': 'cpu_utilization',
+//     'MeasureValue': '13.5'
+//   };
+
+//   const memoryUtilization = {
+//     'MeasureName': 'memory_utilization',
+//     'MeasureValue': '40'
+//   };
+
+//   const records = [cpuUtilization, memoryUtilization];
+
+//   const params = {
+//     DatabaseName: constants.DATABASE_NAME,
+//     TableName: constants.TABLE_NAME,
+//     Records: records,
+//     CommonAttributes: commonAttributes
+//   };
+
+//   const request = writeClient.writeRecords(params);
+
+//   await request.promise().then(
+//     (data) => {
+//       console.log("Write records successful");
+//     },
+//     (err) => {
+//       console.log("Error writing records:", err);
+//       if (err.code === 'RejectedRecordsException') {
+//         const responsePayload = JSON.parse(request.response.httpResponse.body.toString());
+//         console.log("RejectedRecords: ", responsePayload.RejectedRecords);
+//         console.log("Other records were written successfully. ");
+//       }
+//     }
+//   );
+// }
 
 let hasDax = false;
 
 if (process.env.DAX_URL) {
   try {
+    //TODO: Amazon's library causes this: Warning: Accessing non-existent property 'INVALID_ALT_NUMBER' of module exports inside circular dependency 
+    // export NODE_NO_WARNINGS=1
+    const AmazonDaxClient = require('amazon-dax-client');
     const dax = new AmazonDaxClient({
       endpoints: [process.env.DAX_URL],
       region: process.env.AWS_REGION

@@ -15,14 +15,28 @@ let ready = false;
 let twilio;
 const Q = require('./utils-q');
 
-let TWILIO_NUMBER;
+let TWILIO_NUMBERS;
+let numberCount = 0;
+let numberIndex = -1;
 
 const sendSMSTwilio = async (numbers, message) => {
     try {
+        let fromNumber;
+
+        if(numberCount > 0) {
+            numberIndex++;
+            if(numberIndex >= numberCount) {
+                numberIndex = 0;
+            }
+            fromNumber = TWILIO_NUMBERS[numberIndex];
+        }else {
+            fromNumber = TWILIO_NUMBERS;
+        } 
+
         let data = await twilio.messages
             .create({
                 body: message,
-                from: TWILIO_NUMBER,
+                from: fromNumber,
                 to: numbers
             });
         return data;
@@ -83,7 +97,7 @@ const add = async (data) => {
             results = await sendSMSTwilio(data.numbers, data.text);
             if (results) {
                 const duration = utils.time() - start;
-                logger.info(`[${id}] SMS sent. ${results.sid} ${utils.toFixedPlaces(duration, 2)}ms`);
+                logger.info(`[${id}] SMS sent. ${results.sid} [${results.from}] ${utils.toFixedPlaces(duration, 2)}ms`);
             } else {
                 logger.warn('No data returned.');
             }
@@ -119,7 +133,8 @@ const test = async ()=> {
         text: `HELLO! The time is ${new Date().toISOString()}`
     };
 
-    Q.getQ(Q.names.handler_twilio).add(data);
+    //Q.getQ(Q.names.handler_twilio).add(data);
+    add(data);
 }
 
 const loadParams = async () => {
@@ -140,12 +155,19 @@ const loadParams = async () => {
         if (results) {
             const twilioAccountSid = results[0];
             const twilioAuthToken = results[1];
-            TWILIO_NUMBER = results[2];
 
-            if (twilioAccountSid && twilioAuthToken && TWILIO_NUMBER) {
+            TWILIO_NUMBERS = results[2];
+            if (twilioAccountSid && twilioAuthToken && TWILIO_NUMBERS) {
                 twilio = require('twilio')(twilioAccountSid, twilioAuthToken);
                 const duration = utils.time() - start;
-                logger.info(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
+                //TODO: Array.isArray
+                if(typeof(TWILIO_NUMBERS) === 'object') {
+                    numberCount = TWILIO_NUMBERS.length;
+                    if(numberCount > 1) {
+                        utils.shuffleArray(TWILIO_NUMBERS);
+                    }
+                }
+                logger.info(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms. Numbers: ${ numberCount > 0 ? numberCount : 1}.`);
             } else {
                 logger.warn(`[${SCRIPT_INFO.name}] Twilio account information missing.`);
             }
