@@ -264,14 +264,8 @@ fastify.post('/generate-url', async (request, reply) => {
         data.transaction_id = transaction_id;
 
         let full_name = body.full_name;
-        data.status = 'sent';
 
-        let save = {
-            created: data.created,
-            status: data.status,
-            pii: {}
-        };
-
+        //TODO! Do this after validation
         data.url = `https://${SCRIPT_INFO.host}/doc/v1?ref=${encodeURIComponent(transaction_id)}`
 
         let short = await utils.shortenUrl(data.url);
@@ -279,19 +273,27 @@ fastify.post('/generate-url', async (request, reply) => {
 
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
-            let d = {
-                transaction_id: transaction_id,
-                numbers: phone_number,
-                text: utils.parseTemplate(params.sms_text, {
-                    '%URL%': data.url
-                })
-            };
-            handler.twilio(d);
+
+            const pn = utils.parsePhoneNumber(phone_number);
+            if (pn.isValid()) {
+                phone_number = pn.getNumber();
+                let d = {
+                    transaction_id: transaction_id,
+                    numbers: phone_number,
+                    text: utils.parseTemplate(params.sms_text, {
+                        '%URL%': data.url
+                    })
+                };
+                handler.twilio(d);
+            } else {
+                code = 422;
+                data.error = 'Invalid phone number.';
+            }
         }
 
         let email_address = body.email_address;
 
-        if (utils.validateEmail(email_address)) {
+        if (utils.validateEmail(email_address) && code === 200) {
             let subject = params.email_subject;
 
             let replacements = {
@@ -313,32 +315,50 @@ fastify.post('/generate-url', async (request, reply) => {
             handler.email(d);
         }
 
-        let dob = body.birth_date;
-        if (typeof (dob) === 'string' && dob.length > 0) {
-            save.pii.dob = dob;
+        if(code === 200) {
+            data.status = 'sent';
+            let save = {
+                created: data.created,
+                status: data.status,
+                pii: {}
+            };
+    
+            let dob = body.birth_date;
+            if (typeof (dob) === 'string' && dob.length > 0) {
+                save.pii.dob = dob;
+            }
+    
+            if (typeof (full_name) === 'string' && full_name.length > 0) {
+                save.pii.name = full_name;
+            }
+    
+            if (request.user) {
+                save.customer_id = request.user.CustomerAccountID;
+            }
+    
+            let redirect_url = body.redirect_url;
+            if (typeof (redirect_url) === 'string' && redirect_url.length > 0) {
+                save.redirect_url = redirect_url;
+            }
+    
+            let request_reference = body.request_reference;
+            if (typeof (request_reference) === 'string' && request_reference.length > 0) {
+                save.request_reference = request_reference;
+            }
+            
+            await cache.setP(TABLE, transaction_id, save, '1w', true);
+        } else {
+            delete data.transaction_id;
+            delete data.url;
         }
 
-        if (typeof (full_name) === 'string' && full_name.length > 0) {
-            save.pii.name = full_name;
-        }
-
-        if (request.user) {
-            save.customer_id = request.user.CustomerAccountID;
-        }
-
-        let redirect_url = body.redirect_url;
-        if (typeof (redirect_url) === 'string' && redirect_url.length > 0) {
-            save.redirect_url = redirect_url;
-        }
-
-        let request_reference = body.request_reference;
-        if (typeof (request_reference) === 'string' && request_reference.length > 0) {
-            save.request_reference = request_reference;
-        }
-        await cache.setP(TABLE, transaction_id, save, '1w', true);
     } else {
         code = 422;
-        data.error = 'Missing parameter';
+        data.error = 'Missing parameter.';
+    }
+
+    if(code !== 200) {
+        data.status = 'error';
     }
 
     data.code = code;

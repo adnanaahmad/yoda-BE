@@ -29,7 +29,7 @@ const webhook = (data, options) => _webhookQ.add(data, options);
 const sns = (data, options) => _snsQ.add(data, options);
 
 (async () => {
-
+    
 })();
 
 module.exports = {

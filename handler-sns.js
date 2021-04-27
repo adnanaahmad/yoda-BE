@@ -9,7 +9,6 @@ if(!SCRIPT_INFO.library_mode) {
     logger.info(SCRIPT_INFO);
 }
 
-var PhoneNumber = require( 'awesome-phonenumber' );
 const awsClient = require('./aws-client');
 const Q = require('./utils-q');
 
@@ -24,7 +23,7 @@ const add = async (data) => {
     let results;
     if (data) {
         try {
-            let pn = new PhoneNumber( data.numbers, 'US');
+            let pn = utils.parsePhoneNumber(data.numbers);
             data.numbers = pn.getNumber();
             const id = data.transaction_id || data.numbers;
             logger.info(`[${id}] SMS process started.`);

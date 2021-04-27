@@ -23,15 +23,15 @@ const sendSMSTwilio = async (numbers, message) => {
     try {
         let fromNumber;
 
-        if(numberCount > 0) {
+        if (numberCount > 0) {
             numberIndex++;
-            if(numberIndex >= numberCount) {
+            if (numberIndex >= numberCount) {
                 numberIndex = 0;
             }
             fromNumber = TWILIO_NUMBERS[numberIndex];
-        }else {
+        } else {
             fromNumber = TWILIO_NUMBERS;
-        } 
+        }
 
         let data = await twilio.messages
             .create({
@@ -58,14 +58,14 @@ const lookup = async (data) => {
             const id = data.transaction_id || data.numbers;
             logger.info(`[${id}] Lookup process started.`);
             const start = utils.time();
-            
+
             results = await twilio.lookups.v1.phoneNumbers(data.numbers)
-            //countryCode: 'US'
-            .fetch({
+                //countryCode: 'US'
+                .fetch({
                     //type: ['caller-name', 'carrier']
                     type: ['carrier']
                 });
-            
+
             if (results) {
                 const duration = utils.time() - start;
                 logger.info(`[${id}] Lookup finished. ${utils.toFixedPlaces(duration, 2)}ms`);
@@ -124,7 +124,7 @@ const startQueue = () => {
     });
 }
 
-const test = async ()=> {
+const test = async () => {
     console.log('TEST!');
 
     let data = {
@@ -160,18 +160,22 @@ const loadParams = async () => {
             if (twilioAccountSid && twilioAuthToken && TWILIO_NUMBERS) {
                 twilio = require('twilio')(twilioAccountSid, twilioAuthToken);
                 const duration = utils.time() - start;
-           
-                if(typeof(TWILIO_NUMBERS) === 'string') {
+
+                if (typeof (TWILIO_NUMBERS) === 'string') {
                     TWILIO_NUMBERS = utils.splitItems(TWILIO_NUMBERS);
                 }
 
-                if(Array.isArray(TWILIO_NUMBERS)) {
+                if (Array.isArray(TWILIO_NUMBERS)) {
                     numberCount = TWILIO_NUMBERS.length;
-                    if(numberCount > 1) {
+                    TWILIO_NUMBERS = TWILIO_NUMBERS.map(num => utils.parsePhoneNumber(num).getNumber());
+                    if (numberCount > 1) {
                         utils.shuffleArray(TWILIO_NUMBERS);
                     }
+                } else {
+                    TWILIO_NUMBERS = utils.parsePhoneNumber(TWILIO_NUMBERS).getNumber();
                 }
                 logger.info(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms. Numbers: ${ numberCount > 0 ? numberCount : 1}.`);
+                logger.info(`[${SCRIPT_INFO.name}] Numbers: ${TWILIO_NUMBERS} (${ numberCount > 0 ? numberCount : 1}).`);
             } else {
                 logger.warn(`[${SCRIPT_INFO.name}] Twilio account information missing.`);
             }
@@ -185,6 +189,7 @@ const loadParams = async () => {
 }
 
 (async () => {
+    console.log('WTF');
     await loadParams();
     if (ready) {
         if (!SCRIPT_INFO.library_mode) {

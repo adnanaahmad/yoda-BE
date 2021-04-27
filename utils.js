@@ -16,6 +16,8 @@ const dayjs = require('dayjs');
 const url = require('url');
 const ipRangeCheck = require("ip-range-check");
 const path = require('path');
+const PhoneNumber = require('awesome-phonenumber');
+const { URL } = require('url');
 
 const {
     v4: uuidv4
@@ -838,6 +840,14 @@ const sortObjKeysAlphabetically = (obj) => {
 //     return ordered;
 // }
 
+const parsePhoneNumber = (phoneNumber, countryCode = 'US')=> {
+    return new PhoneNumber( phoneNumber, countryCode);
+}
+
+
+const parseURL = (url)=> {
+    return new URL(url);
+}
 
 const isValidIpv4Address = (ip) => {
     return /^(?=\d+\.\d+\.\d+\.\d+$)(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\.?){4}$/.test(ip);
@@ -1289,5 +1299,7 @@ module.exports = {
     formatDate,
     numbersOnly,
     shuffleArray,
-    splitItems
+    splitItems,
+    parsePhoneNumber,
+    parseURL
 }

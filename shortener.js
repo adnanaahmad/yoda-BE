@@ -3,6 +3,7 @@
 const utils = require('./utils');
 const logger = require('./logger').createLogger('shortener');
 utils.setLogger(logger);
+const ms = require('ms');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
@@ -23,11 +24,16 @@ const storage = require('node-persist');
 fastify.post('/', async (request, reply) => {
     const body = request.body;
     if (body && body.long_url) {
-        if(body.long_url.indexOf('directid.co') == -1 && body.long_url.indexOf('fortifid.com') == -1) {o
+        const now = Date.now();
+
+        let url = utils.parseURL(body.long_url);
+
+        if(url.hostname.indexOf('directid.co') == -1 && url.hostname.indexOf('fortifid.com') == -1) {
             let data = { code: 403, error: 'Domain not allowed.'};
             reply.type('application/json').code(403).send(data);
             return;
         }
+
         const id = utils.randomString(6);
         let data = {
             created_at: new Date().toISOString(),
@@ -36,7 +42,31 @@ fastify.post('/', async (request, reply) => {
             long_url: body.long_url
         };
 
+        let expires = 0;
+        if(url.hostname.indexOf('fortifid.com') > -1) {
+            const parts = url.pathname.split('/');
+            if(parts.length > 1) {
+
+                switch(parts[1]) {
+                    case 'mfa': {
+                        expires = ms('4m');
+                        break;
+                    }
+                    case 'doc': {
+                        expires = ms('20m');
+                        break;
+                    }
+                }
+            } 
+        } else {
+
+        }
+
+        if(expires > 0) {
+            data.expires = new Date(now + expires).toISOString(); 
+        }
         reply.type('application/json').code(200).send(data);
+        //console.log(data);
         //TODO: check if dupe
         storage.setItem(id, data);
     } else {
@@ -47,6 +77,7 @@ fastify.post('/', async (request, reply) => {
 
 fastify.get('/:id', async (request, reply) => {
     const id = request?.params?.id;
+    const now = new Date();
 
     if(!id) {
         //let data = { code: 422, error: 'Missing parameter.'};
@@ -56,9 +87,16 @@ fastify.get('/:id', async (request, reply) => {
     }
 
     let data = await storage.getItem(id);
-    //console.log(data, id);
+    //console.log(data, id, );
     if (data) {
-        reply.redirect(data.long_url);
+        let url = data.long_url;
+        //console.log(data, now, request.headers, request.method, request.body);
+        if(data.expires && new Date() > new Date(data.expires)) {
+            reply.type('text/html').code(200).send('Sorry, URL expired.');
+            return;
+        }    
+
+        reply.redirect(url);
         return;
     } else {
         let data = { code: 404, error: 'URL expired or not found.'};
@@ -81,7 +119,7 @@ fastify.listen(8996, (err, address) => {
         parse: JSON.parse,
         encoding: 'utf8',
         logging: false, 
-        ttl: true,
+        ttl: ms('1w'),
         expiredInterval: 2 * 60 * 1000, // every 2 minutes the process will clean-up the expired cache
         forgiveParseErrors: false
     });
