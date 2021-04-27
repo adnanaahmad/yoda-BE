@@ -549,6 +549,14 @@ const shuffleArray = (array) => {
     }
 }
 
+const splitItems =(data)=> {
+    if(!data) {
+        return;
+    }
+
+    return data.replace(/["']/g, "").split(/[\n,]/).map(s => s.trim()).filter(Boolean);
+}
+
 const findObjectByFieldValue = (arr, field, value, all = false, asObject = false, keyField) => {
 
     let results = all ? [] : undefined;
@@ -1280,5 +1288,6 @@ module.exports = {
     camelToSnakeCaseObject,
     formatDate,
     numbersOnly,
-    shuffleArray
+    shuffleArray,
+    splitItems
 }

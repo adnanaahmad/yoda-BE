@@ -160,8 +160,12 @@ const loadParams = async () => {
             if (twilioAccountSid && twilioAuthToken && TWILIO_NUMBERS) {
                 twilio = require('twilio')(twilioAccountSid, twilioAuthToken);
                 const duration = utils.time() - start;
-                //TODO: Array.isArray
-                if(typeof(TWILIO_NUMBERS) === 'object') {
+           
+                if(typeof(TWILIO_NUMBERS) === 'string') {
+                    TWILIO_NUMBERS = utils.splitItems(TWILIO_NUMBERS);
+                }
+
+                if(Array.isArray(TWILIO_NUMBERS)) {
                     numberCount = TWILIO_NUMBERS.length;
                     if(numberCount > 1) {
                         utils.shuffleArray(TWILIO_NUMBERS);
