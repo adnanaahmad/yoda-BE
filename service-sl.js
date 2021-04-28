@@ -107,8 +107,6 @@ const request = async (endpoint, data) => {
       }
 }
 
-
-
 const getUser = async(manifest = false, clustering = false)=> {
     let data = {...TEMPLATES['user']};
 

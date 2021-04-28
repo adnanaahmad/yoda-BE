@@ -8,12 +8,19 @@ let _path;
 
 let PARAMS;
 
-const init =  (path) => {
+const init = (path) => {
     _path = path;
     let file = `${__dirname}${path}.json`;
     PARAMS = utils.loadJSON(file);
     if (!PARAMS) {
         PARAMS = awsClient.getParametersByPathSync(path, undefined, true);
+    } else {
+        Object.keys(PARAMS).forEach(key => {
+            if(key.startsWith('*')) {
+                PARAMS[key.substr(1)] = PARAMS[key];
+                delete PARAMS[key];
+            }
+        });
     }
     return PARAMS;
 }
@@ -22,7 +29,7 @@ const get = (id) => {
     return PARAMS[id];
 }
 
-const getAll = ()=> {
+const getAll = () => {
     return PARAMS;
 }
 
