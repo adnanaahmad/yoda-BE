@@ -96,7 +96,8 @@ const funcs =`put() {
             let line = `put "${path}/${actualKey}" "${value}" "${type}"`
             lines.push(line);
         });
-
+        
+        lines.push('');
         let data = lines.join('\n');
 
         if(data && output) {
@@ -120,12 +121,12 @@ const addCustomer = async (id) => {
     //await  addCustomer('D784DE76-A1F9-425D-BD57-2565411AA5A3');
     // await createParamsScript('/config/equifax/synthetic-id');
     // await createParamsScript('/config/experian/experian');
-    // await createParamsScript('/config/twilio/mfa');
+    await createParamsScript('/config/twilio/mfa');
     // await createParamsScript('/config/veriff/doc');
 
     //await createLocalParameters('/config/sambasafety/');
     //await createLocalParameters('/config/equifax/');
-    await createParamsScript('/config/sambasafety/sambasafety')
+    //await createParamsScript('/config/sambasafety/sambasafety')
     console.log('Done');
     
 })();

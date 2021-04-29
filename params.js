@@ -4,43 +4,32 @@
 const utils = require('./utils');
 const awsClient = require('./aws-client');
 
-let _path;
-
-let PARAMS;
-
-const init = (path) => {
-    _path = path;
-    let file = `${__dirname}${path}.json`;
-    PARAMS = utils.loadJSON(file);
-    if (!PARAMS) {
-        PARAMS = awsClient.getParametersByPathSync(path, undefined, true);
-    } else {
-        Object.keys(PARAMS).forEach(key => {
-            if(key.startsWith('*')) {
-                PARAMS[key.substr(1)] = PARAMS[key];
-                delete PARAMS[key];
+module.exports = async (path, logger) => {
+    try {
+        let file = `${__dirname}${path}.json`;
+        let PARAMS = await utils.loadJSONAsync(file);
+        if (!PARAMS) {
+            PARAMS = await awsClient.getParametersByPath(path, undefined, true);
+        } else {
+            Object.keys(PARAMS).forEach(key => {
+                if (key.startsWith('*')) {
+                    PARAMS[key.substr(1)] = PARAMS[key];
+                    delete PARAMS[key];
+                }
+            });
+        }
+    
+        if (typeof (PARAMS) === 'undefined') {
+            if (logger) {
+                logger.error(`No parameters defined in ${path}.`);
             }
-        });
+            process.exit(1);
+        }
+    
+        return PARAMS;
+    } catch (error) {
+        if(logger) {
+            logger.error(error);
+        }
     }
-    return PARAMS;
 }
-
-const get = (id) => {
-    return PARAMS[id];
-}
-
-const getAll = () => {
-    return PARAMS;
-}
-
-(async () => {
-
-})();
-
-module.exports = init;
-// module.exports = {
-//     init,
-//     get,
-//     getAll,
-//     default: init
-// }

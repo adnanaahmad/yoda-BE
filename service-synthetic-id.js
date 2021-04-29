@@ -9,11 +9,7 @@ const utils = require('./utils');
 const logger = require('./logger').createLogger(TABLE);
 utils.setLogger(logger);
 
-const params = require('./params')(CONFIG_PATH);
-if(!params) {
-    logger.error('No parameters defined.');
-    process.exit(1);
-}
+let params;
 
 const cache = require('./cache');
 
@@ -147,14 +143,19 @@ fastify.post('/query', async (request, reply) => {
     return data;
 })
 
-fastify.listen(params.port, (err, address) => {
-    if (err) throw err
-    logger.info(`HTTP server is listening on ${address}`);
-});
+const start = async ()=> {
+    params = await require('./params')(CONFIG_PATH, logger);
 
-(async () => {
     oauth2.addRequest(TABLE, params.token_url, params.client_id , params.client_secret, params.scopes);
     await oauth2.start();
-    init();
-    //await utils.loadTemplates('./templates/syntheticid/', TEMPLATES, true);
+    fastify.listen(params.port, (err, address) => {
+        if (err) throw err
+        logger.info(`HTTP server is listening on ${address}`);
+    });
+    
+}
+
+
+(async () => {
+    await start();
 })();

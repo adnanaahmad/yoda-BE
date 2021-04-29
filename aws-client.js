@@ -1,3 +1,6 @@
+'use strict';
+/*jshint esversion: 8 */
+
 const utils = require('./utils');
 const logger = require('./logger').logger;
 const AWS = require('aws-sdk');
@@ -151,7 +154,18 @@ const getParametersByPathSync = (path, filters, simple = false) => {
     let values = [];
     do {
       repeat = false;
-      const result = ssm.getParametersByPath(params);
+      //const result = ssm.getParametersByPath(params);
+      let result;
+      let error;
+
+      ssm.getParametersByPath(params, (err, data)=> {
+        if (err) {
+          error = err;
+          return;
+        }
+        result = data;          
+      });
+
       if (result) {
         if (result.NextToken) {
           repeat = true;
@@ -174,6 +188,7 @@ const getParametersByPathSync = (path, filters, simple = false) => {
     return values;
   } catch (error) {
     logger.error('getParametersByPath', path, error);
+    console.log(error);
   }
 };
 
@@ -191,6 +206,7 @@ const getParametersByPath = async (path, filters, simple = false) => {
   try {
     let repeat = false;
     let values = [];
+    let count = 0;
     do {
       repeat = false;
       const result = await ssm.getParametersByPath(params).promise();
@@ -208,9 +224,10 @@ const getParametersByPath = async (path, filters, simple = false) => {
     if (simple && values) {
       let temp = {};
       values.forEach(value => {
+        count++;
         temp[value.Name.substr(value.Name.lastIndexOf('/') + 1)] = value.Value;
       })
-      values = temp;
+      values = count === 0 ? undefined : temp;
     }
 
     return values;

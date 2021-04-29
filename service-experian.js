@@ -9,11 +9,7 @@ const utils = require('./utils');
 const logger = require('./logger').createLogger(TABLE);
 utils.setLogger(logger);
 
-const params = require('./params')(CONFIG_PATH);
-if(!params) {
-    logger.error('No parameters defined.');
-    process.exit(1);
-}
+let params;
 
 const cache = require('./cache');
 
@@ -107,17 +103,23 @@ fastify.addHook('onResponse', async (request, reply) => {
 
 })
 
-fastify.listen(params.port, (err, address) => {
-    if (err) throw err
-    logger.info(`HTTP server is listening on ${address}`);
-});
+const start = async ()=> {
+    params = await require('./params')(CONFIG_PATH, logger);
 
-(async () => {
     oauth2.addRequest(TABLE, params.url, params.client_id, params.client_secret, params.scope, 'password', {
         username: params.username,
         password: params.password
     });
 
     await oauth2.start();
-    //console.log(oauth2.TOKENS);
+
+    fastify.listen(params.port, (err, address) => {
+        if (err) throw err
+        logger.info(`HTTP server is listening on ${address}`);
+    });
+} 
+
+
+(async () => {
+    await start();
 })();

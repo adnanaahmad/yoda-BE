@@ -189,7 +189,6 @@ const loadParams = async () => {
 }
 
 (async () => {
-    console.log('WTF');
     await loadParams();
     if (ready) {
         if (!SCRIPT_INFO.library_mode) {

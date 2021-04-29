@@ -10,11 +10,7 @@ const utils = require('./utils');
 const logger = require('./logger').createLogger(TABLE);
 utils.setLogger(logger);
 
-const params = require('./params')(CONFIG_PATH);
-if(!params) {
-    logger.error('No parameters defined.');
-    process.exit(1);
-}
+let params;
 
 const nameMatch = require('./name-match');
 const cache = require('./cache');
@@ -60,6 +56,7 @@ const RESTRICTED_ROUTES = [
 const KEYS = {};
 
 const loadParams = async () => {
+    params = await require('./params')(CONFIG_PATH, logger);
     KEYS[params.client_id] = params.client_secret;
     KEYS[params.client_id_test] = params.client_secret_test;
 }
@@ -371,11 +368,15 @@ fastify.addHook("onRequest", async (request, reply) => {
     //authJWT.getAuth(request);
 })
 
-fastify.listen(params.port, (err, address) => {
-    if (err) throw err
-    logger.info(`HTTP server is listening on ${address}`);
-});
+const start = ()=> {
+  
+    fastify.listen(params.port, (err, address) => {
+        if (err) throw err
+        logger.info(`HTTP server is listening on ${address}`);
+    });
+}
 
 (async () => {
     await loadParams();
+    start();
 })();
