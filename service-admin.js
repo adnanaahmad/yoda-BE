@@ -15,6 +15,7 @@ const authMain = require('./auth-main');
 const https = require('https');
 const axios = require('axios');
 
+
 const axiosOptions = {};
 
 const fastify = require('fastify')({
@@ -37,7 +38,8 @@ const HOSTS = [
     //'z.prod.fortifid.com'
 ];
 
-const ALLOWED_COMMANDS = ['pwd', 'ls', 'date', 'df', 'free', 'npm'];
+
+const ALLOWED_COMMANDS = ['pwd', 'pm2', 'ls', 'date', 'df', 'free', 'npm'];
 
 const pm2 = require('pm2');
 
@@ -197,24 +199,71 @@ const update = async (args) => {
     return await execCommand(`${__dirname}/data/update.sh`, args);
 }
 
-const restart = () => {
-    if (pm2Connected) {
-        if (typeof (process.env.NO_RESTART) === 'undefined') {
-            pm2.restart("all", (err, val) => {
-                if (err) {
-                    logger.error(err)
-                } else {
-                    //logger.info(val);
-                }
-            });
-            return {
-                status: 'Restarting all services.'
+const execPM2Command = async (command, service = 'all') => {
+    return new Promise((resolve, reject) => {
+        if (pm2Connected) {
+            if (typeof (service) === 'undefined' || service.length < 1) {
+                service = 'all';
             }
+            logger.info('execPM2Command', command, service);
+            if (typeof (process.env.NO_RESTART) === 'undefined') {
+                let results;
+                try {
+                    pm2[command](service, async (err, proc) => {
+                        if (err) {
+                            logger.error(err);
+                            resolve({
+                                status: 'error',
+                                error: err.message
+                            });
+                            return;
+                        }
+                        //logger.silly(proc);
+                        let data = {
+                            status: 'success.'
+                        };
+                        if (command === 'list') {
+                            const list = [];
+                            proc.forEach(item => {
+                                const pm2_env = item.pm2_env;
+
+                                let dat = {
+                                    pid: item.pid,
+                                    name: item.name,
+                                    memory: item.monit.memory,
+                                    cpu: item.monit.cpu,
+                                    created: pm2_env.created_at,
+                                    restarts: pm2_env.restart_time,
+                                    unstable_restarts: pm2_env.unstable_restarts,
+                                    status: pm2_env.status,
+                                };
+                                dat.uptime = (pm2_env.pm_uptime && pm2_env.status == 'online') ? (new Date() - pm2_env.pm_uptime) : 0;
+
+                                list.push(dat);
+
+                            })
+                            data.procs = list;
+                            //await utils.fileWrite('./tmp/list.json', JSON.stringify(proc));
+                        }
+                        //logger.info(data);
+                        resolve(data);
+                    })
+                } catch (error) {
+                    logger.error(error);
+                    resolve({
+                        status: 'error',
+                        error: error.message
+                    });
+                    //results = error.message;
+                }
+            }
+        } else {
+            resolve({
+                status: 'error',
+                error: 'process manager not connected.'
+            });
         }
-    }
-    return {
-        error: 'Unable to restart.'
-    };
+    });
 }
 
 const importAccount = () => {
@@ -246,6 +295,11 @@ const getInfo = () => {
 
 const getCommandData = async (command, data) => {
     try {
+        let _args;
+        if (data && typeof (data._args) === 'string') {
+            _args = data._args.trim();
+        }
+
         switch (command) {
             case 'info': {
                 return getInfo();
@@ -255,18 +309,22 @@ const getCommandData = async (command, data) => {
                     status: 'OK'
                 };
             }
+            case 'start':
+            case 'stop':
+            case 'reload':
+            case 'list':
             case 'restart': {
-                return restart();
+                return await execPM2Command(command, _args);
             }
             case 'update': {
                 let results = await update();
-                restart();
+                execPM2Command('restart');
                 return results;
             }
             case 'cmd': {
                 let results;
-                if (data && data._args) {
-                    let command = data._args.trim();
+                if (_args) {
+                    let command = _args;
                     let args;
                     let ndx = command.indexOf(' ');
                     if (ndx > -1) {
@@ -274,7 +332,6 @@ const getCommandData = async (command, data) => {
                         command = command.substr(0, ndx);
                     }
 
-                    //TODO! Whitelist commands!!!!!            
                     if (command.length > 0 && ALLOWED_COMMANDS.indexOf(command) > -1) {
                         results = await execCommand(command, args);
                     } else {
@@ -310,6 +367,7 @@ const getData = async (request, reply) => {
     const id = request.params.id;
     //TODO: post-execute
     if (!id || id === 'all' || id === SCRIPT_INFO.host) {
+
         let data = await getCommandData(command, body);
         if (data && !data.host) {
             data.host = SCRIPT_INFO.host;
@@ -364,6 +422,38 @@ fastify.get('/cmd/:id', async (request, reply) => {
     return getData(request, reply);
 })
 
+fastify.get('/start', async (request, reply) => {
+    return getData(request, reply);
+})
+
+fastify.get('/start/:id', async (request, reply) => {
+    return getData(request, reply);
+})
+
+
+fastify.get('/list', async (request, reply) => {
+    return getData(request, reply);
+})
+
+fastify.get('/list/:id', async (request, reply) => {
+    return getData(request, reply);
+})
+
+fastify.get('/reload', async (request, reply) => {
+    return getData(request, reply);
+})
+
+fastify.get('/reload/:id', async (request, reply) => {
+    return getData(request, reply);
+})
+
+fastify.get('/stop', async (request, reply) => {
+    return getData(request, reply);
+})
+
+fastify.get('/stop/:id', async (request, reply) => {
+    return getData(request, reply);
+})
 
 fastify.get('/restart', async (request, reply) => {
     return getData(request, reply);

@@ -9,6 +9,7 @@ AWS.config.update({
 const ssm = new AWS.SSM();
 const ddb = new AWS.DynamoDB();
 const sns = new AWS.SNS();
+const s3 = new AWS.S3();
 
 const ddbOptions = {};
 
@@ -249,6 +250,47 @@ const putDDBItem = async (table, data, dax = true) => {
   }
 }
 
+const isS3 = path => /^s3:\/\/.+\/.+/i.test(path)
+
+const parseS3 = path => {
+  if (!isS3(path)) {
+    logger.error(`Invalid S3 path: ${path}`);
+    return;
+  }
+
+  let s3object = path.replace(/^s3:\/\//i, '').split('/')
+  return {
+    Bucket: s3object.shift(),
+    Key: s3object.join('/')
+  }
+}
+
+// const s3Upload = async (path) => {
+//   const params = parseS3(path);
+//   if(!params) {
+//     return;
+//   }
+
+//   params.Body = '';
+//   s3.putObject().promise()
+// }
+
+const getSignedUrl = async (path, expires = 60) => {
+  const params = parseS3(path);
+  if(!params) {
+    return;
+  }
+
+  params.Expires = !isNaN(expires) ? parseInt(expires) : 60
+
+  let url;
+  try {
+    url = await s3.getSignedUrlPromise('getObject', params);
+  } catch (error) {
+    logger.error(error);
+  }
+  return url;
+}
 
 const sendSNS = async (number, message) => {
   const params = {
@@ -476,5 +518,8 @@ module.exports = {
   incrementDDBItem,
   decrementDDBItem,
   updateDynamic,
-  sendSNS
+  sendSNS,
+  getSignedUrl,
+  parseS3,
+  isS3
 };

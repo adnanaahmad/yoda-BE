@@ -4,7 +4,7 @@ const utils = require('./utils');
 const cache = require('./cache');
 const awsClient = require('./aws-client');
 const redis = require("redis");
-
+const fs = require('fs');
 const createParams = () => {
     let orig = require('./data/paramList.json');
     const fields = {};
@@ -17,7 +17,44 @@ const createParams = () => {
     utils.fileWrite('./data/didservice.json', JSON.stringify(fields, null, 2));
 }
 
-const createParamsScript = async (path, output) => {
+const createLocalParameters = async (path)=> {
+    let data = await awsClient.getParametersByPath(path);
+    try {
+        const fields = {};
+
+        data.forEach(field => {
+            let name = field.Name.replace(/\//g, '.').substr(1);
+    
+            utils.parseDotNotation(name, field.Value, fields, field.Type === 'SecureString');
+        });
+        
+        const parts = path.split('/').filter(Boolean);
+        const prefix = `${__dirname}/${parts[0]}/${parts[1]}/`;
+        if(!fs.existsSync(prefix)) {
+            fs.mkdirSync(prefix);
+        }
+
+        const top = fields[parts[0]][parts[1]];
+        
+        Object.keys(top).forEach(async(key)=> {
+            const file = `${prefix}${key}.json`;
+            await utils.fileWrite( file, JSON.stringify(top[key], null, 2));
+        })
+        //console.log(top);
+    
+        //console.log(JSON.stringify(fields, null, 2));
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const createParamsScript = async (path, output, overwrite = true) => {
+const funcs =`put() {
+    echo "Inserting $1..."
+    aws ssm put-parameter --name "$1" --value "$2" --type "$3" ${overwrite ? "$EXTRA" : ""}
+    sleep 0.2
+}
+`    
     let file = `${__dirname}${path}.json`;
 
     if(typeof(output) === 'undefined') {
@@ -26,10 +63,15 @@ const createParamsScript = async (path, output) => {
     
     const lines = [];
     lines.push('#!/bin/bash\n');
+
+    if(overwrite) {
+        lines.push(`EXTRA=--overwrite\n`);
+    }
+
+    lines.push(funcs);
+
     //workaround for a weird aws cli "feature"
     lines.push('aws configure set cli_follow_urlparam false\n');
-
-    
 
     const PARAMS = utils.loadJSON(file);
     if (!PARAMS) {
@@ -45,10 +87,14 @@ const createParamsScript = async (path, output) => {
                 delete PARAMS[key];
                 type = "SecureString";
             }
+            let value = PARAMS[actualKey];
 
-            let line = `aws ssm put-parameter --name "${path}/${actualKey}" --value "${PARAMS[actualKey]}" --type "${type}"`
+            if(typeof(value) === "object") {
+                value = JSON.stringify(value).replace(/\"/g, '\\"');
+                console.log(value);
+            }
+            let line = `put "${path}/${actualKey}" "${value}" "${type}"`
             lines.push(line);
-            lines.push('sleep 0.1\n');
         });
 
         let data = lines.join('\n');
@@ -72,7 +118,14 @@ const addCustomer = async (id) => {
     //console.log(ms('1y'));
 
     //await  addCustomer('D784DE76-A1F9-425D-BD57-2565411AA5A3');
-    //await createParamsScript('/config/equifax/synthetic-id', `${__dirname}/scripts/synthetic-id.sh`);
-    await createParamsScript('/config/veriff/doc');
+    // await createParamsScript('/config/equifax/synthetic-id');
+    // await createParamsScript('/config/experian/experian');
+    // await createParamsScript('/config/twilio/mfa');
+    // await createParamsScript('/config/veriff/doc');
+
+    //await createLocalParameters('/config/sambasafety/');
+    //await createLocalParameters('/config/equifax/');
+    await createParamsScript('/config/sambasafety/sambasafety')
     console.log('Done');
+    
 })();

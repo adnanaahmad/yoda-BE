@@ -1,8 +1,8 @@
 'use strict';
 /*jshint esversion: 8 */
 const NAME = 'SambaSafety';
-const TABLE = 'service-ss';
-const PORT = 1971;
+const TABLE = 'service-sambasafety';
+const PORT = 7976;
 
 const utils = require('./utils');
 const logger = require('./logger').createLogger(TABLE);
@@ -10,6 +10,7 @@ const convert = require('xml-js');
 const prettyData = require('pretty-data');
 const soapRequest = require('./soap');
 const awsClient = require('./aws-client');
+const authMain = require('./auth-main');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
@@ -21,6 +22,12 @@ const fastify = require('fastify')({
     ignoreTrailingSlash: true
 })
 
+fastify.register(require('fastify-static'), {
+    root: `${__dirname}/public/license`,
+    serve: true,
+    prefix: '/',
+})
+
 const ALLOWED_STATES = ['AR', 'AZ', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'MA', 'MD', 'ME', 'MI', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NJ', 'NM', 'PA', 'RI', 'SD', 'TN', 'TX', 'VA', 'VT', 'WA', 'WI', 'WY'];
 
 function unescapeHTML(escapedHTML) {
@@ -29,6 +36,10 @@ function unescapeHTML(escapedHTML) {
 
 
 fastify.post('/query', async (request, reply) => {
+    if (!await authMain.checkHeaders(request, reply)) {
+        return;
+    }
+
     const body = utils.flattenObject2(request.body);
     if(!body.issuing_state || ALLOWED_STATES.indexOf( body.issuing_state) === -1) {
         reply.type('application/json').code(417);
@@ -64,12 +75,9 @@ const js2Options = {
     ignoreCdata: false
 };
 
-//TEST!
-//Famouse_03
 const account = process.env.SS_ACCOUNT;
 const userId = process.env.SS_USER_ID;
 const password = process.env.SS_PASSWORD;
-
 
 const loadParams = async () => {
     //TODO:
@@ -185,18 +193,16 @@ const extractResult = (xml)=> {
 }
 
 const callSoapFunction = async (name, data) => {
-    //logger.debug(`callSoapFunction [${name}] start...`);
+    logger.debug(`callSoapFunction [${name}] start...`);
 
     const xml = createSoapEnvelope(name, data);
     if (!xml) {
+
         return;
     }
-    //console.log(xml)
-    //Famouse_03
-    //
-    //const url = 'http://localhost:8088/ws/';
-    const url = 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc';
-    //const url = 'https://adrconnect.mvrs.com/AdrConnect/AdrConnectWebService.svc';
+
+    //const url = 'https://demo2.mvrs.com/AdrConnect/AdrConnectWebService.svc';
+    const url = 'https://adrconnect.mvrs.com/AdrConnect/AdrConnectWebService.svc';
     const headers = {
         'user-agent': `FortifID ${SCRIPT_INFO.version}`,
         'Content-Type': 'text/xml;charset=UTF-8',
@@ -218,10 +224,8 @@ const callSoapFunction = async (name, data) => {
             body,
             statusCode
         } = response;
-        //console.log(statusCode);
         const duration = utils.time() - start;
-        //logger.debug(`callSoapFunction [${name}] done ${utils.toFixedPlaces(duration, 2)}ms`);
-
+        logger.debug(`callSoapFunction [${name}] done ${utils.toFixedPlaces(duration, 2)}ms`);
         return body;
     } catch (error) {
         logger.error(error);
@@ -229,7 +233,6 @@ const callSoapFunction = async (name, data) => {
 }
 
 const changePassword = async (newPassword) => {
-
     let data = {
         inAccountID: 'K1625',
         InUserID: '01', //inUserId //DOCS!
@@ -265,7 +268,7 @@ const orderMap = {
     first_name: 'FirstName',
     last_name: 'LastName',
     middle_name: 'MiddleName',
-    line1: 'Address1',
+    line1: 'InfoAddress',
     city: 'InfoCity',
     zip_code: 'InfoZipcode',
     persona_id: 'Misc'
@@ -302,11 +305,11 @@ const getOrder = (data) => {
     order.Billing = data.persona_id;
     order.State.Abbrev = data.issuing_state;
     order.DOB = formatDateObject(data.birth_date);
-    order.LicenseExpireDate = formatDateObject(data.expiration_date);
-
+    order.LicenseIssueDate = formatDateObject(data.issue_date);
+    order.LicenseExpiryDate = formatDateObject(data.expiration_date);
+    logger.silly(order);
     return { Order: order};
 }
-
 
 const orderInteractive = async (data) => {
 
@@ -322,19 +325,6 @@ const orderInteractive = async (data) => {
     }
 
     return await callSoapFunction('OrderInteractive', output);
-
-    // try {
-    //     if (!body) {
-    //         return;
-    //     }
-
-    //     let data = extractData(body) || body;
-    //     return data;
-    //     // let x = prettyData.pd.xml(data);
-    //     // logger.silly(x);
-    // } catch (error) {
-    //     logger.error(error);
-    // }
 }
 
 const sendOrders = async () => {
@@ -426,9 +416,6 @@ const test001 = async () => {
     //await sendOrders();
     //await receiveRecords();
 
-    //let date = new Date('2006-01-01');
-    //console.log(date.toISOString());
-
     //await test001();
     // let customer_account_id = '60D7A8C1-2A10-42D9-8AD1-DC0F1C81E6D6';
 
@@ -448,10 +435,16 @@ const test001 = async () => {
     //     console.log(data);
     // }
 
-    //const id = utils.flattenObject2(JSON.parse(await utils.fileRead(__dirname + '/tmp/id-cisco.json', 'utf-8')));
+    const id = utils.flattenObject2(JSON.parse(await utils.fileRead(__dirname + '/tmp/id-cisco.json', 'utf-8')));
     //const id = utils.flattenObject2(JSON.parse(await utils.fileRead(__dirname + '/tmp/id.json', 'utf-8')));
-    //let data = await orderInteractive(id);
+    let data = await orderInteractive(id);
+    if (data) {
+        data = extractData(data);
+        if(data) {
 
-    //if(data) {
-    //}
+            data = extractResult(data);
+            console.log(data);
+        }
+    } else {
+    }
 })();

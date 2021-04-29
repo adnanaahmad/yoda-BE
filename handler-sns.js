@@ -53,15 +53,15 @@ const startQueue = () => {
 }
 
 (async () => {
-    let data = await add( { numbers: '2066597857', text: "test!"});
-    console.log(data);
+    //let data = await add( { numbers: '2066597857', text: "test!"});
+    //console.log(data);
     // await loadParams();
-    if (ready) {
+    //if (ready) {
         if (!SCRIPT_INFO.library_mode) {
             startQueue();
             //test();
         }
-    }    
+    //}    
 })();
 
 module.exports = {

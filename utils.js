@@ -17,7 +17,9 @@ const url = require('url');
 const ipRangeCheck = require("ip-range-check");
 const path = require('path');
 const PhoneNumber = require('awesome-phonenumber');
-const { URL } = require('url');
+const {
+    URL
+} = require('url');
 
 const {
     v4: uuidv4
@@ -160,6 +162,7 @@ const getFileInfo = (file, doHash, extras) => {
         info.run_mode = process.env.RUN_MODE;
         info.hostname = process.env.HOSTNAME;
         info.host = HOST;
+        info.node_version = process.version;
     }
 
     return info;
@@ -206,7 +209,7 @@ const checksum8 = (message, hex) => {
         return c;
 };
 
-const parseDotNotation = (str, val, obj) => {
+const parseDotNotation = (str, val, obj, add = false) => {
     var currentObj = obj,
         keys = str.split("."),
         i, l = Math.max(1, keys.length - 1),
@@ -218,7 +221,10 @@ const parseDotNotation = (str, val, obj) => {
         currentObj = currentObj[key];
     }
 
-    currentObj[keys[i]] = val;
+    //TODO: Dirty hack for now
+    let last = `${add ? '*': ''}${keys[i]}`;
+
+    currentObj[last] = val;
     delete obj[str];
 }
 
@@ -551,8 +557,8 @@ const shuffleArray = (array) => {
     }
 }
 
-const splitItems =(data)=> {
-    if(!data) {
+const splitItems = (data) => {
+    if (!data) {
         return;
     }
 
@@ -840,12 +846,12 @@ const sortObjKeysAlphabetically = (obj) => {
 //     return ordered;
 // }
 
-const parsePhoneNumber = (phoneNumber, countryCode = 'US')=> {
-    return new PhoneNumber( phoneNumber, countryCode);
+const parsePhoneNumber = (phoneNumber, countryCode = 'US') => {
+    return new PhoneNumber(phoneNumber, countryCode);
 }
 
 
-const parseURL = (url)=> {
+const parseURL = (url) => {
     return new URL(url);
 }
 
@@ -901,6 +907,25 @@ const flattenObject2 = (obj) => {
     })
 
     return flattened
+}
+
+const escapeJSON = (string) => {
+    if (string) {
+        console.log(string);
+        string = string.replace(
+            new RegExp("\\'".replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1'), 'g'),
+            "'"
+        );
+        console.log(string);
+        string = string.replace(
+            /"((?:"[^"]*"|[^"])*?)"(?=[:},])(?=(?:"[^"]*"|[^"])*$)/gm,
+            (match, group) => {
+                return '"' + group.replace(/"/g, '\\"') + '"';
+            }
+        );
+        console.log(string);
+    }
+    return string;
 }
 
 const loadJSON = (file) => {
@@ -1301,5 +1326,6 @@ module.exports = {
     shuffleArray,
     splitItems,
     parsePhoneNumber,
-    parseURL
+    parseURL,
+    escapeJSON
 }

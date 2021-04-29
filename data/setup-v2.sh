@@ -40,9 +40,10 @@ else
 
     #acme.sh --issue -d z.dev.fortifid.com -w /usr/share/nginx/html --keylength ec-256
     #--ecc
-
-    acme.sh --issue -d $HOST -w /usr/share/nginx/html
-
+    #TXT _acme-challenge.j.prod.fortifid.com
+    #acme.sh --issue -d $HOST -w /usr/share/nginx/html
+    acme.sh --issue --dns dns_aws -d $HOST
+    
     acme.sh --install-cert -d $HOST  \
     --key-file       /etc/nginx/ssl/key.pem  \
     --fullchain-file /etc/nginx/ssl/cert.pem \
