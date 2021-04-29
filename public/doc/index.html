@@ -56,8 +56,7 @@
 
         <div class="form-group">
           <label class="form-label" for="full_name">Full Name</label>
-          <input id="full_name" class="form-input" type="text" placeholder="Full Name" minlength="1"
-            maxlength="64">
+          <input id="full_name" class="form-input" type="text" placeholder="Full Name" minlength="1" maxlength="64">
         </div>
 
         <div class="form-group">
@@ -368,7 +367,9 @@
         focused = document.visibilityState === 'visible';
         if (focused) {
           //startTime = Date.now();
-          //getRequestStatus();
+          getRequestStatus();
+        } else {
+          cancelTimer();
         }
       });
 
@@ -399,7 +400,7 @@
           setOutput('<span style="color:red;">Name and DOB required</span>')
           return;
         }
-        
+
         setOutput('&nbsp;');
         //divOr.classList.add("d-none");
         divVeriff.classList.add("d-none");
