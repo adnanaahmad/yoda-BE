@@ -143,19 +143,19 @@ fastify.post('/webhook', {
                             if (pii) {
                                 
                                 if (pii.full_name) {
-                                    data.nameMatchScore = nameMatch.compare(`${person.firstName} ${person.lastName}`, pii.full_name, true);
+                                    data.name_match_score = nameMatch.compare(`${person.firstName} ${person.lastName}`, pii.full_name, true);
                                 } else {
-                                    data.nameMatchScore = -1;
+                                    data.name_match_score = -1;
                                 }
 
                                 if (pii.dob) {
-                                    data.dobMatch = utils.sameDate(pii.dob, person.dateOfBirth)
+                                    data.dob_match = utils.sameDate(pii.dob, person.dateOfBirth)
                                 } else {
-                                    data.dobMatch = false;
+                                    data.dob_match = false;
                                 }
 
                                 if(record.strict) {
-                                    if(!data.dobMatch || data.nameMatchScore < 1) {
+                                    if(!data.dob_match || data.name_match_score < 1) {
                                         data.status = 'declined';
                                         data.reason = 'Personal information mismatch.';
                                     }
@@ -209,12 +209,12 @@ fastify.get('/check-request/:id', async (request, reply) => {
                 data.reason = record.reason;
             }
 
-            if (typeof (record.nameMatchScore) !== 'undefined') {
-                data.nameMatchScore = record.nameMatchScore;
+            if (typeof (record.name_match_score) !== 'undefined') {
+                data.name_match_score = record.name_match_score;
             }
 
-            if (typeof (record.dobMatch) !== 'undefined') {
-                data.dobMatch = record.dobMatch;
+            if (typeof (record.dob_match) !== 'undefined') {
+                data.dob_match = record.dob_match;
             }
 
             if (record.redirect_url) {
