@@ -20,7 +20,7 @@ const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
 
-if(!SCRIPT_INFO.host) {
+if (!SCRIPT_INFO.host) {
     logger.error('HOST must be defined.');
     process.exit(1);
 }
@@ -99,26 +99,26 @@ fastify.post('/webhook', {
     }
 }, async (request, reply) => {
 
-    if(!verifySignature(request, reply)) {
+    if (!verifySignature(request, reply)) {
         return;
     }
-    
+
     const body = request.body;
     if (body && (body.verification || body.id)) {
-        
+
         logger.silly(body);
         try {
             let expiration = '1w';
 
             const v = body.verification;
             const id = v ? v.vendorData : body.vendorData;
-    
+
             let record = await cache.getP(TABLE, id);
-    
+
             const data = {
-                updated: Date.now() 
+                updated: Date.now()
             };
-    
+
             if (v) {
                 data.status = v.status;
                 const person = v.person;
@@ -126,14 +126,14 @@ fastify.post('/webhook', {
                 data.code = v.code;
                 //TODO!
                 //technicalData : { ip: '71.64.122.30' }
-                if(v.reason !== null) {
+                if (v.reason !== null) {
                     data.reason = v.reason;
                 }
-    
-                if(v.reasonCode !== null) {
+
+                if (v.reasonCode !== null) {
                     data.reasonCode = v.reasonCode;
                 }
-    
+
                 if (v.status === 'approved' && person) {
                     expiration = '10y';
                     if (record) {
@@ -141,17 +141,26 @@ fastify.post('/webhook', {
                         if (pii) {
                             pii = cache.crypt.decrypt(pii);
                             if (pii) {
+                                
                                 if (pii.full_name) {
                                     data.nameMatchScore = nameMatch.compare(`${person.firstName} ${person.lastName}`, pii.full_name, true);
                                 } else {
                                     data.nameMatchScore = -1;
                                 }
-    
+
                                 if (pii.dob) {
                                     data.dobMatch = utils.sameDate(pii.dob, person.dateOfBirth)
                                 } else {
                                     data.dobMatch = false;
                                 }
+
+                                if(record.strict) {
+                                    if(!data.dobMatch || data.nameMatchScore < 1) {
+                                        data.status = 'declined';
+                                        data.reason = 'Personal information mismatch.';
+                                    }
+                                }
+
                                 data.pii = undefined;
                                 //TODO!
                                 delete data.pii;
@@ -165,10 +174,10 @@ fastify.post('/webhook', {
                 data.code = body.code;
                 data.feature = body.feature;
             }
-    
+
             await cache.updateP(TABLE, id, data, expiration, true);
         } catch (error) {
-            console.log(error);            
+            console.log(error);
         }
     }
 
@@ -196,7 +205,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
         if (record) {
             code = 200;
             data.status = record.status || record.action;
-            if (record.reason !== null) {
+            if (record.reason !== null && typeof (record.reason) !== 'undefined') {
                 data.reason = record.reason;
             }
 
@@ -208,11 +217,11 @@ fastify.get('/check-request/:id', async (request, reply) => {
                 data.dobMatch = record.dobMatch;
             }
 
-            if(record.redirect_url) {
+            if (record.redirect_url) {
                 data.redirect_url = record.redirect_url;
             }
 
-            if(record.request_reference) {
+            if (record.request_reference) {
                 data.request_reference = record.request_reference;
             }
 
@@ -231,7 +240,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
 
 //TODO: REMOVE!!!
 fastify.post('/generate-id-url', async (request, reply) => {
-    const data =  {
+    const data = {
         error: 'Deprecated endpoint. Please use /generate-url'
     }
 
@@ -312,37 +321,40 @@ fastify.post('/generate-url', async (request, reply) => {
             handler.email(d);
         }
 
-        if(code === 200) {
+        if (code === 200) {
             data.status = 'sent';
+            const strict = typeof(body.strict) === 'boolean' ? body.strict : false; 
+
             let save = {
                 created: data.created,
                 status: data.status,
+                strict: strict,
                 pii: {}
             };
-    
+
             let dob = body.birth_date;
             if (typeof (dob) === 'string' && dob.length > 0) {
                 save.pii.dob = dob;
             }
-    
+
             if (typeof (full_name) === 'string' && full_name.length > 0) {
-                save.pii.name = full_name;
+                save.pii.full_name = full_name;
             }
-    
+
             if (request.user) {
                 save.customer_id = request.user.CustomerAccountID;
             }
-    
+
             let redirect_url = body.redirect_url;
             if (typeof (redirect_url) === 'string' && redirect_url.length > 0) {
                 save.redirect_url = redirect_url;
             }
-    
+
             let request_reference = body.request_reference;
             if (typeof (request_reference) === 'string' && request_reference.length > 0) {
                 save.request_reference = request_reference;
             }
-            
+
             await cache.setP(TABLE, transaction_id, save, '1w', true);
         } else {
             delete data.transaction_id;
@@ -354,7 +366,7 @@ fastify.post('/generate-url', async (request, reply) => {
         data.error = 'Missing parameter.';
     }
 
-    if(code !== 200) {
+    if (code !== 200) {
         data.status = 'error';
     }
 
@@ -368,8 +380,8 @@ fastify.addHook("onRequest", async (request, reply) => {
     //authJWT.getAuth(request);
 })
 
-const start = ()=> {
-  
+const start = () => {
+
     fastify.listen(params.port, (err, address) => {
         if (err) throw err
         logger.info(`HTTP server is listening on ${address}`);

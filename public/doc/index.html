@@ -56,7 +56,7 @@
 
         <div class="form-group">
           <label class="form-label" for="full_name">Full Name</label>
-          <input id="full_name" class="form-input" type="text" placeholder="Full Name (optional)" minlength="1"
+          <input id="full_name" class="form-input" type="text" placeholder="Full Name" minlength="1"
             maxlength="64">
         </div>
 
@@ -84,6 +84,13 @@
         <div class="form-group">
           <label class="form-label" for="redirect_url">Redirect Url</label>
           <input id="redirect_url" class="form-input" placeholder="Redirect Url" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-switch">
+            <input id="check-strict" type="checkbox" checked>
+            <i class="form-icon"></i> Strict (name and DOB must match the document)
+          </label>
         </div>
 
         <br />
@@ -380,6 +387,7 @@
           birth_date: $('#birth_date').val() || '',
           request_reference: $('#request_reference').val(),
           redirect_url: $('#redirect_url').val(),
+          strict: $('#check-strict').is(':checked'),
         };
 
         if (data.email_address.length < 3 && data.phone_number.length < 9) {
@@ -387,6 +395,11 @@
           return;
         }
 
+        if (data.strict && (data.full_name.length < 1 || data.birth_date.length < 9)) {
+          setOutput('<span style="color:red;">Name and DOB required</span>')
+          return;
+        }
+        
         setOutput('&nbsp;');
         //divOr.classList.add("d-none");
         divVeriff.classList.add("d-none");
