@@ -205,6 +205,13 @@ fastify.get('/check-request/:id', async (request, reply) => {
         if (record) {
             code = 200;
             data.status = record.status || record.action;
+            
+            if(record.status === 'sent') {
+                await cache.updateP(TABLE, id, {
+                    status: 'clicked'
+                }, '1w', true); 
+            }
+            
             if (record.reason !== null && typeof (record.reason) !== 'undefined') {
                 data.reason = record.reason;
             }
@@ -229,7 +236,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
             data.reason = 'Request not found.'
         }
     } else {
-        data.status = 'Invalid';
+        data.status = 'invalid';
         data.reason = 'Invalid or missing transaction ID.';
         code = 422;
     }

@@ -1,6 +1,6 @@
 {
   "name": "yoda",
-  "version": "1.0.61",
+  "version": "1.0.62",
   "description": "FortifID micro services and utilities.",
   "main": "service-did.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "@types/qs": "^6.9.4",
     "amazon-dax-client": "^1.2.5",
     "atob": "^2.1.2",
-    "awesome-phonenumber": "^2.49.0",
+    "awesome-phonenumber": "^2.50.0",
     "aws-sdk": "^2.895.0",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.0",

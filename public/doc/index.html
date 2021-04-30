@@ -45,7 +45,7 @@
     <br />
 
     <div class="text-center">
-      <img id="logo" src="/images/logo.png" alt="FortifID Logo">
+      <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo" src="/images/logo.png" alt="FortifID Logo"></a>
       <br /><br />
       <h5>Document Verification</h5>
       <hr />
@@ -109,7 +109,7 @@
         <strong>&mdash; or &mdash;</strong>
       </div>
       <br />
-      <div id='veriff-root' class="p-centered" style="width: 350px;"></div>
+      <div id='veriff-root' class="p-centered d-none" style="width: 350px;"></div>
       <div>
         <div id="status2" class="text-center">&nbsp;</div>
       </div>
@@ -136,6 +136,7 @@
       let resultsTimer;
       let checking = false;
       let startTime = 0;
+      let checkRequest = false;
 
       const divSendVerification = document.getElementById('send-verification');
       const divOr = document.getElementById('or');
@@ -233,8 +234,8 @@
         return data;
       }
 
-      const getRequestStatus = async () => {
-        if (checking || !focused || !transaction_id) {
+      const getRequestStatus = async (once = false) => {
+        if (checking || !focused || !transaction_id || !checkRequest) {
           return;
         }
 
@@ -251,20 +252,8 @@
 
         try {
           checking = true;
-          let count = Math.round(duration / 1000);
-          if (count > 0 && count % 2 === 0) {
-            //dotCount++;
-            //console.log(dotCount);
-          }
-          // let line = '<img src="loader.gif"> Checking...' + ''.padEnd(dotCount, '.');
-          // setOutput(line, 0);
-
           let results = await getAPIData(`/check-request/${transaction_id}`);
           if (results) {
-            // if (results.id) {
-            //   transaction_id = results.id;
-            // }
-
             let status = results.status;
             if (status) {
               if (status === 'submitted' && MODE === 'DEV') {
@@ -279,12 +268,11 @@
                   status +=
                     `<br/><br/><button id="btn-redirect"  data-url="${results.redirect_url}" class="text-center">Continue</button>`
                 }
-
               } else if (status === 'declined') {
                 transaction_id = undefined;
                 status =
                   `<h3><span style="color:white;background-color: red;padding:10px 20px">DECLINED</span></h3>`;
-              } else if (status === 'error') {
+              } else{
 
               }
 
@@ -294,19 +282,20 @@
 
               divStatus2.html(`${status}`);
             }
-            //console.log(results);
           }
         } catch (error) {
           console.log(error);
         }
 
-        if (transaction_id) {
+        if (transaction_id && !once) {
           cancelTimer();
           resultsTimer = setTimeout(() => {
             getRequestStatus();
           }, 2000);
         } else {
-          setOutput('Finished.');
+          //setOutput('Finished.');
+          checkRequest = false;
+          setOutput('&nbsp;');
         }
         checking = false;
       }
@@ -336,6 +325,7 @@
                   text = '<img src="/images/loader.gif"> Finished. Please wait...';
                   divVeriff.classList.add("d-none");
                   focused = true;
+                  checkRequest = true;
                   getRequestStatus();
                   break;
               }
@@ -347,26 +337,9 @@
         }
       });
 
-      if (hasRef) {
-        veriff.setParams({
-          person: {
-            givenName: ' ',
-            lastName: ' '
-          },
-          vendorData: transaction_id
-        });
-
-        veriff.mount();
-        document.getElementById('veriff-submit-btn').addEventListener("click", async () => {
-          divOr.classList.add("d-none");
-          divSendVerification.classList.add("d-none");
-        })
-      }
-
       document.addEventListener('visibilitychange', (ev) => {
         focused = document.visibilityState === 'visible';
         if (focused) {
-          //startTime = Date.now();
           getRequestStatus();
         } else {
           cancelTimer();
@@ -406,7 +379,7 @@
         divVeriff.classList.add("d-none");
 
         let results = await getAPIData('/generate-url', data, 'post');
-        console.log(results);
+        //console.log(results);
         if (typeof (results) !== 'object' || results.status === 'error') {
           setOutput(`<span style="color:red;">ERROR: ${JSON.stringify(results)}</span>`);
         } else {
@@ -416,11 +389,35 @@
           setOutput(`<img src="/images/loader.gif"> Verification sent. Please wait...`);
           resultsTimer = setTimeout(() => {
             focused = true;
+            checkRequest = true;
             getRequestStatus();
           }, 15000);
         }
       });
 
+      if (hasRef) {
+        focused = true;
+        checkRequest = true;
+        await getRequestStatus(true);
+        
+        if (transaction_id) {
+          divStatus2.html('&nbsp;');
+          divVeriff.classList.remove("d-none");
+          veriff.setParams({
+            person: {
+              givenName: ' ',
+              lastName: ' '
+            },
+            vendorData: transaction_id
+          });
+
+          veriff.mount();
+          document.getElementById('veriff-submit-btn').addEventListener("click", async () => {
+            divOr.classList.add("d-none");
+            divSendVerification.classList.add("d-none");
+          })
+        }
+      }
     })();
   </script>
 

@@ -98,7 +98,11 @@ definitions:
         type: string
       redirect_url:
         example: https://fortifid.com
-        type: string         
+        type: string
+      strict:
+        description: 'If true then full_name and birth_date are requeired and must match document'
+        default: false
+        type: boolean
     required:
       - phone_number
     type: object
@@ -114,6 +118,23 @@ definitions:
         description: ''
         example: e7e42ba2-1783-4406-b920-edc681608a2d
         type: string
+      reason:
+        type: string
+        example: ''
+        description:  Usually contains the reason why the document was declined
+      name_match_score:
+        type: number
+        example: 0.9
+        description: Score from 0 - 1.0 indicating the "matchness" of the full_name to the document.
+      dob_match:
+        type: boolean
+        example: true
+      request_reference:
+        example: application-1234
+        type: string
+      redirect_url:
+        example: https://fortifid.com
+        type: string
     type: object
     xml:
       name: RequestResults
@@ -124,10 +145,11 @@ definitions:
       - not_found
       - invalid
       - waiting
+      - clicked
+      - started
       - approved
       - declined
       - expired
-      - used
     type: string
   StatusResults:
     properties:
