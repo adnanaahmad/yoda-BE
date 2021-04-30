@@ -2,7 +2,7 @@
 /*jshint esversion: 8 */
 const NAME = 'SambaSafety';
 const TABLE = 'service-sambasafety';
-const PORT = 7976;
+const PORT = 7975;
 
 const utils = require('./utils');
 const logger = require('./logger').createLogger(TABLE);
