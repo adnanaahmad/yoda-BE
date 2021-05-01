@@ -39,7 +39,7 @@ const HOSTS = [
 ];
 
 
-const ALLOWED_COMMANDS = ['pwd', 'pm2', 'ls', 'date', 'df', 'free', 'npm'];
+const ALLOWED_COMMANDS = ['pwd', 'pm2', 'ls', 'date', 'df', 'free', 'npm', 'free'];
 
 const pm2 = require('pm2');
 
