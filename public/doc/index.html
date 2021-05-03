@@ -128,6 +128,15 @@
       const MODE = 'PROD';
       const BASE_URL = `${window.location.protocol}//${window.location.hostname}/doc/v1`;
       const params = new URLSearchParams(window.location.search);
+
+      const IDS = {
+        'test': '45d898bf-50c1-4c39-9216-71d07904ba30',
+        'i.prod.fortifid.com': '56cb84da-9372-4c3c-ba40-1b3a6af6db34',
+        'default':  'defbb5fe-8c43-446f-847c-bf1e49dba3bf'
+      }
+
+      const apiKey = MODE === 'PROD' ? IDS[window.location.hostname] || IDS.default : IDS.test;
+
       let hasRef = params && params.has('ref');
       let transaction_id = hasRef ? params.get('ref') : undefined;
 
@@ -157,9 +166,6 @@
         divSendVerification.classList.remove("d-none");
         //divOr.classList.remove("d-none");
       }
-
-      const TEST_API_KEY = '45d898bf-50c1-4c39-9216-71d07904ba30';
-      const PROD_API_KEY = 'defbb5fe-8c43-446f-847c-bf1e49dba3bf';
 
       const cancelTimer = () => {
         if (resultsTimer) {
@@ -302,7 +308,7 @@
 
       const veriff = Veriff({
         host: 'https://stationapi.veriff.com',
-        apiKey: MODE === 'PROD' ? PROD_API_KEY : TEST_API_KEY,
+        apiKey: apiKey,
         parentId: 'veriff-root',
 
         onSession: function (err, response) {

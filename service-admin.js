@@ -39,9 +39,9 @@ const HOSTS = [
 ];
 
 
-const ALLOWED_COMMANDS = ['pwd', 'ps','env',
+const ALLOWED_COMMANDS = ['pwd', 'ps', 'env',
     'pm2', 'ls', 'date', 'df', 'free', 'npm',
-    'free', 'whoami', 'locate', 'find', 'du', 
+    'free', 'whoami', 'locate', 'find', 'du',
     'uname'
 ];
 
@@ -308,6 +308,11 @@ const getCommandData = async (command, data) => {
             case 'info': {
                 return getInfo();
             }
+            case 'versions': {
+                return {
+                    versions: process.versions
+                };
+            }
             case 'health': {
                 return {
                     status: 'OK'
@@ -496,6 +501,15 @@ fastify.addHook("onRequest", async (request, reply) => {
     }
     //console.log(request.routerPath, request.routerMethod);
 });
+
+fastify.get('/versions', async (request, reply) => {
+    return getData(request, reply);
+})
+
+fastify.get('/versions/:id', async (request, reply) => {
+    return getData(request, reply);
+})
+
 
 fastify.listen(9999, (err, address) => {
     if (err) throw err
