@@ -617,7 +617,9 @@ const httpHandler = async (req, res) => {
                 }
             }
 
-            redirectUrl = redirectUrl || useNew ? 'thanks' : '/thanks';
+            if(typeof(redirectUrl) === 'undefined' || redirectUrl.length < 1) {
+                redirectUrl = useNew ? 'thanks' : '/thanks';
+            }
 
             //const otherParams = utils.queryStringToObject(redirectUrl, true);
             //console.log(otherParams)
