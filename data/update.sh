@@ -39,7 +39,7 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
         #TODO: actually check for success
         cd fortifid
         #todo conditional npm i
-        log "Checking and installing all packages..."
+        log "Checking and updating all packages..."
         npm i
         #pm2 reload all
 
