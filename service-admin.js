@@ -86,8 +86,9 @@ const execCommand = async (command, args) => {
         return data;
     } catch (error) {
         logger.error(error);
+        let temp = utils.splitLines(error.message);
         return {
-            error: error.message
+            error: temp
         };
     }
 }
@@ -209,11 +210,19 @@ const update = async (args) => {
 }
 
 const trim = async () => {
-    return await execCommand(`rm`, "`ls /homes/ec2-user/backups -t | awk 'NR>3'`");
+    return await execCommand(`rm`, "`ls /home/ec2-user/backups -t | awk 'NR>3'`");
 }
 
 const backups = async () => {
-    return {backups: await utils.dirRead('/home/ec2-user/backups/')};
+    const dir = '/home/ec2-user/backups/';
+    let files;
+    if(await utils.fileExists(dir)) {
+        files = await utils.dirRead(dir);
+    } else {
+        files = [];
+    }
+
+    return {backups: files};
 }
 
 const revert = async(version)=> {
