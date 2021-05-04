@@ -91,21 +91,22 @@ const ddbOptions = {};
 
 let hasDax = false;
 
-if (process.env.DAX_URL) {
-  try {
-    //TODO: Amazon's library causes this: Warning: Accessing non-existent property 'INVALID_ALT_NUMBER' of module exports inside circular dependency 
-    // export NODE_NO_WARNINGS=1
-    const AmazonDaxClient = require('amazon-dax-client');
-    const dax = new AmazonDaxClient({
-      endpoints: [process.env.DAX_URL],
-      region: process.env.AWS_REGION
-    });
-    ddbOptions.service = dax;
-    hasDax = true;
-  } catch (error) {
-    logger.error(error);
-  }
-}
+//TODO: Dax is too buggy to use right now.
+// if (process.env.DAX_URL) {
+//   try {
+//     //TODO: Amazon's library causes this: Warning: Accessing non-existent property 'INVALID_ALT_NUMBER' of module exports inside circular dependency 
+//     // export NODE_NO_WARNINGS=1
+//     const AmazonDaxClient = require('amazon-dax-client');
+//     const dax = new AmazonDaxClient({
+//       endpoints: [process.env.DAX_URL],
+//       region: process.env.AWS_REGION
+//     });
+//     ddbOptions.service = dax;
+//     hasDax = true;
+//   } catch (error) {
+//     logger.error(error);
+//   }
+// }
 
 const ddbClient = new AWS.DynamoDB.DocumentClient();
 

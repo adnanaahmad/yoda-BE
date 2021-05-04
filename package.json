@@ -1,6 +1,6 @@
 {
   "name": "yoda",
-  "version": "1.0.94",
+  "version": "1.0.95",
   "description": "FortifID micro services and utilities.",
   "main": "service-did.js",
   "scripts": {
@@ -11,10 +11,9 @@
   "dependencies": {
     "@types/express": "^4.17.11",
     "@types/qs": "^6.9.4",
-    "amazon-dax-client": "^1.2.5",
     "atob": "^2.1.2",
     "awesome-phonenumber": "^2.50.0",
-    "aws-sdk": "^2.895.0",
+    "aws-sdk": "^2.899.0",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "big-integer": "^1.6.48",
@@ -28,7 +27,6 @@
     "fastify-formbody": "^5.0.0",
     "fastify-raw-body": "^3.1.0",
     "fastify-static": "^4.0.1",
-    "ioredis": "^4.27.1",
     "ip-range-check": "^0.2.0",
     "jsonwebtoken": "^8.5.1",
     "lzutf8": "^0.6.0",
@@ -42,7 +40,7 @@
     "pem-file": "^1.0.1",
     "pm2": "^4.5.4",
     "pretty-data": "^0.40.0",
-    "rate-limiter-flexible": "^2.2.1",
+    "rate-limiter-flexible": "^2.2.2",
     "redis": "^3.1.2",
     "sanitize-filename": "^1.6.3",
     "string-similarity": "^4.0.4",
