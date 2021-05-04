@@ -213,7 +213,11 @@ const trim = async () => {
     const dir = '/home/ec2-user/backups';
     let data;
     if(await utils.fileExists(dir)) {
-        data = await execCommand(`${__dirname}/data/trim.sh`, args);
+
+        let files = await utils.dirRead(dir);
+        if(files.length > 0) {
+            data = {files: files};
+        }
     } else {
         data = { error: 'No backups available.'}
     }
@@ -234,6 +238,8 @@ const backups = async () => {
     return {backups: files};
 }
 
+
+//rm `ls -t /homes/ec2-user/backups | awk 'NR>5'`
 const revert = async(version)=> {
     const file = `/home/ec2-user/backups/${version}${version.endsWith('.tar.gz') ? '':'.tar.gz'}`;
     if(await utils.fileExists(file)) {
