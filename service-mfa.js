@@ -53,13 +53,16 @@ fastify.get('/check-request/:id', async (request, reply) => {
         status: 'not_found'
     };
 
-    //logger.info(request.ip, `check-request ${id}`);
 
     if (id) {
         let record = await cache.getP(TABLE, id);
 
         if (record) {
             data.status = record.status;
+            if(data.status === 'verified') {
+                logger.silly(request.ip, `check-request ${id}`, record);
+            }
+
             if (record.reason) {
                 data.reason = record.reason;
             }
@@ -79,6 +82,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
             code = 200;
         }
     }
+
     reply.type('application/json').code(code);
 
     return data;

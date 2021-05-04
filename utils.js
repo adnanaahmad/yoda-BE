@@ -20,11 +20,11 @@ const PhoneNumber = require('awesome-phonenumber');
 const {
     URL
 } = require('url');
-
 const {
     v4: uuidv4
 } = require('uuid');
 const BigInt = require('big-integer');
+
 const loadNs = process.hrtime();
 const loadMs = new Date().getTime();
 
@@ -32,6 +32,7 @@ let _logger;
 
 require('dotenv').config();
 
+//TODO!
 const HOST = process.env.HOST || 'i.dev.fortifid.com';
 
 require('console-stamp')(console, {
@@ -1220,7 +1221,7 @@ const redisOptsFromUrl = (urlString) => {
     return redisOpts;
 };
 
-//TODO! Since this is used by pretty much everything
+//TODO! Since this library is used by pretty much everything
 process.on('uncaughtException', (err) => {
     console.log('uncaughtException', err);
 });
