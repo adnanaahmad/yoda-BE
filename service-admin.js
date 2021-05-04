@@ -237,7 +237,11 @@ const backups = async () => {
 const revert = async(version)=> {
     const file = `/home/ec2-user/backups/${version}${version.endsWith('.tar.gz') ? '':'.tar.gz'}`;
     if(await utils.fileExists(file)) {
-        return await execCommand(`${__dirname}/data/revert.sh`,  [file]);
+        let results = await execCommand(`${__dirname}/data/revert.sh`,  [file]);
+        setTimeout(() => {
+            execPM2Command('restart');
+        }, 500);
+        return results;
     }else {
         return {error: "Version not available."}
     }
