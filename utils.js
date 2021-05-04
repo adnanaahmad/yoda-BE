@@ -68,6 +68,7 @@ const REGEX_EMAIL = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+
 
 const fileExists = util.promisify(fs.exists);
 const fileRead = util.promisify(fs.readFile);
+const fileDelete = util.promisify(fs.unlinkSync);
 const fileWrite = util.promisify(fs.writeFile);
 const fileStats = util.promisify(fs.stat);
 const dirRead = util.promisify(fs.readdir);
@@ -1320,6 +1321,7 @@ module.exports = {
     ipRangeCheck,
     pathJoin,
     splitLines,
+    fileDelete,
     camelToSnakeCaseObject,
     formatDate,
     numbersOnly,
