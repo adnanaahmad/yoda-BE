@@ -337,7 +337,9 @@ const getCommandData = async (command, data) => {
             }
             case 'update': {
                 let results = await update();
-                execPM2Command('restart');
+                setTimeout(() => {
+                    execPM2Command('restart');
+                }, 500);
                 return results;
             }
             case 'commands':
