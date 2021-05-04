@@ -46,7 +46,7 @@ const ALLOWED_COMMANDS = ['pwd', 'ps', 'env',
 
 let haveLocalCerts = false;
 
-const COMMANDS = ['versions', 'help', 'commands', 'health', 'host', 'hosts',
+const COMMANDS = ['versions', 'help', 'commands', 'health', 'host', 'hosts', 'version',
     'restart', 'stop', 'start', 'reload', 'list', 'cmd', 'info', 'update', 'revert'
 ];
 
@@ -311,6 +311,11 @@ const getCommandData = async (command, data) => {
             case 'info': {
                 return getInfo();
             }
+            case 'version': {
+                return {
+                    version: SCRIPT_INFO.version
+                };
+            }            
             case 'versions': {
                 return {
                     versions: process.versions
