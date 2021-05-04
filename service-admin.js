@@ -237,7 +237,7 @@ const backups = async () => {
 const revert = async(version)=> {
     const file = `/home/ec2-user/backups/${version}${version.endsWith('.tar.gz') ? '':'.tar.gz'}`;
     if(await utils.fileExists(file)) {
-        return await execCommand(`${__dirname}/data/revert.sh`, file);
+        return await execCommand(`${__dirname}/data/revert.sh`,  [file]);
     }else {
         return {error: "Version not available."}
     }
