@@ -213,7 +213,6 @@ const trim = async () => {
     const dir = '/home/ec2-user/backups';
     let data;
     if(await utils.fileExists(dir)) {
-
         let files = await utils.dirRead(dir);
         if(files.length > 0) {
             data = {files: files};
