@@ -23,7 +23,8 @@ cd /home/ec2-user
  
 if [ -d ./fortifid -a ! -h ./fortifid ]; then
     log "Reverting Yoda to $1..."
-    cp $1 ./didservice.tar.gz
+    cp "/home/ec2-user/backups/$1" ./didservice.tar.gz
+    
     if [ -s "didservice.tar.gz" ]
     then 
         log "Installing..."

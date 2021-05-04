@@ -258,9 +258,17 @@ const backups = async () => {
 
 //rm `ls -t /homes/ec2-user/backups | awk 'NR>5'`
 const revert = async(version)=> {
-    const file = `/home/ec2-user/backups/${version}${version.endsWith('.tar.gz') ? '':'.tar.gz'}`;
+    if(typeof(version) !== 'string' ||version.length < 1) {
+        return {error: "Version required."}
+    }
+
+    if(!version.endsWith('.tar.gz')) {
+        version = `${version}.tar.gz`;
+    }
+    
+    const file = `/home/ec2-user/backups/${version}`;
     if(await utils.fileExists(file)) {
-        let results = await execCommand(`${__dirname}/data/revert.sh`,  [file]);
+        let results = await execCommand(`${__dirname}/data/revert.sh`,  [version]);
         setTimeout(() => {
             execPM2Command('restart');
         }, 500);
