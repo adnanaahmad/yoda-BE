@@ -213,6 +213,7 @@ const execPM2Command = async (command, service = 'all') => {
             if (typeof (service) === 'undefined' || service.length < 1) {
                 service = 'all';
             }
+            
             logger.info('execPM2Command', command, service);
             if (typeof (process.env.NO_RESTART) === 'undefined') {
                 let results;

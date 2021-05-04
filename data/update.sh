@@ -36,8 +36,9 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
         rm -rf didservice.tar.gz
         #TODO: actually check for success
         cd fortifid
+        #todo conditional npm i
         npm i
-        pm2 reload all
+        #pm2 reload all
 
         #./setup.sh        
         log "Done."
