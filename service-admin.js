@@ -34,15 +34,20 @@ fastify.register(require('fastify-static'), {
 //TODO! SCRIPT_INFO.host
 const HOSTS = [
     'i.dev.fortifid.com',
-    //'i.prod.fortifid.com',
+    'i.prod.fortifid.com',
     //'z.prod.fortifid.com'
 ];
-
 
 const ALLOWED_COMMANDS = ['pwd', 'ps', 'env',
     'pm2', 'ls', 'date', 'df', 'free', 'npm',
     'free', 'whoami', 'locate', 'find', 'du',
     'uname'
+];
+
+let haveLocalCerts = false;
+
+const COMMANDS = ['versions', 'help', 'commands', 'health', 'host', 'hosts',
+    'restart', 'stop', 'start', 'reload', 'list', 'cmd', 'info', 'update', 'revert'
 ];
 
 const pm2 = require('pm2');
@@ -198,7 +203,6 @@ const sendHosts = async (hosts, endpoint, data, method) => {
     return results;
 }
 
-
 const update = async (args) => {
     return await execCommand(`${__dirname}/data/update.sh`, args);
 }
@@ -224,7 +228,7 @@ const execPM2Command = async (command, service = 'all') => {
                         }
                         //logger.silly(proc);
                         let data = {
-                            status: 'success.'
+                            status: 'success'
                         };
                         if (command === 'list') {
                             const list = [];
@@ -278,7 +282,6 @@ const importAccount = () => {
     // awsClient.putDDBItem('USER_AUTHZ_TABLE', json);
 }
 
-
 fastify.get('/push-updates', async (request, reply) => {
     let results = await sendHosts(HOSTS, '/admin/v1/update');
 
@@ -330,6 +333,23 @@ const getCommandData = async (command, data) => {
                 execPM2Command('restart');
                 return results;
             }
+            case 'commands':
+            case 'help': {
+                return {
+                    commands: COMMANDS,
+                    cmd: ALLOWED_COMMANDS
+                };
+            }
+            case 'host' : {
+                return {
+                    host: SCRIPT_INFO.host
+                };
+            }
+            case 'hosts' : {
+                return {
+                    host: [SCRIPT_INFO.host, ...HOSTS]
+                };
+            }
             case 'cmd': {
                 let results;
                 if (_args) {
@@ -358,7 +378,7 @@ const getCommandData = async (command, data) => {
             }
             default:
                 return {
-                    error: 'Invalid command'
+                    error: 'Invalid or command not ready/allowed.'
                 };
         }
     } catch (error) {
@@ -407,118 +427,19 @@ const getData = async (request, reply) => {
     return results;
 }
 
-fastify.get('/update', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/update/:id', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/info', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/info/:id', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/cmd', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/cmd/:id', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/start', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/start/:id', async (request, reply) => {
-    return getData(request, reply);
-})
-
-
-fastify.get('/list', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/list/:id', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/reload', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/reload/:id', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/stop', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/stop/:id', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/restart', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/restart/:id', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/health', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/health/:id', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/hosts', async (request, reply) => {
-    const hosts = [SCRIPT_INFO.host, ...HOSTS];
-    reply.type('application/json').code(200);
-
-    return hosts;
-})
-
-fastify.get('/host', async (request, reply) => {
-    reply.type('application/json').code(200);
-
-    return {
-        host: SCRIPT_INFO.host
-    };
-})
-
 fastify.addHook("onRequest", async (request, reply) => {
     if (!await authMain.checkHeaders(request, reply, 0, true)) {
         return;
     }
-    //console.log(request.routerPath, request.routerMethod);
-});
-
-fastify.get('/versions', async (request, reply) => {
-    return getData(request, reply);
-})
-
-fastify.get('/versions/:id', async (request, reply) => {
-    return getData(request, reply);
-})
-
-
-fastify.listen(9999, (err, address) => {
-    if (err) throw err
-    logger.info(`HTTP server is listening on ${address}`);
 });
 
 (async () => {
+
     if (process.env.CLIENT_CERT && await utils.fileExists(process.env.CLIENT_CERT) &&
         process.env.CLIENT_KEY && await utils.fileExists(process.env.CLIENT_KEY)) {
+
+        haveLocalCerts = true;
+
         try {
             const httpsAgent = new https.Agent({
                 cert: await utils.fileRead(process.env.CLIENT_CERT),
@@ -529,10 +450,35 @@ fastify.listen(9999, (err, address) => {
             if (httpsAgent) {
                 axiosOptions.httpsAgent = httpsAgent
             }
+
         } catch (error) {
-            console.log(error);
+            logger.error(error);
         }
     }
+
+    ALLOWED_COMMANDS.sort();
+    COMMANDS.sort();
+
+    COMMANDS.forEach(command => {
+  
+        fastify.get(`/${command}`, async (request, reply) => {
+            return getData(request, reply);
+        })
+
+        if (haveLocalCerts) {
+            fastify.get(`/${command}/:id`, async (request, reply) => {
+                return getData(request, reply);
+            })
+        }
+    })
+
+    fastify.listen(9999, (err, address) => {
+        if (err) {
+            logger.error(err);
+            return;
+        }
+        logger.info(`HTTP server is listening on ${address}`);
+    });
 
     //await loadParams();
     try {

@@ -35,14 +35,15 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
 
         rm -rf didservice.tar.gz
         #TODO: actually check for success
+        cd fortifid
+        npm i
+        pm2 reload all
+
+        #./setup.sh        
         log "Done."
     fi
 else
     log "fortifid directory not found"
 fi
 
-# cd fortifid
-# #npm i
-# pm2 restart all
 
-#./setup.sh
