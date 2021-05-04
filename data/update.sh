@@ -37,7 +37,7 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
         #rm -rf didservice.tar.gz
         mkdir -p ./backups
         #hash=`sha224sum didservice.tar.gz | awk '{ print $1 }'`
-        version=awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json
+        version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json`
         log "Backing up archive ($version)..."
         mv didservice.tar.gz "./backups/$version.tar.gz"
         #TODO: actually check for success
