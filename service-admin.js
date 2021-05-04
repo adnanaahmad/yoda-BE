@@ -214,8 +214,18 @@ const trim = async () => {
     let data;
     if(await utils.fileExists(dir)) {
         let files = await utils.dirRead(dir);
-        if(files.length > 0) {
-            data = {files: files};
+        
+        const count = files.length;
+        if(count > 5) {
+            files.sort();
+            const deleted = [];
+
+            for (let index = 0; index < count; index++) {
+                const file = files[index];
+                deleted.push(file);
+            }
+
+            data = {deleted: deleted};
         }
     } else {
         data = { error: 'No backups available.'}
