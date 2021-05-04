@@ -220,12 +220,14 @@ const trim = async () => {
             files.sort();
             const deleted = [];
 
-            for (let index = 0; index < count; index++) {
+            for (let index = 0; index < count - 5 ; index++) {
                 const file = files[index];
                 deleted.push(file);
             }
 
             data = {deleted: deleted};
+        } else {
+            data = {deleted: []};
         }
     } else {
         data = { error: 'No backups available.'}
