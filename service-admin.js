@@ -46,6 +46,7 @@ const ALLOWED_COMMANDS = ['pwd', 'ps', 'env',
 
 let haveLocalCerts = false;
 
+//TODO! Do not allow certain commands for local
 const COMMANDS = ['versions', 'help', 'commands', 'health', 'host', 'hosts', 'version',
     'restart', 'stop', 'start', 'reload', 'list', 'cmd', 'info', 'update', 'revert'
 ];
@@ -213,7 +214,7 @@ const execPM2Command = async (command, service = 'all') => {
             if (typeof (service) === 'undefined' || service.length < 1) {
                 service = 'all';
             }
-            
+
             logger.info('execPM2Command', command, service);
             if (typeof (process.env.NO_RESTART) === 'undefined') {
                 let results;
@@ -471,11 +472,10 @@ fastify.addHook("onRequest", async (request, reply) => {
             return getData(request, reply);
         })
 
-        if (haveLocalCerts) {
-            fastify.get(`/${command}/:id`, async (request, reply) => {
-                return getData(request, reply);
-            })
-        }
+
+        fastify.get(`/${command}/:id`, async (request, reply) => {
+            return getData(request, reply);
+        })
     })
 
     fastify.listen(9999, (err, address) => {
