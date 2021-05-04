@@ -210,7 +210,15 @@ const update = async (args) => {
 }
 
 const trim = async () => {
-    return await execCommand(`${__dirname}/data/trim.sh`, args);
+    const dir = '/home/ec2-user/backups';
+    let data;
+    if(await utils.fileExists(dir)) {
+        data = await execCommand(`${__dirname}/data/trim.sh`, args);
+    } else {
+        data = { error: 'No backups available.'}
+    }
+
+    return data;
     //return await execCommand(`rm`, "`ls /home/ec2-user/backups -t | awk 'NR>3'`");
 }
 
