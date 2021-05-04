@@ -34,8 +34,11 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
     then 
         log "Installing..."
         tar -zxf didservice.tar.gz --directory fortifid
-        log "Deleting archive..."
-        rm -rf didservice.tar.gz
+        log "Backing up archive..."
+        #rm -rf didservice.tar.gz
+        mkdir -p ./backups
+        hash=`sha224sum didservice.tar.gz | awk '{ print $1 }'`
+        mv didservice.tar.gz "./backups/$hash.tar.gz"
         #TODO: actually check for success
         cd fortifid
         #todo conditional npm i
