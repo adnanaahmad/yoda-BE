@@ -37,8 +37,9 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
         log "Backing up archive..."
         #rm -rf didservice.tar.gz
         mkdir -p ./backups
-        hash=`sha224sum didservice.tar.gz | awk '{ print $1 }'`
-        mv didservice.tar.gz "./backups/$hash.tar.gz"
+        #hash=`sha224sum didservice.tar.gz | awk '{ print $1 }'`
+        version=awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json
+        mv didservice.tar.gz "./backups/$version.tar.gz"
         #TODO: actually check for success
         cd fortifid
         #todo conditional npm i
