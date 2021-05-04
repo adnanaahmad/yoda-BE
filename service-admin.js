@@ -210,7 +210,8 @@ const update = async (args) => {
 }
 
 const trim = async () => {
-    return await execCommand(`rm`, "`ls /home/ec2-user/backups -t | awk 'NR>3'`");
+    return await execCommand(`${__dirname}/data/trim.sh`, args);
+    //return await execCommand(`rm`, "`ls /home/ec2-user/backups -t | awk 'NR>3'`");
 }
 
 const backups = async () => {

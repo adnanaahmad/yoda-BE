@@ -146,5 +146,7 @@ fi
 
 #log "Setting  execute permissions..."
 chmod +x ./data/update.sh
+chmod +x ./data/trim.sh
+chmod +x ./data/revert.sh
 
 log "Setup complete."
