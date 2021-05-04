@@ -235,9 +235,14 @@ const backups = async () => {
 }
 
 const revert = async(version)=> {
-    const file = `/home/ec2-user/backups/${version}.tar.gz`;
+    const file = `/home/ec2-user/backups/${version}${version.endsWith('.tar.gz') ? '':'.tar.gz'}`;
+    if(await utils.fileExists(file)) {
+        return await execCommand(`${__dirname}/data/revert.sh`, file);
+    }else {
+        return {error: "Version not available."}
+    }
+    //return { exists: await utils.fileExists(file), file: file};
 
-    return { exists: await utils.fileExists(file), file: file};
 }
 
 const execPM2Command = async (command, service = 'all') => {
@@ -384,7 +389,7 @@ const getCommandData = async (command, data) => {
                 return await backups();
             }
             case 'revert': {
-                return await revert(data);
+                return await revert(_args);
             }            
             case 'commands':
             case 'help': {
