@@ -223,13 +223,12 @@ const trim = async () => {
             for (let index = 0; index < count - 5 ; index++) {
                 const file = files[index];
                 try {
-                    //await utils.fileDelete(`${dir}/${file}`)
-                    deleted.push(`${dir}/${file}`);
+                    await utils.fileDelete(`${dir}/${file}`)
                 } catch (error) {
                     console.log(error);          
                 }
 
-                //deleted.push(file);
+                deleted.push(file);
             }
 
             data = {deleted: deleted};
