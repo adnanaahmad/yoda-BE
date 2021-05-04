@@ -28,15 +28,18 @@ cd /home/ec2-user
  
 if [ -d ./fortifid -a ! -h ./fortifid ]; then
     log "Updating Yoda..."
+    log "Downloading latest version..."
     curl -s -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
     if [ -s "didservice.tar.gz" ]
     then 
+        log "Installing..."
         tar -zxf didservice.tar.gz --directory fortifid
-
+        log "Deleting archive..."
         rm -rf didservice.tar.gz
         #TODO: actually check for success
         cd fortifid
         #todo conditional npm i
+        log "Checking and installing all packages..."
         npm i
         #pm2 reload all
 

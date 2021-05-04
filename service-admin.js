@@ -216,56 +216,58 @@ const execPM2Command = async (command, service = 'all') => {
             }
 
             logger.info('execPM2Command', command, service);
-            if (typeof (process.env.NO_RESTART) === 'undefined') {
-                let results;
-                try {
-                    pm2[command](service, async (err, proc) => {
-                        if (err) {
-                            logger.error(err);
-                            resolve({
-                                status: 'error',
-                                error: err.message
-                            });
-                            return;
-                        }
-                        //logger.silly(proc);
-                        let data = {
-                            status: 'success'
-                        };
-                        if (command === 'list') {
-                            const list = [];
-                            proc.forEach(item => {
-                                const pm2_env = item.pm2_env;
+            if (command === 'restart' && typeof (process.env.NO_RESTART) !== 'undefined') {
+                resolve({status: 'error', error: 'Cannot restart services.' })
+                return;
+            }
 
-                                let dat = {
-                                    pid: item.pid,
-                                    name: item.name,
-                                    memory: item.monit.memory,
-                                    cpu: item.monit.cpu,
-                                    created: pm2_env.created_at,
-                                    restarts: pm2_env.restart_time,
-                                    unstable_restarts: pm2_env.unstable_restarts,
-                                    status: pm2_env.status,
-                                };
-                                dat.uptime = (pm2_env.pm_uptime && pm2_env.status == 'online') ? (new Date() - pm2_env.pm_uptime) : 0;
+            try {
+                pm2[command](service, async (err, proc) => {
+                    if (err) {
+                        logger.error(err);
+                        resolve({
+                            status: 'error',
+                            error: err.message
+                        });
+                        return;
+                    }
+                    //logger.silly(proc);
+                    let data = {
+                        status: 'success'
+                    };
+                    if (command === 'list') {
+                        const list = [];
+                        proc.forEach(item => {
+                            const pm2_env = item.pm2_env;
 
-                                list.push(dat);
+                            let dat = {
+                                pid: item.pid,
+                                name: item.name,
+                                memory: item.monit.memory,
+                                cpu: item.monit.cpu,
+                                created: pm2_env.created_at,
+                                restarts: pm2_env.restart_time,
+                                unstable_restarts: pm2_env.unstable_restarts,
+                                status: pm2_env.status,
+                            };
+                            dat.uptime = (pm2_env.pm_uptime && pm2_env.status == 'online') ? (new Date() - pm2_env.pm_uptime) : 0;
 
-                            })
-                            data.procs = list;
-                            //await utils.fileWrite('./tmp/list.json', JSON.stringify(proc));
-                        }
-                        //logger.info(data);
-                        resolve(data);
-                    })
-                } catch (error) {
-                    logger.error(error);
-                    resolve({
-                        status: 'error',
-                        error: error.message
-                    });
-                    //results = error.message;
-                }
+                            list.push(dat);
+
+                        })
+                        data.procs = list;
+                        //await utils.fileWrite('./tmp/list.json', JSON.stringify(proc));
+                    }
+                    //logger.info(data);
+                    resolve(data);
+                })
+            } catch (error) {
+                logger.error(error);
+                resolve({
+                    status: 'error',
+                    error: error.message
+                });
+                //results = error.message;
             }
         } else {
             resolve({
@@ -317,7 +319,7 @@ const getCommandData = async (command, data) => {
                 return {
                     version: SCRIPT_INFO.version
                 };
-            }            
+            }
             case 'versions': {
                 return {
                     versions: process.versions
@@ -337,6 +339,7 @@ const getCommandData = async (command, data) => {
             }
             case 'update': {
                 let results = await update();
+
                 setTimeout(() => {
                     execPM2Command('restart');
                 }, 500);
@@ -349,12 +352,12 @@ const getCommandData = async (command, data) => {
                     cmd: ALLOWED_COMMANDS
                 };
             }
-            case 'host' : {
+            case 'host': {
                 return {
                     host: SCRIPT_INFO.host
                 };
             }
-            case 'hosts' : {
+            case 'hosts': {
                 return {
                     host: [SCRIPT_INFO.host, ...HOSTS]
                 };
@@ -469,7 +472,7 @@ fastify.addHook("onRequest", async (request, reply) => {
     COMMANDS.sort();
 
     COMMANDS.forEach(command => {
-  
+
         fastify.get(`/${command}`, async (request, reply) => {
             return getData(request, reply);
         })
