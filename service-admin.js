@@ -48,7 +48,7 @@ let haveLocalCerts = false;
 
 //TODO! Do not allow certain commands for local
 const COMMANDS = ['versions', 'help', 'commands', 'health', 'host', 'hosts', 'version',
-    'restart', 'stop', 'start', 'reload', 'list', 'cmd', 'info', 'update', 'revert'
+    'restart', 'stop', 'start', 'reload', 'list', 'cmd', 'info', 'update', 'revert', 'trim', 'backups'
 ];
 
 const pm2 = require('pm2');
@@ -208,6 +208,20 @@ const update = async (args) => {
     return await execCommand(`${__dirname}/data/update.sh`, args);
 }
 
+const trim = async () => {
+    return await execCommand(`rm`, "`ls /homes/ec2-user/backups -t | awk 'NR>3'`");
+}
+
+const backups = async () => {
+    return {backups: await utils.dirRead('/home/ec2-user/backups/')};
+}
+
+const revert = async(version)=> {
+    const file = `/home/ec2-user/backups/${version}.tar.gz`;
+
+    return { exists: await utils.fileExists(file), file: file};
+}
+
 const execPM2Command = async (command, service = 'all') => {
     return new Promise((resolve, reject) => {
         if (pm2Connected) {
@@ -345,6 +359,15 @@ const getCommandData = async (command, data) => {
                 }, 500);
                 return results;
             }
+            case 'trim': {
+                return await trim();
+            }
+            case 'backups': {
+                return await backups();
+            }
+            case 'revert': {
+                return await revert();
+            }            
             case 'commands':
             case 'help': {
                 return {
