@@ -384,7 +384,7 @@ const getCommandData = async (command, data) => {
                 return await backups();
             }
             case 'revert': {
-                return await revert();
+                return await revert(data);
             }            
             case 'commands':
             case 'help': {
