@@ -29,6 +29,7 @@ const loadNs = process.hrtime();
 const loadMs = new Date().getTime();
 
 let _logger;
+let _hasGit;
 
 require('dotenv').config();
 
@@ -1167,6 +1168,14 @@ const pathJoin = (...paths) => {
     return path.join(...paths);
 }
 
+const hasGit = async () => {
+    if(typeof(_hasGit) === 'undefined') {
+        _hasGit = await fileExists(`${__dirname}/.git`);    
+    }
+
+    return _hasGit;
+}
+
 function escapeHTML(unsafe) {
     return unsafe
         .replace(/&/g, "&amp;")
@@ -1330,5 +1339,6 @@ module.exports = {
     splitItems,
     parsePhoneNumber,
     parseURL,
-    escapeJSON
+    escapeJSON,
+    hasGit
 }

@@ -45,8 +45,10 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
         #todo conditional npm i
         log "Checking and updating all packages..."
         npm i
-        #pm2 reload all
 
+        if [ $1 = "reload" ]; then
+            pm2 reload all
+        fi
         #./setup.sh        
         log "Done."
     fi

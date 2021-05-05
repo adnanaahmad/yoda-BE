@@ -410,9 +410,25 @@ const describeTable = async (table) => {
   }
 }
 
-const createTable = async (params) => {
+const createTable = async (params, ttlParams) => {
   try {
-    return await ddb.createTable(params).promise();
+    const results = await ddb.createTable(params).promise();
+    if(typeof(ttlParams) !== 'undefined') {
+      //TOOD!!!!
+      let table;
+      do {
+        await utils.timeout(1000);
+        table = await describeTable(params.TableName);
+        if(!table) {
+          break;
+        }
+      }while(table.Table.TableStatus !== 'ACTIVE')
+
+      if(table) {
+        await ddb.updateTimeToLive(ttlParams).promise();
+      }
+    }
+    return results;
   } catch (error) {
     logger.error(error);
   }

@@ -521,6 +521,10 @@ const httpHandler = async (req, res) => {
                             await handleDirectID(action, bodyData, key);
                             break;
                         }
+                        case 'admin': {
+                            await handleAdmin(action, bodyData, key);
+                            break;
+                        }
                     }
                 } catch (e) {
                     logger.error(e);
@@ -553,6 +557,32 @@ const httpHandler = async (req, res) => {
 
     if (logRequest) {
         doLog();
+    }
+
+    async function handleAdmin(action, bodyData, key) {
+        if(key !== PARAMS.system_secret) {
+            utils.sendText(res, 'Missing or invalid key.', 401);
+            logger.warn(`System command not allowed. [${action}]`);
+            return;
+        }
+
+        if(await utils.hasGit()) {
+            utils.sendText(res, 'System command not allowed on dev system.', 403);
+            logger.warn(`System command not allowed on dev system. [${action}]`);
+            return;
+        }
+
+        switch (action) {
+            case 'update': {
+                utils.sendText(res, 'Update initiated.', 200);
+                await execCommand(`${__dirname}/data/update.sh`, ['reload']);
+                break;
+            }
+            default: {
+                utils.sendData(res, 'Endpoint not found.', 404);
+                break;
+            }
+        }
     }
 
     async function handleDirectID(action, bodyData, key) {
