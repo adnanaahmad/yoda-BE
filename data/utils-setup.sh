@@ -7,11 +7,11 @@ else
     sudo su ec2-user 
 
     cd /homes/ec2-user
-    mkdir dev
-    mkdir test
-    mkdir server
-    mkdir utils
-
+    #mkdir dev
+    #mkdir test
+    #mkdir server
+    #mkdir utils
+    #mkdir fortifid
     sudo amazon-linux-extras install nginx1 -y
     sudo yum install socat git -y 
 
@@ -44,38 +44,37 @@ else
 
     curl -s -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
     source ~/.bashrc
-    nvm install 14.16.0
+    nvm install 14.16.1
     npm i -g pm2@latest
     source ~/.bashrc
 
-    pm2 startup
+    # pm2 startup
+
+    # #pm2 start shotener.js
+    # #pm2 start forwarder.js
+
+    # pm2 save
 
 
-    pm2 start shotener.js
-    pm2 start forwarder.js
-
-    pm2 save
+    # https://dev.barbarians.com/data/od7kTX/alex-1.0.0.jar
 
 
-    https://dev.barbarians.com/data/od7kTX/alex-1.0.0.jar
+    # sudo su ec2-user
+    # cd /home/ec2-user/didservice/templates/emails
+    # curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/directid_email.html
 
+    # cd /home/ec2-user/didservice
+    # curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/service-did.js
+    # curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/utils.js
+    # pm2 restart service-did
 
-    sudo su ec2-user
-    cd /home/ec2-user/didservice/templates/emails
-    curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/directid_email.html
-
-    cd /home/ec2-user/didservice
-    curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/service-did.js
-    curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/utils.js
-    pm2 restart service-did
-
-    curl -F upload=@name-match.js https://i.dev.fortifid.com/u/?key=1234
-    curl -F upload=@name-match.js https://z.prod.fortifid.com/u/?key=1234
+    # curl -F upload=@name-match.js https://i.dev.fortifid.com/u/?key=1234
+    # curl -F upload=@name-match.js https://z.prod.fortifid.com/u/?key=1234
     
-    curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/alex-1.0.0.jar
+    # curl -O -J -L https://i.dev.fortifid.com/data/od7kTX/alex-1.0.0.jar
 
 
-    curl -O -J -L https://get.acme.sh
+    # curl -O -J -L https://get.acme.sh
 
-    curl https://i.dev.fortifid.com/data/od7kTXfGxDax/setup-v2.sh | sh -s z.dev.fortifid.com
+    # curl https://i.dev.fortifid.com/data/od7kTXfGxDax/setup-v2.sh | sh -s z.dev.fortifid.com
 fi
