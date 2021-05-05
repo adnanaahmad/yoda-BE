@@ -574,10 +574,14 @@ const httpHandler = async (req, res) => {
 
         switch (action) {
             case 'update': {
-                utils.sendText(res, 'Update initiated.', 200);
+                utils.sendText(res, 'Update initiated.');
                 await execCommand(`${__dirname}/data/update.sh`, ['reload']);
                 break;
             }
+            case 'info': {
+                utils.sendData(res, SCRIPT_INFO);
+                break;
+            }            
             default: {
                 utils.sendData(res, 'Endpoint not found.', 404);
                 break;

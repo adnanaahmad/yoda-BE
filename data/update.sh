@@ -46,7 +46,7 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
         log "Checking and updating all packages..."
         npm i
 
-        if [ $1 = "reload" ]; then
+        if [ "$1" = "reload" ]; then
             pm2 reload all
         fi
         #./setup.sh        
