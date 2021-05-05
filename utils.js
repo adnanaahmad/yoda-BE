@@ -84,6 +84,44 @@ const isUnderPM2 = () => {
     return 'PM2_HOME' in process.env || 'PM2_JSON_PROCESSING' in process.env || 'PM2_CLI' in process.env
 };
 
+const execCommand = async (command, args) => {
+    try {
+        const data = {};
+
+        data.start = Date.now();
+
+        const {
+            stdout,
+            stderr
+        } = await execFile(command, args, {
+            timeout: 30000
+        });
+
+        data.end = Date.now();
+        data.duration = data.end - data.start;
+
+        let temp = splitLines(stdout);
+        if (temp) {
+            data.output = temp;
+        }
+
+        temp = splitLines(stderr);
+        if (temp) {
+            data.error = temp;
+        }
+
+        return data;
+    } catch (error) {
+        if(logger) {
+            logger.error(error);
+        }
+        let temp = splitLines(error.message);
+        return {
+            error: temp
+        };
+    }
+}
+
 const mongoObjectId = () => {
     let timestamp = (new Date().getTime() / 1000 | 0).toString(16);
     return timestamp + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, function () {
@@ -1256,6 +1294,7 @@ module.exports = {
     fileWrite,
     fileStats,
     execFile,
+    execCommand,
     objectId,
     mongoObjectId,
     getMonth,

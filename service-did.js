@@ -529,7 +529,9 @@ const httpHandler = async (req, res) => {
                 } catch (e) {
                     logger.error(e);
                     try {
-                        res.end(e.message);
+                        if (!res.writableEnded) {
+                            res.end(e.message);
+                        }
                     } catch (error) {
                         // ignore
                     }
@@ -538,7 +540,9 @@ const httpHandler = async (req, res) => {
         } catch (e) {
             logger.error(e);
             try {
-                res.end(e.message);
+                if (!res.writableEnded) {
+                    res.end(e.message);
+                }
             } catch (error) {
                 // ignore
             }
@@ -575,7 +579,7 @@ const httpHandler = async (req, res) => {
         switch (action) {
             case 'update': {
                 utils.sendText(res, 'Update initiated.');
-                await execCommand(`${__dirname}/data/update.sh`, ['reload']);
+                await utils.execCommand(`${__dirname}/data/update.sh`, ['reload']);
                 break;
             }
             case 'info': {

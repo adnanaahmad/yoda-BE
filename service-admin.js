@@ -57,42 +57,6 @@ const awsClient = require('./aws-client');
 
 let pm2Connected = false;
 
-const execCommand = async (command, args) => {
-    try {
-        const data = {};
-
-        data.start = Date.now();
-
-        const {
-            stdout,
-            stderr
-        } = await utils.execFile(command, args, {
-            timeout: 30000
-        });
-
-        data.end = Date.now();
-        data.duration = data.end - data.start;
-
-        let temp = utils.splitLines(stdout);
-        if (temp) {
-            data.output = temp;
-        }
-
-        temp = utils.splitLines(stderr);
-        if (temp) {
-            data.error = temp;
-        }
-
-        return data;
-    } catch (error) {
-        logger.error(error);
-        let temp = utils.splitLines(error.message);
-        return {
-            error: temp
-        };
-    }
-}
-
 //TODO!
 const getHosts = (id) => {
     let hosts = [];
@@ -206,7 +170,7 @@ const sendHosts = async (hosts, endpoint, data, method) => {
 }
 
 const update = async (args) => {
-    return await execCommand(`${__dirname}/data/update.sh`, args);
+    return await utils.execCommand(`${__dirname}/data/update.sh`, args);
 }
 
 const trim = async () => {
@@ -240,7 +204,7 @@ const trim = async () => {
     }
 
     return data;
-    //return await execCommand(`rm`, "`ls /home/ec2-user/backups -t | awk 'NR>3'`");
+    //return await utils.execCommand(`rm`, "`ls /home/ec2-user/backups -t | awk 'NR>3'`");
 }
 
 const backups = async () => {
@@ -268,7 +232,7 @@ const revert = async(version)=> {
     
     const file = `/home/ec2-user/backups/${version}`;
     if(await utils.fileExists(file)) {
-        let results = await execCommand(`${__dirname}/data/revert.sh`,  [version]);
+        let results = await utils.execCommand(`${__dirname}/data/revert.sh`,  [version]);
         setTimeout(() => {
             execPM2Command('restart');
         }, 500);
@@ -455,7 +419,7 @@ const getCommandData = async (command, data) => {
                     }
 
                     if (command.length > 0 && ALLOWED_COMMANDS.indexOf(command) > -1) {
-                        results = await execCommand(command, args);
+                        results = await utils.execCommand(command, args);
                     } else {
                         results = {
                             error: `Command ${command} not allowed.`
