@@ -55,5 +55,3 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
 else
     log "fortifid directory not found"
 fi
-
-
