@@ -25,7 +25,7 @@ else
     openssl dhparam -out /etc/nginx/ssl/dhparams.pem 2048 
 
     sudo echo ec2-user > /etc/cron.allow 
-
+#@reboot sh /home/ec2-user/fortifid/data/startup.sh
     curl https://get.acme.sh | sh -s email=support@fortifid.com 
 
     source ~/.bashrc
