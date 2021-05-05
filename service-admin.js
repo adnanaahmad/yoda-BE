@@ -150,7 +150,6 @@ const getUrl = (host, endpoint) => {
             let command = endpoint.split('/').pop();
             if(SUB_COMMANDS.indexOf(command) > -1 ) {
                 url = `https://${host}/admin/${command}?key=${PARAMS.system_secret}`;
-                console.log(url);
             }
         }
     }
@@ -166,8 +165,13 @@ const sendHosts = async (hosts, endpoint, data, method) => {
     const results = {};
 
     const funcs = [];
+    const funcHosts = [];
     hosts.forEach(host => {
-        funcs.push(sendCommand(getUrl(host, endpoint), data, method));
+        let url = getUrl(host, endpoint);
+        if(url) {
+            funcs.push(sendCommand(url, data, method));
+            funcHosts.push(host);
+        }
     });
 
     try {
@@ -175,8 +179,11 @@ const sendHosts = async (hosts, endpoint, data, method) => {
         results.output = await Promise.all(funcs);
         if (results.output) {
             results.output.forEach((output, index) => {
-                if (output.error) {
-                    output.host = hosts[index];
+                if(typeof(output) === 'undefined') {
+                    output = {host: funcHosts[index]}
+                }
+                else {
+                    output.host = funcHosts[index];
                 }
             })
         }
@@ -501,9 +508,12 @@ const getData = async (request, reply) => {
     } else {
         //TODO: split!
         if (HOSTS.indexOf(id) > -1) {
-            results = await sendCommand(getUrl(id, endpoint), request.query, 'get');
-            if (results && results.error) {
-                results.host = id;
+            let url = getUrl(id, endpoint);
+            if(url) {
+                results = await sendCommand(url, request.query, 'get');
+                if (results && results.error) {
+                    results.host = id;
+                }
             }
         }
     }
