@@ -14,7 +14,9 @@ const authMain = require('./auth-main');
 
 const https = require('https');
 const axios = require('axios');
+const awsClient = require('./aws-client');
 
+const PARAMS = {};
 
 const axiosOptions = {};
 
@@ -35,6 +37,7 @@ fastify.register(require('fastify-static'), {
 const HOSTS = [
     'i.dev.fortifid.com',
     'i.prod.fortifid.com',
+    'api.prod.fortifid.com:8999'
     //'z.prod.fortifid.com'
 ];
 
@@ -44,6 +47,8 @@ const ALLOWED_COMMANDS = ['pwd', 'ps', 'env',
     'uname'
 ];
 
+const SUB_COMMANDS = ['info', 'update', 'version'];
+
 let haveLocalCerts = false;
 
 //TODO! Do not allow certain commands for local
@@ -52,8 +57,6 @@ const COMMANDS = ['versions', 'help', 'commands', 'health', 'host', 'hosts', 've
 ];
 
 const pm2 = require('pm2');
-
-const awsClient = require('./aws-client');
 
 let pm2Connected = false;
 
@@ -83,6 +86,9 @@ const getHosts = (id) => {
 }
 
 const sendCommand = async (url, body, method, headers) => {
+    if(!url) {
+        return;
+    }
 
     headers = headers || {};
 
@@ -135,7 +141,21 @@ const sendCommand = async (url, body, method, headers) => {
 }
 
 const getUrl = (host, endpoint) => {
-    return `https://${host}${endpoint}`;
+    let url;
+    
+    if(host.indexOf(':') === -1) {
+        url = `https://${host}${endpoint}`;
+    } else {
+        if(PARAMS.system_secret) {
+            let command = endpoint.split('/').pop();
+            if(SUB_COMMANDS.indexOf(command) > -1 ) {
+                url = `https://${host}/admin/${command}?key=${PARAMS.system_secret}`;
+                console.log(url);
+            }
+        }
+    }
+    
+    return url;
 }
 
 const sendHosts = async (hosts, endpoint, data, method) => {
@@ -176,31 +196,37 @@ const update = async (args) => {
 const trim = async () => {
     const dir = '/home/ec2-user/backups';
     let data;
-    if(await utils.fileExists(dir)) {
+    if (await utils.fileExists(dir)) {
         let files = await utils.dirRead(dir);
-        
+
         const count = files.length;
-        if(count > 5) {
+        if (count > 5) {
             files.sort();
             const deleted = [];
 
-            for (let index = 0; index < count - 5 ; index++) {
+            for (let index = 0; index < count - 5; index++) {
                 const file = files[index];
                 try {
                     await utils.fileDelete(`${dir}/${file}`)
                 } catch (error) {
-                    console.log(error);          
+                    logger.error(error);
                 }
 
                 deleted.push(file);
             }
 
-            data = {deleted: deleted};
+            data = {
+                deleted: deleted
+            };
         } else {
-            data = {deleted: []};
+            data = {
+                deleted: []
+            };
         }
     } else {
-        data = { error: 'No backups available.'}
+        data = {
+            error: 'No backups available.'
+        }
     }
 
     return data;
@@ -210,35 +236,41 @@ const trim = async () => {
 const backups = async () => {
     const dir = '/home/ec2-user/backups/';
     let files;
-    if(await utils.fileExists(dir)) {
+    if (await utils.fileExists(dir)) {
         files = await utils.dirRead(dir);
     } else {
         files = [];
     }
 
-    return {backups: files};
+    return {
+        backups: files
+    };
 }
 
 
 //rm `ls -t /homes/ec2-user/backups | awk 'NR>5'`
-const revert = async(version)=> {
-    if(typeof(version) !== 'string' ||version.length < 1) {
-        return {error: "Version required."}
+const revert = async (version) => {
+    if (typeof (version) !== 'string' || version.length < 1) {
+        return {
+            error: "Version required."
+        }
     }
 
-    if(!version.endsWith('.tar.gz')) {
+    if (!version.endsWith('.tar.gz')) {
         version = `${version}.tar.gz`;
     }
-    
+
     const file = `/home/ec2-user/backups/${version}`;
-    if(await utils.fileExists(file)) {
-        let results = await utils.execCommand(`${__dirname}/data/revert.sh`,  [version]);
+    if (await utils.fileExists(file)) {
+        let results = await utils.execCommand(`${__dirname}/data/revert.sh`, [version]);
         setTimeout(() => {
             execPM2Command('restart');
         }, 500);
         return results;
-    }else {
-        return {error: "Version not available."}
+    } else {
+        return {
+            error: "Version not available."
+        }
     }
     //return { exists: await utils.fileExists(file), file: file};
 
@@ -253,7 +285,10 @@ const execPM2Command = async (command, service = 'all') => {
 
             logger.info('execPM2Command', command, service);
             if (command === 'restart' && typeof (process.env.NO_RESTART) !== 'undefined') {
-                resolve({status: 'error', error: 'Cannot restart services.' })
+                resolve({
+                    status: 'error',
+                    error: 'Cannot restart services.'
+                })
                 return;
             }
 
@@ -322,20 +357,12 @@ const importAccount = () => {
     // awsClient.putDDBItem('USER_AUTHZ_TABLE', json);
 }
 
-fastify.get('/push-updates', async (request, reply) => {
-    let results = await sendHosts(HOSTS, '/admin/v1/update');
-
-    reply.type('application/json').code(200).send(results);
-})
-
-
 const getInfo = () => {
     const now = Date.now()
     return {
         ...SCRIPT_INFO,
         time: now,
         uptime: now - SCRIPT_INFO.start,
-
         //uptime: Math.round(process.uptime()),
     };
 }
@@ -389,7 +416,7 @@ const getCommandData = async (command, data) => {
             }
             case 'revert': {
                 return await revert(_args);
-            }            
+            }
             case 'commands':
             case 'help': {
                 return {
@@ -448,7 +475,8 @@ const getData = async (request, reply) => {
     const endpoint = `/admin/v1/${command}`;
 
     const body = request.body || request.query;
-
+    const start = utils.time();
+    
     let results = [];
     const id = request.params.id;
     //TODO: post-execute
@@ -480,17 +508,40 @@ const getData = async (request, reply) => {
         }
     }
 
+    let duration = utils.time() - start;
+
+    let info = {
+        ip: request.ip,
+        command: command,
+        duration: utils.toFixedPlaces(duration, 2),
+    }
+
+    if(id) {
+        info.id = id;
+    }
+    logger.info(info);
+
     reply.type('application/json').code(200);
     return results;
 }
 
 fastify.addHook("onRequest", async (request, reply) => {
     if (!await authMain.checkHeaders(request, reply, 0, true)) {
+        logger.info('Request rejected.');
         return;
     }
 });
 
+const loadParams = async () => {
+    try {
+         PARAMS.system_secret = await awsClient.getParameter('/config/directid/directid.service.system_secret');
+    } catch (error) {
+        logger.error(error);
+    }
+}
 (async () => {
+
+    await loadParams();
 
     if (process.env.CLIENT_CERT && await utils.fileExists(process.env.CLIENT_CERT) &&
         process.env.CLIENT_KEY && await utils.fileExists(process.env.CLIENT_KEY)) {
@@ -507,7 +558,7 @@ fastify.addHook("onRequest", async (request, reply) => {
             if (httpsAgent) {
                 axiosOptions.httpsAgent = httpsAgent
             }
-
+            logger.info('Client certificate loaded.');
         } catch (error) {
             logger.error(error);
         }

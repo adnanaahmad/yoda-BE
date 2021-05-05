@@ -562,15 +562,16 @@ const httpHandler = async (req, res) => {
     if (logRequest) {
         doLog();
     }
-
+    
     async function handleAdmin(action, bodyData, key) {
-        if(key !== PARAMS.system_secret) {
+        const now = Date.now();
+        if (key !== PARAMS.system_secret) {
             utils.sendText(res, 'Missing or invalid key.', 401);
             logger.warn(`System command not allowed. [${action}]`);
             return;
         }
 
-        if(await utils.hasGit()) {
+        if (await utils.hasGit()) {
             utils.sendText(res, 'System command not allowed on dev system.', 403);
             logger.warn(`System command not allowed on dev system. [${action}]`);
             return;
@@ -578,14 +579,26 @@ const httpHandler = async (req, res) => {
 
         switch (action) {
             case 'update': {
-                utils.sendText(res, 'Update initiated.');
+                utils.sendData(res, {
+                    output: ['Update initiated.']
+                });
                 await utils.execCommand(`${__dirname}/data/update.sh`, ['reload']);
                 break;
             }
             case 'info': {
-                utils.sendData(res, SCRIPT_INFO);
+                utils.sendData(res, {
+                    ...SCRIPT_INFO,
+                    time: now,
+                    uptime: now - SCRIPT_INFO.start,
+                });
                 break;
-            }            
+            }
+            case 'version': {
+                utils.sendData(res, {
+                    version: SCRIPT_INFO.version
+                });
+                break;
+            }
             default: {
                 utils.sendData(res, 'Endpoint not found.', 404);
                 break;
@@ -655,7 +668,7 @@ const httpHandler = async (req, res) => {
                 }
             }
 
-            if(typeof(redirectUrl) === 'undefined' || redirectUrl.length < 1) {
+            if (typeof (redirectUrl) === 'undefined' || redirectUrl.length < 1) {
                 redirectUrl = useNew ? 'thanks' : '/thanks';
             }
 
