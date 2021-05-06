@@ -1,0 +1,64 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>FortifID</title>
+    <meta name="author" content="cisco@barbarians.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.9/spectre.min.css"
+        integrity="sha512-9RIcp1f4CE6dEuYX9085tXaEbYd1ap04d2Av1ub/dwuT33WbfbHStDdQ+shKrp5wzZzleh5DOg+7ABSnaQP/nQ=="
+        crossorigin="anonymous" />
+    <style>
+        #logo {
+            width: 300px;
+            border: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container grid-lg">
+        <br />
+        <div class="text-center">
+            <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo" src="/images/logo.png"
+                    alt="FortifID Logo"></a>
+            <br /><br />
+            <div class="hero bg-white">
+                <div class="hero-body">
+                    <h3 id="message"></h3>
+                    <p></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <br />
+    <script src="https://code.jquery.com/jquery-3.5.0.slim.min.js"
+        integrity="sha256-MlusDLJIP1GRgLrOflUQtshyP0TwT/RHXsI1wWGnQhs=" crossorigin="anonymous"></script>
+    <script>
+        (async () => {
+            "use strict";
+            let message = '';
+            let search = window.location.search;
+            if (search && search.length > 1) {
+                search = search.substr(1);
+                switch (search) {
+                    case 'expired': {
+                        message = "Link has expired.";
+                        break;
+                    }
+                    case 'not_found': {
+                        message = "Link not found."
+                        break;
+                    }
+                }
+            }
+            $('#message').html(message);
+        })();
+    </script>
+</body>
+
+</html>

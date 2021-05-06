@@ -70,6 +70,10 @@ else
     INSTANCE_ID=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep instanceId | awk -F\" '{print $4}')
     echo "INSTANCE_ID=$INSTANCE_ID" >> ./.env
     
+    #TODO!
+    #ALLOCATION_ID=$(aws ec2 describe-addresses --filters "Name=instance-id,Values=$INSTANCE_ID" | grep AllocationId | awk -F\" '{print $4}')
+    #echo "ALLOCATION_ID=$ALLOCATION_ID" >> ./.env
+
     echo "LOG_GROUP_NAME=didservice" >> ./.env
     #echo "LOG_LEVEL=http" >> ./.env
     # For now until this is production ready.

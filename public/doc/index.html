@@ -45,7 +45,7 @@
     <br />
 
     <div class="text-center">
-      <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo" src="/images/logo.png" alt="FortifID Logo"></a>
+      <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo" src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/logo.png" alt="FortifID Logo"></a>
       <br /><br />
       <h5>Document Verification</h5>
       <hr />
@@ -328,7 +328,7 @@
                   break;
                 case 'FINISHED':
                   //TODO! Start polling
-                  text = '<img src="/images/loader.gif"> Finished. Please wait...';
+                  text = '<img src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif"> Finished. Please wait...';
                   divVeriff.classList.add("d-none");
                   focused = true;
                   checkRequest = true;
@@ -392,7 +392,7 @@
           divSendVerification.classList.add("d-none");
 
           transaction_id = results.transaction_id;
-          setOutput(`<img src="/images/loader.gif"> Verification sent. Please wait...`);
+          setOutput(`<img src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif"> Verification sent. Please wait...`);
           resultsTimer = setTimeout(() => {
             focused = true;
             checkRequest = true;

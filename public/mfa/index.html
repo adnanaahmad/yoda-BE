@@ -49,7 +49,7 @@
     <div class="container grid-lg">
         <br />
         <div class="text-center">
-            <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo" src="/images/logo.png" alt="FortifID Logo"></a>
+            <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo" src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/logo.png" alt="FortifID Logo"></a>
             <br /><br />
             <h5>Secure MFA</h5>
             <hr />
@@ -349,7 +349,7 @@
 
                     transaction_id = results.transaction_id;
                     if (results.status === 'sent') {
-                        setOutput('<img src="/images/loader.gif"> SMS Sent. Waiting...', 0);
+                        setOutput('<img src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif"> SMS Sent. Waiting...', 0);
                         resultsTimer = setTimeout(() => {
                             getRequestStatus();
                         }, 3000);
