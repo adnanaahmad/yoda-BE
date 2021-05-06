@@ -8,7 +8,7 @@ fi
 export LE_WORKING_DIR="/home/ec2-user/.acme.sh"
 ACME="/home/ec2-user/.acme.sh/acme.sh"
 
-$ACME --upgrade --auto-upgrade 
+$ACME --upgrade --auto-upgrade --force
 
 #$ACME --issue --dns dns_aws -d $HOST
     
