@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#export HOST=i.prod.fortifid.com && curl https://i.dev.fortifid.com/data/od7kTXfGxDax/setup-v2.sh | sh
-#OR
-#curl https://i.dev.fortifid.com/data/od7kTXfGxDax/setup-v2.sh | sh -s i.prod.fortifid.com
-
 #export HOST="$1"
 if [ -z "$HOST" ]
 then
@@ -64,12 +60,14 @@ else
 
     cd fortifid
 
+    #rm -rf /usr/share/nginx/html/
+    #mv assets/html/ /usr/share/nginx/
+
+    rsync -av --delete "assets/html/" "/usr/share/nginx/html"  
+    rsync -av "assets/nginx/" "/etc/nginx"  
+
     sudo systemctl enable nginx.service
     sudo systemctl start nginx.service
-    rm -rf /usr/share/nginx/html/
-    mv assets/html/ /usr/share/nginx/
-
-    rsync -av "assets/nginx" "/etc/nginx"  
 
     sudo -u ec2-user bash -c "./setup.sh"
 

@@ -38,7 +38,7 @@ else
     log "Installing Node v$NODE..."
     nvm install $NODE > /dev/null 2>&1
     #Just to make sure since sometimes it installs an older version
-    npm install -g npm@latest
+    #npm install -g npm@latest
 fi
 
 if [ -d ./node_modules -a ! -h ./node_modules ]; then
@@ -48,8 +48,8 @@ else
 fi
 npm install > /dev/null 2>&1
 
-mkdir .cache
-mkdir uploads
+mkdir -p .cache
+mkdir -p uploads
 
 if test -f "./.env"; then
     log ".env already exist."
@@ -151,8 +151,8 @@ then
 fi
 
 #log "Setting  execute permissions..."
-chmod +x ./data/update.sh
-chmod +x ./data/trim.sh
-chmod +x ./data/revert.sh
+#chmod +x ./data/update.sh
+#chmod +x ./data/trim.sh
+#chmod +x ./data/revert.sh
 
 log "Setup complete."
