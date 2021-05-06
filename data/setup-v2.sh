@@ -72,7 +72,7 @@ else
 
     #sudo systemctl start nginx.service
     
-    sudo -u ec2-user bash -c "./data/get-certs.sh"
+    sudo -u ec2-user bash -c "./data/get-certs.sh $HOST"
     #sudo -u ec2-user /home/ec2-user/fortifid/data/get-certs.sh
     
     sudo -u ec2-user bash -c "./setup.sh"

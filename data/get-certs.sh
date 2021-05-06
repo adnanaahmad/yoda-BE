@@ -17,5 +17,6 @@ fi
 # --fullchain-file /etc/nginx/ssl/cert.pem \
 # --reloadcmd     "sudo service nginx restart"
 
-sudo /usr/local/bin/certbot certonly -n --agree-tos -m itsec@fortifid.com --dns-route53 -d $HOST
+echo sudo /usr/local/bin/certbot certonly -n --agree-tos -m itsec@fortifid.com --dns-route53 -d "$1"
+sudo /usr/local/bin/certbot certonly -n --agree-tos -m itsec@fortifid.com --dns-route53 -d "$1"
 
