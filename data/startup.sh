@@ -15,3 +15,5 @@ if [ -n "$ALLOCATION_ID" ]; then
 fi
 
 /home/ec2-user/fortifid/data/update.sh reload >/home/ec2-user/last-update.txt
+
+

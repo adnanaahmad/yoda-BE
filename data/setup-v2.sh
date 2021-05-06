@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 FILE=/home/ec2-user/.host
 if test -f "$FILE"; then
     . $FILE
@@ -12,8 +11,8 @@ if [ -z "$HOST" ]
 then
     echo "\$HOST not set."
 else
-    sudo su ec2-user 
-
+    #sudo su ec2-user 
+    
     cd /home/ec2-user
 
     sudo amazon-linux-extras install nginx1 -y
@@ -37,23 +36,15 @@ else
     sudo -u root bash -c "sudo echo ec2-user > /etc/cron.allow"
 
     (crontab -l ; echo "@reboot sh /home/ec2-user/fortifid/data/startup.sh") | crontab - > /dev/null 2>&1
+    
     curl https://get.acme.sh | sh -s email=support@fortifid.com 
 
     source ~/.bashrc
 
-    acme.sh --upgrade --auto-upgrade 
 
-    #acme.sh --issue -d z.dev.fortifid.com -w /usr/share/nginx/html --keylength ec-256
-    #--ecc
-    #TXT _acme-challenge.j.prod.fortifid.com
-    #acme.sh --issue -d $HOST -w /usr/share/nginx/html
-    
-    acme.sh --issue --dns dns_aws -d $HOST
-    
-    acme.sh --install-cert -d $HOST  \
-    --key-file       /etc/nginx/ssl/key.pem  \
-    --fullchain-file /etc/nginx/ssl/cert.pem \
-    --reloadcmd     "sudo systemctl force-reload nginx.service"
+    #acme.sh --upgrade --auto-upgrade 
+
+    #acme.sh --issue --dns dns_aws -d $HOST
     
     curl -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
 
@@ -67,14 +58,18 @@ else
 
     cd fortifid
 
-    #rm -rf /usr/share/nginx/html/
-    #mv assets/html/ /usr/share/nginx/
-
     rsync -av --delete "assets/html/" "/usr/share/nginx/html"  
     rsync -av "assets/nginx/" "/etc/nginx"  
 
     sudo systemctl enable nginx.service
-    sudo systemctl start nginx.service
+  
+    # acme.sh --install-cert -d $HOST  \
+    # --key-file       /etc/nginx/ssl/key.pem  \
+    # --fullchain-file /etc/nginx/ssl/cert.pem \
+    # --reloadcmd     "sudo service nginx restart"
+
+    #sudo systemctl start nginx.service
+    sudo -u ec2-user bash -c "./data/get-certs.sh"
 
     sudo -u ec2-user bash -c "./setup.sh"
 
