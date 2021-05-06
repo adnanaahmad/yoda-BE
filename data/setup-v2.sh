@@ -71,9 +71,9 @@ else
     # --reloadcmd     "sudo service nginx restart"
 
     #sudo systemctl start nginx.service
-    sudo -u ec2-user bash -c "./data/get-certs.sh"
+    #sudo -u ec2-user bash -c "./data/get-certs.sh"
+    sudo -u ec2-user ~/fortifid/data/get-certs.sh
+    sudo -u ec2-user bash -c "./setup.sh"
 
-    #sudo -u ec2-user bash -c "./setup.sh"
-    sudo -u ec2-user ~/fortfid/data/get-certs.sh
     echo "Fortifid setup finished."
 fi
