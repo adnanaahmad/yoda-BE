@@ -41,16 +41,18 @@ fastify.post('/query', async (request, reply) => {
     }
 
     const body = utils.flattenObject2(request.body);
-    if(!body.issuing_state || ALLOWED_STATES.indexOf( body.issuing_state) === -1) {
+    if (!body.issuing_state || ALLOWED_STATES.indexOf(body.issuing_state) === -1) {
         reply.type('application/json').code(417);
-        return {error: 'STATE NOT SUPPORTED'};
+        return {
+            error: 'STATE NOT SUPPORTED'
+        };
     }
 
     let data = await orderInteractive(body);
 
     if (data) {
         data = extractData(data);
-        if(data) {
+        if (data) {
             data = extractResult(data);
         }
         reply.type('application/json').code(200);
@@ -92,7 +94,7 @@ const loadParams = async () => {
 
         const duration = utils.time() - start;
         //logger.debug(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
-        
+
         if (results) {
             console.log(JSON.stringify(results, null, 2));
             //logger.debug(results);
@@ -182,12 +184,12 @@ const options = {
     textFn: removeJsonTextAttribute,
 };
 
-const extractResult = (xml)=> {
+const extractResult = (xml) => {
     let ndx = xml.indexOf('<Result>');
     if (ndx > -1) {
         let ndx2 = xml.indexOf('</Result>');
         xml = unescapeHTML(xml.substr(ndx, ndx2 - ndx + 10));
-        let result =  convert.xml2js(xml, options);
+        let result = convert.xml2js(xml, options);
         return result.Result;
     }
 }
@@ -274,31 +276,31 @@ const orderMap = {
     persona_id: 'Misc'
 }
 
-const formatDateObject = (date)=> {
+const formatDateObject = (date) => {
     //let dt = new Date(date);
     const parts = date.split('-');
     return {
         Year: parts[0],
         Month: parts[1],
-        Day : parts[2]
+        Day: parts[2]
     }
 
 }
 
 const getOrder = (data) => {
     const order = {
-            Handling: 'OL',
-            Purpose: 'AA',
-            ProductID: 'LV',
-            Subtype: 'ST',
-            DocumentType: 'License',
-            DocumentCategory: 1,
-            State: {
-                Abbrev: '',
-                Full: ''
-            }
+        Handling: 'OL',
+        Purpose: 'AA',
+        ProductID: 'LV',
+        Subtype: 'ST',
+        DocumentType: 'License',
+        DocumentCategory: 1,
+        State: {
+            Abbrev: '',
+            Full: ''
         }
-    
+    }
+
     utils.copyData(data, orderMap, order);
 
     order.License = data.license_number;
@@ -308,7 +310,9 @@ const getOrder = (data) => {
     order.LicenseIssueDate = formatDateObject(data.issue_date);
     order.LicenseExpiryDate = formatDateObject(data.expiration_date);
     logger.silly(order);
-    return { Order: order};
+    return {
+        Order: order
+    };
 }
 
 const orderInteractive = async (data) => {
@@ -401,7 +405,7 @@ const test001 = async () => {
         const state = data[license];
         //logger.debug(`license: ${license} state: ${state}`);
         let v = await orderInteractive(license, state);
-        if(v) {
+        if (v) {
             console.log(extractData(v));
         }
 
@@ -435,16 +439,15 @@ const test001 = async () => {
     //     console.log(data);
     // }
 
-    const id = utils.flattenObject2(JSON.parse(await utils.fileRead(__dirname + '/tmp/id-cisco.json', 'utf-8')));
-    //const id = utils.flattenObject2(JSON.parse(await utils.fileRead(__dirname + '/tmp/id.json', 'utf-8')));
-    let data = await orderInteractive(id);
-    if (data) {
-        data = extractData(data);
-        if(data) {
+    // const id = utils.flattenObject2(JSON.parse(await utils.fileRead(__dirname + '/tmp/id-cisco.json', 'utf-8')));
+    // //const id = utils.flattenObject2(JSON.parse(await utils.fileRead(__dirname + '/tmp/id.json', 'utf-8')));
+    // let data = await orderInteractive(id);
+    // if (data) {
+    //     data = extractData(data);
+    //     if (data) {
 
-            data = extractResult(data);
-            console.log(data);
-        }
-    } else {
-    }
+    //         data = extractResult(data);
+    //         console.log(data);
+    //     }
+    // } else {}
 })();

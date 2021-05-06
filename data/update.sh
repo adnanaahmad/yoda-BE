@@ -19,10 +19,10 @@ testcmd () {
     command -v "$1" >/dev/null
 }
 
-# FILE=/home/ec2-user/fortifid/.env
-# if test -f "$FILE"; then
-#     . $FILE
-# fi
+FILE=/home/ec2-user/fortifid/.env
+if test -f "$FILE"; then
+    . $FILE
+fi
 
 cd /home/ec2-user
  

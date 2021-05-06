@@ -1,22 +1,29 @@
 #!/bin/bash
 
-FILE=/home/ec2-user/.host
+FILE=/home/ec2-user/.config
 if test -f "$FILE"; then
     . $FILE
 fi
 
-echo $HOST
+timestamp() {
+  date +"%Y-%m-%d %H:%M:%S.%3N"
+}
+
+log() {
+    echo "$(timestamp): $1"
+}
+
 
 if [ -z "$HOST" ]
 then
     echo "\$HOST not set."
 else
-    #sudo su ec2-user 
-    
+    log "Setup for $HOST started." 
+
     cd /home/ec2-user
 
     sudo amazon-linux-extras install nginx1 -y
-    sudo yum install socat -y 
+    #sudo yum install socat -y 
 
     sudo chown -R ec2-user:nginx /usr/share/nginx/
     sudo chown -R ec2-user:ec2-user /etc/nginx/
@@ -31,30 +38,26 @@ else
     # sudo ./aws/install
     # rm -rf .aws
 
-    #sudo echo ec2-user > /etc/cron.allow 
     sudo chmod g+s /etc/cron.allow
     sudo -u root bash -c "sudo echo ec2-user > /etc/cron.allow"
 
     (crontab -l ; echo "@reboot sh /home/ec2-user/fortifid/data/startup.sh") | crontab - > /dev/null 2>&1
     
-    #curl https://get.acme.sh | sh -s email=support@fortifid.com 
+    (crontab -l ; echo "37 3 */30 * * /home/ec2-user/fortifid/data/get-certs.sh $HOST") | crontab - > /dev/null 2>&1
 
     source ~/.bashrc
 
-    # export LE_WORKING_DIR="/home/ec2-user/.acme.sh"
-    # ACME="/home/ec2-user/.acme.sh/acme.sh"
-
-    # $ACME --upgrade --auto-upgrade 
-
-    # $ACME --issue --dns dns_aws -d $HOST
-    
+    #TODO: Could change tthis wiith aws s3 cp later
     curl -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
 
     mkdir  -p /home/ec2-user/fortifid
 
     tar -xvf didservice.tar.gz --directory fortifid
 
-    rm -rf didservice.tar.gz
+    mkdir -p ./backups
+    version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json`
+    log "Backing up archive ($version)..."
+    mv didservice.tar.gz "./backups/$version.tar.gz"
 
     sudo chown -R ec2-user:ec2-user fortifid
 
@@ -65,17 +68,9 @@ else
 
     sudo systemctl enable nginx.service
   
-    # $ACME --install-cert -d $HOST  \
-    # --key-file       /etc/nginx/ssl/key.pem  \
-    # --fullchain-file /etc/nginx/ssl/cert.pem \
-    # --reloadcmd     "sudo service nginx restart"
-
-    #sudo systemctl start nginx.service
-    
     sudo -u ec2-user bash -c "./data/get-certs.sh $HOST"
-    #sudo -u ec2-user /home/ec2-user/fortifid/data/get-certs.sh
     
     sudo -u ec2-user bash -c "./setup.sh"
 
-    echo "Fortifid setup finished."
+    log "Fortifid setup finished."
 fi

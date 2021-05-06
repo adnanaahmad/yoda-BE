@@ -23,10 +23,10 @@ const utils = require('./utils');
     //     //console.log(output);
     //     await utils.fileWrite('./.env', output);
     // }
-    console.log('Getting certs...');
-    setTimeout( async ()=> {
-        let results = await utils.execCommand(`${__dirname}/data/get-certs.sh`, undefined, 120000);
-        console.log(results);
-    }, 100);
+    // console.log('Getting certs...');
+    // setTimeout( async ()=> {
+    //     let results = await utils.execCommand(`${__dirname}/data/get-certs.sh`, undefined, 120000);
+    //     console.log(results);
+    // }, 100);
 })();
 

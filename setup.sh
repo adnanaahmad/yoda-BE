@@ -24,7 +24,7 @@ testcmd () {
 
 log "Setup begin."
 
-FILE=/home/ec2-user/.host
+FILE=/home/ec2-user/.config
 if test -f "$FILE"; then
     . $FILE
 fi
@@ -103,7 +103,10 @@ else
         echo "APIGWCMD=\"$APIGWCMD\"" $ >> ./.env
     fi
 
-    #node ./setup.js
+    if [ -n "$START" ];
+    then
+        echo "START=$START" >> ./.env
+    fi
 fi
 
 if [ -d ~/.pm2 -a ! -h ~/.pm2 ]; then
@@ -132,7 +135,7 @@ fi
 #pm2 start handler-twilio.js
 #pm2 start handler-webhook.js
 
-pm2 start scheduler.js
+#pm2 start scheduler.js
 #pm2 start forwarder.js
 #pm2 start shortener.js
 #pm2 start uploader.js
@@ -142,11 +145,18 @@ pm2 start scheduler.js
 #pm2 start service-code.js
 #pm2 start service-ss.js
 #pm2 start service-neustar.js
-pm2 start service-did.js
+#pm2 start service-did.js
 #pm2 start service-mfa.js
 #pm2 start service-veriff.js
 
-pm2 save
+if [ -n "$START" ];
+then
+    IFS=',' read -ra ID <<< "$START"
+    for i in "${ID[@]}"; do
+        pm2 start "$i"
+    done
+    pm2 save
+fi
 
 if [ "$P" == "1" ] 
 then

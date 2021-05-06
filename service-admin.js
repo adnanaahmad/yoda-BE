@@ -40,7 +40,7 @@ const HOSTS = [
     'api.prod.fortifid.com:8999',
     'api-east-1.dev.fortifid.com:8999',
     //'api.dev.fortifid.com:8999'
-    'z.prod.fortifid.com'
+    //'z.prod.fortifid.com'
 ];
 
 const ALLOWED_COMMANDS = ['pwd', 'ps', 'env',
