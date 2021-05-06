@@ -24,6 +24,11 @@ testcmd () {
 
 log "Setup begin."
 
+FILE=/home/ec2-user/.host
+if test -f "$FILE"; then
+    . $FILE
+fi
+
 if [ -d ~/.nvm -a ! -h ~/.nvm ]; then
     log "Node Version Manager already installed."
 else

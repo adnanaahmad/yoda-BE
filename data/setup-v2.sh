@@ -1,6 +1,13 @@
 #!/bin/bash
 
-#export HOST="$1"
+
+FILE=/home/ec2-user/.host
+if test -f "$FILE"; then
+    . $FILE
+fi
+
+echo $HOST
+
 if [ -z "$HOST" ]
 then
     echo "\$HOST not set."
