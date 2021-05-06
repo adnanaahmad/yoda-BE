@@ -24,7 +24,7 @@ testcmd () {
 
 log "Setup begin."
 
-FILE=/home/ec2-user/.config
+FILE=/home/ec2-user/.cfg
 if test -f "$FILE"; then
     . $FILE
 fi
@@ -153,7 +153,7 @@ if [ -n "$START" ];
 then
     IFS=',' read -ra ID <<< "$START"
     for i in "${ID[@]}"; do
-        pm2 start "$i"
+        pm2 start "$i.js"
     done
     pm2 save
 fi

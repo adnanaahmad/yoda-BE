@@ -12,7 +12,7 @@ if [ -d /home/ec2-user/fortifid -a ! -h /home/ec2-user/fortifid ]; then
 else 
     export HOST=dooo.prod.fortifid.com
     export START=service-did,scheduler
-    sudo -u ec2-user bash -c "echo HOST=$HOST >/home/ec2-user/.config && echo START=$START >/home/ec2-user/.config && curl https://i.dev.fortifid.com/data/od7kTXfGxDax/setup-v2.sh | sh"
+    sudo -u ec2-user bash -c "echo HOST=$HOST >/home/ec2-user/.cfg && echo START=$START >>/home/ec2-user/.cfg && curl https://i.dev.fortifid.com/data/od7kTXfGxDax/setup-v2.sh | sh"
 fi
 ```
 

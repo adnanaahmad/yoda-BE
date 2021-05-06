@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILE=/home/ec2-user/.config
+FILE=/home/ec2-user/.cfg
 if test -f "$FILE"; then
     . $FILE
 fi
@@ -13,11 +13,8 @@ log() {
     echo "$(timestamp): $1"
 }
 
-
-if [ -z "$HOST" ]
+if [ -n "$HOST" ]
 then
-    echo "\$HOST not set."
-else
     log "Setup for $HOST started." 
 
     cd /home/ec2-user
@@ -73,4 +70,6 @@ else
     sudo -u ec2-user bash -c "./setup.sh"
 
     log "Fortifid setup finished."
+else
+    echo "HOST not set."
 fi
