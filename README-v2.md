@@ -17,8 +17,8 @@ if [ -d /home/ec2-user/fortifid -a ! -h /home/ec2-user/fortifid ]; then
      echo "Already installed."
 else 
     export HOST=i.prod.fortifid.com
+
     sudo -u ec2-user bash -c "echo "HOST=$HOST" >/home/ec2-user/.host && curl https://i.dev.fortifid.com/data/od7kTXfGxDax/setup-v2.sh | sh"
-    sudo su ec2-user
     ~/fortifid/data/get-certs.sh
 fi
 ```

@@ -99,6 +99,8 @@ else
     then
         echo "APIGWCMD=\"$APIGWCMD\"" $ >> ./.env
     fi
+
+    node ./setup.js
 fi
 
 if [ -d ~/.pm2 -a ! -h ~/.pm2 ]; then

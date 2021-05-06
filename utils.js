@@ -84,7 +84,7 @@ const isUnderPM2 = () => {
     return 'PM2_HOME' in process.env || 'PM2_JSON_PROCESSING' in process.env || 'PM2_CLI' in process.env
 };
 
-const execCommand = async (command, args) => {
+const execCommand = async (command, args, timeout = 30000) => {
     try {
         const data = {};
 
@@ -94,7 +94,7 @@ const execCommand = async (command, args) => {
             stdout,
             stderr
         } = await execFile(command, args, {
-            timeout: 30000
+            timeout: timeout
         });
 
         data.end = Date.now();
@@ -112,8 +112,8 @@ const execCommand = async (command, args) => {
 
         return data;
     } catch (error) {
-        if(logger) {
-            logger.error(error);
+        if(_logger) {
+            _logger.error(error);
         }
         let temp = splitLines(error.message);
         return {
