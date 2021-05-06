@@ -37,7 +37,7 @@ else
 
     (crontab -l ; echo "@reboot sh /home/ec2-user/fortifid/data/startup.sh") | crontab - > /dev/null 2>&1
     
-    curl https://get.acme.sh | sh -s email=support@fortifid.com 
+    #curl https://get.acme.sh | sh -s email=support@fortifid.com 
 
     source ~/.bashrc
 

@@ -17,6 +17,15 @@ fi
 # --fullchain-file /etc/nginx/ssl/cert.pem \
 # --reloadcmd     "sudo service nginx restart"
 
-echo sudo /usr/local/bin/certbot certonly -n --agree-tos -m itsec@fortifid.com --dns-route53 -d "$1"
+#echo sudo /usr/local/bin/certbot certonly -n --agree-tos -m itsec@fortifid.com --dns-route53 -d "$1"
 sudo /usr/local/bin/certbot certonly -n --agree-tos -m itsec@fortifid.com --dns-route53 -d "$1"
 
+CHAIN="/etc/letsencrypt/live/$1/fullchain.pem"
+KEY="/etc/letsencrypt/live/$1/privkey.pem"
+
+if test -f "$CHAIN"; then
+    sudo cp "$CHAIN" /etc/nginx/ssl/cert.pem
+    sudo cp "$KEY" /etc/nginx/ssl/key.pem
+    sudo chown -R ec2-user:ec2-user /etc/nginx/ssl
+    sudo service nginx start
+fi
