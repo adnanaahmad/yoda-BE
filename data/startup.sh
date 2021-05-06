@@ -14,4 +14,4 @@ if [ -n "$ALLOCATION_ID" ]; then
     aws ec2 associate-address --instance-id $INSTANCE_ID --allocation-id $ALLOCATION_ID
 fi
 
-#/home/ec2-user/fortifid/data/update.sh reload >/home/ec2-user/last-update.txt
+/home/ec2-user/fortifid/data/update.sh reload >/home/ec2-user/last-update.txt

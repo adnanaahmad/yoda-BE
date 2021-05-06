@@ -11,15 +11,12 @@ then
 else
     sudo su ec2-user 
 
-    cd /homes/ec2-user
+    cd /home/ec2-user
 
     sudo amazon-linux-extras install nginx1 -y
     sudo yum install socat -y 
 
-    sudo systemctl enable nginx.service
-    sudo systemctl start nginx.service
-
-    sudo chown -R ec2-user:nginx /usr/share/nginx/html/
+    sudo chown -R ec2-user:nginx /usr/share/nginx/
     sudo chown -R ec2-user:ec2-user /etc/nginx/
 
     mkdir /etc/nginx/ssl 
@@ -36,6 +33,7 @@ else
     sudo chmod g+s /etc/cron.allow
     sudo -u root bash -c "sudo echo ec2-user > /etc/cron.allow"
 
+    (crontab -l ; echo "@reboot sh /home/ec2-user/fortifid/data/startup.sh") | crontab - > /dev/null 2>&1
     curl https://get.acme.sh | sh -s email=support@fortifid.com 
 
     source ~/.bashrc
@@ -65,7 +63,14 @@ else
     sudo chown -R ec2-user:ec2-user fortifid
 
     cd fortifid
-    
+
+    sudo systemctl enable nginx.service
+    sudo systemctl start nginx.service
+    rm -rf /usr/share/nginx/html/
+    mv assets/html/ /usr/share/nginx/
+
+    rsync -av "assets/nginx" "/etc/nginx"  
+
     sudo -u ec2-user bash -c "./setup.sh"
 
     echo "Fortifid setup finished."

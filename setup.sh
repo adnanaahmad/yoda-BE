@@ -37,6 +37,8 @@ if testcmd node; then
 else    
     log "Installing Node v$NODE..."
     nvm install $NODE > /dev/null 2>&1
+    #Just to make sure since sometimes it installs an older version
+    npm install -g npm@latest
 fi
 
 if [ -d ./node_modules -a ! -h ./node_modules ]; then
