@@ -29,6 +29,10 @@ if test -f "$FILE"; then
     . $FILE
 fi
 
+if test -z "$START"; then
+    START=service-did,scheduler
+fi
+
 if [ -d ~/.nvm -a ! -h ~/.nvm ]; then
     log "Node Version Manager already installed."
 else
@@ -68,8 +72,7 @@ else
     CREATED=$(date +%s%N | cut -b1-13)
     echo "CREATED=$CREATED" > ./.env
 
-    if [ -n "$HOST" ];
-    then
+    if [ -n "$HOST" ]; then
         echo "HOST=$HOST" >> ./.env
     fi
 
@@ -91,20 +94,17 @@ else
 
     echo "RUN_MODE=PROD" >> ./.env
 
-    if [ -n "$DID_S3_BUCKET" ];
-    then
+    if [ -n "$DID_S3_BUCKET" ]; then
         echo "DID_S3_BUCKET=$DID_S3_BUCKET" >> ./.env
     fi
 
     log "Configuring apigw command..."
     APIGWCMD=$(curl -o- -s http://169.254.169.254/latest/user-data |grep "/apigw")
-    if [ -n "$APIGWCMD" ];
-    then
+    if [ -n "$APIGWCMD" ]; then
         echo "APIGWCMD=\"$APIGWCMD\"" $ >> ./.env
     fi
 
-    if [ -n "$START" ];
-    then
+    if [ -n "$START" ]; then
         echo "START=$START" >> ./.env
     fi
 fi
@@ -129,28 +129,7 @@ else
     eval $startup > /dev/null 2>&1
 fi
 
-# To ensure we start all the correct services.
-# TODO: Make this conditional
-#pm2 start handler-email.js
-#pm2 start handler-twilio.js
-#pm2 start handler-webhook.js
-
-#pm2 start scheduler.js
-#pm2 start forwarder.js
-#pm2 start shortener.js
-#pm2 start uploader.js
-
-#pm2 start service-admin.js
-#pm2 start service-auth.js
-#pm2 start service-code.js
-#pm2 start service-ss.js
-#pm2 start service-neustar.js
-#pm2 start service-did.js
-#pm2 start service-mfa.js
-#pm2 start service-veriff.js
-
-if [ -n "$START" ];
-then
+if [ -n "$START" ]; then
     IFS=',' read -ra ID <<< "$START"
     for i in "${ID[@]}"; do
         pm2 start "$i.js"
@@ -158,21 +137,14 @@ then
     pm2 save
 fi
 
-if [ "$P" == "1" ] 
-then
+if [ "$P" == "1" ]; then
     log "Creating parameters..."
     node create-params.js
 fi
 
-if [ "$T" == "1" ] 
-then
+if [ "$T" == "1" ]; then
     log "Creating tables..."
     node create-tables.js
 fi
-
-#log "Setting  execute permissions..."
-#chmod +x ./data/update.sh
-#chmod +x ./data/trim.sh
-#chmod +x ./data/revert.sh
 
 log "Setup complete."

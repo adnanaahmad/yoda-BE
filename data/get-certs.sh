@@ -11,8 +11,7 @@ copy() {
 }
 
 if test -f "$CHAIN"; then
-    if sudo /usr/local/bin/certbot renew > /dev/null
-    then
+    if sudo /usr/local/bin/certbot renew > /dev/null; then
         copy
         sudo service nginx restart
     fi    

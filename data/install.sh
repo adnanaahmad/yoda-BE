@@ -18,17 +18,22 @@
 #export DID_S3_BUCKET=https://dev.barbarians.com/data/od7kTX && export T=0 && export P=0 && aws s3 --quiet cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
 #curl -O -J -L https://dev.barbarians.com/data/od7kTX/didservice.tar.gz
 
+timestamp() {
+  date +"%Y-%m-%d %H:%M:%S.%3N"
+}
+
+log() {
+    echo "$(timestamp): $1"
+}
+
 
 FILE=/home/ec2-user/fortifid/.env
 if test -f "$FILE"; then
     . $FILE
 fi
 
-if [ -z "$DID_S3_BUCKET" ]
-then
-    echo "\$DID_S3_BUCKET not set."
-else
-    echo "Yoda setup starting..."
+if [ -n "$DID_S3_BUCKET" ]; then
+    log "Yoda install starting..."
 
     cd /home/ec2-user
 
@@ -45,13 +50,20 @@ else
 
     tar -xvf didservice.tar.gz --directory fortifid
 
-    rm -rf didservice.tar.gz
+    mkdir -p ./backups
+    version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json`
+    log "Backing up archive ($version)..."
+    mv didservice.tar.gz "./backups/$version.tar.gz"
 
     sudo chown -R ec2-user:ec2-user fortifid
+    sudo chown -R ec2-user:ec2-user backups
 
     cd fortifid
     
+
     sudo -u ec2-user bash -c "./setup.sh"
 
-    echo "Yoda setup finished."    
+    log "Yoda install finished."        
+else
+    log "DID_S3_BUCKET not set."
 fi

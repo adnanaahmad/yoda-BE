@@ -57,7 +57,8 @@ then
     mv didservice.tar.gz "./backups/$version.tar.gz"
 
     sudo chown -R ec2-user:ec2-user fortifid
-
+    sudo chown -R ec2-user:ec2-user backups
+    
     cd fortifid
 
     rsync -av --delete "assets/html/" "/usr/share/nginx/html"  

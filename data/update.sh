@@ -9,8 +9,7 @@ log() {
 }
 
 wait() {
-    while [ ! -f $1 ]
-    do
+    while [ ! -f $1 ]; do
         sleep 0.1 
     done
 }
@@ -30,10 +29,10 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
     log "Updating Yoda..."
     log "Downloading latest version..."
     curl -s -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
-    if [ -s "didservice.tar.gz" ]
-    then 
+    if [ -s "didservice.tar.gz" ]; then 
         log "Installing..."
         tar -zxf didservice.tar.gz --directory fortifid
+
         mkdir -p ./backups
         version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json`
         log "Backing up archive ($version)..."

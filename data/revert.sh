@@ -9,8 +9,7 @@ log() {
 }
 
 wait() {
-    while [ ! -f $1 ]
-    do
+    while [ ! -f $1 ]; do
         sleep 0.1 
     done
 }
@@ -25,8 +24,7 @@ if [ -d ./fortifid -a ! -h ./fortifid ]; then
     log "Reverting Yoda to $1..."
     cp "/home/ec2-user/backups/$1" ./didservice.tar.gz
     
-    if [ -s "didservice.tar.gz" ]
-    then 
+    if [ -s "didservice.tar.gz" ]; then 
         log "Installing..."
         tar -zxf didservice.tar.gz --directory fortifid
         rm -rf didservice.tar.gz
