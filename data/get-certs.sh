@@ -10,9 +10,9 @@ ACME="/home/ec2-user/.acme.sh/acme.sh"
 
 $ACME --upgrade --auto-upgrade 
 
-$ACME --issue --dns dns_aws -d $HOST
+#$ACME --issue --dns dns_aws -d $HOST
     
-$ACME --install-cert -d $HOST  \
---key-file       /etc/nginx/ssl/key.pem  \
---fullchain-file /etc/nginx/ssl/cert.pem \
---reloadcmd     "sudo service nginx restart"
+# $ACME --install-cert -d $HOST  \
+# --key-file       /etc/nginx/ssl/key.pem  \
+# --fullchain-file /etc/nginx/ssl/cert.pem \
+# --reloadcmd     "sudo service nginx restart"
