@@ -21,7 +21,7 @@ else
     sudo chown -R ec2-user:nginx /usr/share/nginx/
     sudo chown -R ec2-user:ec2-user /etc/nginx/
 
-    mkdir /etc/nginx/ssl 
+    mkdir -p /etc/nginx/ssl 
     #TODO: This makes it more secure but takes a few minutes by itself.
     #openssl dhparam -out /etc/nginx/ssl/dhparams.pem 2048 
 
@@ -50,7 +50,7 @@ else
     
     curl -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
 
-    mkdir  /home/ec2-user/fortifid
+    mkdir  -p /home/ec2-user/fortifid
 
     tar -xvf didservice.tar.gz --directory fortifid
 
