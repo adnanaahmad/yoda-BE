@@ -3,19 +3,21 @@
 When the instance starts up or reboots it auto-updates the "binaries" and all the dependencies.
 
 ## Place the following in userdata. Make sure to change the HOST if needed.
+
 ```bash 
 #!/bin/bash
 
 if [ -d /home/ec2-user/fortifid -a ! -h /home/ec2-user/fortifid ]; then
      echo "Already installed."
 else 
-    export HOST=dooo2.prod.fortifid.com
+    export HOST=dooo3.prod.fortifid.com
     export START=service-did,scheduler
-    sudo -u ec2-user bash -c "echo HOST=$HOST >/home/ec2-user/.cfg && echo START=$START >>/home/ec2-user/.cfg && curl https://i.dev.fortifid.com/data/od7kTXfGxDax/setup-v2.sh | sh"
+    sudo -u ec2-user bash -c "(echo HOST=$HOST >/home/ec2-user/.cfg && echo START=$START >>/home/ec2-user/.cfg && curl https://i.dev.fortifid.com/data/od7kTXfGxDax/setup-v2.sh | sh) >/home/ec2-user/install.txt 2>&1" 
 fi
 ```
 
 ## Scripts
+
 * setup-v2.sh - This is what gets the whole setup process started.
 * get-certs.sh -Gets or renews the certificates.
 * setup.sh - Does the initial setup of all the binaries and dependencies.
