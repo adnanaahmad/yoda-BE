@@ -41,12 +41,12 @@ else
 
     source ~/.bashrc
 
-    export LE_WORKING_DIR="/home/ec2-user/.acme.sh"
-    ACME="/home/ec2-user/.acme.sh/acme.sh"
+    # export LE_WORKING_DIR="/home/ec2-user/.acme.sh"
+    # ACME="/home/ec2-user/.acme.sh/acme.sh"
 
-    $ACME --upgrade --auto-upgrade 
+    # $ACME --upgrade --auto-upgrade 
 
-    $ACME --issue --dns dns_aws -d $HOST
+    # $ACME --issue --dns dns_aws -d $HOST
     
     curl -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
 
@@ -65,13 +65,13 @@ else
 
     sudo systemctl enable nginx.service
   
-    $ACME --install-cert -d $HOST  \
-    --key-file       /etc/nginx/ssl/key.pem  \
-    --fullchain-file /etc/nginx/ssl/cert.pem \
-    --reloadcmd     "sudo service nginx restart"
+    # $ACME --install-cert -d $HOST  \
+    # --key-file       /etc/nginx/ssl/key.pem  \
+    # --fullchain-file /etc/nginx/ssl/cert.pem \
+    # --reloadcmd     "sudo service nginx restart"
 
     #sudo systemctl start nginx.service
-    #sudo -u ec2-user bash -c "./data/get-certs.sh"
+    sudo -u ec2-user bash -c "./data/get-certs.sh"
 
     sudo -u ec2-user bash -c "./setup.sh"
 

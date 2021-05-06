@@ -5,11 +5,14 @@ if test -f "$FILE"; then
     . $FILE
 fi
 
-acme.sh --upgrade --auto-upgrade 
+export LE_WORKING_DIR="/home/ec2-user/.acme.sh"
+ACME="/home/ec2-user/.acme.sh/acme.sh"
 
-acme.sh --issue --dns dns_aws -d $HOST
+$ACME --upgrade --auto-upgrade 
 
-acme.sh --install-cert -d $HOST  \
+$ACME --issue --dns dns_aws -d $HOST
+    
+$ACME --install-cert -d $HOST  \
 --key-file       /etc/nginx/ssl/key.pem  \
 --fullchain-file /etc/nginx/ssl/cert.pem \
 --reloadcmd     "sudo service nginx restart"
