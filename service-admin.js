@@ -37,7 +37,9 @@ fastify.register(require('fastify-static'), {
 const HOSTS = [
     'i.dev.fortifid.com',
     'i.prod.fortifid.com',
-    'api.prod.fortifid.com:8999'
+    'api.prod.fortifid.com:8999',
+    'api-east-1.dev.fortifid.com:8999',
+    //'api.dev.fortifid.com:8999'
     //'z.prod.fortifid.com'
 ];
 
