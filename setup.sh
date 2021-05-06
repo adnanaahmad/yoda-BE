@@ -51,7 +51,10 @@ if [ -d ./node_modules -a ! -h ./node_modules ]; then
 else
     log "Installing DirectID service..."
 fi
-npm install > /dev/null 2>&1
+
+source ~/.bashrc
+
+npm install #> /dev/null 2>&1
 
 mkdir -p .cache
 mkdir -p uploads
