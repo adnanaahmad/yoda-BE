@@ -199,6 +199,9 @@ const sendHosts = async (hosts, endpoint, data, method) => {
 }
 
 const update = async (args) => {
+    if(utils.hasGit()) {
+        return { output: 'Update not allowed on server.' };
+    } 
     return await utils.execCommand(`${__dirname}/data/update.sh`, args);
 }
 

@@ -73,7 +73,7 @@ else
     echo "LOG_GROUP_NAME=didservice" >> ./.env
     #echo "LOG_LEVEL=http" >> ./.env
     # For now until this is production ready.
-    echo "LOG_LEVEL=silly" >> ./.env
+    echo "LOG_LEVEL=debug" >> ./.env
 
     echo "RUN_MODE=PROD" >> ./.env
 
