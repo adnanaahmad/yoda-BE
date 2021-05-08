@@ -119,6 +119,8 @@ CHANGED=$(diff "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" | w
 if [ $CHANGED -gt 4 ]; then
     log "Checking and updating all packages..."
     npm i
+else 
+    log "Skipping package update."
 fi
 
 if [ "$1" = "reload" ]; then
