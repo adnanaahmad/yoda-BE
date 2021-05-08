@@ -3,7 +3,8 @@
 const utils = require('./utils');
 const crypto = require('crypto');
 
-const DEFAULT_KEY = Buffer.from(process.env.CRYPT_KEY, 'base64');
+let params;
+let DEFAULT_KEY;
 
 const getRandomKey = (len = 32) => {
     return crypto.randomBytes(len);
@@ -55,7 +56,9 @@ const decrypt = (data, key) => {
 }
 
 (async () => {
-    //await loadParams();
+    params = await require('./params')('/config/shared/crypt');
+    DEFAULT_KEY = params.key_001;
+    //process.env.CRYPT_KEY ? Buffer.from(process.env.CRYPT_KEY, 'base64') : '';
     //let data = encrypt("This is a test");
     //console.log(decrypt(data));
 })();
