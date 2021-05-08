@@ -18,7 +18,7 @@ const {
 
 
 //TODO!
-const rateLimiterRedis;
+let rateLimiterRedis;
 
 /*
 const rateLimiterRedis = new RateLimiterRedis({
