@@ -13,6 +13,8 @@ log() {
     echo "$(timestamp): $1"
 }
 
+echo $HOST
+
 if [ -d "$FORTIFID_DIR" ]; then
     log "FortifID already installed. Cannot continue."
     exit 1
