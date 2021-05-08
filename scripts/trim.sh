@@ -13,6 +13,6 @@ if [ "$(pwd)" != "$BACKUP_DIR" ]; then
     exit 1
 fi
 
-ls -t | tail -n +4 | xargs rm --
+ls -t | tail -n +6 | xargs rm --
 
 echo 'Done.'
