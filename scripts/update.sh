@@ -1,7 +1,11 @@
 #!/bin/bash
-
 FORTIFID_DIR=/home/ec2-user/fortifid
 ENV_FILE="$FORTIFID_DIR/.env"
+
+NODE=14.16.1
+NPM=6.14.13
+
+ARCHIVE="didservice.tar.gz"
 
 if [ -f "$ENV_FILE" ]; then
     . $ENV_FILE
@@ -53,14 +57,19 @@ cd /home/ec2-user
 log "Updating Yoda..."
 
 log "Downloading latest version..."
-curl -s -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
 
-if [ ! -s "./didservice.tar.gz" ]; then
+curl -s -O -J -L "https://i.dev.fortifid.com/data/od7kTXfGxDax/$ARCHIVE"
+
+if [ ! -s "./$ARCHIVE" ]; then
     log "Failed to download archive. Cannot continue."    
     exit 1
 fi
 
+FILESIZE=$(stat -c%s "./$ARCHIVE")
+log $FILESIZE
+
 cp "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" 
+
 log "Installing..."
 #TODO: Maybe do rsync for this part as well after un-taring.
 tar -zxf didservice.tar.gz --directory fortifid
@@ -70,14 +79,22 @@ if [ ! -f "$FORTIFID_DIR/package.json" ]; then
     exit 1
 fi
 
-mkdir -p ./backups
+#Very important that the version is bumped each time
 version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json`
+old_version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json.old` 
+
+if $version = $old_version ; then
+    log "Version is the same as previous version." 
+    exit 1
+fi 
+
+mkdir -p ./backups
 log "Backing up archive ($version)..."
 mv didservice.tar.gz "./backups/$version.tar.gz"
 
 cd $FORTIFID_DIR
 if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
-    echo "Unable to switch to $FORTIFID_DIR. Cannot continue."
+    log "Unable to switch to $FORTIFID_DIR. Cannot continue."
     exit 1
 fi
 
@@ -91,9 +108,14 @@ if [ "$IGNORE_HTTPD" != "1"  ]; then
     fi
 fi
 
-log "Checking and updating all packages..."
+if [ "$(npm -v)" != "$NPM" ]; then
+    log "Installing NPM $NPM..."
+    npm i -g "npm@$NPM"
+fi
+
 CHANGED=$(diff "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" | wc -l)
 if [ $CHANGED -gt 4 ]; then
+    log "Checking and updating all packages..."
     npm i
 fi
 

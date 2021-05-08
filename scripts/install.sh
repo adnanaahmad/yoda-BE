@@ -3,6 +3,7 @@
 # This is for setting up the did service.
 FORTIFID_DIR=/home/ec2-user/fortifid
 ENV_FILE="$FORTIFID_DIR/.env"
+ARCHIVE="didservice.tar.gz"
 
 if [ -f "$ENV_FILE" ]; then
     . $ENV_FILE

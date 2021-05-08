@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Which node version to use
-NODE=14.16.1
-NPM=6.14.13
 FORTIFID_DIR=/home/ec2-user/fortifid
 CFG_FILE=/home/ec2-user/.cfg
+
+NODE=14.16.1
+NPM=6.14.13
 
 if [ -f "$CFG_FILE" ]; then
     . $CFG_FILE
@@ -38,7 +38,7 @@ if [ ! -d $FORTIFID_DIR ]; then
     exit 1
 fi
 
-log "Setup starting...."
+log "Setup starting..."
 
 cd $FORTIFID_DIR
 if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
