@@ -2,6 +2,7 @@
 
 # Which node version to use
 NODE=14.16.1
+NPM=6.14.13
 FORTIFID_DIR=/home/ec2-user/fortifid
 
 timestamp() {
@@ -78,6 +79,11 @@ else
 fi
 
 source ~/.bashrc
+
+if [ "$(npm -v)" != "$NPM" ]; then
+    echo "Installing NPM $NPM..."
+    npm i -g "npm@$NPM"
+fi
 
 npm install #> /dev/null 2>&1
 
