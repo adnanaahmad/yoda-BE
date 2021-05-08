@@ -269,6 +269,7 @@ const getM = (type, key, defaultValue) => {
 }
 
 const initRedis = async()=> {
+
     if(typeof(process.env.REDIS_URL) !=='undefined') {
         redisClient =  redis.createClient(process.env.REDIS_URL);
         redisClient.on("error", (error) => {
@@ -277,7 +278,8 @@ const initRedis = async()=> {
         
         setAsync = promisify(redisClient.set).bind(redisClient);
         getAsync = promisify(redisClient.get).bind(redisClient);
-    } 
+    }
+     
 }
 
 const test = async () => {

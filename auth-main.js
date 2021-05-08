@@ -3,6 +3,7 @@
 const utils = require('./utils');
 const pem = require('pem-file');
 const awsClient = require('./aws-client');
+
 const {
     logger
 } = require('./logger');
@@ -15,11 +16,17 @@ const {
     BurstyRateLimiter
 } = require('rate-limiter-flexible');
 
+
+//TODO!
+const rateLimiterRedis;
+
+/*
 const rateLimiterRedis = new RateLimiterRedis({
     storeClient: cache.redisClient,
     points: 100,
     duration: 0
 });
+*/
 
 const getAuthz = async (certId) => {
     if (!certId) {
