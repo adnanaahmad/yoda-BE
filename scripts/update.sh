@@ -91,11 +91,11 @@ if [ "$IGNORE_HTTPD" != "1"  ]; then
     fi
 fi
 
-#todo conditional npm i
 log "Checking and updating all packages..."
 CHANGED=$(diff "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" | wc -l)
-echo $CHANGED
-npm i
+if [ $CHANGED -gt 4 ]; then
+    npm i
+fi
 
 if [ "$1" = "reload" ]; then
     pm2 reload all
