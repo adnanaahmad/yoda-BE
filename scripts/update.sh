@@ -120,7 +120,7 @@ if [ $CHANGED -gt 4 ]; then
     log "Checking and updating all packages..."
     npm i
 else 
-    log "Skipping package update."
+    log "Skipping package check and update."
 fi
 
 if [ "$1" = "reload" ]; then
