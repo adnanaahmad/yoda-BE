@@ -1,13 +1,17 @@
 {
   "name": "yoda",
-  "version": "1.1.33",
+  "version": "1.1.34",
   "description": "FortifID micro services and utilities.",
   "main": "service-did.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "cisco@fortifid.com",
-  "license": "ISC",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": " https://gitlab.com/fortifid/internal/engineering/yoda.git"
+  },
   "dependencies": {
     "@types/express": "^4.17.11",
     "@types/qs": "^6.9.4",
