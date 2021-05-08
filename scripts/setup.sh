@@ -63,6 +63,7 @@ else
     source ~/.bashrc
 fi
 
+#TODO: node -v compare and install if different
 if testcmd node ; then
     log "Node already installed."
 else    
