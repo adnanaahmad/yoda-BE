@@ -82,7 +82,9 @@ fi
 
 if [ "$IGNORE_HTTPD" != "1"  ]; then
     if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
-        rsync -av --delete "assets/html/" "/usr/share/nginx/html"  
+        log "Syncing web server..."
+        rsync -av --delete "assets/html/" "/usr/share/nginx/html"
+        log "Syncing web server configuration files..."
         rsync -av "assets/nginx/" "/etc/nginx"
         start_nginx
     fi
