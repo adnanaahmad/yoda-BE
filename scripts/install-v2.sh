@@ -37,11 +37,12 @@ log "Installing extra services..."
 sudo amazon-linux-extras install nginx1 -y
 #sudo yum install socat -y 
 
+sudo chown -R ec2-user:ec2-user /etc/nginx/
 mkdir -p /etc/nginx/ssl
+
 aws ssm get-parameter --name "/config/apigw/client/chain.pem" > /etc/nginx/ssl/chain.pem --with-decryption --output text --query Parameter.Value
 
 sudo chown -R ec2-user:nginx /usr/share/nginx/
-sudo chown -R ec2-user:ec2-user /etc/nginx/
 
 #TODO: This makes it more secure but takes a few minutes by itself.
 #openssl dhparam -out /etc/nginx/ssl/dhparams.pem 2048 
