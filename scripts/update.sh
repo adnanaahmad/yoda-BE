@@ -85,10 +85,8 @@ fi
 version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json`
 old_version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json.old` 
 
-log "$version = $old_version" 
-
 if [ "$version" == "$old_version" ]; then
-    log "Version is the same as previous version." 
+    log "Version is the same as previous version. Skipping the rest." 
     exit 1
 fi 
 
