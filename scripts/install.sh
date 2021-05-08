@@ -18,8 +18,7 @@ ENV_FILE="$FORTIFID_DIR/.env"
 #export DID_S3_BUCKET=s3://opalapp-opal-sandbox-use-fortifidstaticassetsbuck-7o971gu4b9lk/build/directid && export T=0 && export P=0 && aws s3 cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
 
 # global
-#export DID_S3_BUCKET=https://dev.barbarians.com/data/od7kTX && export T=0 && export P=0 && aws s3 cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
-#curl -O -J -L https://dev.barbarians.com/data/od7kTX/didservice.tar.gz
+#export DID_S3_BUCKET=https://i.dev.fortifid.com/data/od7kTXfGxDax && export T=0 && export P=0 && cd /home/ec2-user/ && curl -s -O -J -L "$DID_S3_BUCKET/install.sh" && chmod +x ./install.sh && ./install.sh
 
 timestamp() {
   date +"%Y-%m-%d %H:%M:%S.%3N"
@@ -56,7 +55,12 @@ if [ -d /etc/letsencrypt ]; then
 fi
 ###########################################
 
-aws s3 cp $DID_S3_BUCKET/didservice.tar.gz .
+log "Downloading latest version..."
+if [[ "$DID_S3_BUCKET" =~ ^s3.* ]]; then
+    aws s3 cp "$DID_S3_BUCKET/didservice.tar.gz" .
+else
+    curl -s -O -J -L "$DID_S3_BUCKET/didservice.tar.gz"
+fi
 
 mkdir -p $FORTIFID_DIR
 
