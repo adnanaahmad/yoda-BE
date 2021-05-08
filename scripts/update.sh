@@ -60,6 +60,7 @@ if [ ! -s "./didservice.tar.gz" ]; then
     exit 1
 fi
 
+cp "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" 
 log "Installing..."
 #TODO: Maybe do rsync for this part as well after un-taring.
 tar -zxf didservice.tar.gz --directory fortifid
@@ -92,6 +93,8 @@ fi
 
 #todo conditional npm i
 log "Checking and updating all packages..."
+CHANGED=$(diff "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" | wc -l)
+echo $CHANGED
 npm i
 
 if [ "$1" = "reload" ]; then
