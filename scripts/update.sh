@@ -42,7 +42,7 @@ log "Updating Yoda..."
 log "Downloading latest version..."
 curl -s -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
 
-if [ ! -f "./didservice.tar.gz" ]; then
+if [ ! -s "./didservice.tar.gz" ]; then
     log "Failed to download archive. Cannot continue."    
     exit 1
 fi
