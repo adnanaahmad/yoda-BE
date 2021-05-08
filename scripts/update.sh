@@ -67,10 +67,12 @@ if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
     exit 1
 fi
 
-if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
-    rsync -av --delete "assets/html/" "/usr/share/nginx/html"  
-    rsync -av "assets/nginx/" "/etc/nginx"
-    sudo service nginx restart
+if [ "$IGNORE_HTTPD" != "1"  ]; then
+    if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
+        rsync -av --delete "assets/html/" "/usr/share/nginx/html"  
+        rsync -av "assets/nginx/" "/etc/nginx"
+        sudo service nginx restart
+    fi
 fi
 
 #todo conditional npm i
