@@ -130,4 +130,4 @@ if [ "$1" = "reload" ]; then
     pm2 reload all
 fi
 
-log "Done."
+log "Done. Version $version installed."
