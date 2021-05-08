@@ -3,13 +3,11 @@
 CHAIN="/etc/letsencrypt/live/$1/fullchain.pem"
 KEY="/etc/letsencrypt/live/$1/privkey.pem"
 
-timestamp() {
-  date +"%Y-%m-%d %H:%M:%S.%3N"
-}
+echo dirname "$0"
 
-log() {
-    echo "$(timestamp): $1"
-}
+if [ -f utils.sh ]; then
+    . utils.sh
+fi
 
 copy() {
     if [ -f "$CHAIN" ]; then
@@ -24,15 +22,20 @@ copy() {
     fi
 }
 
+if [ -z "$1" ]; then
+    log "Domain name required. Cannot continue."
+    exit 1
+fi
+
 if [ -f "$CHAIN" ]; then
     if [ sudo /usr/local/bin/certbot renew > /dev/null ]; then
-        if [ copy ] ; then
-            sudo service nginx restart
+        if copy ; then
+           start_nginx
         fi
-    fi    
+    fi  
 else 
     sudo /usr/local/bin/certbot certonly -n --agree-tos -m itsec@fortifid.com --dns-route53 -d "$1"
-    if [ copy ] ; then
-        sudo service nginx start
+    if copy ; then
+        start_nginx
     fi
 fi

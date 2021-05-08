@@ -25,6 +25,19 @@ testcmd () {
     command -v "$1" >/dev/null
 }
 
+start_nginx() {
+    if [ -f /etc/nginx/ssl/cert.pem -a -f /etc/nginx/ssl/key.pem -a -f /etc/nginx/ssl/chain.pem ]; then
+        if systemctl is-active --quiet nginx ; then
+            sudo service nginx restart
+        else
+            sudo service nginx start
+        fi
+    else
+        log "Required certificate(s) missing. Cannot start nginx."
+        return 1
+    fi        
+}
+
 if [ "$(whoami)" != "ec2-user" ]; then
   log "Only ec2-user can run this script."
   exit 1
@@ -71,7 +84,7 @@ if [ "$IGNORE_HTTPD" != "1"  ]; then
     if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
         rsync -av --delete "assets/html/" "/usr/share/nginx/html"  
         rsync -av "assets/nginx/" "/etc/nginx"
-        sudo service nginx restart
+        start_nginx
     fi
 fi
 
