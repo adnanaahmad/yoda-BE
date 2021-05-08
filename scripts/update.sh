@@ -100,8 +100,8 @@ if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
     exit 1
 fi
 
-log "Deleting older backups..."
-sudo -u ec2-user bash -c "./scripts/trim.sh"
+#log "Deleting older backups..."
+#sudo -u ec2-user bash -c "./scripts/trim.sh"
 
 if [ "$IGNORE_HTTPD" != "1"  ]; then
     if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
