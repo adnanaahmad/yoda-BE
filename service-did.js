@@ -38,7 +38,7 @@ const DONE = {};
 const META = {};
 
 //TODO!
-const paramList = require('./params.json');
+const paramList = require(`${__dirname}/data/params.json`);
 const paramKeys = Object.keys(paramList);
 
 const consents = {};
@@ -53,7 +53,7 @@ Object.freeze(TOKEN_IDS);
 const handler = require('./utils-handlers');
 handler.init();
 
-const incomeDirectIDResponseStatus = require('./response-status.json');
+const incomeDirectIDResponseStatus = require(`${__dirname}/data/response-status.json`);
 
 Object.freeze(incomeDirectIDResponseStatus);
 
@@ -582,7 +582,7 @@ const httpHandler = async (req, res) => {
                 utils.sendData(res, {
                     output: ['Update initiated.']
                 });
-                await utils.execCommand(`${__dirname}/data/update.sh`, ['reload']);
+                await utils.execCommand(`${__dirname}/scripts/update.sh`, ['reload']);
                 break;
             }
             case 'info': {

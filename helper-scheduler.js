@@ -4,7 +4,7 @@
 const utils = require('./utils');
 const logger = require('./logger').createLogger('scheduler-did');
 const awsClient = require('./aws-client');
-const incomeDirectIDResponseStatus = require('./response-status.json');
+const incomeDirectIDResponseStatus = require(`${__dirname}/data/response-status.json`);
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true); 
 

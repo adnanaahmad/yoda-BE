@@ -38,7 +38,7 @@ To populate the AWS parameter store:
 node create-params.js
 ```
 Then edit the SecureString values in the parameter store.
-You can also edit the Values in the *./data/paramList.json* file. It's easier but it's not recommended due to security concerns.
+You can also edit the Values in the *./data/param-list.json* file. It's easier but it's not recommended due to security concerns.
 
 After the parameters have been changed, restart the service:
 ```bash
@@ -157,7 +157,7 @@ The other services have been written for dual-mode: As libraries and as stand-al
 * upaate.sh:
 * utils-q.js
 * utils.js
-* data/paramList.json:
+* data/param-list.json:
 
 ## Roadmap
 

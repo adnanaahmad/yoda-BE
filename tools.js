@@ -6,7 +6,7 @@ const awsClient = require('./aws-client');
 const redis = require("redis");
 const fs = require('fs');
 const createParams = () => {
-    let orig = require('./data/paramList.json');
+    let orig = require(`${__dirname}/data/param-list.json`);
     const fields = {};
 
     orig.forEach(field => {
@@ -14,7 +14,7 @@ const createParams = () => {
         utils.parseDotNotation(name, field.Value, fields);
     });
 
-    utils.fileWrite('./data/didservice.json', JSON.stringify(fields, null, 2));
+    utils.fileWrite(`${__dirname}/data/didservice.json`, JSON.stringify(fields, null, 2));
 }
 
 const createLocalParameters = async (path)=> {

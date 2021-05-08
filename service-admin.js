@@ -39,6 +39,8 @@ const HOSTS = [
     'i.prod.fortifid.com',
     'api.prod.fortifid.com:8999',
     'api-east-1.dev.fortifid.com:8999',
+    'api.dev.fortifid.com:8999',
+    'api.sandbox.fortifid.com:899',
     //'api.dev.fortifid.com:8999'
     //'z.prod.fortifid.com'
 ];
@@ -204,7 +206,7 @@ const update = async (args) => {
     if(utils.hasGit()) {
         return { output: 'Update not allowed on server.' };
     } 
-    return await utils.execCommand(`${__dirname}/data/update.sh`, args);
+    return await utils.execCommand(`${__dirname}/scripts/update.sh`, args);
 }
 
 const trim = async () => {
@@ -276,7 +278,7 @@ const revert = async (version) => {
 
     const file = `/home/ec2-user/backups/${version}`;
     if (await utils.fileExists(file)) {
-        let results = await utils.execCommand(`${__dirname}/data/revert.sh`, [version]);
+        let results = await utils.execCommand(`${__dirname}/scripts/revert.sh`, [version]);
         setTimeout(() => {
             execPM2Command('restart');
         }, 500);

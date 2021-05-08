@@ -25,7 +25,7 @@ const utils = require('./utils');
     // }
     // console.log('Getting certs...');
     // setTimeout( async ()=> {
-    //     let results = await utils.execCommand(`${__dirname}/data/get-certs.sh`, undefined, 120000);
+    //     let results = await utils.execCommand(`${__dirname}/scripts/get-certs.sh`, undefined, 120000);
     //     console.log(results);
     // }, 100);
 })();

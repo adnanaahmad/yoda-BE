@@ -41,6 +41,8 @@ paths:
           description: Access token is missing or invalid
         '403':
           description: Forbidden
+        '404':
+          description: Invalid Phone Number (or not found)          
         '405':
           description: Method Not Allowed
       security:
@@ -70,6 +72,8 @@ paths:
           description: Access token is missing or invalid
         '403':
           description: Method Not Allowed
+        '404':
+          description: Not found          
         '405':
           description: Method Not Allowed
       tags:

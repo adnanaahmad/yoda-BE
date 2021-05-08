@@ -47,12 +47,12 @@ handler.init();
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
+    
     let code = 404;
     const id = request.params.id;
     const data = {
         status: 'not_found'
     };
-
 
     if (id) {
         let record = await cache.getP(TABLE, id);
@@ -67,8 +67,8 @@ fastify.get('/check-request/:id', async (request, reply) => {
                 data.reason = record.reason;
             }
 
-            if (record.verified) {
-                data.verified = record.verified;
+            if (record.finished) {
+                data.finished = record.finished;
             }
 
             if (record.redirect_url) {
@@ -84,7 +84,6 @@ fastify.get('/check-request/:id', async (request, reply) => {
     }
 
     reply.type('application/json').code(code);
-
     return data;
 })
 
@@ -105,7 +104,7 @@ fastify.get('/verify/:id', async (request, reply) => {
         if (record) {
             code = 200;
             if (record.status === 'sent') {
-                data.verified = now;
+                data.finished = now;
                 data.status = 'verified';
 
                 if (record.request_reference) {
@@ -116,18 +115,17 @@ fastify.get('/verify/:id', async (request, reply) => {
                     data.redirect_url = record.redirect_url;
                 }
 
-                record.verified = now;
-                record.status = data.status;
-
                 await cache.updateP(TABLE, id, {
-                    verified: now,
+                    finished: now,
+                    duration: now - record.created,
                     status: data.status
                 }, '10y', true);
+
             } else if (record.status === 'verified') {
                 data.status = 'used';
             } else {
                 data.status = record.status;
-                data.verified = record.verified;
+                data.finished = record.finished;
             }
             //TODO: Expiration!
         }

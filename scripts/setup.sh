@@ -2,6 +2,7 @@
 
 # Which node version to use
 NODE=14.16.1
+FORTIFID_DIR=/home/ec2-user/fortifid
 
 timestamp() {
   date +"%Y-%m-%d %H:%M:%S.%3N"
@@ -12,8 +13,7 @@ log() {
 }
 
 wait() {
-    while [ ! -f $1 ]
-    do
+    while [ ! -f $1 ]; do
         sleep 0.1 
     done
 }
@@ -22,15 +22,36 @@ testcmd () {
     command -v "$1" >/dev/null
 }
 
+if [ "$(whoami)" != "ec2-user" ]; then
+  log "Only ec2-user can run this script."
+  exit 1
+fi
+
+if [ ! -d $FORTIFID_DIR ]; then
+    log "$FORTIFID_DIR does not exist. Setup cannot continue."
+    exit 1
+fi
+
 log "Setup begin."
 
+cd $FORTIFID_DIR
+if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
+    echo "Unable to switch to $FORTIFID_DIR. Cannot continue."
+    exit 1
+fi
+
+if [ ! -f "$FORTIFID_DIR/package.json" ]; then
+    log "package.json not found. Cannot continue."
+    exit 1
+fi
+
 FILE=/home/ec2-user/.cfg
-if test -f "$FILE"; then
+if [ -f "$FILE" ]; then
     . $FILE
 fi
 
-if test -z "$START"; then
-    START=service-did,scheduler
+if [ -z "$START" ]; then
+    START=service-did,helper-scheduler
 fi
 
 if [ -d ~/.nvm -a ! -h ~/.nvm ]; then
@@ -41,7 +62,7 @@ else
     source ~/.bashrc
 fi
 
-if testcmd node; then
+if [ testcmd node ]; then
     log "Node already installed."
 else    
     log "Installing Node v$NODE..."
@@ -63,7 +84,7 @@ npm install #> /dev/null 2>&1
 mkdir -p .cache
 mkdir -p uploads
 
-if test -f "./.env"; then
+if [ -f "./.env" ]; then
     log ".env already exist."
 else
     #log "Running secondary setup script..." 

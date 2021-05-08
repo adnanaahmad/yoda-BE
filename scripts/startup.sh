@@ -1,19 +1,19 @@
 #!/bin/bash
 
-FILE=~/fortifid/.env
-if test -f "$FILE"; then
-    . $FILE
+FORTIFID_DIR=/home/ec2-user/fortifid
+ENV_FILE="$FORTIFID_DIR/.env"
+
+if [ -f "$ENV_FILE" ]; then
+    . $ENV_FILE
 fi
 
 echo "$(date)" >> /home/ec2-user/reboots
 
 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep instanceId | awk -F\" '{print $4}')
-sed -i "s/\(INSTANCE_ID=\)\(.*\)/\1$INSTANCE_ID/" $FILE
+sed -i "s/\(INSTANCE_ID=\)\(.*\)/\1$INSTANCE_ID/" $ENV_FILE
 
 if [ -n "$ALLOCATION_ID" ]; then
     aws ec2 associate-address --instance-id $INSTANCE_ID --allocation-id $ALLOCATION_ID
 fi
 
-/home/ec2-user/fortifid/data/update.sh reload >/home/ec2-user/last-update.txt
-
-
+"$FORTIFID_DIR/scripts/update.sh" reload >/home/ec2-user/last-update.txt

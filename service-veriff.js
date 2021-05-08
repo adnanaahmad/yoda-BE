@@ -48,11 +48,6 @@ fastify.register(require('fastify-raw-body'), {
 const handler = require('./utils-handlers');
 handler.init();
 
-const RESTRICTED_ROUTES = [
-    '/generate-url',
-    '/check-request'
-]
-
 const KEYS = {};
 
 const loadParams = async () => {
@@ -98,6 +93,8 @@ fastify.post('/webhook', {
         rawBody: true
     }
 }, async (request, reply) => {
+    
+    const now = Date.now();
 
     if (!verifySignature(request, reply)) {
         return;
@@ -115,15 +112,22 @@ fastify.post('/webhook', {
 
             let record = await cache.getP(TABLE, id);
 
-            const data = {
-                updated: Date.now()
-            };
+            const data = {};
 
             if (v) {
+
+                //This means they're finished.
+                expiration = '10y';
                 data.status = v.status;
                 const person = v.person;
                 data.id = v.id;
                 data.code = v.code;
+                //TODO! They may retry.
+                data.finished =  now;
+
+                if(record && record.created) {
+                    data.duration =  now - record.created;
+                }
                 //TODO!
                 //technicalData : { ip: '71.64.122.30' }
                 if (v.reason !== null) {
@@ -133,9 +137,8 @@ fastify.post('/webhook', {
                 if (v.reasonCode !== null) {
                     data.reasonCode = v.reasonCode;
                 }
-
+               
                 if (v.status === 'approved' && person) {
-                    expiration = '10y';
                     if (record) {
                         let pii = record.pii;
                         if (pii) {
@@ -169,15 +172,17 @@ fastify.post('/webhook', {
                     }
                 }
             } else {
+                data.updated =  now;
                 data.status = body.action;
                 data.id = body.id;
                 data.code = body.code;
                 data.feature = body.feature;
             }
 
+            //logger.silly(data);
             await cache.updateP(TABLE, id, data, expiration, true);
         } catch (error) {
-            console.log(error);
+            logger.error(error);
         }
     }
 

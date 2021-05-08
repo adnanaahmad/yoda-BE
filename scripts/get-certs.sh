@@ -5,13 +5,13 @@ KEY="/etc/letsencrypt/live/$1/privkey.pem"
 
 copy() {
     echo "Copying certs..."
-    sudo cp -i "$CHAIN" /etc/nginx/ssl/cert.pem
-    sudo cp -i "$KEY" /etc/nginx/ssl/key.pem
+    sudo cp -f "$CHAIN" /etc/nginx/ssl/cert.pem
+    sudo cp -f "$KEY" /etc/nginx/ssl/key.pem
     sudo chown -R ec2-user:ec2-user /etc/nginx/ssl
 }
 
-if test -f "$CHAIN"; then
-    if sudo /usr/local/bin/certbot renew > /dev/null; then
+if [ -f "$CHAIN" ]; then
+    if [ sudo /usr/local/bin/certbot renew > /dev/null ]; then
         copy
         sudo service nginx restart
     fi    

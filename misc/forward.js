@@ -42,8 +42,6 @@ const httpHandler = async (req, res) => {
             (req.connection.socket ? req.connection.socket.remoteAddress : null);
 
         try {
-            
-
             let parsed = url.parse(req.url, true);
             path = parsed.pathname;
             if (!path || path.length < 2) {

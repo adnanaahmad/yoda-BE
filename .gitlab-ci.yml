@@ -20,14 +20,14 @@ deploy:
     - mkdir ./.tmp
     - tar --exclude='.[^/]*' -czvf ./.tmp/didservice.tar.gz .
     - curl -F upload=@./.tmp/didservice.tar.gz https://i.dev.fortifid.com/u/
-    - curl -F upload=@./data/install.sh https://i.dev.fortifid.com/u/
-    - curl -F upload=@./data/setup-v2.sh https://i.dev.fortifid.com/u/
+    - curl -F upload=@./scripts/install.sh https://i.dev.fortifid.com/u/
+    - curl -F upload=@./scripts/install-v2.sh https://i.dev.fortifid.com/u/
     - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET_US_W1 --sse AES256
-    - aws s3 cp ./data/install.sh $DID_S3_BUCKET_US_W1 --sse AES256
+    - aws s3 cp ./scripts/install.sh $DID_S3_BUCKET_US_W1 --sse AES256
     - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET_US_W2 --sse AES256
-    - aws s3 cp ./data/install.sh $DID_S3_BUCKET_US_W2 --sse AES256
+    - aws s3 cp ./scripts/install.sh $DID_S3_BUCKET_US_W2 --sse AES256
     - aws s3 cp ./.tmp/didservice.tar.gz $DID_S3_BUCKET_US_E1 --sse AES256
-    - aws s3 cp ./data/install.sh $DID_S3_BUCKET_US_E1 --sse AES256
+    - aws s3 cp ./scripts/install.sh $DID_S3_BUCKET_US_E1 --sse AES256
   only:
   - master
   #No need for artifacts.

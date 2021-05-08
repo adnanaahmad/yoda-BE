@@ -2,7 +2,7 @@
 /*jshint esversion: 8 */
 const awsClient = require('./aws-client');
 const utils = require('./utils');
-const params = require('./data/paramList.json');
+const params = require(`${__dirname}/data/data/param-list.json`);
 
 (async () => {
     let count = params.length;

@@ -291,6 +291,6 @@ fastify.listen(7999, (err, address) => {
 });
 
 (async () => {
-    IP_WHITELIST = JSON.parse(await utils.fileRead('./ip-whitelist.json', 'utf-8'));
+    IP_WHITELIST = JSON.parse(await utils.fileRead(`${__dirname}/data/ip-whitelist.json`, 'utf-8'));
 
 })();

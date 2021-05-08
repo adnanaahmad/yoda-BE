@@ -1,5 +1,6 @@
 'use strict';
 /*jshint esversion: 8 */
+
 const AWS = require('aws-sdk');
 require('dotenv').config();
 

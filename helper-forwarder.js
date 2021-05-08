@@ -7,7 +7,7 @@ const fastify = require('fastify')({
     ignoreTrailingSlash: true
 })
 
-const URLS = require('./urls.json')
+const URLS = require(`${__dirname}/data/urls.json`)
 const DEFAULT = '_default_';
 
 const objectToQueryString = (params) => Object.keys(params).map((key) => {

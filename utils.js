@@ -190,7 +190,7 @@ const getFileInfo = (file, doHash, extras) => {
 
 
     if (extras) {
-        const packageJSON = require('./package.json');
+        const packageJSON = require(`${__dirname}/package.json`);
 
         info.version = packageJSON.version;
         if (process.env.CREATED) {
