@@ -2,8 +2,12 @@
 
 # This will set up a brand new instance with the micro-services.
 
-FILE=/home/ec2-user/.cfg
+CFG_FILE=/home/ec2-user/.cfg
 FORTIFID_DIR=/home/ec2-user/fortifid
+
+if [ -f "$CFG_FILE" ]; then
+    . $CFG_FILE
+fi
 
 timestamp() {
   date +"%Y-%m-%d %H:%M:%S.%3N"
@@ -23,10 +27,6 @@ fi
 if [ -z "$HOST" ]; then
     log "HOST not set. Cannot continue."
     exit 1
-fi
-
-if [ -f "$FILE" ]; then
-    . $FILE
 fi
 
 log "Setup for $HOST started." 
