@@ -4,6 +4,11 @@
 NODE=14.16.1
 NPM=6.14.13
 FORTIFID_DIR=/home/ec2-user/fortifid
+CFG_FILE=/home/ec2-user/.cfg
+
+if [ -f "$CFG_FILE" ]; then
+    . $CFG_FILE
+fi
 
 timestamp() {
   date +"%Y-%m-%d %H:%M:%S.%3N"
@@ -33,7 +38,7 @@ if [ ! -d $FORTIFID_DIR ]; then
     exit 1
 fi
 
-log "Setup begin."
+log "Setup starting...."
 
 cd $FORTIFID_DIR
 if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
@@ -44,11 +49,6 @@ fi
 if [ ! -f "$FORTIFID_DIR/package.json" ]; then
     log "package.json not found. Cannot continue."
     exit 1
-fi
-
-FILE=/home/ec2-user/.cfg
-if [ -f "$FILE" ]; then
-    . $FILE
 fi
 
 if [ -z "$START" ]; then

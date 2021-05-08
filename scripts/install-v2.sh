@@ -2,8 +2,8 @@
 
 # This will set up a brand new instance with the micro-services.
 
-CFG_FILE=/home/ec2-user/.cfg
 FORTIFID_DIR=/home/ec2-user/fortifid
+CFG_FILE=/home/ec2-user/.cfg
 
 if [ -f "$CFG_FILE" ]; then
     . $CFG_FILE

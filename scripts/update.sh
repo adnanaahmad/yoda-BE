@@ -3,6 +3,10 @@
 FORTIFID_DIR=/home/ec2-user/fortifid
 ENV_FILE="$FORTIFID_DIR/.env"
 
+if [ -f "$ENV_FILE" ]; then
+    . $ENV_FILE
+fi
+
 timestamp() {
   date +"%Y-%m-%d %H:%M:%S.%3N"
 }
@@ -29,10 +33,6 @@ fi
 if [ ! -d "$FORTIFID_DIR" ]; then
     log "$FORTIFID_DIR does not exist. Setup cannot continue."
     exit 1
-fi
-
-if [ -f "$ENV_FILE" ]; then
-    . $ENV_FILE
 fi
 
 cd /home/ec2-user

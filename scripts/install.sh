@@ -4,6 +4,10 @@
 FORTIFID_DIR=/home/ec2-user/fortifid
 ENV_FILE="$FORTIFID_DIR/.env"
 
+if [ -f "$ENV_FILE" ]; then
+    . $ENV_FILE
+fi
+
 # Make sure to set the S3 bucket
 # dev us-east-1
 #export DID_S3_BUCKET=s3://opalapp-opal-dev-use1-ap-fortifidstaticassetsbuck-fcko7emh9u2i/build/directid && export T=0 && export P=0 && aws s3 cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
@@ -36,10 +40,6 @@ fi
 if [ -z "$DID_S3_BUCKET" ]; then
     log "DID_S3_BUCKET not set."
     exit 1
-fi
-
-if [ -f "$ENV_FILE" ]; then
-    . $ENV_FILE
 fi
 
 log "Yoda install starting..."
