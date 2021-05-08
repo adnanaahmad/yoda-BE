@@ -66,7 +66,9 @@ if [ ! -s "./$ARCHIVE" ]; then
 fi
 
 FILESIZE=$(stat -c%s "./$ARCHIVE")
-log $FILESIZE
+if [ $FILESIZE -lt 100000 ]; then
+    log "Invalid archive. $FILESIZE"
+fi
 
 cp "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" 
 
