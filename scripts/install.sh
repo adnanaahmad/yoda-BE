@@ -34,12 +34,12 @@ if [ -d "$FORTIFID_DIR" ]; then
     exit 1
 fi
 
-if [ -z "$DID_S3_BUCKET"]; then
+if [ -z "$DID_S3_BUCKET" ]; then
     log "DID_S3_BUCKET not set."
     exit 1
 fi
 
-if [ -f "$ENV_FILE"]; then
+if [ -f "$ENV_FILE" ]; then
     . $ENV_FILE
 fi
 

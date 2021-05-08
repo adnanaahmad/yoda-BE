@@ -62,7 +62,7 @@ else
     source ~/.bashrc
 fi
 
-if [ testcmd node ]; then
+if testcmd node ; then
     log "Node already installed."
 else    
     log "Installing Node v$NODE..."
@@ -72,9 +72,9 @@ else
 fi
 
 if [ -d ./node_modules -a ! -h ./node_modules ]; then
-    log "Updating DirectID service..."
+    log "Updating Yoda services..."
 else
-    log "Installing DirectID service..."
+    log "Installing Yoda services..."
 fi
 
 source ~/.bashrc
