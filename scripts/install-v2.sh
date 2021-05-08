@@ -17,8 +17,6 @@ log() {
     echo "$(timestamp): $1"
 }
 
-echo $HOST
-
 if [ -d "$FORTIFID_DIR" ]; then
     log "FortifID already installed. Cannot continue."
     exit 1
@@ -29,7 +27,15 @@ if [ -z "$HOST" ]; then
     exit 1
 fi
 
-log "Setup for $HOST started." 
+log "Install for $HOST started..." 
+
+REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | awk -F\" '{print $4}')
+if [ -z "$REGION" ]; then
+    log "REGION not available. Cannot continue."
+    exit 1
+fi
+
+sudo -u ec2-user aws configure set region $REGION
 
 cd /home/ec2-user
 

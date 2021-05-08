@@ -10,7 +10,7 @@ When the instance starts up or reboots it auto-updates the "binaries" and all th
 if [ -d /home/ec2-user/fortifid -a ! -h /home/ec2-user/fortifid ]; then
      echo "Already installed."
 else 
-    export HOST=dooo3.prod.fortifid.com
+    export HOST=i.prod.fortifid.com
     export START=service-admin,service-mfa,service-veriff,service-did
     sudo -u ec2-user bash -c "(echo HOST=$HOST >/home/ec2-user/.cfg && echo START=$START >>/home/ec2-user/.cfg && curl https://i.dev.fortifid.com/data/od7kTXfGxDax/install-v2.sh | sh) >/home/ec2-user/install.txt 2>&1" 
 fi
