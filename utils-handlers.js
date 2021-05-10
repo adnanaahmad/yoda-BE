@@ -2,15 +2,19 @@
 /*jshint esversion: 8 */
 
 const utils = require('./utils');
+const awsClient = require('./aws-client');
 
 let _emailQ;
 let _twilioQ;
 let _webhookQ;
 let _snsQ;
 
-const init = (email = true, twilio = true, webhook = false, sns = true) => {
-    if (typeof (process.env.REDIS_URL) !== 'undefined') {
+const init = async (email = true, twilio = true, webhook = false, sns = false) => {
+    let redisUrl = await awsClient.getParameter('/config/shared/redis/url');
+
+    if (typeof (redisUrl) !== 'undefined') {
         const Q = require('./utils-q');
+        //TODO!
         _twilioQ = twilio ? Q.getQ(Q.names.handler_twilio) : undefined;
         _emailQ = email ? Q.getQ(Q.names.handler_email) : undefined;
         _webhookQ = webhook ? Q.getQ(Q.names.handler_webhook) : undefined;

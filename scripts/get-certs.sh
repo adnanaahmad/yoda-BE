@@ -1,26 +1,11 @@
 #!/bin/bash
 
-CHAIN="/etc/letsencrypt/live/$1/fullchain.pem"
-KEY="/etc/letsencrypt/live/$1/privkey.pem"
-
-echo dirname "$0"
-
-if [ -f utils.sh ]; then
-    . utils.sh
+if [ -z "$SHARED_LOADED" ]; then
+    . "/home/ec2-user/fortifid/scripts/shared.sh"
 fi
 
-copy() {
-    if [ -f "$CHAIN" ]; then
-        log "Copying certs..."
-        sudo cp -f "$CHAIN" /etc/nginx/ssl/cert.pem
-        sudo cp -f "$KEY" /etc/nginx/ssl/key.pem
-        sudo chown -R ec2-user:ec2-user /etc/nginx/ssl
-        return 0
-    else 
-        log "Certs not available to copy."
-        return 1
-    fi
-}
+CHAIN="/etc/letsencrypt/live/$1/fullchain.pem"
+KEY="/etc/letsencrypt/live/$1/privkey.pem"
 
 if [ -z "$1" ]; then
     log "Domain name required. Cannot continue."

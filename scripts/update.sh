@@ -1,55 +1,7 @@
 #!/bin/bash
-FORTIFID_DIR=/home/ec2-user/fortifid
-ENV_FILE="$FORTIFID_DIR/.env"
 
-NODE=14.16.1
-NPM=6.14.13
-
-ARCHIVE="didservice.tar.gz"
-
-if [ -f "$ENV_FILE" ]; then
-    . $ENV_FILE
-fi
-
-timestamp() {
-  date +"%Y-%m-%d %H:%M:%S.%3N"
-}
-
-log() {
-    echo "$(timestamp): $1"
-}
-
-wait() {
-    while [ ! -f $1 ]; do
-        sleep 0.1 
-    done
-}
-
-testcmd () {
-    command -v "$1" >/dev/null
-}
-
-start_nginx() {
-    if [ -f /etc/nginx/ssl/cert.pem -a -f /etc/nginx/ssl/key.pem -a -f /etc/nginx/ssl/chain.pem ]; then
-        if systemctl is-active --quiet nginx ; then
-            sudo service nginx restart
-        else
-            sudo service nginx start
-        fi
-    else
-        log "Required certificate(s) missing. Cannot start nginx."
-        return 1
-    fi        
-}
-
-if [ "$(whoami)" != "ec2-user" ]; then
-  log "Only ec2-user can run this script."
-  exit 1
-fi
-
-if [ ! -d "$FORTIFID_DIR" ]; then
-    log "$FORTIFID_DIR does not exist. Setup cannot continue."
-    exit 1
+if [ -z "$SHARED_LOADED" ]; then
+    . "/home/ec2-user/fortifid/scripts/shared.sh"
 fi
 
 cd /home/ec2-user
@@ -68,13 +20,14 @@ fi
 FILESIZE=$(stat -c%s "./$ARCHIVE")
 if [ $FILESIZE -lt 100000 ]; then
     log "Invalid archive. $FILESIZE"
+    exit 1
 fi
 
 cp "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" 
 
 log "Installing..."
 #TODO: Maybe do rsync for this part as well after un-taring.
-tar -zxf didservice.tar.gz --directory fortifid
+tar -zxf "./$ARCHIVE" --directory fortifid
 
 if [ ! -f "$FORTIFID_DIR/package.json" ]; then
     log "package.json not found. Cannot continue."
@@ -92,7 +45,7 @@ fi
 
 mkdir -p ./backups
 log "Backing up archive ($version)..."
-mv didservice.tar.gz "./backups/$version.tar.gz"
+mv "./$ARCHIVE" "./backups/$version.tar.gz"
 
 cd $FORTIFID_DIR
 if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
@@ -106,17 +59,14 @@ fi
 if [ "$IGNORE_HTTPD" != "1"  ]; then
     if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
         log "Syncing web server..."
-        rsync -av --delete "assets/html/" "/usr/share/nginx/html"
+        rsync -av --exclude "assets/html/data" --delete "assets/html/" "/usr/share/nginx/html"
         log "Syncing web server configuration files..."
         rsync -av "assets/nginx/" "/etc/nginx"
         start_nginx
     fi
 fi
 
-if [ "$(npm -v)" != "$NPM" ]; then
-    log "Installing NPM $NPM..."
-    npm i -g "npm@$NPM"
-fi
+. "$FORTIFID_DIR/scripts/sync.sh"
 
 CHANGED=$(diff "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" | wc -l)
 if [ $CHANGED -gt 4 ]; then

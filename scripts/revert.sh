@@ -1,24 +1,8 @@
 #!/bin/bash
 
-FORTIFID_DIR=/home/ec2-user/fortifid
-
-timestamp() {
-  date +"%Y-%m-%d %H:%M:%S.%3N"
-}
-
-log() {
-    echo "$(timestamp): $1"
-}
-
-wait() {
-    while [ ! -f $1 ]; do
-        sleep 0.1 
-    done
-}
-
-testcmd () {
-    command -v "$1" >/dev/null
-}
+if [ -z "$SHARED_LOADED" ]; then
+    . "/home/ec2-user/fortifid/scripts/shared.sh"
+fi
 
 if [ -z "$1" ]; then
     log "Version required."
@@ -31,28 +15,42 @@ if [ ! -d "$FORTIFID_DIR" ]; then
     log "$FORTIFID_DIR does not exist. Cannot continue."
     exit 1
 fi
- 
+
+cd /home/ec2-user
+version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json`
+
+if [ "$version" == "$1" ]; then 
+   log "Current version is already $1."
+    exit 1
+fi
+
 if [ ! -f "$VERSION_FILE" ]; then
     log "Version does not exist. Cannot continue."
     exit 1
 fi
 
-cd /home/ec2-user
+cp "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" 
 
 log "Reverting Yoda to $1..."
 
-cp $VERSION_FILE ./didservice.tar.gz
+cp $VERSION_FILE "$ARCHIVE"
 
-if [ ! -f "./didservice.tar.gz" ]; then
+if [ ! -s "./$ARCHIVE" ]; then
     log "Unable to copy version. Cannot continue."
     exit 1
 fi
 
+FILESIZE=$(stat -c%s "./$ARCHIVE")
+if [ $FILESIZE -lt 100000 ]; then
+    log "Invalid archive. $FILESIZE"
+    exit 1
+fi
+
 log "Installing..."
-tar -zxf didservice.tar.gz --directory fortifid
+tar -zxf "./$ARCHIVE" --directory fortifid
 
 log "Deleting archive..."
-rm -f didservice.tar.gz
+rm -f "./$ARCHIVE"
 
 cd $FORTIFID_DIR
 if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
@@ -60,8 +58,23 @@ if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
     exit 1
 fi
 
-log "Checking and updating all packages..."
-npm i
+if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
+    log "Syncing web server..."
+    rsync -av --exclude "assets/html/data" --delete "assets/html/" "/usr/share/nginx/html"
+    log "Syncing web server configuration files..."
+    rsync -av "assets/nginx/" "/etc/nginx"
+    start_nginx
+fi
+
+. "$FORTIFID_DIR/scripts/sync.sh"
+
+CHANGED=$(diff "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" | wc -l)
+if [ $CHANGED -gt 4 ]; then
+    log "Checking and updating all packages..."
+    npm i
+else 
+    log "Skipping package check and update."
+fi
 
 if [ "$1" = "reload" ]; then
     pm2 reload all

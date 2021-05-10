@@ -1,41 +1,13 @@
 #!/bin/bash
 
-FORTIFID_DIR=/home/ec2-user/fortifid
-CFG_FILE=/home/ec2-user/.cfg
+if [ -z "$SHARED_LOADED" ]; then
+    . "/home/ec2-user/fortifid/scripts/shared.sh"
+fi
 
-NODE=14.16.1
-NPM=6.14.13
+CFG_FILE=/home/ec2-user/.cfg
 
 if [ -f "$CFG_FILE" ]; then
     . $CFG_FILE
-fi
-
-timestamp() {
-  date +"%Y-%m-%d %H:%M:%S.%3N"
-}
-
-log() {
-    echo "$(timestamp): $1"
-}
-
-wait() {
-    while [ ! -f $1 ]; do
-        sleep 0.1 
-    done
-}
-
-testcmd () {
-    command -v "$1" >/dev/null
-}
-
-if [ "$(whoami)" != "ec2-user" ]; then
-  log "Only ec2-user can run this script."
-  exit 1
-fi
-
-if [ ! -d $FORTIFID_DIR ]; then
-    log "$FORTIFID_DIR does not exist. Setup cannot continue."
-    exit 1
 fi
 
 log "Setup starting..."
@@ -81,12 +53,9 @@ fi
 
 source ~/.bashrc
 
-if [ "$(npm -v)" != "$NPM" ]; then
-    echo "Installing NPM $NPM..."
-    npm i -g "npm@$NPM"
-fi
+. "$FORTIFID_DIR/scripts/sync.sh"
 
-npm install #> /dev/null 2>&1
+npm i #> /dev/null 2>&1
 
 mkdir -p .cache
 mkdir -p uploads

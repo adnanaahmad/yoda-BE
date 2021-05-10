@@ -46,7 +46,6 @@ fastify.register(require('fastify-raw-body'), {
 })
 
 const handler = require('./utils-handlers');
-handler.init();
 
 const KEYS = {};
 
@@ -403,4 +402,5 @@ const start = () => {
 (async () => {
     await loadParams();
     start();
+    await handler.init();
 })();

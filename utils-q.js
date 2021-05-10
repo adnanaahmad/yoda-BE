@@ -2,10 +2,11 @@
 /*jshint esversion: 8 */
 const bull = require('bull');
 const utils = require('./utils');
+const awsClient = require('./aws-client');
 
 //TODO!
 
-let redisUrl = process.env.REDIS_URL;
+let redisUrl;
 //nc -v url port
 const QUEUES = {};
 
@@ -94,7 +95,7 @@ const addToPostQ = (data) => {
 }
 
 (async () => {
-
+    redisUrl = await awsClient.getParameter('/config/shared/redis/url');
 })();
 
 module.exports = {

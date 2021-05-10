@@ -13,6 +13,7 @@ const {
 } = require('util');
 
 let redisClient;
+let redisUrl;
 
 let setAsync; 
 let getAsync;
@@ -269,9 +270,10 @@ const getM = (type, key, defaultValue) => {
 }
 
 const initRedis = async()=> {
+    redisUrl = await awsClient.getParameter('/config/shared/redis/url');
 
-    if(typeof(process.env.REDIS_URL) !=='undefined') {
-        redisClient =  redis.createClient(process.env.REDIS_URL);
+    if(typeof(redisUrl) !=='undefined') {
+        redisClient =  redis.createClient(redisUrl);
         redisClient.on("error", (error) => {
             console.error(error);
         });
@@ -279,7 +281,6 @@ const initRedis = async()=> {
         setAsync = promisify(redisClient.set).bind(redisClient);
         getAsync = promisify(redisClient.get).bind(redisClient);
     }
-     
 }
 
 const test = async () => {

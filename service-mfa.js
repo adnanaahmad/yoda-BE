@@ -39,7 +39,6 @@ fastify.register(require('fastify-static'), {
 const twilioUtils = require('./handler-twilio');
 
 const handler = require('./utils-handlers');
-handler.init();
 
 // fastify.get('/', function (request, reply) {
 //     return reply.sendFile('index.html'); // serving path.join(__dirname, 'public', 'myHtml.html') directly
@@ -157,6 +156,8 @@ fastify.post('/generate-url', async (request, reply) => {
         let transaction_id = utils.getUUID();
         data.transaction_id = transaction_id;
         let send = typeof (body.send) === 'boolean' ? body.send : true;
+        let allow_voip = typeof (body.allow_voip) === 'boolean' ? body.allow_voip : false;
+
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
             const pn = utils.parsePhoneNumber(phone_number);
@@ -177,15 +178,17 @@ fastify.post('/generate-url', async (request, reply) => {
                         code = 404;
                     } else if (results.carrier !== null && typeof (results.carrier) === 'object') {
                         let carrier = results.carrier;
-
-                        if (carrier.type === 'mobile') {
+                        
+                        data.country_code = results.countryCode;
+                        data.type = carrier.type; 
+                        if (carrier.type === 'mobile' || (allow_voip && carrier.type === 'voip')) {
                             //TODO!
                             if (results.countryCode === 'US') {
                                 if (send) {
                                     data.url = `https://${SCRIPT_INFO.host}/mfa/v1?ref=${encodeURIComponent(transaction_id)}`
                                     let short = await utils.shortenUrl(data.url);
                                     data.url = short || data.url;
-
+                                     
                                     lookup.text = utils.parseTemplate(params.sms_text, {
                                         '%URL%': data.url
                                     });
@@ -275,4 +278,5 @@ const start = async ()=> {
 
 (async () => {
     await start();
+    await handler.init();
 })();

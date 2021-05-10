@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -z "$SHARED_LOADED" ]; then
+    . "/home/ec2-user/fortifid/scripts/shared.sh"
+fi
+
 BACKUP_DIR=/home/ec2-user/backups
 
 if [ ! -d "$BACKUP_DIR" ]; then
@@ -9,7 +13,7 @@ fi
 
 cd $BACKUP_DIR
 if [ "$(pwd)" != "$BACKUP_DIR" ]; then
-    echo "Unable to switch to $BACKUP_DIR. Cannot continue."
+    log "Unable to switch to $BACKUP_DIR. Cannot continue."
     exit 1
 fi
 

@@ -19,7 +19,6 @@ const {
 
 //TODO!
 let rateLimiterRedis;
-
 /*
 const rateLimiterRedis = new RateLimiterRedis({
     storeClient: cache.redisClient,
@@ -27,7 +26,6 @@ const rateLimiterRedis = new RateLimiterRedis({
     duration: 0
 });
 */
-
 const getAuthz = async (certId) => {
     if (!certId) {
         return;

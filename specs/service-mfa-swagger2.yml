@@ -98,8 +98,13 @@ definitions:
       send:
         example: true
         default: true
-        description: Optional
+        description: Optional. If false then just do a lookup of the number.
         type: boolean
+      allow_voip:
+        example: false
+        default: false
+        description: If set then it allows validating of VOIP numbers.
+        type: boolean        
     required:
       - phone_number
     type: object
@@ -119,6 +124,10 @@ definitions:
         example: e7e42ba2-1783-4406-b920-edc681608a2d
         format: uuid
         type: string
+      country_code:
+        description: 2 letter country code of phone number.
+      type:
+        description: Phone number type (voip, mobile, landline, etc).
     type: object
     xml:
       name: RequestResults

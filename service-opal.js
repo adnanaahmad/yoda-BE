@@ -36,7 +36,6 @@ fastify.register(require('fastify-static'), {
 })
 
 const handler = require('./utils-handlers');
-handler.init();
 
 const loadParams = async () => {
 
@@ -49,4 +48,5 @@ fastify.listen(PORT, (err, address) => {
 
 (async () => {
     await loadParams();
+    await handler.init();
 })();

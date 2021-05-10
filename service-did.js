@@ -51,7 +51,6 @@ const TOKEN_IDS = {
 Object.freeze(TOKEN_IDS);
 
 const handler = require('./utils-handlers');
-handler.init();
 
 const incomeDirectIDResponseStatus = require(`${__dirname}/data/response-status.json`);
 
@@ -1023,6 +1022,7 @@ const loadParams = async () => {
     const funcs = [];
 
     await loadParams();
+    await handler.init();
 
     funcs.push(initTokens());
 

@@ -24,12 +24,18 @@ fi
   * SSL cert for the server.
   * Permissions.
   * 
+* finalize.sh - 
 * get-certs.sh -Gets or renews the certificates.
-* setup.sh - Does the initial setup of all the binaries and dependencies.
-* startup.sh - Runs on every reboot. Runs the update script.
-* update.sh - Downloads and installs the latest versions of the binaries and keeps the dependecies up to date. This also creates a backup of each version.
+* install-v2.sh - 
+* install.sh - 
 * revert.sh - Enables reverting to any previously backed-up version.
+* setup.sh - Does the initial setup of all the binaries and dependencies.
+* shared.sh - Shared functions and variables.
+* start-all.sh - Run all the services listed in the START variable.
+* startup.sh - Runs on every reboot. Runs the update script.
+* sync.sh - Ensures NPM and other dependencies are up to date. 
 * trim.sh - Keeps only the 5 latest backups.
+* update.sh - Downloads and installs the latest versions of the binaries and keeps the dependecies up to date. This also creates a backup of each version.
 
 ## Services
 
@@ -38,10 +44,10 @@ fi
 * handler-twilio
 * handler-webhook
 
-* forwarder
-* shortener
-* scheduler
-* uploader
+* helper-forwarder
+* helper-shortener
+* helper-scheduler
+* helper-uploader
 
 * service-admin
 * service-auth
@@ -63,5 +69,4 @@ https://{server}.fortifid.com/admin/v1/
 
 https://z.dev.fortifid.com/admin/v1/
 
-# To ensure we start all the correct services.
-# TODO: Make this conditional
+

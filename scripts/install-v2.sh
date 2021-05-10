@@ -5,6 +5,8 @@
 FORTIFID_DIR=/home/ec2-user/fortifid
 CFG_FILE=/home/ec2-user/.cfg
 
+ARCHIVE="didservice.tar.gz"
+
 if [ -f "$CFG_FILE" ]; then
     . $CFG_FILE
 fi
@@ -73,11 +75,11 @@ source ~/.bashrc
 
 #TODO: Could change this wiith aws s3 cp later
 log "Downloading latest version..."
-curl -O -J -L https://i.dev.fortifid.com/data/od7kTXfGxDax/didservice.tar.gz
+curl -O -J -L "https://i.dev.fortifid.com/data/od7kTXfGxDax/$ARCHIVE"
 
 mkdir -p $FORTIFID_DIR
 
-tar -xvf didservice.tar.gz --directory fortifid
+tar -xvf "./$ARCHIVE" --directory fortifid
 
 if [ ! -f "$FORTIFID_DIR/package.json" ]; then
     log "package.json not found. Cannot continue."
@@ -88,7 +90,7 @@ version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.jso
 
 log "Backing up archive ($version)..."
 mkdir -p ./backups
-mv didservice.tar.gz "./backups/$version.tar.gz"
+mv "./$ARCHIVE" "./backups/$version.tar.gz"
 
 sudo chown -R ec2-user:ec2-user fortifid
 sudo chown -R ec2-user:ec2-user backups
@@ -100,7 +102,7 @@ if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
 fi
 
 if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
-    rsync -av --delete "assets/html/" "/usr/share/nginx/html"  
+    rsync -av --exclude "assets/html/data" --delete "assets/html/" "/usr/share/nginx/html"
     rsync -av "assets/nginx/" "/etc/nginx"  
 fi
 

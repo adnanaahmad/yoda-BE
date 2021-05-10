@@ -40,7 +40,6 @@ fastify.register(require('fastify-static'), {
 })
 
 const handler = require('./utils-handlers');
-handler.init();
 
 fastify.get('/check-request/:id', async (request, reply) => {
     let data = {};
@@ -122,4 +121,5 @@ const start = async ()=> {
 
 (async () => {
     await start();
+    await handler.init();
 })();

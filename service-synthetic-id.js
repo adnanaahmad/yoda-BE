@@ -41,7 +41,6 @@ fastify.register(require('fastify-static'), {
 })
 
 const handler = require('./utils-handlers');
-handler.init();
 
 const doRequest = async (data, customerId) => {
 
@@ -158,4 +157,5 @@ const start = async ()=> {
 
 (async () => {
     await start();
+    await handler.init();
 })();

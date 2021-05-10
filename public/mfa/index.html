@@ -85,8 +85,14 @@
                 </label>
             </div>
 
+            <div class="form-group">
+                <label class="form-switch">
+                    <input id="check-voip" type="checkbox">
+                    <i class="form-icon"></i> Allow VOIP Number
+                </label>
+            </div>
+            
             <div id="div-url">&nbsp;</div>
-
 
             <br />
             <button id="btn-url" class="btn btn-primary">Send MFA SMS</button>
@@ -325,6 +331,7 @@
                     full_name: $('#full_name').val(),
                     phone_number: $('#phone_number').val() || '',
                     send: $('#check-send').is(':checked'),
+                    allow_voip: $('#check-voip').is(':checked'),
                     request_reference: $('#request_reference').val(),
                     redirect_url: $('#redirect_url').val(),
                 };

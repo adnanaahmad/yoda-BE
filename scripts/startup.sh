@@ -1,10 +1,7 @@
 #!/bin/bash
 
-FORTIFID_DIR=/home/ec2-user/fortifid
-ENV_FILE="$FORTIFID_DIR/.env"
-
-if [ -f "$ENV_FILE" ]; then
-    . $ENV_FILE
+if [ -z "$SHARED_LOADED" ]; then
+    . "/home/ec2-user/fortifid/scripts/shared.sh"
 fi
 
 echo "$(date)" >> /home/ec2-user/reboots
@@ -16,4 +13,4 @@ if [ -n "$ALLOCATION_ID" ]; then
     aws ec2 associate-address --instance-id $INSTANCE_ID --allocation-id $ALLOCATION_ID
 fi
 
-"$FORTIFID_DIR/scripts/update.sh" reload >/home/ec2-user/last-update.txt
+. "$FORTIFID_DIR/scripts/update.sh" reload >/home/ec2-user/last-update.txt

@@ -3,6 +3,7 @@
 # This is for setting up the did service.
 FORTIFID_DIR=/home/ec2-user/fortifid
 ENV_FILE="$FORTIFID_DIR/.env"
+
 ARCHIVE="didservice.tar.gz"
 
 if [ -f "$ENV_FILE" ]; then
@@ -58,14 +59,19 @@ fi
 
 log "Downloading latest version..."
 if [[ "$DID_S3_BUCKET" =~ ^s3.* ]]; then
-    aws s3 cp "$DID_S3_BUCKET/didservice.tar.gz" .
+    aws s3 cp "$DID_S3_BUCKET/$ARCHIVE" .
 else
-    curl -s -O -J -L "$DID_S3_BUCKET/didservice.tar.gz"
+    curl -s -O -J -L "$DID_S3_BUCKET/$ARCHIVE"
+fi
+
+FILESIZE=$(stat -c%s "./$ARCHIVE")
+if [ $FILESIZE -lt 100000 ]; then
+    log "Invalid archive. $FILESIZE"
+    exit 1
 fi
 
 mkdir -p $FORTIFID_DIR
-
-tar -xvf didservice.tar.gz --directory fortifid
+tar -xvf "./$ARCHIVE" --directory fortifid
 
 if [ ! -f "$FORTIFID_DIR/package.json" ]; then
     log "package.json not found. Cannot continue."
@@ -75,7 +81,7 @@ fi
 version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json`
 log "Backing up archive ($version)..."
 mkdir -p ./backups
-mv didservice.tar.gz "./backups/$version.tar.gz"
+mv "./$ARCHIVE" "./backups/$version.tar.gz"
 
 sudo chown -R ec2-user:ec2-user fortifid
 sudo chown -R ec2-user:ec2-user backups

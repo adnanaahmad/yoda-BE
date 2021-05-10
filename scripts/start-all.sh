@@ -1,12 +1,10 @@
 #!/bin/bash
 
-FORTIFID_DIR=/home/ec2-user/fortifid
-START=service-admin,service-mfa,service-veriff,service-did,handler-email,handler-twilio,handler-webhook,helper-scheduler,helper-shortener,helper-uploader
-
-if [ ! -d "$FORTIFID_DIR" ]; then
-    log "$FORTIFID_DIR does not exist. Setup cannot continue."
-    exit 1
+if [ -z "$SHARED_LOADED" ]; then
+    . "/home/ec2-user/fortifid/scripts/shared.sh"
 fi
+
+START=service-admin,service-mfa,service-veriff,service-did,handler-email,handler-twilio,handler-webhook,helper-scheduler,helper-shortener,helper-uploader
 
 cd $FORTIFID_DIR
 if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
