@@ -36,7 +36,7 @@ log "Copying latest chain.pem from the parameter store."
 aws ssm get-parameter --name "/config/apigw/client/chain.pem" > /etc/nginx/ssl/chain.pem --with-decryption --output text --query Parameter.Value
 
 if sudo test -f "$CHAIN" ; then
-    if sudo /usr/local/bin/certbot renew > /dev/null ; then
+    if sudo /usr/local/bin/certbot renew ; then
         if copy ; then
            start_nginx
         fi
