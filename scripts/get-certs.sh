@@ -19,11 +19,15 @@ KEY="/etc/letsencrypt/live/$1/privkey.pem"
 
 copy() {
     if sudo test -f "$CHAIN" ; then
-        log "Copying certs..."
-        sudo cp -f "$CHAIN" /etc/nginx/ssl/cert.pem
-        sudo cp -f "$KEY" /etc/nginx/ssl/key.pem
-        sudo chown -R ec2-user:ec2-user /etc/nginx/ssl
-        return 0
+        if ! test -f /etc/nginx/ssl/cert.pem -o $(sudo diff "$CHAIN" /etc/nginx/ssl/cert.pem | wc -l) -gt 0 ; then
+            log "Copying certs..."
+            sudo cp -f "$CHAIN" /etc/nginx/ssl/cert.pem
+            sudo cp -f "$KEY" /etc/nginx/ssl/key.pem
+            sudo chown -R ec2-user:ec2-user /etc/nginx/ssl
+            return 0
+        else 
+            return 1
+        fi
     else 
         log "Certs not available to copy."
         return 1
@@ -33,6 +37,7 @@ copy() {
 log "Certificate check/update for $1"
 
 log "Copying latest chain.pem from the parameter store."
+#TODO: We have to track and restart if this changed.
 aws ssm get-parameter --name "/config/apigw/client/chain.pem" > /etc/nginx/ssl/chain.pem --with-decryption --output text --query Parameter.Value
 
 if sudo test -f "$CHAIN" ; then
