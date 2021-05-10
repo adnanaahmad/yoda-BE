@@ -102,4 +102,4 @@ fi
 
 END_TIME=$(date +%s%3N)
 DURATION=`expr $END_TIME - $START_TIME`
-log "Done. Version $version installed. $DURATION"
+log "Done. Version $version installed in ${DURATION}ms"
