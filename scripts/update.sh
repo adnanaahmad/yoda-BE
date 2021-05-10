@@ -70,15 +70,19 @@ if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
 
     CHANGED=$($RYSNC | wc -l)
     if [ $CHANGED -gt 5 ]; then
-        echo "$RSYNC"
+        log "$RSYNC"
+    else
+        log "No changes detected."
     fi
 
     log "Syncing web server configuration files..."
     RSYNC=$(rsync -av "assets/nginx/" "/etc/nginx")
     CHANGED=$($RYSNC | wc -l)
     if [ $CHANGED -gt 4 ]; then
-        echo "$RSYNC"
+        log "$RSYNC"
         start_nginx
+    else
+        log "No changes detected."
     fi
 fi
 
