@@ -69,7 +69,7 @@ if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
     fi
 
     log "Syncing web server configuration files..."
-    CHANGED = $(rsync -av "assets/nginx/" "/etc/nginx" | wc -l)
+    CHANGED=$(rsync -av "assets/nginx/" "/etc/nginx" | wc -l)
     if [ $CHANGED -gt 3 ]; then
         start_nginx
     fi
