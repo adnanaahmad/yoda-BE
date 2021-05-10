@@ -1,5 +1,5 @@
 #!/bin/bash
-
+START_TIME=$(date +%s%3N)
 if [ -z "$SHARED_LOADED" ]; then
     . "/home/ec2-user/fortifid/scripts/shared.sh"
 fi
@@ -100,4 +100,8 @@ if [ "$1" = "reload" ]; then
     pm2 reload all
 fi
 
-log "Done. Version $version installed."
+END_TIME=$(date +%s%3N)
+
+echo "$END_TIME $START_TIME"
+
+log "Done. Version $version installed. $END_TIME-$START_TIME"
