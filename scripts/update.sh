@@ -67,7 +67,11 @@ if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
     if [ -d /tmp/data ]; then
         mv /tmp/data /usr/share/nginx/html/data
     fi
-    echo "$RSYNC"
+
+    CHANGED=$($RYSNC | wc -l)
+    if [ $CHANGED -gt 5 ]; then
+        echo "$RSYNC"
+    fi
 
     log "Syncing web server configuration files..."
     RSYNC=$(rsync -av "assets/nginx/" "/etc/nginx")
