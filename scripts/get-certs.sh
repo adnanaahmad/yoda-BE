@@ -18,7 +18,7 @@ CHAIN="/etc/letsencrypt/live/$1/fullchain.pem"
 KEY="/etc/letsencrypt/live/$1/privkey.pem"
 
 copy() {
-    if [ -f "$CHAIN" ]; then
+    if [ sudo test -f "$CHAIN" ]; then
         log "Copying certs..."
         sudo cp -f "$CHAIN" /etc/nginx/ssl/cert.pem
         sudo cp -f "$KEY" /etc/nginx/ssl/key.pem
@@ -35,7 +35,7 @@ log "Certificate check/update for $1"
 log "Copying latest chain.pem from the parameter store."
 aws ssm get-parameter --name "/config/apigw/client/chain.pem" > /etc/nginx/ssl/chain.pem --with-decryption --output text --query Parameter.Value
 
-if [ -f "$CHAIN" ]; then
+if [ sudo test -f "$CHAIN" ]; then
     if [ sudo /usr/local/bin/certbot renew > /dev/null ]; then
         if copy ; then
            start_nginx
