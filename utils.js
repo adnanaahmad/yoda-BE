@@ -75,6 +75,7 @@ const fileWrite = util.promisify(fs.writeFile);
 const fileStats = util.promisify(fs.stat);
 const dirRead = util.promisify(fs.readdir);
 const execFile = util.promisify(require('child_process').execFile);
+const _dirCreate = util.promisify(fs.mkdir);
 
 const getMonth = (index, short) => {
     return monthsShort[index];
@@ -83,6 +84,10 @@ const getMonth = (index, short) => {
 const isUnderPM2 = () => {
     return 'PM2_HOME' in process.env || 'PM2_JSON_PROCESSING' in process.env || 'PM2_CLI' in process.env
 };
+
+const dirCreate = async (path)=> {
+    return await _dirCreate(path, { recursive: true });
+}
 
 const execCommand = async (command, args, timeout = 30000) => {
     try {
@@ -1371,6 +1376,7 @@ module.exports = {
     pathJoin,
     splitLines,
     fileDelete,
+    dirCreate,
     camelToSnakeCaseObject,
     formatDate,
     numbersOnly,

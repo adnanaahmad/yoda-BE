@@ -56,15 +56,15 @@ fi
 #log "Deleting older backups..."
 #sudo -u ec2-user bash -c "./scripts/trim.sh"
 
-#if [ "$IGNORE_HTTPD" != "1"  ]; then
+if [ "$IGNORE_HTTPD" != "1"  ]; then
     if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
         log "Syncing web server..."
-        rsync -av --exclude "assets/html/data" --delete "assets/html/" "/usr/share/nginx/html"
+        rsync -av --delete "assets/html/" "/usr/share/nginx/html" --exclude "assets/html/data"
         log "Syncing web server configuration files..."
         rsync -av "assets/nginx/" "/etc/nginx"
         start_nginx
     fi
-#fi
+fi
 
 . "$FORTIFID_DIR/scripts/sync.sh"
 

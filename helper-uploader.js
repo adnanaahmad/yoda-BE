@@ -1,27 +1,28 @@
 'use strict';
 /*jshint esversion: 8 */
+const utils = require('./utils');
 
 const fastify = require('fastify')({
-    logger: false,
-    trustProxy: true,
-    //ignoreTrailingSlash: true
+  logger: false,
+  trustProxy: true,
+  //ignoreTrailingSlash: true
 });
 
 const fileUpload = require('fastify-file-upload')
 
 fastify.register(fileUpload)
 
-fastify.post('/',  async (req, res)=> {
+fastify.post('/', async (req, res) => {
   // some code to handle file
-  
+
   const files = req.raw.files
   // if (files === null || !files || Object.keys(req.files).length === 0) {
   //   return res.status(400).send('No files were uploaded.');
   // }
 
   let fileArr = [];
-  for(let key in files){
-    const file = files[key]; 
+  for (let key in files) {
+    const file = files[key];
     fileArr.push({
       name: file.name,
       mimetype: file.mimetype
@@ -29,15 +30,19 @@ fastify.post('/',  async (req, res)=> {
 
     //TODO!
     let upDir = __dirname + '/uploads/';
-    if(req.ip === '54.177.210.250') {
+    if (req.ip === '54.177.210.250') {
       upDir = '/usr/share/nginx/html/data/od7kTXfGxDax/';
     }
 
-    let uploadPath =  upDir + file.name;
-    file.mv(uploadPath, (err)=> {
+    if (!await utils.fileExists(upDir)) {
+      await utils.dirCreate(upDir);
+    }
+
+    let uploadPath = upDir + file.name;
+    file.mv(uploadPath, (err) => {
       if (err)
         return res.status(500).send(err);
-  
+
       //res.send('File uploaded!');
     });
   }
