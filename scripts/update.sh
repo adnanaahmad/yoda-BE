@@ -69,9 +69,10 @@ if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
     fi
 
     log "Syncing web server configuration files..."
-    rsync -av "assets/nginx/" "/etc/nginx"
-    
-    start_nginx
+    CHANGED = $(rsync -av "assets/nginx/" "/etc/nginx" | wc -l)
+    if [ $CHANGED -gt 3 ]; then
+        start_nginx
+    fi
 fi
 
 . "$FORTIFID_DIR/scripts/sync.sh"

@@ -33,8 +33,10 @@ testcmd () {
 start_nginx() {
     if [ -f /etc/nginx/ssl/cert.pem -a -f /etc/nginx/ssl/key.pem -a -f /etc/nginx/ssl/chain.pem ]; then
         if systemctl is-active --quiet nginx ; then
+            log "Restarting nginx..."
             sudo service nginx restart
         else
+            log "Starting nginx..."
             sudo service nginx start
         fi
     else
