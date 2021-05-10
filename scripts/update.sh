@@ -58,13 +58,13 @@ fi
 
 if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
     log "Syncing web server..."
-    if [-d /usr/share/nginx/html/data ]; then
+    if [ -d /usr/share/nginx/html/data ]; then
         mv /usr/share/nginx/html/data /tmp/data
     fi
 
     rsync -av --delete "assets/html/" "/usr/share/nginx/html"        
     
-    if [-d /tmp/data ]; then
+    if [ -d /tmp/data ]; then
         mv /tmp/data /usr/share/nginx/html/data
     fi
 
