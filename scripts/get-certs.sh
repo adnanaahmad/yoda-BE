@@ -4,13 +4,22 @@ if [ -z "$SHARED_LOADED" ]; then
     . "/home/ec2-user/fortifid/scripts/shared.sh"
 fi
 
-CHAIN="/etc/letsencrypt/live/$1/fullchain.pem"
-KEY="/etc/letsencrypt/live/$1/privkey.pem"
-
 if [ -z "$1" ]; then
     log "Domain name required. Cannot continue."
     exit 1
 fi
+
+if [! -d "/etc/nginx/ssl" ]; then
+    
+    exit 1
+fi
+
+CHAIN="/etc/letsencrypt/live/$1/fullchain.pem"
+KEY="/etc/letsencrypt/live/$1/privkey.pem"
+
+log "Certificate check/update for $1"
+
+aws ssm get-parameter --name "/config/apigw/client/chain.pem" > /etc/nginx/ssl/chain.pem --with-decryption --output text --query Parameter.Value
 
 if [ -f "$CHAIN" ]; then
     if [ sudo /usr/local/bin/certbot renew > /dev/null ]; then

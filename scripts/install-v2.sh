@@ -48,8 +48,6 @@ sudo amazon-linux-extras install nginx1 -y
 sudo chown -R ec2-user:ec2-user /etc/nginx/
 mkdir -p /etc/nginx/ssl
 
-aws ssm get-parameter --name "/config/apigw/client/chain.pem" > /etc/nginx/ssl/chain.pem --with-decryption --output text --query Parameter.Value
-
 sudo chown -R ec2-user:nginx /usr/share/nginx/
 
 #TODO: This makes it more secure but takes a few minutes by itself.
@@ -106,8 +104,8 @@ if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
     rsync -av "assets/nginx/" "/etc/nginx"  
 fi
 
-sudo -u ec2-user bash -c "./scripts/get-certs.sh $HOST"
+sudo -u ec2-user bash -c "$FORTIFID_DIR/scripts/get-certs.sh $HOST"
 
-sudo -u ec2-user bash -c "./scripts/setup.sh"
+sudo -u ec2-user bash -c "$FORTIFID_DIR/scripts/setup.sh"
 
 log "Fortifid setup finished."
