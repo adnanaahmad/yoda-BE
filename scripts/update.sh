@@ -101,7 +101,5 @@ if [ "$1" = "reload" ]; then
 fi
 
 END_TIME=$(date +%s%3N)
-
-echo "$END_TIME $START_TIME"
-
-log "Done. Version $version installed. $END_TIME-$START_TIME"
+DURATION=`expr $END_TIME - $START_TIME`
+log "Done. Version $version installed. $DURATION"
