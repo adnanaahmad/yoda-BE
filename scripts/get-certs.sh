@@ -36,9 +36,11 @@ copy() {
 
 log "Certificate check/update for $1"
 
-log "Copying latest chain.pem from the parameter store."
 #TODO: We have to track and restart if this changed.
-aws ssm get-parameter --name "/config/apigw/client/chain.pem" > /etc/nginx/ssl/chain.pem --with-decryption --output text --query Parameter.Value
+if [ ! -f /etc/nginx/ssl/chain.pem ]; then
+    log "Copying latest chain.pem from the parameter store."
+    aws ssm get-parameter --name "/config/apigw/client/chain.pem" > /etc/nginx/ssl/chain.pem --with-decryption --output text --query Parameter.Value
+fi
 
 if sudo test -f "$CHAIN" ; then
     if sudo /usr/local/bin/certbot renew ; then
