@@ -10,15 +10,29 @@ if [ -z "$1" ]; then
 fi
 
 if [! -d "/etc/nginx/ssl" ]; then
-    
+    log "/etc/nginx/ssl does not exist. Cannot continue."
     exit 1
 fi
 
 CHAIN="/etc/letsencrypt/live/$1/fullchain.pem"
 KEY="/etc/letsencrypt/live/$1/privkey.pem"
 
+copy() {
+    if [ -f "$CHAIN" ]; then
+        log "Copying certs..."
+        sudo cp -f "$CHAIN" /etc/nginx/ssl/cert.pem
+        sudo cp -f "$KEY" /etc/nginx/ssl/key.pem
+        sudo chown -R ec2-user:ec2-user /etc/nginx/ssl
+        return 0
+    else 
+        log "Certs not available to copy."
+        return 1
+    fi
+}
+
 log "Certificate check/update for $1"
 
+log "Copying latest chain.pem from the parameter store."
 aws ssm get-parameter --name "/config/apigw/client/chain.pem" > /etc/nginx/ssl/chain.pem --with-decryption --output text --query Parameter.Value
 
 if [ -f "$CHAIN" ]; then
