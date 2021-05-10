@@ -62,7 +62,7 @@ if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
         mv /usr/share/nginx/html/data /tmp/data
     fi
 
-    rsync -av --delete "assets/html/" "/usr/share/nginx/html"        
+    RSYNC=$(rsync -av --delete "assets/html/" "/usr/share/nginx/html")        
     
     if [ -d /tmp/data ]; then
         mv /tmp/data /usr/share/nginx/html/data
@@ -70,7 +70,6 @@ if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
 
     log "Syncing web server configuration files..."
     CHANGED=$(rsync -av "assets/nginx/" "/etc/nginx" | wc -l)
-    log $CHANGED
     if [ $CHANGED -gt 4 ]; then
         start_nginx
     fi
