@@ -56,7 +56,7 @@ const SUB_COMMANDS = ['info', 'update', 'version'];
 let haveLocalCerts = false;
 
 //TODO! Do not allow certain commands for local
-const COMMANDS = ['versions', 'help', 'commands', 'health', 'host', 'hosts', 'version',
+const COMMANDS = ['versions', 'help', 'commands', 'health', 'host', 'hosts', 'version', 'online',
     'restart', 'stop', 'start', 'reload', 'list', 'cmd', 'info', 'update', 'revert', 'trim', 'backups'
 ];
 
@@ -308,6 +308,12 @@ const execPM2Command = async (command, service = 'all') => {
                 return;
             }
 
+            let status;
+            if(command === 'online') {
+                status = command;
+                command = 'list';
+            }
+
             try {
                 pm2[command](service, async (err, proc) => {
                     if (err) {
@@ -326,21 +332,25 @@ const execPM2Command = async (command, service = 'all') => {
                         const list = [];
                         proc.forEach(item => {
                             const pm2_env = item.pm2_env;
+                            let dat;
 
-                            let dat = {
-                                pid: item.pid,
-                                name: item.name,
-                                memory: item.monit.memory,
-                                cpu: item.monit.cpu,
-                                created: pm2_env.created_at,
-                                restarts: pm2_env.restart_time,
-                                unstable_restarts: pm2_env.unstable_restarts,
-                                status: pm2_env.status,
-                            };
-                            dat.uptime = (pm2_env.pm_uptime && pm2_env.status == 'online') ? (new Date() - pm2_env.pm_uptime) : 0;
+                            if(typeof(status) === 'undefined') {
+                                dat = {
+                                    pid: item.pid,
+                                    name: item.name,
+                                    memory: item.monit.memory,
+                                    cpu: item.monit.cpu,
+                                    created: pm2_env.created_at,
+                                    restarts: pm2_env.restart_time,
+                                    unstable_restarts: pm2_env.unstable_restarts,
+                                    status: pm2_env.status,
+                                };
+                                dat.uptime = (pm2_env.pm_uptime && pm2_env.status == 'online') ? (new Date() - pm2_env.pm_uptime) : 0;
+                            } else if(status === pm2_env.status) {
+                                dat = item.name;
+                            }
 
                             list.push(dat);
-
                         })
                         data.procs = list;
                         //await utils.fileWrite('./tmp/list.json', JSON.stringify(proc));
@@ -413,6 +423,7 @@ const getCommandData = async (command, data) => {
             case 'stop':
             case 'reload':
             case 'list':
+            case 'online':
             case 'restart': {
                 return await execPM2Command(command, _args);
             }
