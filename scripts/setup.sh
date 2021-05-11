@@ -24,7 +24,7 @@ if [ ! -f "$FORTIFID_DIR/package.json" ]; then
 fi
 
 if [ -z "$START" ]; then
-    START=service-did,helper-scheduler
+    START=service-did,helper-scheduler,handler-twilio,handler-email
 fi
 
 if [ -d ~/.nvm -a ! -h ~/.nvm ]; then
