@@ -37,10 +37,10 @@ fastify.register(require('fastify-static'), {
 const HOSTS = [
     'i.dev.fortifid.com',
     'i.prod.fortifid.com',
-    'api.prod.fortifid.com:8999',
+    //'api.prod.fortifid.com:8999',
     'api-east-1.dev.fortifid.com:8999',
-    'api.dev.fortifid.com:8999',
-    'api.sandbox.fortifid.com:899',
+    //'api.dev.fortifid.com:8999',
+    'api.sandbox.fortifid.com:8999',
     //'api.dev.fortifid.com:8999'
     //'z.prod.fortifid.com'
 ];
@@ -203,7 +203,7 @@ const sendHosts = async (hosts, endpoint, data, method) => {
 }
 
 const update = async (args) => {
-    if(utils.hasGit()) {
+    if(await utils.hasGit()) {
         return { output: 'Update not allowed on server.' };
     } 
     return await utils.execCommand(`${__dirname}/scripts/update.sh`, args);
