@@ -206,7 +206,7 @@ const update = async (args) => {
     if(await utils.hasGit()) {
         return { output: 'Update not allowed on server.' };
     } 
-    return await utils.execCommand(`${__dirname}/scripts/update.sh`, args);
+    return await utils.execCommand(`${__dirname}/scripts/update.sh`);
 }
 
 const trim = async () => {
