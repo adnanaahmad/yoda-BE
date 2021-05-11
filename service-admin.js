@@ -349,11 +349,11 @@ const execPM2Command = async (command, service = 'all') => {
                                     status: pm2_env.status,
                                 };
                                 dat.uptime = (pm2_env.pm_uptime && pm2_env.status == 'online') ? (new Date() - pm2_env.pm_uptime) : 0;
+                                list.push(dat);
                             } else if (status === pm2_env.status) {
-                                dat = item.name;
+                                list.push(item.name);
                             }
 
-                            list.push(dat);
                         })
                         data.procs = list;
                         //await utils.fileWrite('./tmp/list.json', JSON.stringify(proc));
