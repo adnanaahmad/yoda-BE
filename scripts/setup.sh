@@ -15,12 +15,12 @@ log "Setup starting..."
 cd $FORTIFID_DIR
 if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
     echo "Unable to switch to $FORTIFID_DIR. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 if [ ! -f "$FORTIFID_DIR/package.json" ]; then
     log "package.json not found. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 if [ -z "$START" ]; then

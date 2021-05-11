@@ -15,13 +15,13 @@ curl -s -O -J -L "https://i.dev.fortifid.com/data/od7kTXfGxDax/$ARCHIVE"
 
 if [ ! -s "./$ARCHIVE" ]; then
     log "Failed to download archive. Cannot continue."    
-    exit 1
+    exit 0
 fi
 
 FILESIZE=$(stat -c%s "./$ARCHIVE")
 if [ $FILESIZE -lt 100000 ]; then
     log "Invalid archive. $FILESIZE"
-    exit 1
+    exit 0
 fi
 
 cp "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" 
@@ -32,7 +32,7 @@ tar -zxf "./$ARCHIVE" --directory fortifid
 
 if [ ! -f "$FORTIFID_DIR/package.json" ]; then
     log "package.json not found. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 #Very important that the version is bumped each time
@@ -41,7 +41,7 @@ old_version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package
 
 if [ "$version" == "$old_version" ]; then
     log "Version $version is the same as the current version. Skipping update." 
-    exit 1
+    exit 0
 fi 
 
 mkdir -p ./backups
@@ -51,7 +51,7 @@ mv "./$ARCHIVE" "./backups/$version.tar.gz"
 cd $FORTIFID_DIR
 if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
     log "Unable to switch to $FORTIFID_DIR. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 #log "Deleting older backups..."

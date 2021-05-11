@@ -21,12 +21,12 @@ log() {
 
 if [ -d "$FORTIFID_DIR" ]; then
     log "FortifID already installed. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 if [ -z "$HOST" ]; then
     log "HOST not set. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 log "Install for $HOST started..." 
@@ -34,7 +34,7 @@ log "Install for $HOST started..."
 REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | awk -F\" '{print $4}')
 if [ -z "$REGION" ]; then
     log "REGION not available. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 sudo -u ec2-user aws configure set region $REGION
@@ -81,7 +81,7 @@ tar -xvf "./$ARCHIVE" --directory fortifid
 
 if [ ! -f "$FORTIFID_DIR/package.json" ]; then
     log "package.json not found. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 version=`awk -F'"' '/"version": ".+"/{ print $4; exit; }' ./fortifid/package.json`
@@ -96,7 +96,7 @@ sudo chown -R ec2-user:ec2-user backups
 cd $FORTIFID_DIR
 if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
     echo "Unable to switch to $FORTIFID_DIR. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 if [ -d /etc/nginx -a ! -h /etc/nginx ]; then

@@ -47,12 +47,12 @@ start_nginx() {
 
 if [ "$(whoami)" != "ec2-user" ]; then
   log "Only ec2-user can run this script."
-  exit 1
+  exit 0
 fi
 
 if [ ! -d $FORTIFID_DIR ]; then
     log "$FORTIFID_DIR does not exist. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 #$(which bash) "./finalize.sh"

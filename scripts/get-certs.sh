@@ -6,12 +6,12 @@ fi
 
 if [ -z "$1" ]; then
     log "Domain name required. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 if [ ! -d "/etc/nginx/ssl" ]; then
     log "/etc/nginx/ssl does not exist. Cannot continue."
-    exit 1
+    exit 0
 fi
 
 CHAIN="/etc/letsencrypt/live/$1/fullchain.pem"
