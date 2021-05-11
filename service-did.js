@@ -45,7 +45,8 @@ const consents = {};
 
 const TOKEN_IDS = {
     data: 'directid.data',
-    consent: 'directid.consent'
+    consent: 'directid.consent',
+    stored_data: 'directid.stored_data'
 }
 
 Object.freeze(TOKEN_IDS);
@@ -56,6 +57,28 @@ const incomeDirectIDResponseStatus = require(`${__dirname}/data/response-status.
 
 Object.freeze(incomeDirectIDResponseStatus);
 
+const requestStoredData = async(consentId)=> {
+    logger.info(`${consentId} - Requesting stored data...`);
+    const headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+        'authorization': `Bearer ${oauth2.TOKENS[TOKEN_IDS.stored_data].access_token}`
+    };
+
+    let data;
+    try {
+        const start = utils.time();
+
+        data = await utils.fetchData(utils.parseTemplate(PARAMS.stored_data_url, {
+            '%CONSENT_ID%': consentId
+        }), undefined, headers, 'get');
+
+        const duration = utils.time() - start;
+        logger.info(`${customerReference} - Retrieved stored data. ${utils.toFixedPlaces(duration, 2)}ms`);
+    } catch (error) {
+        logger.error(`requestBankData - error`, error);
+    }
+    return data;
+}
 
 const requestBankData = async (consentId, customerReference) => {
     logger.info(`${customerReference} - Requesting bank data...`);
@@ -260,7 +283,7 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     let data;
 
     try {
-
+        
         const url = utils.parseTemplate(PARAMS.income_verification_url, {
             '%CONSENT_ID%': consentId
         });
@@ -447,7 +470,7 @@ const httpHandler = async (req, res) => {
                 useNew = true;
                 reqUrl = reqUrl.replace('/income/v1/', '/directid/');
             } else if (reqUrl.startsWith('/generate-url') || reqUrl.startsWith('/check-request') ||
-                reqUrl.startsWith('/webhook') || reqUrl.startsWith('/redirect')) {
+                reqUrl.startsWith('/webhook') || reqUrl.startsWith('/redirect') || reqUrl.startsWith('/get-raw-data')) {
                 useNew = true;
                 reqUrl = `/directid${reqUrl}`;
             }
@@ -617,6 +640,10 @@ const httpHandler = async (req, res) => {
                 await generateIncomeUrl();
                 break;
             }
+            case 'get-raw-data': {
+                await getRawData();
+                break;
+            }
             case 'webhook': {
                 webhook();
                 break;
@@ -719,7 +746,7 @@ const httpHandler = async (req, res) => {
 
                             Promise.all(funcs).then(async (values) => {
                                 if (PARAMS.revoke_consent_url) {
-                                    await revokeConsent(consentId);
+                                    //await revokeConsent(consentId);
                                 }
 
                                 if (values) {
@@ -742,6 +769,21 @@ const httpHandler = async (req, res) => {
             } else {
                 utils.sendData(res, 'Method not allowed', 405);
                 logger.warn('Method not allowe.');
+            }
+        }
+
+        async function getRawData() {
+            let consent_id = param1;
+            if(!consent_id || consent_id.length < 1) {
+                utils.sendData(res, 'Missing parameter', 422);
+                return;
+            }
+            try {
+                let data = await requestStoredData(consent_id);
+                utils.sendData(res, data);
+            } catch (error) {
+                logger.error(error.stack);
+                return;
             }
         }
 
@@ -907,7 +949,12 @@ const initTokens = async () => {
     oauth2.cacheTokens = PARAMS.cache_tokens;
     oauth2.addRequest(TOKEN_IDS.data, PARAMS.token_url, PARAMS.client_id, PARAMS.client_secret, TOKEN_IDS.data);
     oauth2.addRequest(TOKEN_IDS.consent, PARAMS.token_url, PARAMS.client_id, PARAMS.client_secret, TOKEN_IDS.consent);
+    oauth2.addRequest(TOKEN_IDS.stored_data, PARAMS.token_url, PARAMS.client_id, PARAMS.client_secret, TOKEN_IDS.stored_data);
     await oauth2.start();
+
+    //TODO!
+    //PARAMS.stored_data_url = 'https://uk.api.directid.co/stored-data/v1/consents/%CONSENT_ID%/provider-details';
+    PARAMS.stored_data_url = 'https://uk.api.directid.co/stored-data/v1/consents/%CONSENT_ID%/income-verifications??includeFlags=true'
 }
 
 const loadParams = async () => {
@@ -1035,5 +1082,4 @@ const loadParams = async () => {
     }).catch(error => {
         logger.error(error.message)
     });
-
 })();

@@ -46,9 +46,10 @@ const HOSTS = [
 ];
 
 const ALLOWED_COMMANDS = ['pwd', 'ps', 'env',
-    'pm2', 'ls', 'date', 'df', 'free', 'npm',
+    'pm2', 'ls', 'date', 'df', 'npm',
     'free', 'whoami', 'locate', 'find', 'du',
-    'uname'
+    'uname', 'pm2','iostat'
+
 ];
 
 const SUB_COMMANDS = ['info', 'update', 'version'];
@@ -468,13 +469,15 @@ const getCommandData = async (command, data) => {
             }
             case 'cmd': {
                 let results;
+               
                 if (_args) {
                     let command = _args;
                     let args;
                     let ndx = command.indexOf(' ');
                     if (ndx > -1) {
-                        args = [command.substr(ndx + 1)];
-                        command = command.substr(0, ndx);
+                        args = command.substr(ndx + 1).split(' ').filter(Boolean);
+                        command = command.substr(0, ndx).trim();
+                        //TODO: We can do some replacements of commands and args here
                     }
 
                     if (command.length > 0 && ALLOWED_COMMANDS.indexOf(command) > -1) {
@@ -483,6 +486,11 @@ const getCommandData = async (command, data) => {
                         results = {
                             error: `Command ${command} not allowed.`
                         }
+                    }
+                } else {
+                    results = {
+                        error: 'Valid command required.',
+                        cmd: ALLOWED_COMMANDS
                     }
                 }
 
