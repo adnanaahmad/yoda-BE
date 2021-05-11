@@ -56,7 +56,7 @@ const SUB_COMMANDS = ['info', 'update', 'version'];
 let haveLocalCerts = false;
 
 //TODO! Do not allow certain commands for local
-const COMMANDS = ['versions', 'help', 'commands', 'health', 'host', 'hosts', 'version', 'online',
+const COMMANDS = ['versions', 'help', 'commands', 'health', 'host', 'hosts', 'version', 'online', 'errored', 'stopped',
     'restart', 'stop', 'start', 'reload', 'list', 'cmd', 'info', 'update', 'revert', 'trim', 'backups'
 ];
 
@@ -90,7 +90,7 @@ const getHosts = (id) => {
 }
 
 const sendCommand = async (url, body, method, headers) => {
-    if(!url) {
+    if (!url) {
         return;
     }
 
@@ -148,18 +148,18 @@ const sendCommand = async (url, body, method, headers) => {
 
 const getUrl = (host, endpoint) => {
     let url;
-    
-    if(host.indexOf(':') === -1) {
+
+    if (host.indexOf(':') === -1) {
         url = `https://${host}${endpoint}`;
     } else {
-        if(PARAMS.system_secret) {
+        if (PARAMS.system_secret) {
             let command = endpoint.split('/').pop();
-            if(SUB_COMMANDS.indexOf(command) > -1 ) {
+            if (SUB_COMMANDS.indexOf(command) > -1) {
                 url = `https://${host}/admin/${command}?key=${PARAMS.system_secret}`;
             }
         }
     }
-    
+
     return url;
 }
 
@@ -174,7 +174,7 @@ const sendHosts = async (hosts, endpoint, data, method) => {
     const funcHosts = [];
     hosts.forEach(host => {
         let url = getUrl(host, endpoint);
-        if(url) {
+        if (url) {
             funcs.push(sendCommand(url, data, method));
             funcHosts.push(host);
         }
@@ -185,10 +185,11 @@ const sendHosts = async (hosts, endpoint, data, method) => {
         results.output = await Promise.all(funcs);
         if (results.output) {
             results.output.forEach((output, index) => {
-                if(typeof(output) === 'undefined') {
-                    output = {host: funcHosts[index]}
-                }
-                else {
+                if (typeof (output) === 'undefined') {
+                    output = {
+                        host: funcHosts[index]
+                    }
+                } else {
                     output.host = funcHosts[index];
                 }
             })
@@ -203,9 +204,11 @@ const sendHosts = async (hosts, endpoint, data, method) => {
 }
 
 const update = async (args) => {
-    if(await utils.hasGit()) {
-        return { output: 'Update not allowed on server.' };
-    } 
+    if (await utils.hasGit()) {
+        return {
+            output: 'Update not allowed on server.'
+        };
+    }
     return await utils.execCommand(`${__dirname}/scripts/update.sh`);
 }
 
@@ -309,7 +312,7 @@ const execPM2Command = async (command, service = 'all') => {
             }
 
             let status;
-            if(command === 'online') {
+            if (command === 'online' || command === 'errored' || command === 'stopped') {
                 status = command;
                 command = 'list';
             }
@@ -334,7 +337,7 @@ const execPM2Command = async (command, service = 'all') => {
                             const pm2_env = item.pm2_env;
                             let dat;
 
-                            if(typeof(status) === 'undefined') {
+                            if (typeof (status) === 'undefined') {
                                 dat = {
                                     pid: item.pid,
                                     name: item.name,
@@ -346,7 +349,7 @@ const execPM2Command = async (command, service = 'all') => {
                                     status: pm2_env.status,
                                 };
                                 dat.uptime = (pm2_env.pm_uptime && pm2_env.status == 'online') ? (new Date() - pm2_env.pm_uptime) : 0;
-                            } else if(status === pm2_env.status) {
+                            } else if (status === pm2_env.status) {
                                 dat = item.name;
                             }
 
@@ -424,6 +427,8 @@ const getCommandData = async (command, data) => {
             case 'reload':
             case 'list':
             case 'online':
+            case 'errored':
+            case 'stopped':
             case 'restart': {
                 return await execPM2Command(command, _args);
             }
@@ -503,7 +508,7 @@ const getData = async (request, reply) => {
 
     const body = request.body || request.query;
     const start = utils.time();
-    
+
     let results = [];
     const id = request.params.id;
     //TODO: post-execute
@@ -529,7 +534,7 @@ const getData = async (request, reply) => {
         //TODO: split!
         if (HOSTS.indexOf(id) > -1) {
             let url = getUrl(id, endpoint);
-            if(url) {
+            if (url) {
                 results = await sendCommand(url, request.query, 'get');
                 if (results && results.error) {
                     results.host = id;
@@ -546,7 +551,7 @@ const getData = async (request, reply) => {
         duration: utils.toFixedPlaces(duration, 2),
     }
 
-    if(id) {
+    if (id) {
         info.id = id;
     }
     logger.info(info);
@@ -563,71 +568,71 @@ fastify.addHook("onRequest", async (request, reply) => {
 });
 
 const loadParams = async () => {
-    try {
-         PARAMS.system_secret = await awsClient.getParameter('/config/directid/directid.service.system_secret');
-    } catch (error) {
-        logger.error(error);
-    }
-}
-(async () => {
-
-    await loadParams();
-
-    if (process.env.CLIENT_CERT && await utils.fileExists(process.env.CLIENT_CERT) &&
-        process.env.CLIENT_KEY && await utils.fileExists(process.env.CLIENT_KEY)) {
-
-        haveLocalCerts = true;
-
         try {
-            const httpsAgent = new https.Agent({
-                cert: await utils.fileRead(process.env.CLIENT_CERT),
-                key: await utils.fileRead(process.env.CLIENT_KEY),
-                //  ca: fs.readFileSync('ca.crt'),
-            });
-
-            if (httpsAgent) {
-                axiosOptions.httpsAgent = httpsAgent
-            }
-            logger.info('Client certificate loaded.');
+            PARAMS.system_secret = await awsClient.getParameter('/config/directid/directid.service.system_secret');
         } catch (error) {
             logger.error(error);
         }
     }
+    (async () => {
 
-    ALLOWED_COMMANDS.sort();
-    COMMANDS.sort();
+        await loadParams();
 
-    COMMANDS.forEach(command => {
+        if (process.env.CLIENT_CERT && await utils.fileExists(process.env.CLIENT_CERT) &&
+            process.env.CLIENT_KEY && await utils.fileExists(process.env.CLIENT_KEY)) {
 
-        fastify.get(`/${command}`, async (request, reply) => {
-            return getData(request, reply);
-        })
+            haveLocalCerts = true;
 
+            try {
+                const httpsAgent = new https.Agent({
+                    cert: await utils.fileRead(process.env.CLIENT_CERT),
+                    key: await utils.fileRead(process.env.CLIENT_KEY),
+                    //  ca: fs.readFileSync('ca.crt'),
+                });
 
-        fastify.get(`/${command}/:id`, async (request, reply) => {
-            return getData(request, reply);
-        })
-    })
-
-    fastify.listen(9999, (err, address) => {
-        if (err) {
-            logger.error(err);
-            return;
+                if (httpsAgent) {
+                    axiosOptions.httpsAgent = httpsAgent
+                }
+                logger.info('Client certificate loaded.');
+            } catch (error) {
+                logger.error(error);
+            }
         }
-        logger.info(`HTTP server is listening on ${address}`);
-    });
 
-    //await loadParams();
-    try {
-        pm2.connect((err) => {
+        ALLOWED_COMMANDS.sort();
+        COMMANDS.sort();
+
+        COMMANDS.forEach(command => {
+
+            fastify.get(`/${command}`, async (request, reply) => {
+                return getData(request, reply);
+            })
+
+
+            fastify.get(`/${command}/:id`, async (request, reply) => {
+                return getData(request, reply);
+            })
+        })
+
+        fastify.listen(9999, (err, address) => {
             if (err) {
                 logger.error(err);
-            } else {
-                pm2Connected = true;
-                logger.debug('pm2 connected.')
+                return;
             }
+            logger.info(`HTTP server is listening on ${address}`);
         });
-    } catch (error) {
-        logger.error(error.message);
-    }
-})();
+
+        //await loadParams();
+        try {
+            pm2.connect((err) => {
+                if (err) {
+                    logger.error(err);
+                } else {
+                    pm2Connected = true;
+                    logger.debug('pm2 connected.')
+                }
+            });
+        } catch (error) {
+            logger.error(error.message);
+        }
+    })();
