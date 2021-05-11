@@ -1,7 +1,7 @@
 #!/bin/bash
 
+START_TIME=$(date +%s%3N)
 # This will set up a brand new instance with the micro-services.
-
 FORTIFID_DIR=/home/ec2-user/fortifid
 CFG_FILE=/home/ec2-user/.cfg
 
@@ -108,4 +108,7 @@ sudo -u ec2-user bash -c "$FORTIFID_DIR/scripts/get-certs.sh $HOST"
 
 sudo -u ec2-user bash -c "$FORTIFID_DIR/scripts/setup.sh"
 
-log "Fortifid setup finished."
+END_TIME=$(date +%s%3N)
+DURATION=`expr $END_TIME - $START_TIME`
+
+log "FortifID install finished in ${DURATION}ms."

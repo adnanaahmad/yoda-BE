@@ -1,4 +1,5 @@
 #!/bin/bash
+
 START_TIME=$(date +%s%3N)
 if [ -z "$SHARED_LOADED" ]; then
     . "/home/ec2-user/fortifid/scripts/shared.sh"
@@ -6,7 +7,7 @@ fi
 
 cd /home/ec2-user
 
-log "Updating Yoda..."
+log "Updating FortifID..."
 
 log "Downloading latest version..."
 

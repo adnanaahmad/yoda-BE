@@ -1,5 +1,7 @@
 #!/bin/bash
 
+START_TIME=$(date +%s%3N)
+
 if [ -z "$SHARED_LOADED" ]; then
     . "/home/ec2-user/fortifid/scripts/shared.sh"
 fi
@@ -31,7 +33,7 @@ fi
 
 cp "$FORTIFID_DIR/package.json" "$FORTIFID_DIR/package.json.old" 
 
-log "Reverting Yoda to $1..."
+log "Reverting FortifID to $1..."
 
 cp $VERSION_FILE "$ARCHIVE"
 
@@ -80,4 +82,7 @@ if [ "$1" = "reload" ]; then
     pm2 reload all
 fi
 
-log "Done."
+END_TIME=$(date +%s%3N)
+DURATION=`expr $END_TIME - $START_TIME`
+
+log "Finished in ${DURATION}ms."

@@ -46,9 +46,9 @@ else
 fi
 
 if [ -d ./node_modules -a ! -h ./node_modules ]; then
-    log "Updating Yoda services..."
+    log "Updating FortifID services..."
 else
-    log "Installing Yoda services..."
+    log "Installing FortifID services..."
 fi
 
 source ~/.bashrc

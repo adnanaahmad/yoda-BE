@@ -1,5 +1,7 @@
 #!/bin/bash
 
+START_TIME=$(date +%s%3N)
+
 # This is for setting up the did service.
 FORTIFID_DIR=/home/ec2-user/fortifid
 ENV_FILE="$FORTIFID_DIR/.env"
@@ -44,7 +46,7 @@ if [ -z "$DID_S3_BUCKET" ]; then
     exit 1
 fi
 
-log "Yoda install starting..."
+log "FortifID install starting..."
 
 cd /home/ec2-user
 
@@ -94,4 +96,6 @@ fi
 
 sudo -u ec2-user bash -c "./scripts/setup.sh"
 
-log "Yoda install finished."        
+END_TIME=$(date +%s%3N)
+DURATION=`expr $END_TIME - $START_TIME`
+log "FortifID install finished in ${DURATION}ms."        
