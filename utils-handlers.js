@@ -10,10 +10,11 @@ let _webhookQ;
 let _snsQ;
 
 const init = async (email = true, twilio = true, webhook = false, sns = false) => {
+    //TODO!
     let redisUrl = await awsClient.getParameter('/config/shared/redis/url');
-
     if (typeof (redisUrl) !== 'undefined') {
         const Q = require('./utils-q');
+        Q.setRedisUrl(redisUrl);
         //TODO!
         _twilioQ = twilio ? Q.getQ(Q.names.handler_twilio) : undefined;
         _emailQ = email ? Q.getQ(Q.names.handler_email) : undefined;

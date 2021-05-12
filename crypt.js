@@ -17,7 +17,7 @@ const encrypt = (data, key, algorithm = 'aes-256-cbc') => {
     if (typeof (data) === 'object') {
         data = JSON.stringify(data);
     }
-
+    
     let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
     let encrypted = cipher.update(data);
     encrypted = Buffer.concat([encrypted, cipher.final()]);
@@ -57,8 +57,7 @@ const decrypt = (data, key) => {
 
 (async () => {
     params = await require('./params')('/config/shared/crypt');
-    DEFAULT_KEY = params.key_001;
-    console.log(DEFAULT_KEY);
+    DEFAULT_KEY =  Buffer.from(params.key_001, 'base64');
     //process.env.CRYPT_KEY ? Buffer.from(process.env.CRYPT_KEY, 'base64') : '';
     //let data = encrypt("This is a test");
     //console.log(decrypt(data));

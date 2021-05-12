@@ -17,6 +17,7 @@ const nodemailer = require('nodemailer');
 let sesTransport;
 let ready = false;
 let emailFrom;
+let redisUrl;
 
 const sendEmailWrapper = async (email, subject, text, textHTML) => {
 
@@ -95,6 +96,7 @@ const add = async(data)=> {
 
 const startQueue = ()=> {
     logger.info('Email queue handler started.');
+    Q.setRedisUrl(redisUrl);
     Q.getQ(Q.names.handler_email).process(async (job, done) => {
         done(await add(job.data));
     });
@@ -107,8 +109,7 @@ const loadParams = async () => {
 
     logger.debug(`[${SCRIPT_INFO.name}] Loading parameters...`);
     const funcs = [];
-    
-    
+
     const start = utils.time();
     
     funcs.push(awsClient.getParameter('/config/shared/email.ses.account'));
@@ -118,6 +119,7 @@ const loadParams = async () => {
     
     funcs.push(awsClient.getParameter('/config/shared/email.outlook'));
 
+    funcs.push(awsClient.getParameter('/config/shared/redis/url'));
 
     try {
         let results = await Promise.all(funcs);
@@ -125,6 +127,7 @@ const loadParams = async () => {
         logger.debug(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms`);
 
         if(results) {
+            redisUrl = results[5];
             let outlook = results[4];
             if(outlook) {
                 emailFrom = outlook.from;

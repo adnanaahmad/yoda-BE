@@ -57,6 +57,12 @@ const jobOptsRemove = {
     removeOnComplete: true
 };
 
+const setRedisUrl = (url)=> {
+    if(typeof(url) !== 'undefined') {
+        redisUrl = url;
+    }
+}
+
 const addQ = (key, data, options) => {
     try {
 
@@ -95,7 +101,9 @@ const addToPostQ = (data) => {
 }
 
 (async () => {
-    redisUrl = await awsClient.getParameter('/config/shared/redis/url');
+    if(typeof(redisUrl) === 'undefined') {
+        redisUrl = await awsClient.getParameter('/config/shared/redis/url');
+    }
 })();
 
 module.exports = {
@@ -108,4 +116,5 @@ module.exports = {
     addQ,
     names,
     addToPostQ,
+    setRedisUrl
 }

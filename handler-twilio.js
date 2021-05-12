@@ -18,6 +18,7 @@ const Q = require('./utils-q');
 let TWILIO_NUMBERS;
 let numberCount = 0;
 let numberIndex = -1;
+let redisUrl;
 
 const sendSMSTwilio = async (numbers, message) => {
     try {
@@ -119,6 +120,7 @@ const add = async (data) => {
 
 const startQueue = () => {
     logger.info('Twilio queue handler started.');
+    Q.setRedisUrl(redisUrl);
     Q.getQ(Q.names.handler_twilio).process(async (job, done) => {
         done(await add(job.data));
     });
@@ -150,6 +152,9 @@ const loadParams = async () => {
     funcs.push(awsClient.getParameter('/config/shared/twilio.auth_token'));
     funcs.push(awsClient.getParameter('/config/shared/twilio.phone_number'));
 
+    funcs.push(awsClient.getParameter('/config/shared/redis/url'));
+
+
     try {
         let results = await Promise.all(funcs);
         if (results) {
@@ -157,6 +162,9 @@ const loadParams = async () => {
             const twilioAuthToken = results[1];
 
             TWILIO_NUMBERS = results[2];
+            
+            redisUrl = results[3];
+
             if (twilioAccountSid && twilioAuthToken && TWILIO_NUMBERS) {
                 twilio = require('twilio')(twilioAccountSid, twilioAuthToken);
                 const duration = utils.time() - start;
