@@ -85,8 +85,10 @@ const isUnderPM2 = () => {
     return 'PM2_HOME' in process.env || 'PM2_JSON_PROCESSING' in process.env || 'PM2_CLI' in process.env
 };
 
-const dirCreate = async (path)=> {
-    return await _dirCreate(path, { recursive: true });
+const dirCreate = async (path) => {
+    return await _dirCreate(path, {
+        recursive: true
+    });
 }
 
 const execCommand = async (command, args, timeout = 30000) => {
@@ -117,7 +119,7 @@ const execCommand = async (command, args, timeout = 30000) => {
 
         return data;
     } catch (error) {
-        if(_logger) {
+        if (_logger) {
             _logger.error(error);
         }
         let temp = splitLines(error.message);
@@ -1212,8 +1214,8 @@ const pathJoin = (...paths) => {
 }
 
 const hasGit = async () => {
-    if(typeof(_hasGit) === 'undefined') {
-        _hasGit = await fileExists(`${__dirname}/.git`);    
+    if (typeof (_hasGit) === 'undefined') {
+        _hasGit = await fileExists(`${__dirname}/.git`);
     }
 
     return _hasGit;
@@ -1237,6 +1239,37 @@ const splitLines = (data) => {
         return data.split('\n').filter(Boolean);
     }
 }
+
+const csvToArray = (data) => {
+    let p = '',
+        row = [''],
+        ret = [row],
+        i = 0,
+        r = 0,
+        s = !0,
+        l;
+    for (l of data) {
+        if ('"' === l) {
+            if (s && l === p) row[i] += l;
+            s = !s;
+        } else if (',' === l && s) l = row[++i] = '';
+        else if ('\n' === l && s) {
+            if ('\r' === p) row[i] = row[i].slice(0, -1);
+            row = ret[++r] = [l = ''];
+            i = 0;
+        } else row[i] += l;
+        p = l;
+    }
+    return ret;
+};
+
+const arrayToCSV = (row)=> {
+    for (let i in row) {
+        row[i] = row[i].replace(/"/g, '""');
+    }
+    return '"' + row.join('","') + '"';
+}
+
 
 const numbersOnly = (data, asString = true) => {
     if (typeof (data) === 'undefined') {
@@ -1385,5 +1418,7 @@ module.exports = {
     parsePhoneNumber,
     parseURL,
     escapeJSON,
-    hasGit
+    hasGit,
+    csvToArray,
+    arrayToCSV
 }

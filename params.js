@@ -6,6 +6,7 @@ const awsClient = require('./aws-client');
 
 module.exports = async (path, logger) => {
     try {
+
         let file = `${__dirname}${path}.json`;
         let PARAMS = await utils.loadJSONAsync(file);
         if (!PARAMS) {

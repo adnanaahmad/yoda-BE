@@ -12,7 +12,7 @@ let _snsQ;
 const init = async (email = true, twilio = true, webhook = false, sns = false) => {
     //TODO!
     let redisUrl = await awsClient.getParameter('/config/shared/redis/url');
-    if (typeof (redisUrl) !== 'undefined') {
+    if (typeof (redisUrl) !== 'undefined' && redisUrl.startsWith('redis') ) {
         const Q = require('./utils-q');
         Q.setRedisUrl(redisUrl);
         //TODO!

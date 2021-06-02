@@ -17,6 +17,7 @@ let redisUrl;
 
 let setAsync; 
 let getAsync;
+let params;
 
 const DEFAULT_EXPIRATION_MS = ms('1w');
 const DEFAULT_EXPIRATION = Math.round(DEFAULT_EXPIRATION_MS / 1000);

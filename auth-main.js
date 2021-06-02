@@ -141,7 +141,11 @@ const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) 
         code: code
     }
 
-    reply.type('application/json').code(code).send(data);
+    if(reply.type) {
+        reply.type('application/json').code(code).send(data);
+    }else {
+        utils.sendData(reply, data, code);
+    }
     logger.warn(data);
 }
 

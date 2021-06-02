@@ -250,7 +250,7 @@
                 return data;
             }
 
-
+            let lastData;
             const getRequestStatus = async () => {
                 if (checking || !focused || !transactionId) {
                     return;
@@ -268,10 +268,13 @@
                     let count = Math.round(duration / 1000);
                     if (count > 0 && count % 2 === 0) {
                         dotCount++;
-                        console.log(dotCount);
+                        //console.log(dotCount);
                     }
-                    let line = '<img src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif"> Checking...' + ''.padEnd(dotCount, '.');
-                    setOutput(line, 0);
+                    
+                    if(lastData === undefined) {
+                        let line = '<img src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif"> Checking...' + ''.padEnd(dotCount, '.');
+                        setOutput(line, 0);
+                    }
 
                     let res = await fetch(
                         `${BASE_URL}/check-request/${transactionId}`);
@@ -279,12 +282,18 @@
                     if (res.ok) {
                         let data = await res.json();
                         if (data) {
-                            setOutput('Results:', 0);
-                            outputResults(data);
-                            transactionId = undefined;
+                            if(lastData === undefined || lastData.status !== data.status) {
+                                if(data.TransactionID) {
+                                    setOutput('Results:', 0);
+                                    transactionId = undefined;
+                                }
+                                lastData = data;
+                                outputResults(data);
+                            }
                         }
                     }
                 } catch (error) {
+                    checking = false;
                     console.log(error);
                 }
 
@@ -301,11 +310,11 @@
 
                 let customer_id = $('#customer_id').val() || '';
                 customer_id = customer_id.trim();
-
-                if (customer_id.length < 1) {
-                    setOutput('<span style="color:red;">Customer Id is required.</span>', 0);
-                    return;
-                }
+                lastData = undefined;
+                // if (customer_id.length < 1) {
+                //     setOutput('<span style="color:red;">Customer Id is required.</span>', 0);
+                //     return;
+                // }
 
                 let data = {
                     transaction_id: uuid.v4(),
@@ -331,7 +340,11 @@
                         `<a href="${results.url}" target="_blank">${results.url}</a>`
                     );
                 } else {
-                    outputResults('No results.');
+                    if(results) {
+                        outputResults(results);
+                    }else {
+                        outputResults('No results.');
+                    }
                     return;
                 }
 

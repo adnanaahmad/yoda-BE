@@ -156,7 +156,7 @@ fastify.post('/generate-url', async (request, reply) => {
         let transaction_id = utils.getUUID();
         data.transaction_id = transaction_id;
         let send = typeof (body.send) === 'boolean' ? body.send : true;
-        let allow_voip = typeof (body.allow_voip) === 'boolean' ? body.allow_voip : false;
+        let allow_voip = typeof (body.allow_voip) === 'boolean' ? body.allow_voip : true;
 
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {

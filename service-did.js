@@ -13,6 +13,7 @@ const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info('Startup', SCRIPT_INFO);
 
+const authMain = require('./auth-main');
 const url = require('url');
 const sanitize = require("sanitize-filename");
 const oauth2 = require('./auth-oauth2');
@@ -407,6 +408,7 @@ const httpHandler = async (req, res) => {
 
     let method;
     let path;
+    let isLocalCall = false;
     let ip;
     let action;
     let key;
@@ -458,9 +460,13 @@ const httpHandler = async (req, res) => {
             req.socket.remoteAddress ||
             (req.connection.socket ? req.connection.socket.remoteAddress : undefined);
 
+
         if (ip) {
             ip = ip.replace('::ffff:', '');
         }
+
+        req.ip = ip;
+        isLocalCall = ip === '127.0.0.1';
 
         try {
 
@@ -667,7 +673,13 @@ const httpHandler = async (req, res) => {
                     utils.sendData(res, found);
                 } else {
                     logRequest = false;
-                    utils.sendData(res, 'Not found or not ready.', 404);
+                    found = META[transaction_id];
+                    if(found) {
+                        found = {status: found.status};
+                        utils.sendData(res, found);
+                    } else {
+                        utils.sendData(res, 'Not found or not ready.', 404);
+                    }
                 }
             }
         }
@@ -788,15 +800,31 @@ const httpHandler = async (req, res) => {
         }
 
         async function generateIncomeUrl() {
+            //TODO!
+
+            if (!isLocalCall && !await authMain.checkHeaders(req, res)) {
+                return;
+            }
+
             let request_id = bodyData.request_id;
             let customer_id = bodyData.customer_id;
             let transaction_id = bodyData.transaction_id;
             let account = bodyData.account;
 
+            if(!isLocalCall) {
+                if(req.user) {
+                    customer_id = req.user.CustomerAccountID;
+                } else {
+                    customer_id = undefined;
+                }
+                transaction_id = utils.getUUID();
+            }
+
             if (account && account.length > 0) {
                 account = `${account}:`
             } else {
                 account = '';
+
             }
 
             if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
@@ -822,7 +850,7 @@ const httpHandler = async (req, res) => {
 
                     let returnData = {
                         transaction_id: transaction_id,
-                        customer_id: bodyData.customer_id,
+                        customer_id: customer_id,
                         request_id: bodyData.request_id,
                         email_address: bodyData.email_address,
                         full_name: bodyData.full_name,
@@ -886,6 +914,7 @@ const httpHandler = async (req, res) => {
                     output.RequesterRef = request_id;
                     output.requestStart = returnData.request_timestamp;
                     output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestInProgress;
+                    returnData.status = output.status;
 
                     awsClient.putDDBItem(PARAMS.ddb_table_income, output);
                 } catch (error) {
@@ -949,7 +978,7 @@ const initTokens = async () => {
     oauth2.cacheTokens = PARAMS.cache_tokens;
     oauth2.addRequest(TOKEN_IDS.data, PARAMS.token_url, PARAMS.client_id, PARAMS.client_secret, TOKEN_IDS.data);
     oauth2.addRequest(TOKEN_IDS.consent, PARAMS.token_url, PARAMS.client_id, PARAMS.client_secret, TOKEN_IDS.consent);
-    oauth2.addRequest(TOKEN_IDS.stored_data, PARAMS.token_url, PARAMS.client_id, PARAMS.client_secret, TOKEN_IDS.stored_data);
+    //oauth2.addRequest(TOKEN_IDS.stored_data, PARAMS.token_url, PARAMS.client_id, PARAMS.client_secret, TOKEN_IDS.stored_data);
     await oauth2.start();
 
     //TODO!

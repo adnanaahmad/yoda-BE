@@ -1,0 +1,40 @@
+{
+    "result": "Not-Verified",
+    "details": [{
+            "detail_code": "FID-SFID-FINAL-ASSESSMENT-FLAG",
+            "detail_message": "N"
+        },
+        {
+            "detail_code": "FID-SFIS-ASSESSMENT-LEVEL",
+            "detail_message": "0"
+        },
+        {
+            "detail_code": "FID-SFIS-SHARED-SSN-FLAG",
+            "detail_message": "N"
+        },
+        {
+            "detail_code": "FID-SFIS-VERIFIED-SSN-FLAG",
+            "detail_message": "Y"
+        },
+        {
+            "detail_code": "FID-SFIS-DEATHMASTER-HIT-FLAG",
+            "detail_message": "N"
+        },
+        {
+            "detail_code": "FID-SFIS-SHARED-ADDRESS-FLAG",
+            "detail_message": "N"
+        },
+        {
+            "detail_code": "FID-SFIS-ID-CONFIRMATION-FLAG-1",
+            "detail_message": "N"
+        },
+        {
+            "detail_code": "FID-SFIS-ID-CONFIRMATION-FLAG-2",
+            "detail_message": "U"
+        },
+        {
+            "detail_code": "FID-SFIS-INQUIRY-FLAG",
+            "detail_message": "N"
+        }
+    ]
+}

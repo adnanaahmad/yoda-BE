@@ -102,7 +102,7 @@ definitions:
         type: boolean
       allow_voip:
         example: false
-        default: false
+        default: true
         description: If set then it allows validating of VOIP numbers.
         type: boolean        
     required:

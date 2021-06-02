@@ -58,7 +58,7 @@ fastify.post('/query', async (request, reply) => {
         reply.type('application/json').code(200);
         return data;
     } else {
-
+        return { 'error': 'Huh...'}
     }
 });
 
