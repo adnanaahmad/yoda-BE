@@ -144,6 +144,7 @@ const requestToken = async (req) => {
             }
         } else {
             logger.error(`requestToken - [${id}] invalid response`, response);
+            //console.log(response, responseHeaders);
         }
     } catch (error) {
         logger.error(`requestToken - [${id}] error`, error);

@@ -1,8 +1,11 @@
 'use strict';
 /*jshint esversion: 8 */
+
+//https://developer.equifax.com/products/fraudiqr-synthetic-id-alerts#operation/SyntheticFlags
+
 const NAME = 'Synthetic Fraud';
 const TABLE = 'synthetic-id';
-const CONFIG_PATH = '/config/equifax/synthetic-id-test';
+const CONFIG_PATH = '/config/equifax/synthetic-id-prod';
 
 //TODO: Helper function for logger and params
 const utils = require('./utils');
@@ -64,20 +67,20 @@ const doOPAL = (data) => {
 
     const MAP = {
         finalAssessment: 'FID-SFID-FINAL-ASSESSMENT-FLAG',
-        assessmentLevel: 'FID-SFIS-ASSESSMENT-LEVEL',
-        sharedSsn: 'FID-SFIS-SHARED-SSN-FLAG',
-        verifiedSsn: 'FID-SFIS-VERIFIED-SSN-FLAG',
-        //invalidSsn?
-        deathMasterHit: 'FID-SFIS-DEATHMASTER-HIT-FLAG',
-        //'FID-SFIS-AUTHORIZED-USER-VELOCITY-FLAG'
-        //'FID-SFIS-ID-DISCREPANCY-FLAG'
-        //'FID-SFIS-ACTIVE-AUTHORIZED-USERS'
-        //'FID-SFIS-TERMINATED-USERS'
-        //'FID-SFIS-ID-CONFIRMATION-BEHAVIOR-FLAG'
-        sharedAddress: 'FID-SFIS-SHARED-ADDRESS-FLAG',
-        identityConfirmation1: 'FID-SFIS-ID-CONFIRMATION-FLAG-1',
-        identityConfirmation2: 'FID-SFIS-ID-CONFIRMATION-FLAG-2',
-        inquiry: 'FID-SFIS-INQUIRY-FLAG'
+        assessmentLevel: 'FID-SFID-ASSESSMENT-LEVEL',
+        sharedSsn: 'FID-SFID-SHARED-SSN-FLAG',
+        verifiedSsn: 'FID-SFID-VERIFIED-SSN-FLAG',
+        invalidSsn: 'FID-SFID-INVALID-SSN-FLAG',
+        deathMasterHit: 'FID-SFID-DEATHMASTER-HIT-FLAG',
+        //'FID-SFID-AUTHORIZED-USER-VELOCITY-FLAG'
+        //'FID-SFID-ID-DISCREPANCY-FLAG'
+        //'FID-SFID-ACTIVE-AUTHORIZED-USERS'
+        //'FID-SFID-TERMINATED-USERS'
+        //'FID-SFID-ID-CONFIRMATION-BEHAVIOR-FLAG'
+        sharedAddress: 'FID-SFID-SHARED-ADDRESS-FLAG',
+        identityConfirmation1: 'FID-SFID-ID-CONFIRMATION-FLAG-1',
+        identityConfirmation2: 'FID-SFID-ID-CONFIRMATION-FLAG-2',
+        inquiry: 'FID-SFID-INQUIRY-FLAG'
     }
 
     //todo: make sure input is valid
@@ -94,15 +97,35 @@ const doOPAL = (data) => {
         details: []
     };
     
+
+    let notVerified = false;
+    let verified = false;
+
     //Logic based on YAML file.
     const level = parseInt(flags.assessmentLevel);
     if((flags.finalAssessment === 'Y'  && level >=2 && level <=5) || flags.sharedSsn === 'Y' || flags.invalidSsn === 'Y' ||  flags.deathMasterHit === 'Y') {
         results.result = 'Not-Verified';
-    }else if((flags.finalAssessment !== 'Y' || (flags.finalAssessment === 'Y' && (level <2 || level > 5))) && flags.sharedSsn !== 'Y') {
+        notVerified = true;
+    }
+
+    if((flags.finalAssessment !== 'Y' || (flags.finalAssessment === 'Y' && (level <2 || level > 5))) && flags.sharedSsn !== 'Y') {
         results.result = 'Verified';
-    } else {
+        verified = true;
+    }
+
+    if((!verified && !notVerified) || (verified  && notVerified))  {
         results.result = 'Needs-Review';
     }
+
+    console.log(verified, notVerified, results.result);
+
+    // if((flags.finalAssessment === 'Y'  && level >=2 && level <=5) || flags.sharedSsn === 'Y' || flags.invalidSsn === 'Y' ||  flags.deathMasterHit === 'Y') {
+    //     results.result = 'Not-Verified';
+    // }else if((flags.finalAssessment !== 'Y' || (flags.finalAssessment === 'Y' && (level <2 || level > 5))) && flags.sharedSsn !== 'Y') {
+    //     results.result = 'Verified';
+    // } else {
+    //     results.result = 'Needs-Review';
+    // }
 
     const addDetail = (code, message)=> {
         results.details.push({detail_code: code, detail_message: message});
@@ -141,7 +164,7 @@ const doRequest = async (data, customerId) => {
 
     try {
         const result = await axios(options);
-        //console.log(result.headers)
+        //logger.info(result.headers)
         let d = result.data;
         if (d) {
 
@@ -157,25 +180,32 @@ const doRequest = async (data, customerId) => {
             error: error.response
         };
         console.log(error);
-        //console.log(JSON.stringify(error.response.data));
+        //logger.info(error);
+        //logger.info(JSON.stringify(error.response.data));
         return data;
     }
 }
 
 fastify.post('/query', async (request, reply) => {
-    if (!await authMain.checkHeaders(request, reply)) {
-        return;
-    }
+    // if (!await authMain.checkHeaders(request, reply)) {
+    //     return;
+    // }
 
     const body = utils.flattenObject2(request.body);
-    //console.log(JSON.stringify(body, null, 2));
+    //logger.info(JSON.stringify(body, null, 2));
     let code = 200;
     let data = {
         created: Date.now(),
     };
     if (body) {
-        const transaction_id = body.transaction_id || utils.getUUID();
-        //logger.silly(body);
+        //TODO: Verify input
+        const transaction_id = body.transaction_id;
+        const persona = body.persona;
+        if(!transaction_id || !persona) {
+            reply.type('application/json').code(400);
+            return 'Missing mandatory attibute(s)';
+        }
+
         try {
             const identity = {
                 firstName: body.first_name,
@@ -185,20 +215,22 @@ fastify.post('/query', async (request, reply) => {
                 dob: utils.formatDate(body.birth_date, 'YYYYMMDD'),
                 address: {
                     addressLine1: body.line1,
-                    addressLine2: body.line2 || '',
                     city: body.city,
                     state: body.state,
                     zip: (body.zip_code || '') + ''
                 },
                 email: body.email_address,
-                //phone: utils.numbersOnly(body.phone_number, true)
+                phone: utils.numbersOnly(body.phone_number, true)
             };
 
-            console.log(identity);
+            if(typeof(body.line2) !== 'undefined') {
+                identity.address.addressLine2 = body.line2 || '';
+            }
+
+            logger.silly(identity);
             const payload = {
                 transactionId: transaction_id,
                 transactionTimestamp: Date.now(),
-                ipAddress: body.ip_addr,
                 deliveryChannel: "SyntheticID",
                 //cnx: "732876906117",
                 //cid: "01D43FAA9C6E5684CE",
@@ -209,11 +241,15 @@ fastify.post('/query', async (request, reply) => {
                 identity
             };
 
-            data = await doRequest(payload, utils.getUUID());
+            if(typeof(body.ip_address) !== 'undefined') {
+                payload.ipAddress = body.ip_address;
+            }
+
+            data = await doRequest(payload, `${persona}:${transaction_id}`);
             //await cache.setP(TABLE, transaction_id, data, undefined, true);
             code = 200;
         } catch (error) {
-            console.log(error);
+            logger.error(error);
         }
     } else {
         code = 422;
@@ -243,9 +279,83 @@ const start = async () => {
     await handler.init();
 }
 
+const test2 = async ()=> {
+    let data = utils.csvToArray(await utils.fileRead('./tmp/vista-pii.csv', 'utf-8'));
+    const columns = data[0].length;
+    const headerLine = data[0];
+
+    //console.log(columns, headerLine, data[1]);
+    const records = [];
+    for (let index = 1; index < data.length; index++) {
+        const element = data[index];
+        let record = {};
+        for (let j = 0; j < columns; j++) {
+            let val = element[j];
+            if(val === 'N/A' || val === 'MISSING') {
+                val = '';
+            }
+            record[headerLine[j]] = val;
+        }
+        records.push(record);
+    }
+    
+    //console.log(records[0]);
+
+    const doTest = async (index) => {
+
+        const pii = records[index];
+
+        const transaction_id = utils.getUUID();
+        const identity = {
+            firstName: pii['First Name'],
+            middleName: pii['Middle Name'],
+            lastName: pii['Last Name'],
+            ssn: pii['Last Name'],
+            dob:  utils.formatDate(pii['Date of Birth'], 'YYYYMMDD'),
+            address: {
+                addressLine1: pii['Current Street Address Line 1'],
+                addressLine2: pii['Current Address Line 2'],
+                city: pii['Current City'],
+                state: pii['Current State'],
+                zip: pii['Current Zip Code']
+            },
+            email: pii['Email'],
+            phone: utils.numbersOnly(pii['Phone Number'], true)
+        };
+
+        const payload = {
+            transactionId: transaction_id,
+            transactionTimestamp: Date.now(),
+            ipAddress: '4.4.2.2',
+            deliveryChannel: "SyntheticID",
+            //cnx: "732876906117",
+            //cid: "01D43FAA9C6E5684CE",
+            query: 'WNC', 
+            memberNumber: '999ZB15585', //Have to get this from EQ
+            synthetic2RulesCategory: 'Default', //Credit Card, Auto, Personal Loan, Communications/Utilities, Default 
+            hitCode: "1",
+            identity
+        };
+
+        let result = await doRequest(payload, utils.getUUID());
+        logger.info(result);
+        if (result && result.flags) {
+            //logger.info(doOPAL(result), null, 2);
+        } else {
+            logger.info('Invalid results:', result);
+        }
+    }
+
+    try {
+        await doTest(0);
+    } catch (error) {
+        //console.log(error);    
+    }
+}
+
 const test = async () => {
     try {
-        console.log('Loading and preparing test data...');
+        logger.info('Loading and preparing test data...');
 
         let data = utils.csvToArray(await utils.fileRead('./data/test-synthetic-id.csv', 'utf-8'));
 
@@ -263,7 +373,7 @@ const test = async () => {
         })
 
         const groupCount = groups.length;
-        // /console.log(groups, splits, headerLine);
+        // /logger.info(groups, splits, headerLine);
 
         const records = [];
         for (let index = 2; index < data.length; index++) {
@@ -283,7 +393,7 @@ const test = async () => {
         }
 
         //Records are ready to use.
-        //console.log(data.length, data[0].length, records.length);
+        //logger.info(data.length, data[0].length, records.length);
 
         const doTest = async (index) => {
 
@@ -325,7 +435,7 @@ const test = async () => {
             };
 
             let result = await doRequest(payload, utils.getUUID());
-            console.log(result);
+            logger.info(result);
             if (result && result.flags) {
                 const flags = result.flags;
                 result.expected = expected;
@@ -349,13 +459,17 @@ const test = async () => {
                 result.results = results;
                 return result;
             } else {
-                console.log('Invalid results:', result);
+                logger.info('Invalid results:', result);
             }
         }
 
-        console.log('Test data loaded...');
+        logger.info('Test data loaded...');
         const doTests = async (batch = false, testCount = 10) => {
-            console.log(`Starting ${testCount} tests... (batch mode: ${batch})`);
+            if(!testCount) {
+                testCount = records.length;
+            }
+
+            logger.info(`Starting ${testCount} tests... (batch mode: ${batch})`);
             if (batch) {
                 const funcs = [];
 
@@ -363,13 +477,13 @@ const test = async () => {
                     funcs.push(doTest(index));
                 }
 
-                console.log(`Starting all tests...`);
+                logger.info(`Starting all tests...`);
                 let start = utils.time();
                 let results;
                 try {
                     results = await Promise.all(funcs);
                 } catch (error) {
-                    console.log(error);
+                    logger.info(error);
                 }
                 let duration = utils.time() - start;
                 if (results) {
@@ -379,15 +493,15 @@ const test = async () => {
                             passed = true;
                         }
 
-                        console.log(`Test #${((index + 1)+"").padStart(2, '0')} ${passed ? 'Passed' : 'Failed' }.`);
+                        logger.info(`Test #${((index + 1)+"").padStart(2, '0')} ${passed ? 'Passed' : 'Failed' }.`);
                     });
                 }
-                console.log(`Tests complete. ${utils.toFixedPlaces(duration, 2)}ms. ${utils.toFixedPlaces((duration / testCount), 2)}s/test`);
+                logger.info(`Tests complete. ${utils.toFixedPlaces(duration, 2)}ms. ${utils.toFixedPlaces((duration / testCount), 2)}s/test`);
             } else {
                 let start = utils.time();
 
                 for (let index = 0; index < testCount; index++) {
-                    console.log(`Starting test #${((index + 1)+"").padStart(2,'0')}...`);
+                    logger.info(`Starting test #${((index + 1)+"").padStart(2,'0')}...`);
                     let start = utils.time();
                     let result = await doTest(index);
                     let duration = utils.time() - start;
@@ -395,20 +509,22 @@ const test = async () => {
                     if (result && result.results && result.results._fail === 0) {
                         passed = true;
                     }
-                    console.log(JSON.stringify(doOPAL(result), null, 2));
-                    console.log(`Test #${((index + 1)+"").padStart(2, '0')} ${passed ? 'Passed' : 'Failed' }. ${utils.toFixedPlaces(duration, 2)}ms`);
+                    logger.info(JSON.stringify(doOPAL(result), null, 2));
+                    logger.info(`Test #${((index + 1)+"").padStart(2, '0')} ${passed ? 'Passed' : 'Failed' }. ${utils.toFixedPlaces(duration, 2)}ms`);
                 }
 
                 let duration = utils.time() - start;
-                console.log(`Tests complete. ${utils.toFixedPlaces(duration, 2)}ms. ${utils.toFixedPlaces((duration / testCount), 2)}s/test`);
+                logger.info(`Tests complete. ${utils.toFixedPlaces(duration, 2)}ms. ${utils.toFixedPlaces((duration / testCount), 2)}s/test`);
             }
         }
-
-        console.log(records[0]);
-        await doTests(false, 1);
+        
+        //console.log(records);
+        //await utils.fileWrite('./data/test-synthetic-id.json', JSON.stringify(records, null, 2));
+        //logger.info(records[0]);
+       await doTests(false, 0);
 
     } catch (error) {
-        console.log(error);
+        logger.info(error);
     }
 }
 
@@ -416,4 +532,5 @@ const test = async () => {
 (async () => {
     await start();
     //await test();
+    //await test2();
 })();
