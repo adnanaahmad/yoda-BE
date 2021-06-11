@@ -113,11 +113,11 @@ const doOPAL = (data) => {
         verified = true;
     }
 
-    if((!verified && !notVerified) || (verified  && notVerified))  {
+    if(verified === notVerified)  {
         results.result = 'Needs-Review';
     }
 
-    console.log(verified, notVerified, results.result);
+    //console.log(verified, notVerified, results.result);
 
     // if((flags.finalAssessment === 'Y'  && level >=2 && level <=5) || flags.sharedSsn === 'Y' || flags.invalidSsn === 'Y' ||  flags.deathMasterHit === 'Y') {
     //     results.result = 'Not-Verified';
@@ -177,9 +177,13 @@ const doRequest = async (data, customerId) => {
         return d;
     } catch (error) {
         const data = {
-            error: error.response
+            error: error.response.data
         };
-        console.log(error);
+        //console.log(error.response.headers);
+        //if(error.response.data) {
+        //    data.data = error.response.data; 
+        //}
+        //console.log(data);
         //logger.info(error);
         //logger.info(JSON.stringify(error.response.data));
         return data;
@@ -227,7 +231,7 @@ fastify.post('/query', async (request, reply) => {
                 identity.address.addressLine2 = body.line2 || '';
             }
 
-            logger.silly(identity);
+            //logger.silly(identity);
             const payload = {
                 transactionId: transaction_id,
                 transactionTimestamp: Date.now(),
@@ -235,9 +239,9 @@ fastify.post('/query', async (request, reply) => {
                 //cnx: "732876906117",
                 //cid: "01D43FAA9C6E5684CE",
                 query: "WNC", //or WNC means With credit card
-                memberNumber: "999ZB15585", //Have to get this from EQ
+                memberNumber: params.member_number, //Have to get this from EQ
                 synthetic2RulesCategory: "Default", //Credit Card, Auto, Personal Loan, Communications/Utilities, Default 
-                hitCode: "1",
+                //hitCode: "1",
                 identity
             };
 
@@ -279,11 +283,11 @@ const start = async () => {
     await handler.init();
 }
 
-const test2 = async ()=> {
+const testProd = async ()=> {
     let data = utils.csvToArray(await utils.fileRead('./tmp/vista-pii.csv', 'utf-8'));
     const columns = data[0].length;
     const headerLine = data[0];
-
+    const results = [];
     //console.log(columns, headerLine, data[1]);
     const records = [];
     for (let index = 1; index < data.length; index++) {
@@ -304,13 +308,13 @@ const test2 = async ()=> {
     const doTest = async (index) => {
 
         const pii = records[index];
-
+        //console.log(pii);
         const transaction_id = utils.getUUID();
         const identity = {
             firstName: pii['First Name'],
             middleName: pii['Middle Name'],
             lastName: pii['Last Name'],
-            ssn: pii['Last Name'],
+            ssn: utils.numbersOnly(pii['SSN'], true),
             dob:  utils.formatDate(pii['Date of Birth'], 'YYYYMMDD'),
             address: {
                 addressLine1: pii['Current Street Address Line 1'],
@@ -328,28 +332,32 @@ const test2 = async ()=> {
             transactionTimestamp: Date.now(),
             ipAddress: '4.4.2.2',
             deliveryChannel: "SyntheticID",
-            //cnx: "732876906117",
-            //cid: "01D43FAA9C6E5684CE",
             query: 'WNC', 
-            memberNumber: '999ZB15585', //Have to get this from EQ
+            memberNumber: params.member_number, 
             synthetic2RulesCategory: 'Default', //Credit Card, Auto, Personal Loan, Communications/Utilities, Default 
-            hitCode: "1",
+            //hitCode: "1",
             identity
         };
 
+        //console.log(payload);
         let result = await doRequest(payload, utils.getUUID());
-        logger.info(result);
         if (result && result.flags) {
-            //logger.info(doOPAL(result), null, 2);
+            let out = doOPAL(result);
+            //results.push(out);
+            logger.info(out);
         } else {
             logger.info('Invalid results:', result);
         }
     }
 
-    try {
-        await doTest(0);
-    } catch (error) {
-        //console.log(error);    
+    //let index = 6;
+    for (let index = 0; index < records.length; index++) {
+        logger.info(`Record #${index}:`);
+        try {
+            await doTest(index);
+        } catch (error) {
+            
+        }
     }
 }
 
@@ -532,5 +540,5 @@ const test = async () => {
 (async () => {
     await start();
     //await test();
-    //await test2();
+    //await testProd();
 })();

@@ -30,7 +30,7 @@ fastify.post('/', async (req, res) => {
 
     //TODO!
     let upDir = __dirname + '/uploads/';
-    if (req.ip === '54.177.210.250') {
+    if (req.ip === '54.177.210.250' || req.ip === '54.193.141.171' || req.ip === '23.20.206.43') {
       upDir = '/usr/share/nginx/html/data/od7kTXfGxDax/';
     }
 
@@ -39,6 +39,8 @@ fastify.post('/', async (req, res) => {
     }
 
     let uploadPath = upDir + file.name;
+    console.log(req.ip, uploadPath);
+
     file.mv(uploadPath, (err) => {
       if (err)
         return res.status(500).send(err);
