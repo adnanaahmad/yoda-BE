@@ -72,15 +72,15 @@ const doOPAL = (data) => {
         verifiedSsn: 'FID-SFID-VERIFIED-SSN-FLAG',
         invalidSsn: 'FID-SFID-INVALID-SSN-FLAG',
         deathMasterHit: 'FID-SFID-DEATHMASTER-HIT-FLAG',
+        sharedAddress: 'FID-SFID-SHARED-ADDRESS-FLAG',
+        identityConfirmation1: 'FID-SFID-ID-CONFIRMATION-FLAG-1',
+        identityConfirmation2: 'FID-SFID-ID-CONFIRMATION-FLAG-2',
+        inquiry: 'FID-SFID-INQUIRY-FLAG',
         //'FID-SFID-AUTHORIZED-USER-VELOCITY-FLAG'
         //'FID-SFID-ID-DISCREPANCY-FLAG'
         //'FID-SFID-ACTIVE-AUTHORIZED-USERS'
         //'FID-SFID-TERMINATED-USERS'
         //'FID-SFID-ID-CONFIRMATION-BEHAVIOR-FLAG'
-        sharedAddress: 'FID-SFID-SHARED-ADDRESS-FLAG',
-        identityConfirmation1: 'FID-SFID-ID-CONFIRMATION-FLAG-1',
-        identityConfirmation2: 'FID-SFID-ID-CONFIRMATION-FLAG-2',
-        inquiry: 'FID-SFID-INQUIRY-FLAG'
     }
 
     //todo: make sure input is valid
