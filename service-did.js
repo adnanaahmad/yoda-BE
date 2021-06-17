@@ -802,9 +802,9 @@ const httpHandler = async (req, res) => {
         async function generateIncomeUrl() {
             //TODO!
 
-            if (!isLocalCall && !await authMain.checkHeaders(req, res)) {
-                return;
-            }
+            // if (!isLocalCall && !await authMain.checkHeaders(req, res)) {
+            //     return;
+            // }
 
             let request_id = bodyData.request_id;
             let customer_id = bodyData.customer_id;
