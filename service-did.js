@@ -811,15 +811,16 @@ const httpHandler = async (req, res) => {
             let customer_id = bodyData.customer_id;
             let transaction_id = bodyData.transaction_id;
             let account = bodyData.account;
+            const output = {};
 
-            if(!isLocalCall) {
-                if(req.user) {
-                    customer_id = req.user.CustomerAccountID;
-                } else {
-                    customer_id = undefined;
-                }
-                transaction_id = utils.getUUID();
-            }
+            // if(!isLocalCall) {
+            //     if(req.user) {
+            //         customer_id = req.user.CustomerAccountID;
+            //     } else {
+            //         customer_id = undefined;
+            //     }
+            //     transaction_id = utils.getUUID();
+            // }
 
             if (account && account.length > 0) {
                 account = `${account}:`
@@ -830,7 +831,7 @@ const httpHandler = async (req, res) => {
 
             if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0) {
 
-                const output = {};
+               
                 try {
                     if (account.length === 0 && PARAMS.url_prefix && PARAMS.url_prefix.length > 0) {
                         account = `${PARAMS.url_prefix}:`;
