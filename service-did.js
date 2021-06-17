@@ -805,7 +805,8 @@ const httpHandler = async (req, res) => {
             // if (!isLocalCall && !await authMain.checkHeaders(req, res)) {
             //     return;
             // }
-
+            
+            console.log(bodyData);
             let request_id = bodyData.request_id;
             let customer_id = bodyData.customer_id;
             let transaction_id = bodyData.transaction_id;
@@ -827,7 +828,7 @@ const httpHandler = async (req, res) => {
 
             }
 
-            if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0 && transaction_id && transaction_id.length > 0) {
+            if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0) {
 
                 const output = {};
                 try {
