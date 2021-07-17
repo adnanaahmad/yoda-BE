@@ -806,7 +806,7 @@ const httpHandler = async (req, res) => {
             //     return;
             // }
             
-            console.log(bodyData);
+            //console.log(bodyData);
             let request_id = bodyData.request_id;
             let customer_id = bodyData.customer_id;
             let transaction_id = bodyData.transaction_id;

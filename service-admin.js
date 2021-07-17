@@ -48,7 +48,7 @@ const HOSTS = [
 const ALLOWED_COMMANDS = ['pwd', 'ps', 'env',
     'pm2', 'ls', 'date', 'df', 'npm',
     'free', 'whoami', 'locate', 'find', 'du',
-    'uname', 'pm2','iostat'
+    'uname', 'pm2', 'iostat'
 
 ];
 
@@ -469,7 +469,7 @@ const getCommandData = async (command, data) => {
             }
             case 'cmd': {
                 let results;
-               
+
                 if (_args) {
                     let command = _args;
                     let args;
@@ -576,71 +576,71 @@ fastify.addHook("onRequest", async (request, reply) => {
 });
 
 const loadParams = async () => {
+    try {
+        PARAMS.system_secret = await awsClient.getParameter('/config/directid/directid.service.system_secret');
+    } catch (error) {
+        logger.error(error);
+    }
+}
+(async () => {
+
+    await loadParams();
+
+    if (process.env.CLIENT_CERT && await utils.fileExists(process.env.CLIENT_CERT) &&
+        process.env.CLIENT_KEY && await utils.fileExists(process.env.CLIENT_KEY)) {
+
+        haveLocalCerts = true;
+
         try {
-            PARAMS.system_secret = await awsClient.getParameter('/config/directid/directid.service.system_secret');
+            const httpsAgent = new https.Agent({
+                cert: await utils.fileRead(process.env.CLIENT_CERT),
+                key: await utils.fileRead(process.env.CLIENT_KEY),
+                //  ca: fs.readFileSync('ca.crt'),
+            });
+
+            if (httpsAgent) {
+                axiosOptions.httpsAgent = httpsAgent
+            }
+            logger.info('Client certificate loaded.');
         } catch (error) {
             logger.error(error);
         }
     }
-    (async () => {
 
-        await loadParams();
+    ALLOWED_COMMANDS.sort();
+    COMMANDS.sort();
 
-        if (process.env.CLIENT_CERT && await utils.fileExists(process.env.CLIENT_CERT) &&
-            process.env.CLIENT_KEY && await utils.fileExists(process.env.CLIENT_KEY)) {
+    COMMANDS.forEach(command => {
 
-            haveLocalCerts = true;
-
-            try {
-                const httpsAgent = new https.Agent({
-                    cert: await utils.fileRead(process.env.CLIENT_CERT),
-                    key: await utils.fileRead(process.env.CLIENT_KEY),
-                    //  ca: fs.readFileSync('ca.crt'),
-                });
-
-                if (httpsAgent) {
-                    axiosOptions.httpsAgent = httpsAgent
-                }
-                logger.info('Client certificate loaded.');
-            } catch (error) {
-                logger.error(error);
-            }
-        }
-
-        ALLOWED_COMMANDS.sort();
-        COMMANDS.sort();
-
-        COMMANDS.forEach(command => {
-
-            fastify.get(`/${command}`, async (request, reply) => {
-                return getData(request, reply);
-            })
-
-
-            fastify.get(`/${command}/:id`, async (request, reply) => {
-                return getData(request, reply);
-            })
+        fastify.get(`/${command}`, async (request, reply) => {
+            return getData(request, reply);
         })
 
-        fastify.listen(9999, (err, address) => {
+
+        fastify.get(`/${command}/:id`, async (request, reply) => {
+            return getData(request, reply);
+        })
+    })
+
+    fastify.listen(9999, (err, address) => {
+        if (err) {
+            logger.error(err);
+            return;
+        }
+        logger.info(`HTTP server is listening on ${address}`);
+    });
+
+    //await loadParams();
+    try {
+        pm2.connect((err) => {
             if (err) {
                 logger.error(err);
-                return;
+            } else {
+                pm2Connected = true;
+                logger.debug('pm2 connected.')
             }
-            logger.info(`HTTP server is listening on ${address}`);
         });
-
-        //await loadParams();
-        try {
-            pm2.connect((err) => {
-                if (err) {
-                    logger.error(err);
-                } else {
-                    pm2Connected = true;
-                    logger.debug('pm2 connected.')
-                }
-            });
-        } catch (error) {
-            logger.error(error.message);
-        }
-    })();
+    } catch (error) {
+        logger.error(error.message);
+    }
+})();

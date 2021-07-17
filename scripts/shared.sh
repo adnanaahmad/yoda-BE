@@ -2,8 +2,8 @@
 
 FORTIFID_DIR=/home/ec2-user/fortifid
 
-NODE=14.17.0
-NPM=6.14.13
+NODE=14.17.3
+NPM=7.20.0
 
 ARCHIVE="didservice.tar.gz"
 

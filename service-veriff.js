@@ -211,9 +211,9 @@ fastify.get('/check-request/:id', async (request, reply) => {
             data.status = record.status || record.action;
             
             if(record.status === 'sent') {
-                await cache.updateP(TABLE, id, {
-                    status: 'clicked'
-                }, '1w', true); 
+                // await cache.updateP(TABLE, id, {
+                //     status: 'clicked'
+                // }, '1w', true); 
             }
             
             if (record.reason !== null && typeof (record.reason) !== 'undefined') {

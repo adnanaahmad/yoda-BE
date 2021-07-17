@@ -145,7 +145,6 @@ definitions:
       - not_found
       - invalid
       - waiting
-      - clicked
       - started
       - approved
       - declined
