@@ -5,6 +5,7 @@ const cache = require('./cache');
 const awsClient = require('./aws-client');
 const redis = require("redis");
 const fs = require('fs');
+
 const createParams = () => {
     let orig = require(`${__dirname}/data/param-list.json`);
     const fields = {};
@@ -58,7 +59,7 @@ const funcs =`put() {
     let file = `${__dirname}${path}.json`;
 
     if(typeof(output) === 'undefined') {
-        output = `${__dirname}/scripts/${path.split('/').pop()}.sh`;
+        output = `${__dirname}/tmp/${path.split('/').pop()}.sh`;
     }
     
     const lines = [];
@@ -101,7 +102,9 @@ const funcs =`put() {
         let data = lines.join('\n');
 
         if(data && output) {
+
             await utils.fileWrite(output, data);
+            console.log(`Created file: ${output}`);
         }
     }
 }
@@ -121,12 +124,14 @@ const addCustomer = async (id) => {
     //await  addCustomer('D784DE76-A1F9-425D-BD57-2565411AA5A3');
     // await createParamsScript('/config/equifax/synthetic-id');
     // await createParamsScript('/config/experian/experian');
-    await createParamsScript('/config/twilio/mfa');
+    //await createParamsScript('/config/twilio/mfa');
     // await createParamsScript('/config/veriff/doc');
 
     //await createLocalParameters('/config/sambasafety/');
     //await createLocalParameters('/config/equifax/');
     //await createParamsScript('/config/sambasafety/sambasafety')
+
+    await createParamsScript('/config/equifax/synthetic-id-prod');
     console.log('Done');
     
 })();
