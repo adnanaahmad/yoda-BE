@@ -4,7 +4,7 @@ if [ -z "$SHARED_LOADED" ]; then
     . "/home/ec2-user/fortifid/scripts/shared.sh"
 fi
 
-START=service-admin,service-mfa,service-veriff,service-did,handler-email,handler-twilio,handler-webhook,helper-scheduler,helper-shortener,helper-uploader
+START=service-admin,service-did,service-mfa,service-synthetic-id,service-veriff,handler-email,handler-twilio,handler-webhook,helper-scheduler,helper-shortener,helper-uploader
 
 cd $FORTIFID_DIR
 if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
