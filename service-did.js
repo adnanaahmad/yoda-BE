@@ -1097,6 +1097,7 @@ const loadParams = async () => {
             }
 
             PARAMS.DEMO_MODE = CANNED_GOOD && PARAMS.DEMO_MODE ? parseInt(PARAMS.DEMO_MODE) !== 0 : false;
+            logger.debug(`Demo mode: ${PARAMS.DEMO_MODE}`);
 
             if (typeof (PARAMS.server_crt) === 'undefined' && typeof (PARAMS.apigw_cfg) === 'object') {
                 let transport = PARAMS.apigw_cfg.transport;
