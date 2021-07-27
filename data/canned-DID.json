@@ -1,0 +1,14 @@
+{
+    "estimatedIncome": 885,
+    "confidenceScore": 9.02,
+    "confidenceScoreFlags": {
+        "incomeForLast3Months": true,
+        "varianceTolerance5Percent": true,
+        "varianceTolerance10Percent": true,
+        "mostRecentCheckValue": true,
+        "stabilityOverall": 2.32,
+        "stability6Months": -0.3
+    },
+    "nameMatchScore": 1,
+    "status": "incomeDirectIDRequestSuccess"
+}

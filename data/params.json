@@ -22,5 +22,6 @@
     "ddb_partition_income": "/config/directid/directid.service.ddb_partition_income",
     "ddb_sort_income": "/config/directid/directid.service.ddb_sort_income",
     "request_bank_data": "/config/directid/directid.service.request_bank_data",
-    "apigw_cfg" : "/config/apigw/configuration/apigw.cfg"
+    "apigw_cfg" : "/config/apigw/configuration/apigw.cfg",
+    "DEMO_MODE" : "/config/portal/DEMO_MODE"
 }

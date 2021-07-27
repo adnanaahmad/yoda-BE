@@ -19,7 +19,7 @@ const sanitize = require("sanitize-filename");
 const oauth2 = require('./auth-oauth2');
 
 const awsClient = require('./aws-client');
-
+let CANNED_GOOD;
 // TODO: Just for testing and demos
 ///////////////////////////////////////////////////////////////
 const baseDir = `${__dirname}/public/income/`
@@ -58,7 +58,7 @@ const incomeDirectIDResponseStatus = require(`${__dirname}/data/response-status.
 
 Object.freeze(incomeDirectIDResponseStatus);
 
-const requestStoredData = async(consentId)=> {
+const requestStoredData = async (consentId) => {
     logger.info(`${consentId} - Requesting stored data...`);
     const headers = {
         'content-type': 'application/x-www-form-urlencoded',
@@ -223,6 +223,24 @@ const updateIncomeVerification = async (data) => {
     }
 }
 
+const setCanned = async (output) => {
+    if (!output || !CANNED_GOOD || !PARAMS.DEMO_MODE) {
+        return;
+    }
+
+    logger.info("Using canned response");
+    output.apiRequestDuration = utils.getRandomIntInclusive(500, 1500);
+    await utils.timeout(output.apiRequestDuration);
+
+    output.estimatedIncome = CANNED_GOOD.estimatedIncome;
+    output.confidenceScore = CANNED_GOOD.confidenceScore;
+    output.confidenceScoreFlags = {
+        ...CANNED_GOOD.confidenceScoreFlags
+    };
+    output.nameMatchScore = CANNED_GOOD.nameMatchScore;
+    output.status = CANNED_GOOD.status;
+}
+
 const requestIncomeVerification = async (consentId, customerReference) => {
     if (!customerReference || !consentId) {
         //TODO!
@@ -273,104 +291,108 @@ const requestIncomeVerification = async (consentId, customerReference) => {
     output.requestComplete = Date.now();
     output.consentId = consentId;
     output.requestDuration = output.requestComplete - meta.request_timestamp;
-
-    logger.info(`${customerReference} - Requesting income verification...`);
-    const headers = {
-        'content-type': 'application/x-www-form-urlencoded',
-        'authorization': `Bearer ${oauth2.TOKENS[TOKEN_IDS.data].access_token}`
-    };
-
-    const start = utils.time();
     let data;
 
-    try {
-        
-        const url = utils.parseTemplate(PARAMS.income_verification_url, {
-            '%CONSENT_ID%': consentId
-        });
-
-        data = await utils.fetchData(url, undefined, headers, 'get');
-
-        const duration = utils.time() - start;
-
-        logger.info(`${customerReference} - Retrieved income verification. ${utils.toFixedPlaces(duration, 2)}ms`);
-
-        output.apiRequestDuration = Math.round(duration);
-    } catch (error) {
-        logger.error(error, customerReference);
+    if (PARAMS.DEMO_MODE) {
+        await setCanned(output);
+        await updateIncomeVerification(output);
     }
+    else {
+        logger.info(`${customerReference} - Requesting income verification...`);
+        const headers = {
+            'content-type': 'application/x-www-form-urlencoded',
+            'authorization': `Bearer ${oauth2.TOKENS[TOKEN_IDS.data].access_token}`
+        };
 
-    if (data) {
+        const start = utils.time();
+
+
         try {
+            const url = utils.parseTemplate(PARAMS.income_verification_url, {
+                '%CONSENT_ID%': consentId
+            });
 
-            // let d = {
-            //     data: data,
-            //     url: 'https://webhook.site/19139114-62f9-43a3-b9cb-7e028338b9a3'
-            // }
-            // handlerWebhookQ.add(d);
+            data = await utils.fetchData(url, undefined, headers, 'get');
 
-            //TODO: Array? Can have more than one incomes stream summary?
-            let summary;
+            const duration = utils.time() - start;
 
-            if (Array.isArray(data)) {
-                summary = data[0].incomeStreamsSummary;
-            }
+            logger.info(`${customerReference} - Retrieved income verification. ${utils.toFixedPlaces(duration, 2)}ms`);
 
-            if (summary) {
-                output.estimatedIncome = summary.estimatedIncome;
-                output.confidenceScore = summary.confidenceScore;
-                output.confidenceScoreFlags = {
-                    ...summary.confidenceScoreFlags
-                };
-
-                const getNameMatchScore = (accountName) => {
-                    let score = PARAMS.match_name ? nameMatch.compare(meta.full_name, accountName) : 0;
-                    if (score > 0) {
-                        score = utils.toFixedPlaces(score, 3);
-                    }
-                    //TODO!!!! ONLY FOR TESTING! REMOVE before production
-                    logger.silly(`Name match: "${accountName}" ~ "${meta.full_name}" = ${score}`);
-                    return score;
-                }
-
-                let nameMatchScore = 0;
-                let details = data[0].accountDetails;
-                //REMOVE!
-                logger.silly(`Account details`, details, meta);
-                if (details && PARAMS.match_name) {
-                    const parties = details.parties;
-                    if (parties && Array.isArray(parties)) {
-                        for (let index = 0; index < parties.length; index++) {
-                            let score = getNameMatchScore(parties[index].accountHolderName);
-                            if (score > nameMatchScore) {
-                                nameMatchScore = score;
-                            }
-                        }
-                    } else {
-                        nameMatchScore = getNameMatchScore(details.accountHolderNames);
-                    }
-                }
-
-                output.nameMatchScore = nameMatchScore;
-
-                logger.info(`${customerReference} - requestIncomeVerification - Saving response.`);
-                output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
-
-                await updateIncomeVerification(output);
-
-            } else {
-                logger.warn(`${customerReference} - requestIncomeVerification - Invalid response`, data);
-                output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestFail;
-
-                updateIncomeVerification(output);
-            }
+            output.apiRequestDuration = Math.round(duration);
         } catch (error) {
             logger.error(error, customerReference);
         }
-    } else {
-        output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSentFail;
 
-        updateIncomeVerification(output);
+        if (data) {
+            try {
+                // let d = {
+                //     data: data,
+                //     url: 'https://webhook.site/19139114-62f9-43a3-b9cb-7e028338b9a3'
+                // }
+                // handlerWebhookQ.add(d);
+
+                //TODO: Array? Can have more than one incomes stream summary?
+                let summary;
+
+                if (Array.isArray(data)) {
+                    summary = data[0].incomeStreamsSummary;
+                }
+
+                if (summary) {
+                    output.estimatedIncome = summary.estimatedIncome;
+                    output.confidenceScore = summary.confidenceScore;
+                    output.confidenceScoreFlags = {
+                        ...summary.confidenceScoreFlags
+                    };
+
+                    const getNameMatchScore = (accountName) => {
+                        let score = PARAMS.match_name ? nameMatch.compare(meta.full_name, accountName) : 0;
+                        if (score > 0) {
+                            score = utils.toFixedPlaces(score, 3);
+                        }
+                        //TODO!!!! ONLY FOR TESTING! REMOVE before production
+                        logger.silly(`Name match: "${accountName}" ~ "${meta.full_name}" = ${score}`);
+                        return score;
+                    }
+
+                    let nameMatchScore = 0;
+                    let details = data[0].accountDetails;
+                    //REMOVE!
+                    logger.silly(`Account details`, details, meta);
+                    if (details && PARAMS.match_name) {
+                        const parties = details.parties;
+                        if (parties && Array.isArray(parties)) {
+                            for (let index = 0; index < parties.length; index++) {
+                                let score = getNameMatchScore(parties[index].accountHolderName);
+                                if (score > nameMatchScore) {
+                                    nameMatchScore = score;
+                                }
+                            }
+                        } else {
+                            nameMatchScore = getNameMatchScore(details.accountHolderNames);
+                        }
+                    }
+
+                    output.nameMatchScore = nameMatchScore;
+
+                    logger.info(`${customerReference} - requestIncomeVerification - Saving response.`);
+                    output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSuccess;
+
+                    await updateIncomeVerification(output);
+
+                } else {
+                    logger.warn(`${customerReference} - requestIncomeVerification - Invalid response`, data);
+                    output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestFail;
+
+                    await updateIncomeVerification(output);
+                }
+            } catch (error) {
+                logger.error(error, customerReference);
+            }
+        } else {
+            output.status = incomeDirectIDResponseStatus.incomeDirectIDRequestSentFail;
+            await updateIncomeVerification(output);
+        }
     }
 
     delete META[transaction_id];
@@ -584,13 +606,13 @@ const httpHandler = async (req, res) => {
     if (!res.writableEnded) {
         try {
             res.end();
-        } catch (error) {}
+        } catch (error) { }
     }
 
     if (logRequest) {
         doLog();
     }
-    
+
     async function handleAdmin(action, bodyData, key) {
         const now = Date.now();
         if (key !== PARAMS.system_secret) {
@@ -674,8 +696,8 @@ const httpHandler = async (req, res) => {
                 } else {
                     logRequest = false;
                     found = META[transaction_id];
-                    if(found) {
-                        found = {status: found.status};
+                    if (found) {
+                        found = { status: found.status };
                         utils.sendData(res, found);
                     } else {
                         utils.sendData(res, 'Not found or not ready.', 404);
@@ -713,7 +735,7 @@ const httpHandler = async (req, res) => {
             //const otherParams = utils.queryStringToObject(redirectUrl, true);
             //console.log(otherParams)
             //const newQuery = {...query};
-            redirectUrl = `${redirectUrl}${(redirectUrl.indexOf('?') > -1 ?'&': '?')}${new URLSearchParams(query)}`;
+            redirectUrl = `${redirectUrl}${(redirectUrl.indexOf('?') > -1 ? '&' : '?')}${new URLSearchParams(query)}`;
             //console.log(redirectUrl);
             const headers = {
                 'Location': redirectUrl
@@ -786,7 +808,7 @@ const httpHandler = async (req, res) => {
 
         async function getRawData() {
             let consent_id = param1;
-            if(!consent_id || consent_id.length < 1) {
+            if (!consent_id || consent_id.length < 1) {
                 utils.sendData(res, 'Missing parameter', 422);
                 return;
             }
@@ -805,7 +827,7 @@ const httpHandler = async (req, res) => {
             // if (!isLocalCall && !await authMain.checkHeaders(req, res)) {
             //     return;
             // }
-            
+
             //console.log(bodyData);
             let request_id = bodyData.request_id;
             let customer_id = bodyData.customer_id;
@@ -831,7 +853,7 @@ const httpHandler = async (req, res) => {
 
             if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0) {
 
-               
+
                 try {
                     if (account.length === 0 && PARAMS.url_prefix && PARAMS.url_prefix.length > 0) {
                         account = `${PARAMS.url_prefix}:`;
@@ -1074,6 +1096,8 @@ const loadParams = async () => {
                 PARAMS.demo_enabled = utils.parseBoolean(PARAMS.demo_enabled);
             }
 
+            PARAMS.DEMO_MODE = CANNED_GOOD && PARAMS.DEMO_MODE ? parseInt(PARAMS.DEMO_MODE) !== 0 : false;
+
             if (typeof (PARAMS.server_crt) === 'undefined' && typeof (PARAMS.apigw_cfg) === 'object') {
                 let transport = PARAMS.apigw_cfg.transport;
                 if (transport) {
@@ -1090,6 +1114,7 @@ const loadParams = async () => {
                 }
             }
         }
+
     } catch (error) {
         logger.error(error);
     }
@@ -1098,6 +1123,7 @@ const loadParams = async () => {
 
 (async () => {
     const funcs = [];
+    CANNED_GOOD = await utils.loadJSONAsync(`${__dirname}/data/canned-DID.json`);
 
     await loadParams();
     await handler.init();
