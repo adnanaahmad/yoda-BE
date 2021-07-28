@@ -58,6 +58,7 @@ const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) 
     //return true;
     let reason = 'Unauthorized';
     let code = 401;
+    let certId;
     //TODO: All this should be done in the apigw!
 
     try {
@@ -67,7 +68,7 @@ const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) 
             cert = decodeURIComponent(cert);
             cert = pem.decode(cert);
             if (cert) {
-                let certId = utils.hash(cert, 'sha256', 'hex').toUpperCase();
+                certId = utils.hash(cert, 'sha256', 'hex').toUpperCase();
                 //request.user = certId;
                 let user = await getAuthz(certId);
 
@@ -146,7 +147,13 @@ const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) 
     }else {
         utils.sendData(reply, data, code);
     }
-    logger.warn(data);
+
+    let e = {...data};
+    if(certId) {
+        e.cert = certId; 
+    }
+    
+    logger.warn(e);
 }
 
 (async () => {

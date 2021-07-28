@@ -228,7 +228,7 @@ const setCanned = async (output) => {
         return;
     }
 
-    logger.info("Using canned response");
+    logger.info("Using canned response.");
     output.apiRequestDuration = utils.getRandomIntInclusive(500, 1500);
     await utils.timeout(output.apiRequestDuration);
 
