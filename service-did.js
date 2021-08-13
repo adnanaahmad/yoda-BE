@@ -1054,11 +1054,11 @@ const loadParams = async () => {
     //     return;
     // }
 
-    paramKeys.forEach(key => {
-        funcs.push(awsClient.getParameter(paramList[key]));
-    });
-
     try {
+        paramKeys.forEach(key => {
+            funcs.push(awsClient.getParameter(paramList[key]));
+        });
+
         const results = await Promise.all(funcs);
         if (results) {
             let len = results.length;
@@ -1126,18 +1126,22 @@ const loadParams = async () => {
     const funcs = [];
     CANNED_GOOD = await utils.loadJSONAsync(`${__dirname}/data/canned-DID.json`);
 
-    await loadParams();
-    await handler.init();
+    try {
+        await loadParams();
+        await handler.init();
 
-    funcs.push(initTokens());
-
-    Promise.all(funcs).then(async (values) => {
-        await startServer();
-        logger.info(`Initialized.`);
-        if (values) {
-            //TODO
-        }
-    }).catch(error => {
-        logger.error(error.message)
-    });
+        funcs.push(initTokens());
+    
+        Promise.all(funcs).then(async (values) => {
+            await startServer();
+            logger.info(`Initialized.`);
+            if (values) {
+                //TODO
+            }
+        }).catch(error => {
+            logger.error(error.message)
+        });
+    } catch (error) {
+        logger.error(error);        
+    }
 })();
