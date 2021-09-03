@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$SHARED_LOADED" ]; then
-    . "/home/ec2-user/fortifid/scripts/shared.sh"
+    . "$FORTIFID_DIR/scripts/shared.sh"
 fi
 
 START=service-admin,service-did,service-mfa,service-synthetic-id,service-veriff,handler-email,handler-twilio,handler-webhook,helper-scheduler,helper-shortener,helper-uploader
