@@ -46,7 +46,7 @@ const handler = require('./utils-handlers');
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
-    
+
     let code = 404;
     const id = request.params.id;
     const data = {
@@ -58,7 +58,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
 
         if (record) {
             data.status = record.status;
-            if(data.status === 'verified') {
+            if (data.status === 'verified') {
                 logger.silly(request.ip, `check-request ${id}`, record);
             }
 
@@ -149,12 +149,14 @@ fastify.post('/generate-url', async (request, reply) => {
     };
 
     if (body && body.phone_number) {
-        logger.silly(body);
+        //logger.silly(body);
 
         //TODO!
         //let transaction_id = body.transaction_id || utils.getUUID();
         let transaction_id = utils.getUUID();
         data.transaction_id = transaction_id;
+        let doLookup = typeof (body.lookup) === 'boolean' ? body.lookup : true; 
+        let shorten = typeof (body.shorten) === 'boolean' ? body.shorten : true; 
         let send = typeof (body.send) === 'boolean' ? body.send : true;
         let allow_voip = typeof (body.allow_voip) === 'boolean' ? body.allow_voip : true;
 
@@ -168,31 +170,33 @@ fastify.post('/generate-url', async (request, reply) => {
                     numbers: phone_number
                 };
 
-                let results = await twilioUtils.lookup(lookup);
+                let results = doLookup ?  await twilioUtils.lookup(lookup) : { carrier: { type: "mobile" }, countryCode: "US" };
 
                 if (results) {
-                    //TODO!
-                    logger.silly(results);
+                    if(doLookup) {
+                        logger.silly(results);
+                    }
                     if (results instanceof Error) {
                         data.reason = results.status === 404 ? 'Invalid phone number or number not found.' : results.message;
                         code = 404;
                     } else if (results.carrier !== null && typeof (results.carrier) === 'object') {
                         let carrier = results.carrier;
-                        
+
                         data.country_code = results.countryCode;
-                        data.type = carrier.type; 
+                        data.type = carrier.type;
                         if (carrier.type === 'mobile' || (allow_voip && carrier.type === 'voip')) {
                             //TODO!
                             if (results.countryCode === 'US') {
                                 if (send) {
                                     data.url = `https://${SCRIPT_INFO.host}/mfa/v1?ref=${encodeURIComponent(transaction_id)}`
-                                    let short = await utils.shortenUrl(data.url);
-                                    data.url = short || data.url;
-                                     
+                                    if(shorten) {
+                                        let short = await utils.shortenUrl(data.url);
+                                        data.url = short || data.url;
+                                    }
+
                                     lookup.text = utils.parseTemplate(params.sms_text, {
                                         '%URL%': data.url
                                     });
-
                                     handler.twilio(lookup);
                                 }
 
@@ -217,7 +221,9 @@ fastify.post('/generate-url', async (request, reply) => {
                                     save.request_reference = request_reference;
                                 }
 
-                                await cache.setP(TABLE, transaction_id, save, '1w', true);
+                                if(send) {
+                                    await cache.setP(TABLE, transaction_id, save, '1w', true);
+                                }
                             } else {
                                 data.reason = `Unsupported country: ${results.countryCode}`;
                             }
@@ -267,7 +273,7 @@ fastify.addHook('onResponse', async (request, reply) => {
         // }
     }
 })
-const start = async ()=> {
+const start = async () => {
     params = await require('./params')(CONFIG_PATH, logger);
 
     fastify.listen(params.port, (err, address) => {
