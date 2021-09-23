@@ -281,12 +281,15 @@ fastify.post('/generate-url', async (request, reply) => {
         data.transaction_id = transaction_id;
 
         let full_name = body.full_name;
+        let shorten = typeof (body.shorten) === 'boolean' ? body.shorten : true; 
+        let send = typeof (body.send) === 'boolean' ? body.send : true;
 
         //TODO! Do this after validation
         data.url = `https://${SCRIPT_INFO.host}/doc/v1?ref=${encodeURIComponent(transaction_id)}`
-
-        let short = await utils.shortenUrl(data.url);
-        data.url = short || data.url;
+        if(shorten) {
+            let short = await utils.shortenUrl(data.url);
+            data.url = short || data.url;
+        }
 
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
@@ -301,7 +304,9 @@ fastify.post('/generate-url', async (request, reply) => {
                         '%URL%': data.url
                     })
                 };
-                handler.twilio(d);
+                if(send) {
+                    handler.twilio(d);
+                }
             } else {
                 code = 422;
                 data.error = 'Invalid phone number.';
@@ -329,7 +334,10 @@ fastify.post('/generate-url', async (request, reply) => {
             if (full_name) {
                 d.name = full_name;
             }
-            handler.email(d);
+
+            if(send) {
+                handler.email(d);
+            }
         }
 
         if (code === 200) {
@@ -366,7 +374,9 @@ fastify.post('/generate-url', async (request, reply) => {
                 save.request_reference = request_reference;
             }
 
-            await cache.setP(TABLE, transaction_id, save, '1w', true);
+            if(send) {
+                await cache.setP(TABLE, transaction_id, save, '1w', true);
+            }
         } else {
             delete data.transaction_id;
             delete data.url;
