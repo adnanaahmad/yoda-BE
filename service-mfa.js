@@ -150,7 +150,6 @@ fastify.post('/generate-url', async (request, reply) => {
 
     if (body && body.phone_number) {
         //logger.silly(body);
-
         //TODO!
         //let transaction_id = body.transaction_id || utils.getUUID();
         let transaction_id = utils.getUUID();
