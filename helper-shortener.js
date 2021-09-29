@@ -27,8 +27,7 @@ fastify.post('/', async (request, reply) => {
         const now = Date.now();
 
         let url = utils.parseURL(body.long_url);
-
-        if(url.hostname.indexOf('directid.co') == -1 && url.hostname.indexOf('fortifid.com') == -1) {
+        if(url.hostname.indexOf('directid.co') == -1 && url.hostname.indexOf('fortifid.com') == -1 && url.hostname !== 'connect.direct.id') {
             let data = { code: 403, error: 'Domain not allowed.'};
             reply.type('application/json').code(403).send(data);
             return;

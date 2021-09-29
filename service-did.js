@@ -861,7 +861,6 @@ const httpHandler = async (req, res) => {
 
                     let url_ref = encodeURIComponent(`${account}${transaction_id}:${customer_id}`);
                     let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${url_ref}`;
-
                     let short_url = true;
                     if (typeof (bodyData.shorten_url) !== 'undefined') {
                         short_url = bodyData.shorten_url;

@@ -3,8 +3,8 @@
 FORTIFID_DIR=/home/ec2-user/fortifid
 #BASE=`dirname "$0"`
 
-NODE=14.17.6
-NPM=7.22.0
+NODE=14.18.0
+NPM=7.24.1
 
 ARCHIVE="didservice.tar.gz"
 

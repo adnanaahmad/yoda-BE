@@ -1179,6 +1179,7 @@ const shortenUrl = async (url, token, full = false, ) => {
         //TODO
         const results = await fetchData(`https://${HOST}/s/`, data, headers);
         const duration = time() - start;
+
         if (_logger) {
             _logger.info(`Url shortened to [${results.link}] in ${toFixedPlaces(duration, 2)}ms`);
         }
