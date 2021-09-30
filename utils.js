@@ -33,6 +33,17 @@ let _hasGit;
 
 require('dotenv').config();
 
+const https = require('https');
+
+const ignoreSSLErrors = ()=> {
+    return process.env.IGNORE_SSL_ERRORS === "1";
+}
+
+//TODO: THIS IS NOT SAFE! Only for emergencies.
+const httpsAgent = ignoreSSLErrors() ? new https.Agent({
+    rejectUnauthorized: false,
+}) : undefined;
+
 //TODO!
 const HOST = process.env.HOST || 'i.dev.fortifid.com';
 
@@ -211,6 +222,9 @@ const getFileInfo = (file, doHash, extras) => {
         info.hostname = process.env.HOSTNAME;
         info.host = HOST;
         info.node_version = process.version;
+        if(ignoreSSLErrors()) {
+            info.ignore_ssl_errors = true;
+        }
     }
 
     return info;
@@ -270,7 +284,7 @@ const parseDotNotation = (str, val, obj, add = false) => {
     }
 
     //TODO: Dirty hack for now
-    let last = `${add ? '*': ''}${keys[i]}`;
+    let last = `${add ? '*' : ''}${keys[i]}`;
 
     currentObj[last] = val;
     delete obj[str];
@@ -555,7 +569,7 @@ function sendMessage(res, statusCode, headers, data, cors) {
             try {
                 len = data.length;
                 headers['Content-Length'] = len;
-            } catch (error) {}
+            } catch (error) { }
         }
 
         // if (APP_CONFIG.web_cache) {
@@ -790,7 +804,7 @@ const queryStringToObject = (query, parse = false) => {
         }
 
         return JSON.parse('{"' + query.replace(/&/g, '","').replace(/=/g, '":"') + '"}', (key, value) => key === "" ? value : decodeURIComponent(value));
-    } catch (error) {}
+    } catch (error) { }
     return {};
 }
 
@@ -829,6 +843,10 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
         headers: headers,
     };
 
+    if (httpsAgent) {
+        config.agent = httpsAgent;
+    }
+
     //TODO!
     if (body) {
         if (method === 'post' || method === 'put' || method === 'patch') {
@@ -856,7 +874,7 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
                     if (isJSON(data)) {
                         try {
                             data = JSON.parse(data);
-                        } catch (e) {}
+                        } catch (e) { }
                     }
                 }
             } else {
@@ -1020,13 +1038,17 @@ const loadFile = async (file) => {
         if (file && await fileExists(file)) {
             return await fileRead(file, 'utf-8');
         }
-    } catch (error) {}
+    } catch (error) { }
 }
 
 async function fetchWithTimeout(resource, options) {
     const {
         timeout = 8000
     } = options;
+
+    if (httpsAgent) {
+        config.agent = httpsAgent;
+    }
 
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
@@ -1117,7 +1139,7 @@ const convertIfJSON = (data) => {
     if (isJSON(data)) {
         try {
             data = JSON.parse(data);
-        } catch (error) {}
+        } catch (error) { }
     }
     return data;
 }
@@ -1161,7 +1183,7 @@ const getBody = async (req) => {
 }
 
 //TOD: The url needs to be dyanmic and the token
-const shortenUrl = async (url, token, full = false, ) => {
+const shortenUrl = async (url, token, full = false,) => {
     if (!HOST) {
         return;
     }
@@ -1264,7 +1286,7 @@ const csvToArray = (data) => {
     return ret;
 };
 
-const arrayToCSV = (row)=> {
+const arrayToCSV = (row) => {
     for (let i in row) {
         row[i] = row[i].replace(/"/g, '""');
     }

@@ -1,17 +1,19 @@
 'use strict';
 /*jshint esversion: 8 */
 const NAME = 'Base';
-const TABLE = 'base';
-const CONFIG_PATH = '/config/base/sandbox';
+const TABLE = 'railz';
+const CONFIG_PATH = `/config/${TABLE}/sandbox`;
 
 const utils = require('./utils');
 const logger = require('./logger').createLogger(TABLE);
 utils.setLogger(logger);
 
+let params;
+
 const cache = require('./cache');
 
 const authMain = require('./auth-main');
-
+const oauth2 = require('./auth-oauth2');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
@@ -35,7 +37,6 @@ fastify.register(require('fastify-static'), {
 })
 
 const handler = require('./utils-handlers');
-const { start } = require('pm2');
 
 fastify.get('/check-request/:id', async (request, reply) => {
     let data = {};
@@ -99,17 +100,21 @@ fastify.addHook('onResponse', async (request, reply) => {
 })
 
 const start = async () => {
-    params = await require('./params')(CONFIG_PATH, logger);
+    try {
+        params = await require('./params')(CONFIG_PATH, logger);
 
-    oauth2.addRequest(TABLE, params.token_url, params.client_id, params.client_secret, params.scopes);
-    await oauth2.start();
-
-    fastify.listen(params.port, (err, address) => {
-        if (err) throw err
-        logger.info(`HTTP server is listening on ${address}`);
-    });
-
-    await handler.init();
+        oauth2.addRequest(TABLE, params.token_url, params.client_id, params.client_secret, undefined, "basic_auth");
+        await oauth2.start();
+    
+        fastify.listen(params.port, (err, address) => {
+            if (err) throw err
+            logger.info(`HTTP server is listening on ${address}`);
+        });
+    
+        await handler.init();
+    } catch (error) {
+        logger.error(error);        
+    }
 }
 
 (async () => {

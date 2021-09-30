@@ -78,6 +78,8 @@ const checkToken = async (id) => {
 }
 
 const requestToken = async (req) => {
+    let method = "post";
+
     const {
         id
     } = req;
@@ -86,7 +88,7 @@ const requestToken = async (req) => {
             return;
         }
     } catch (error) {
-        console.log(error)
+        logger.error(error)
     }
 
     //id, url, client_id, client_secret, scope, grant_type = 'client_credentials', 
@@ -119,21 +121,34 @@ const requestToken = async (req) => {
         ...extraData
     }
 
-    if (scope) {
-        body.scope = scope;
+
+    if(grant_type === 'basic_auth') {
+        method = "get";
+        const b64 = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+        headers.Authorization = `Basic ${b64}`;
+        delete body.grant_type;
+        delete body.client_id;
+        delete body.client_secret;
+    } else {
+        if (scope) {
+            body.scope = scope;
+        }
     }
 
     try {
         const start = utils.time();
-        const response = await utils.fetchData(token_url, body, headers, 'post', undefined, true, responseHeaders);
-
+        const response = await utils.fetchData(token_url, body, headers, method, undefined, true, responseHeaders);
         const duration = utils.time() - start;
 
-        if (response && response.access_token && (response.expires_in || response.expires_in_secs)) {
+        if (response && response.access_token) {
 
-            if (response.expires_in_secs) {
-                response.expires_in = response.expires_in_secs;
-                delete response.expires_in_secs;
+            if((response.expires_in || response.expires_in_secs)) {
+                if (response.expires_in_secs) {
+                    response.expires_in = response.expires_in_secs;
+                    delete response.expires_in_secs;
+                }
+            } else {
+                response.expires_in = 3600;
             }
 
             response.expires = Date.now() + (response.expires_in * 1000);

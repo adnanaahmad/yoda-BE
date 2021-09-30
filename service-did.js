@@ -248,7 +248,6 @@ const requestIncomeVerification = async (consentId, customerReference) => {
         return;
     }
 
-
     let transaction_id;
     let customer_id;
 
@@ -882,6 +881,14 @@ const httpHandler = async (req, res) => {
                         url: url,
                         request_timestamp: Date.now()
                     };
+
+                    if(returnData.redirect_url && returnData.redirect_url.length > 0) {
+                        if(returnData.redirect_url.indexOf("http") === -1) {
+                            returnData.redirect_url = `https://${returnData.redirect_url}`;
+                        }
+                    }
+                    
+                    
                     utils.sendData(res, returnData);
 
                     //TODO! This SHOULD be temporarily saved somewhere.
@@ -997,6 +1004,8 @@ const initTokens = async () => {
         logger.error('Invalid token_url parameter.');
         return;
     }
+    //console.log(PARAMS.token_url);
+    //PARAMS.token_url = "https://bank-gateway-us.directid.co/v1/authorize?";
 
     oauth2.cacheTokens = PARAMS.cache_tokens;
     oauth2.addRequest(TOKEN_IDS.data, PARAMS.token_url, PARAMS.client_id, PARAMS.client_secret, TOKEN_IDS.data);
