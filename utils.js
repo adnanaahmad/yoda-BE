@@ -866,7 +866,7 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
                 Object.assign(returnHeaders, response.headers);
             }
 
-            if (response.ok) {
+            //if (response.ok) {
                 if (responseType === 'blob') {
                     data = await response.blob();
                 } else {
@@ -877,9 +877,14 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
                         } catch (e) { }
                     }
                 }
-            } else {
-                data = await response.text();
-            }
+            // } else {
+            //     data = await response.text();
+            //     if (isJSON(data)) {
+            //         try {
+            //             data = JSON.parse(data);
+            //         } catch (e) { }
+            //     }
+            // }
         }
     } catch (error) {
         if (throwError) {
@@ -1201,11 +1206,16 @@ const shortenUrl = async (url, token, full = false,) => {
         //TODO
         const results = await fetchData(`https://${HOST}/s/`, data, headers);
         const duration = time() - start;
-
-        if (_logger) {
-            _logger.info(`Url shortened to [${results.link}] in ${toFixedPlaces(duration, 2)}ms`);
+        if(typeof results === 'object' && results.link) {
+            if (_logger) {
+                _logger.info(`Url shortened to [${results.link}] in ${toFixedPlaces(duration, 2)}ms`);
+            }
+            return full ? results : results.link;
+        } else {
+            if (_logger) {
+                _logger.info(results);
+            }
         }
-        return full ? results : results.link;
     } catch (error) {
         if (_logger) {
             _logger.error(error);

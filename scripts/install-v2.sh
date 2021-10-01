@@ -100,7 +100,7 @@ if [ "$(pwd)" != "$FORTIFID_DIR" ]; then
 fi
 
 if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
-    rsync -av --exclude "assets/html/data" --delete "assets/html/" "/usr/share/nginx/html"
+    rsync -av --exclude "assets/html/data" --delete "assets/html/" "/usr/share/nginx/portal"
     rsync -av "assets/nginx/" "/etc/nginx"  
 fi
 

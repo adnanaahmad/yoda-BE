@@ -47,8 +47,7 @@
             <hr />
         </div>
         <!-- Insert this div where you want Railz Connect to be initialized -->
-<div id="railz-connect"></div>
-
+<div id='railz-connect' class="p-centered w300"></div>
 
 <!-- Start of Railz Connect script -->
 <script src="https://connect.railz.ai/v1/railz-connect.js"></script>
@@ -56,7 +55,10 @@
   var widget = new RailzConnect();
   widget.mount({
     parentElement: document.getElementById('railz-connect'),
-    widgetId: 'sb_prod_78aefd96-7ad0-4ea4-b7ef-542a50491232'
+    widgetId: 'sb_prod_78aefd96-7ad0-4ea4-b7ef-542a50491232',
+    //closeEnabled: true,
+    headerEnabled: false,
+    removeRailzWatermark: false
   });
 </script>
 <!-- End of Railz Connect script -->

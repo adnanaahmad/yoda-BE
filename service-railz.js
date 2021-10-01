@@ -1,6 +1,6 @@
 'use strict';
 /*jshint esversion: 8 */
-const NAME = 'Base';
+const NAME = 'Railz';
 const TABLE = 'railz';
 const CONFIG_PATH = `/config/${TABLE}/sandbox`;
 
@@ -119,4 +119,5 @@ const start = async () => {
 
 (async () => {
     await start();
+
 })();
