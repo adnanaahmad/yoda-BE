@@ -25,6 +25,8 @@ if (!SCRIPT_INFO.host) {
     process.exit(1);
 }
 
+const DEFAULT_URL = `https://${SCRIPT_INFO.host}/v1/doc`;
+
 const fastify = require('fastify')({
     logger: false,
     //http2: true,
@@ -102,7 +104,7 @@ fastify.post('/webhook', {
     const body = request.body;
     if (body && (body.verification || body.id)) {
 
-        logger.silly(body);
+        //logger.silly(body);
         try {
             let expiration = '1w';
 
@@ -249,17 +251,6 @@ fastify.get('/check-request/:id', async (request, reply) => {
     return data;
 })
 
-//TODO: REMOVE!!!
-fastify.post('/generate-id-url', async (request, reply) => {
-    const data = {
-        error: 'Deprecated endpoint. Please use /generate-url'
-    }
-
-    reply.type('application/json').code(200);
-    return data;
-})
-
-
 fastify.post('/generate-url', async (request, reply) => {
     if (!await authMain.checkHeaders(request, reply)) {
         return;
@@ -273,7 +264,7 @@ fastify.post('/generate-url', async (request, reply) => {
     };
 
     if (body && (body.phone_number || body.email_address)) {
-        logger.silly(body);
+        //logger.silly(body);
         //TODO: Sanitize body
         //let transaction_id = body.transaction_id || `:${utils.getUUID()}`;
         let transaction_id = utils.getUUID();
@@ -283,9 +274,11 @@ fastify.post('/generate-url', async (request, reply) => {
         let full_name = body.full_name;
         let shorten = typeof (body.shorten) === 'boolean' ? body.shorten : true; 
         let send = typeof (body.send) === 'boolean' ? body.send : true;
+        let url = typeof(body.url) === 'string' ? body.url : DEFAULT_URL;
+        let text = typeof(body.text) === 'string' ? body.text : params.sms_text;
 
         //TODO! Do this after validation
-        data.url = `https://${SCRIPT_INFO.host}/doc/v1?ref=${encodeURIComponent(transaction_id)}`
+        data.url = `${url}?ref=${encodeURIComponent(transaction_id)}`
         if(shorten) {
             let short = await utils.shortenUrl(data.url);
             data.url = short || data.url;
@@ -300,10 +293,11 @@ fastify.post('/generate-url', async (request, reply) => {
                 let d = {
                     transaction_id: transaction_id,
                     numbers: phone_number,
-                    text: utils.parseTemplate(params.sms_text, {
+                    text: utils.parseTemplate(text, {
                         '%URL%': data.url
                     })
                 };
+                
                 if(send) {
                     handler.twilio(d);
                 }
@@ -402,7 +396,6 @@ fastify.addHook("onRequest", async (request, reply) => {
 })
 
 const start = () => {
-
     fastify.listen(params.port, (err, address) => {
         if (err) throw err
         logger.info(`HTTP server is listening on ${address}`);

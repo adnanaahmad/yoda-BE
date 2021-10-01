@@ -42,7 +42,7 @@
         "ses": {
           "password": "",
           "account": "",
-          "from": "Barbarians Dev <dev@barbarians.com>",
+          "from": "FortifID Dev <dev@fortifid.com>",
           "smtp_server": "email-smtp.us-east-1.amazonaws.com"
         },
         "outlook": ""

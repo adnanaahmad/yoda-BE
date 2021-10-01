@@ -77,6 +77,7 @@ https://z.dev.fortifid.com/admin/v1/
 /config/twilio/mfa/sms_text From FortifID: please use the following link to complete the Secure MFA step: %URL% 
 
 IGNORE_SSL_ERRORS=1
+nvm alias default 6.11.5
 
 
 #Ports List

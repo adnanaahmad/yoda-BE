@@ -23,6 +23,8 @@ if (!SCRIPT_INFO.host) {
     process.exit(1);
 }
 
+const DEFAULT_URL = `https://${SCRIPT_INFO.host}/v1/mfa`;
+
 const fastify = require('fastify')({
     logger: false,
     //http2: true,
@@ -158,6 +160,8 @@ fastify.post('/generate-url', async (request, reply) => {
         let shorten = typeof (body.shorten) === 'boolean' ? body.shorten : true; 
         let send = typeof (body.send) === 'boolean' ? body.send : true;
         let allow_voip = typeof (body.allow_voip) === 'boolean' ? body.allow_voip : true;
+        let url = typeof(body.url) === 'string' ? body.url : DEFAULT_URL;
+        let text = typeof(body.text) === 'string' ? body.text : params.sms_text;
 
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
@@ -187,13 +191,13 @@ fastify.post('/generate-url', async (request, reply) => {
                             //TODO!
                             if (results.countryCode === 'US') {
                                 if (send) {
-                                    data.url = `https://${SCRIPT_INFO.host}/mfa/v1?ref=${encodeURIComponent(transaction_id)}`
+                                    data.url = `${url}?ref=${encodeURIComponent(transaction_id)}`
                                     if(shorten) {
                                         let short = await utils.shortenUrl(data.url);
                                         data.url = short || data.url;
                                     }
 
-                                    lookup.text = utils.parseTemplate(params.sms_text, {
+                                    lookup.text = utils.parseTemplate(text, {
                                         '%URL%': data.url
                                     });
                                     handler.twilio(lookup);
