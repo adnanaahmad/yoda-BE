@@ -26,7 +26,7 @@ fi
 #export DID_S3_BUCKET=s3://opalapp-opal-sandbox-use-fortifidstaticassetsbuck-7o971gu4b9lk/build/directid && export T=0 && export P=0 && aws s3 cp $DID_S3_BUCKET/install.sh /home/ec2-user/ && chmod +x /home/ec2-user/install.sh && /home/ec2-user/install.sh
 
 # global
-#export DID_S3_BUCKET=https://i.dev.fortifid.com/data/od7kTXfGxDax && export T=0 && export P=0 && cd /home/ec2-user/ && curl -s -O -J -L "$DID_S3_BUCKET/install.sh" && chmod +x ./install.sh && ./install.sh
+#export DID_S3_BUCKET=https://api-uat.fortifid.com/data/od7kTXfGxDax && export T=0 && export P=0 && cd /home/ec2-user/ && curl -s -O -J -L "$DID_S3_BUCKET/install.sh" && chmod +x ./install.sh && ./install.sh
 
 timestamp() {
   date +"%Y-%m-%d %H:%M:%S.%3N"

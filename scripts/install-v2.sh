@@ -73,7 +73,7 @@ source ~/.bashrc
 
 #TODO: Could change this wiith aws s3 cp later
 log "Downloading latest version..."
-curl -O -J -L "https://i.dev.fortifid.com/data/od7kTXfGxDax/$ARCHIVE"
+curl -O -J -L "https://api-uat.fortifid.com/data/od7kTXfGxDax/$ARCHIVE"
 
 mkdir -p $FORTIFID_DIR
 

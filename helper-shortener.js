@@ -93,7 +93,7 @@ fastify.get('/:id', async (request, reply) => {
         if(data.expires && new Date() > new Date(data.expires)) {
             //reply.type('text/html').code(200).send('Sorry, URL expired.');
             //return;
-            url = 'https://i.dev.fortifid.com/misc/?expired'
+            url = 'https://api-uat.fortifid.com/misc/?expired'
         }    
 
         reply.redirect(url);
@@ -101,7 +101,7 @@ fastify.get('/:id', async (request, reply) => {
     } else {
         let data = { code: 404, error: 'URL expired or not found.'};
         //reply.type('application/json').code(404).send(data);
-        reply.redirect(`https://i.dev.fortifid.com/misc/?not_found`);
+        reply.redirect(`https://api-uat.fortifid.com/misc/?not_found`);
     }
 });
 

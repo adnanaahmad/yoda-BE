@@ -11,7 +11,7 @@ log "Updating FortifID..."
 
 log "Downloading latest version..."
 
-curl -s -O -J -L "https://i.dev.fortifid.com/data/od7kTXfGxDax/$ARCHIVE"
+curl -s -O -J -L "https://api-uat.fortifid.com/data/od7kTXfGxDax/$ARCHIVE"
 
 if [ ! -s "./$ARCHIVE" ]; then
     log "Failed to download archive. Cannot continue."    

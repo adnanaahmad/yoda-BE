@@ -45,7 +45,7 @@ const httpsAgent = ignoreSSLErrors() ? new https.Agent({
 }) : undefined;
 
 //TODO!
-const HOST = process.env.HOST || 'i.dev.fortifid.com';
+const HOST = process.env.HOST || 'api-uat.fortifid.com';
 
 require('console-stamp')(console, {
     format: ':date(yyyy.mm.dd HH:MM:ss.l) :label',
