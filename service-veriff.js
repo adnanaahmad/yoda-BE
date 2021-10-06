@@ -401,8 +401,7 @@ fastify.post('/generate-url', async (request, reply) => {
     if (code !== 200) {
         data.status = 'error';
     }
-
-    data.code = code;
+    
     reply.type('application/json').code(code);
     return data;
 })
