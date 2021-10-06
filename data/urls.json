@@ -19,7 +19,7 @@
             "production": "https://api.prod.fortifid.com:8999/directid/redirect",
             "sandbox": "https://api.sandbox.fortifid.com:8999/directid/redirect",
             "dev": "https://api.dev.fortifid.com:8999/directid/redirect",
-            "i.dev": "https://i.dev.fortifid.com/income/v1/redirect",
+            "i.dev": "https://api-uat.fortifid.com/income/v1/redirect",
             "z.dev": "https://z.dev.fortifid.com/income/v1/redirect"
         }
     }
