@@ -25,7 +25,11 @@ if (!SCRIPT_INFO.host) {
     process.exit(1);
 }
 
-const DEFAULT_URL = `https://${SCRIPT_INFO.host}/v1/doc`;
+const dayjs = require('dayjs');
+const MIN_DATE = dayjs("1/1/1900");
+const MAX_DATE = dayjs("1/1/2020");
+
+const DEFAULT_URL = `https://${SCRIPT_INFO.host}/v1/doc/?ref=%URL%`;
 
 const fastify = require('fastify')({
     logger: false,
@@ -94,7 +98,7 @@ fastify.post('/webhook', {
         rawBody: true
     }
 }, async (request, reply) => {
-    
+
     const now = Date.now();
 
     if (!verifySignature(request, reply)) {
@@ -124,10 +128,10 @@ fastify.post('/webhook', {
                 data.id = v.id;
                 data.code = v.code;
                 //TODO! They may retry.
-                data.finished =  now;
+                data.finished = now;
 
-                if(record && record.created) {
-                    data.duration =  now - record.created;
+                if (record && record.created) {
+                    data.duration = now - record.created;
                 }
                 //TODO!
                 //technicalData : { ip: '71.64.122.30' }
@@ -138,14 +142,14 @@ fastify.post('/webhook', {
                 if (v.reasonCode !== null) {
                     data.reasonCode = v.reasonCode;
                 }
-               
+
                 if (v.status === 'approved' && person) {
                     if (record) {
                         let pii = record.pii;
                         if (pii) {
                             pii = cache.crypt.decrypt(pii);
                             if (pii) {
-                                
+
                                 if (pii.full_name) {
                                     data.name_match_score = nameMatch.compare(`${person.firstName} ${person.lastName}`, pii.full_name, true);
                                 } else {
@@ -158,8 +162,8 @@ fastify.post('/webhook', {
                                     data.dob_match = false;
                                 }
 
-                                if(record.strict) {
-                                    if(!data.dob_match || data.name_match_score < 1) {
+                                if (record.strict) {
+                                    if (!data.dob_match || data.name_match_score < 1) {
                                         data.status = 'declined';
                                         data.reason = 'Personal information mismatch.';
                                     }
@@ -173,7 +177,7 @@ fastify.post('/webhook', {
                     }
                 }
             } else {
-                data.updated =  now;
+                data.updated = now;
                 data.status = body.action;
                 data.id = body.id;
                 data.code = body.code;
@@ -211,13 +215,20 @@ fastify.get('/check-request/:id', async (request, reply) => {
         if (record) {
             code = 200;
             data.status = record.status || record.action;
-            
-            if(record.status === 'sent') {
+            if(record.created) {
+                data.created = record.created; 
+            }
+
+            if(record.finished) {
+                data.completed = record.finished; 
+            }
+
+            //if (record.status === 'sent') {
                 // await cache.updateP(TABLE, id, {
                 //     status: 'clicked'
                 // }, '1w', true); 
-            }
-            
+            //}
+
             if (record.reason !== null && typeof (record.reason) !== 'undefined') {
                 data.reason = record.reason;
             }
@@ -272,14 +283,23 @@ fastify.post('/generate-url', async (request, reply) => {
         data.transaction_id = transaction_id;
 
         let full_name = body.full_name;
-        let shorten = typeof (body.shorten) === 'boolean' ? body.shorten : true; 
+        let dob = body.birth_date;
+        let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : true;
         let send = typeof (body.send) === 'boolean' ? body.send : true;
-        let url = typeof(body.url) === 'string' ? body.url : DEFAULT_URL;
-        let text = typeof(body.text) === 'string' ? body.text : params.sms_text;
+        let url = typeof (body.link_url) === 'string' ? body.link_url : DEFAULT_URL;
+        let text = typeof (body.sms_text) === 'string' ? body.sms_text : params.sms_text;
+        let strict = typeof (body.strict) === 'boolean' ? body.strict : false;
+
+        let dobData = dayjs(dob);
+        if (strict) {
+            if (!full_name || !dob || full_name.length < 1 || !dobData.isValid() || dobData.isBefore(MIN_DATE) || dobData.isAfter(MAX_DATE)) {
+                return reply.type('application/json').code(422).send({ status: "error", reason: "Valid full_name and birth_date required when strict is true." });
+            }
+        }
 
         //TODO! Do this after validation
-        data.url = `${url}?ref=${encodeURIComponent(transaction_id)}`
-        if(shorten) {
+        data.url = url.replace("%URL%", encodeURIComponent(transaction_id));
+        if (shorten) {
             let short = await utils.shortenUrl(data.url);
             data.url = short || data.url;
         }
@@ -297,8 +317,8 @@ fastify.post('/generate-url', async (request, reply) => {
                         '%URL%': data.url
                     })
                 };
-                
-                if(send) {
+
+                if (send) {
                     handler.twilio(d);
                 }
             } else {
@@ -329,15 +349,13 @@ fastify.post('/generate-url', async (request, reply) => {
                 d.name = full_name;
             }
 
-            if(send) {
+            if (send) {
                 handler.email(d);
             }
         }
 
         if (code === 200) {
             data.status = 'sent';
-            const strict = typeof(body.strict) === 'boolean' ? body.strict : false; 
-
             let save = {
                 created: data.created,
                 status: data.status,
@@ -345,7 +363,6 @@ fastify.post('/generate-url', async (request, reply) => {
                 pii: {}
             };
 
-            let dob = body.birth_date;
             if (typeof (dob) === 'string' && dob.length > 0) {
                 save.pii.dob = dob;
             }
@@ -368,7 +385,7 @@ fastify.post('/generate-url', async (request, reply) => {
                 save.request_reference = request_reference;
             }
 
-            if(send) {
+            if (send) {
                 await cache.setP(TABLE, transaction_id, save, '1w', true);
             }
         } else {

@@ -23,7 +23,7 @@ if (!SCRIPT_INFO.host) {
     process.exit(1);
 }
 
-const DEFAULT_URL = `https://${SCRIPT_INFO.host}/v1/mfa`;
+const DEFAULT_URL = `https://${SCRIPT_INFO.host}/v1/mfa/?ref=%URL%`;
 
 const fastify = require('fastify')({
     logger: false,
@@ -59,6 +59,14 @@ fastify.get('/check-request/:id', async (request, reply) => {
         let record = await cache.getP(TABLE, id);
 
         if (record) {
+            if(record.created) {
+                data.created = record.created; 
+            }
+
+            if(record.finished) {
+                data.completed = record.finished; 
+            }
+
             data.status = record.status;
             if (data.status === 'verified') {
                 logger.silly(request.ip, `check-request ${id}`, record);
@@ -66,10 +74,6 @@ fastify.get('/check-request/:id', async (request, reply) => {
 
             if (record.reason) {
                 data.reason = record.reason;
-            }
-
-            if (record.finished) {
-                data.finished = record.finished;
             }
 
             if (record.redirect_url) {
@@ -104,8 +108,17 @@ fastify.get('/verify/:id', async (request, reply) => {
         let record = await cache.getP(TABLE, id);
         if (record) {
             code = 200;
+            
+            if(record.created) {
+                data.created = record.created; 
+            }
+
+            if (record.finished) {
+                data.completed = record.finished;
+            }
+
             if (record.status === 'sent') {
-                data.finished = now;
+                data.completed = now;
                 data.status = 'verified';
 
                 if (record.request_reference) {
@@ -126,14 +139,13 @@ fastify.get('/verify/:id', async (request, reply) => {
                 data.status = 'used';
             } else {
                 data.status = record.status;
-                data.finished = record.finished;
             }
             //TODO: Expiration!
         }
     }
 
     reply.type('application/json').code(code);
-    logger.silly(data);
+    //logger.silly(data);
     return data;
 })
 
@@ -157,11 +169,11 @@ fastify.post('/generate-url', async (request, reply) => {
         let transaction_id = utils.getUUID();
         data.transaction_id = transaction_id;
         let doLookup = typeof (body.lookup) === 'boolean' ? body.lookup : true; 
-        let shorten = typeof (body.shorten) === 'boolean' ? body.shorten : true; 
+        let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : true; 
         let send = typeof (body.send) === 'boolean' ? body.send : true;
         let allow_voip = typeof (body.allow_voip) === 'boolean' ? body.allow_voip : true;
-        let url = typeof(body.url) === 'string' ? body.url : DEFAULT_URL;
-        let text = typeof(body.text) === 'string' ? body.text : params.sms_text;
+        let url = typeof(body.link_url) === 'string' ? body.link_url : DEFAULT_URL;
+        let text = typeof(body.sms_text) === 'string' ? body.sms_text : params.sms_text;
 
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
@@ -191,7 +203,7 @@ fastify.post('/generate-url', async (request, reply) => {
                             //TODO!
                             if (results.countryCode === 'US') {
                                 if (send) {
-                                    data.url = `${url}?ref=${encodeURIComponent(transaction_id)}`
+                                    data.url = url.replace("%URL%", encodeURIComponent(transaction_id));
                                     if(shorten) {
                                         let short = await utils.shortenUrl(data.url);
                                         data.url = short || data.url;
