@@ -59,14 +59,14 @@ fi
 
 if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
     log "Syncing web server..."
-    if [ -d /usr/share/nginx/html/data ]; then
-        mv /usr/share/nginx/html/data /tmp/data
+    if [ -d /usr/share/nginx/portal/data ]; then
+        mv /usr/share/nginx/portal/data /tmp/data
     fi
 
-    RSYNC=$(rsync -av --delete "assets/html/" "/usr/share/nginx/html")        
+    RSYNC=$(rsync -av --delete "assets/html/" "/usr/share/nginx/portal")        
     
     if [ -d /tmp/data ]; then
-        mv /tmp/data /usr/share/nginx/html/data
+        mv /tmp/data /usr/share/nginx/portal/data
     fi
 
     CHANGED=$($RYSNC | wc -l)

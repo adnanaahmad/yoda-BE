@@ -62,7 +62,7 @@ fi
 
 if [ -d /etc/nginx -a ! -h /etc/nginx ]; then
     log "Syncing web server..."
-    rsync -av --exclude "assets/html/data" --delete "assets/html/" "/usr/share/nginx/html"
+    rsync -av --exclude "assets/html/data" --delete "assets/html/" "/usr/share/nginx/portal"
     log "Syncing web server configuration files..."
     rsync -av "assets/nginx/" "/etc/nginx"
     start_nginx
