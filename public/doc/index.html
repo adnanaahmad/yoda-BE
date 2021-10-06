@@ -36,6 +36,7 @@
       color: white;
       cursor: pointer;
     }
+
     .jss2 {
       padding: 0 !important;
       margin: 0 !important;
@@ -49,7 +50,8 @@
     <br />
 
     <div class="text-center">
-      <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo" src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/logo.png" alt="FortifID Logo"></a>
+      <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo"
+          src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/logo.png" alt="FortifID Logo"></a>
       <br /><br />
       <h5>Document Verification</h5>
       <hr />
@@ -57,23 +59,20 @@
     <div class="w300">
       <br />
       <div id="send-verification" class="text-left d-none">
-
         <div class="form-group">
-          <label class="form-label" for="full_name">Full Name</label>
-          <input id="full_name" class="form-input" type="text" placeholder="Full Name" minlength="1" maxlength="64">
+          <label class="form-label" for="phone_number">Phone Number</label>
+          <input id="phone_number" class="form-input" type="tel" placeholder="Phone Number" minlength="10"
+            maxlength="15" required>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="email_address">Email</label>
           <input id="email_address" class="form-input" type="email" placeholder="Email"
             pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,14}$" maxlength="64" required>
         </div>
         <div class="form-group">
-          <label class="form-label" for="phone_number">Phone Number</label>
-          <input id="phone_number" class="form-input" type="tel" placeholder="Phone Number" minlength="10"
-            maxlength="15" required>
+          <label class="form-label" for="full_name">Full Name</label>
+          <input id="full_name" class="form-input" type="text" placeholder="Full Name" minlength="1" maxlength="64">
         </div>
-
         <div class="form-group">
           <label class="form-label" for="birth_date">Birth Date</label>
           <input id="birth_date" type="date" min="1900-01-01" max="2022-12-31" class="form-input"
@@ -90,9 +89,27 @@
         </div>
 
         <div class="form-group">
+          <label class="form-label" for="sms_text">Custom SMS Text</label>
+          <input id="sms_text" class="form-input" placeholder="Please follow link to verify your phone number: %URL%"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="link_url">Custom Link URL</label>
+          <input id="link_url" class="form-input" placeholder="https://custom-verify.com/verify/%URL%" required>
+        </div>
+
+        <div class="form-group">
           <label class="form-switch">
             <input id="check-strict" type="checkbox" checked>
             <i class="form-icon"></i> Strict (name and DOB must match the document)
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="form-switch">
+            <input id="shorten_url" type="checkbox">
+            <i class="form-icon"></i> Shorten URL
           </label>
         </div>
 
@@ -136,7 +153,9 @@
       const IDS = {
         'test': '45d898bf-50c1-4c39-9216-71d07904ba30',
         'i.prod.fortifid.com': '56cb84da-9372-4c3c-ba40-1b3a6af6db34',
-        'default':  'defbb5fe-8c43-446f-847c-bf1e49dba3bf'
+        'power.fortifid.com': '56cb84da-9372-4c3c-ba40-1b3a6af6db34',
+        'api.fortifid.com': '56cb84da-9372-4c3c-ba40-1b3a6af6db34',
+        'default': 'defbb5fe-8c43-446f-847c-bf1e49dba3bf'
       }
 
       const apiKey = MODE === 'PROD' ? IDS[window.location.hostname] || IDS.default : IDS.test;
@@ -175,7 +194,7 @@
         if (resultsTimer) {
           try {
             clearTimeout(resultsTimer);
-          } catch (error) {}
+          } catch (error) { }
           resultsTimer = undefined;
         }
       }
@@ -223,7 +242,7 @@
                 if (firstChar === '[' || firstChar === '{') {
                   data = JSON.parse(data);
                 }
-              } catch (e) {}
+              } catch (e) { }
             }
           }
 
@@ -282,7 +301,7 @@
                 transaction_id = undefined;
                 status =
                   `<h3><span style="color:white;background-color: red;padding:10px 20px">DECLINED</span></h3>`;
-              } else{
+              } else {
 
               }
 
@@ -365,13 +384,16 @@
 
         let data = {
           transaction_id: transaction_id,
-          full_name: $('#full_name').val(),
-          email_address: $('#email_address').val() || '',
           phone_number: $('#phone_number').val() || '',
+          email_address: $('#email_address').val() || '',
+          full_name: $('#full_name').val(),
           birth_date: $('#birth_date').val() || '',
           request_reference: $('#request_reference').val(),
           redirect_url: $('#redirect_url').val(),
+          sms_text: $('#sms_text').val(),
+          link_url: $('#link_url').val(),
           strict: $('#check-strict').is(':checked'),
+          shorten_url: $('#shorten_url').is(':checked'),          
         };
 
         if (data.email_address.length < 3 && data.phone_number.length < 9) {
@@ -409,7 +431,7 @@
         focused = true;
         checkRequest = true;
         await getRequestStatus(true);
-        
+
         if (transaction_id) {
           divStatus2.html('&nbsp;');
           divVeriff.classList.remove("d-none");

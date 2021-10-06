@@ -31,9 +31,12 @@ const getAuthz = async (certId) => {
         return;
     }
 
+
+
     let result = await awsClient.getDDBItem('USER_AUTHZ_TABLE', {
         CertificateID: certId
     });
+
     if (result) {
         return result.Item;
     }
@@ -59,77 +62,86 @@ const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) 
     let reason = 'Unauthorized';
     let code = 401;
     let certId;
+    let passed = false;
     //TODO: All this should be done in the apigw!
 
     try {
+        let user;
+        let fingerprint = request.headers['x-client-fingerprint'];
+        if (fingerprint && fingerprint.length > 0) {
+            user = cache.getM("user-cert", fingerprint);
+        }
 
-        let cert = request.headers['x-client-cert'];
-        if (cert && cert.length > 0) {
-            cert = decodeURIComponent(cert);
-            cert = pem.decode(cert);
-            if (cert) {
-                certId = utils.hash(cert, 'sha256', 'hex').toUpperCase();
-                //request.user = certId;
-                let user = await getAuthz(certId);
-
-                let passed = false;
-                if (user) {
-                    if (user.Expiration && (new Date(user.Expiration) > new Date())) {
-                        passed = true;
-                    } else {
-                        reason = 'Expired account.';
+        if (!user) {
+            let cert = request.headers['x-client-cert'];
+            if (cert && cert.length > 0) {
+                cert = decodeURIComponent(cert);
+                cert = pem.decode(cert);
+                if (cert) {
+                    certId = utils.hash(cert, 'sha256', 'hex').toUpperCase();
+                    user = await getAuthz(certId);
+                    if(user) {
+                        cache.setM("user-cert", fingerprint, user);
                     }
-
-                    if (passed) {
-                        if (!user.IpPrefixPermitList || !utils.ipRangeCheck(request.ip, user.IpPrefixPermitList)) {
-                            reason = `IP address not allowed. ${request.ip}`;
-                            passed = false;
-                        }
-                    }
-                }
-
-                if (passed) {
-                    if(typeof(user.Level) !== 'number') {
-                        user.Level = 0;
-                    }
-
-                    if((!requireAdmin || user.Role === 'admin') &&  user.Level >= minLevel) {
-                        request.user = user; 
-                        return true;
-                    }
-
-                    // let rateLimit = checkRateLimit(request);
-                    // logger.silly(user.CustomerAccountID, rateLimit);
-                    // if(rateLimit && rateLimit.remainingPoints > -1) {
-                    //      //RateLimit-Limit
-                    //      reply.headers['RateLimit-Remaining'] = rateLimit.remainingPoints; 
-                    //      request.user = user; 
-                    //      return true;
-                    // } else {
-                    //     reply.headers['RateLimit-Remaining'] = 0;
-                    //     reason = 'Rate limit exceeded. Please contact help@fortifid.com.';
-                    //     code = 429;
-                    // }
-                    // let rateLimit = await cache.decrementP('rate_limit', user.CustomerAccountID, 'value.credits_available');
-                    //logger.silly(user.CustomerAccountID, rateLimit);
-
-                    // if(rateLimit && rateLimit.credits_available > -1) {
-                    //      //RateLimit-Limit
-                    //      reply.headers['RateLimit-Remaining'] = rateLimit.credits_available; 
-                    //      request.user = user; 
-                    //      logger.silly(user.CustomerAccountID, rateLimit);
-                    //      return true;
-                    // } else {
-                    //     reply.headers['RateLimit-Remaining'] = 0;
-                    //     reason = 'Rate limit exceeded. Please contact help@fortifid.com.';
-                    //     code = 403;
-                    // }
+                } else {
+                    reason = 'Invalid client certificate.';
                 }
             } else {
-                reason = 'Invalid client certificate.';
+                reason = 'Missing client certificate.';
             }
-        } else {
-            reason = 'Missing client certificate.';
+        }
+
+        if (user) {
+            if (user.Expiration && (new Date(user.Expiration) > new Date())) {
+                passed = true;
+            } else {
+                reason = 'Expired account.';
+            }
+
+            if (passed) {
+                if (!user.IpPrefixPermitList || !utils.ipRangeCheck(request.ip, user.IpPrefixPermitList)) {
+                    reason = `IP address not allowed. ${request.ip}`;
+                    passed = false;
+                }
+            }
+        }
+
+        if (passed) {
+            if (typeof (user.Level) !== 'number') {
+                user.Level = 0;
+            }
+
+            if ((!requireAdmin || user.Role === 'admin') && user.Level >= minLevel) {
+                request.user = user;
+                return true;
+            }
+
+            // let rateLimit = checkRateLimit(request);
+            // logger.silly(user.CustomerAccountID, rateLimit);
+            // if(rateLimit && rateLimit.remainingPoints > -1) {
+            //      //RateLimit-Limit
+            //      reply.headers['RateLimit-Remaining'] = rateLimit.remainingPoints; 
+            //      request.user = user; 
+            //      return true;
+            // } else {
+            //     reply.headers['RateLimit-Remaining'] = 0;
+            //     reason = 'Rate limit exceeded. Please contact help@fortifid.com.';
+            //     code = 429;
+            // }
+            // let rateLimit = await cache.decrementP('rate_limit', user.CustomerAccountID, 'value.credits_available');
+            //logger.silly(user.CustomerAccountID, rateLimit);
+
+            // if(rateLimit && rateLimit.credits_available > -1) {
+            //      //RateLimit-Limit
+            //      reply.headers['RateLimit-Remaining'] = rateLimit.credits_available; 
+            //      request.user = user; 
+            //      logger.silly(user.CustomerAccountID, rateLimit);
+            //      return true;
+            // } else {
+            //     reply.headers['RateLimit-Remaining'] = 0;
+            //     reason = 'Rate limit exceeded. Please contact help@fortifid.com.';
+            //     code = 403;
+            // }
         }
     } catch (error) {
         reason = error.message;
@@ -142,17 +154,17 @@ const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) 
         code: code
     }
 
-    if(reply.type) {
+    if (reply.type) {
         reply.type('application/json').code(code).send(data);
-    }else {
+    } else {
         utils.sendData(reply, data, code);
     }
 
-    let e = {...data};
-    if(certId) {
-        e.cert = certId; 
+    let e = { ...data };
+    if (certId) {
+        e.cert = certId;
     }
-    
+
     logger.warn(e);
 }
 

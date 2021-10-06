@@ -169,11 +169,11 @@ fastify.post('/generate-url', async (request, reply) => {
         let transaction_id = utils.getUUID();
         data.transaction_id = transaction_id;
         let doLookup = typeof (body.lookup) === 'boolean' ? body.lookup : true; 
-        let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : true; 
+        let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false; 
         let send = typeof (body.send) === 'boolean' ? body.send : true;
         let allow_voip = typeof (body.allow_voip) === 'boolean' ? body.allow_voip : true;
-        let url = typeof(body.link_url) === 'string' ? body.link_url : DEFAULT_URL;
-        let text = typeof(body.sms_text) === 'string' ? body.sms_text : params.sms_text;
+        let url = typeof(body.link_url) === 'string'  && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
+        let text = typeof(body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
 
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
@@ -186,7 +186,7 @@ fastify.post('/generate-url', async (request, reply) => {
                 };
 
                 let results = doLookup ?  await twilioUtils.lookup(lookup) : { carrier: { type: "mobile" }, countryCode: "US" };
-
+      
                 if (results) {
                     if(doLookup) {
                         logger.silly(results);
@@ -196,12 +196,27 @@ fastify.post('/generate-url', async (request, reply) => {
                         code = 404;
                     } else if (results.carrier !== null && typeof (results.carrier) === 'object') {
                         let carrier = results.carrier;
-
-                        data.country_code = results.countryCode;
-                        data.type = carrier.type;
-                        if (carrier.type === 'mobile' || (allow_voip && carrier.type === 'voip')) {
+                        if(doLookup) {
+                            data.country_code = results.countryCode;
+                            
+                            if(carrier) {
+                                if(carrier.name) {
+                                    data.carrier = carrier.name; 
+                                }
+    
+                                data.type = carrier.type;
+                                if(carrier.mobile_country_code) {
+                                    data.mobile_country_code = parseInt(carrier.mobile_country_code); 
+                                }
+        
+                                if(carrier.mobile_network_code) {
+                                    data.mobile_network_code = parseInt(carrier.mobile_network_code); 
+                                }
+                            }
+                        }
+                        if (!doLookup || carrier.type === 'mobile' || (allow_voip && carrier.type === 'voip')) {
                             //TODO!
-                            if (results.countryCode === 'US') {
+                            if (!lookup || results.countryCode === 'US') {
                                 if (send) {
                                     data.url = url.replace("%URL%", encodeURIComponent(transaction_id));
                                     if(shorten) {
@@ -271,7 +286,6 @@ fastify.post('/generate-url', async (request, reply) => {
         data.error = 'Missing parameter';
     }
 
-    data.code = code;
     reply.type('application/json').code(code);
     return data;
 })

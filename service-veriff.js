@@ -284,10 +284,11 @@ fastify.post('/generate-url', async (request, reply) => {
 
         let full_name = body.full_name;
         let dob = body.birth_date;
-        let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : true;
+        let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false;
         let send = typeof (body.send) === 'boolean' ? body.send : true;
-        let url = typeof (body.link_url) === 'string' ? body.link_url : DEFAULT_URL;
-        let text = typeof (body.sms_text) === 'string' ? body.sms_text : params.sms_text;
+        let url = typeof(body.link_url) === 'string'  && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
+        let text = typeof(body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
+
         let strict = typeof (body.strict) === 'boolean' ? body.strict : false;
 
         let dobData = dayjs(dob);
@@ -359,17 +360,20 @@ fastify.post('/generate-url', async (request, reply) => {
             let save = {
                 created: data.created,
                 status: data.status,
-                strict: strict,
-                pii: {}
+                strict: strict
             };
 
-            if (typeof (dob) === 'string' && dob.length > 0) {
-                save.pii.dob = dob;
-            }
+            if(strict) {
+                save.pii = {};
 
-            if (typeof (full_name) === 'string' && full_name.length > 0) {
-                save.pii.full_name = full_name;
-            }
+                if (typeof (dob) === 'string' && dob.length > 0) {
+                    save.pii.dob = dob;
+                }
+    
+                if (typeof (full_name) === 'string' && full_name.length > 0) {
+                    save.pii.full_name = full_name;
+                }
+            } 
 
             if (request.user) {
                 save.customer_id = request.user.CustomerAccountID;

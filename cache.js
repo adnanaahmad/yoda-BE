@@ -22,8 +22,10 @@ let params;
 const DEFAULT_EXPIRATION_MS = ms('1w');
 const DEFAULT_EXPIRATION = Math.round(DEFAULT_EXPIRATION_MS / 1000);
 
+const DEFAULT_MEM_EXPIRATION = Math.round(ms('10m') / 1000);
+
 const MEMORY_CACHE = new NodeCache({
-    stdTTL: DEFAULT_EXPIRATION,
+    stdTTL: DEFAULT_MEM_EXPIRATION,
     checkperiod: 120,
     useClones: false
 });
