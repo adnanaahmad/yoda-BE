@@ -64,7 +64,7 @@ const compare =(a, b, ignoreMiddle = false)=> {
 
     if(a === b) {
         //Hyst an indicator that it was an exact match
-        return 1.2;
+        return 1.3;
     }
     
     if(debug) {
@@ -76,9 +76,8 @@ const compare =(a, b, ignoreMiddle = false)=> {
 
     if(a === b) {
         //Hyst an indicator that it was an exact match
-        return a.split(' ').length > 2 ? 1.3 : 1.1;
+        return a.split(' ').length > 2 ? 1.2 : 1.1;
     }
-
 
     if(ignoreMiddle) {
         const removeMiddle = (name)=> {
