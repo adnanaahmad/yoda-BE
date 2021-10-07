@@ -1,5 +1,7 @@
 # Quick start
 
+* Please remember that all our APIs require the proper client certificates which are typically different for each environment.
+
 ### Secure MFA
 * https://developer.fortifid.com/product/mfa/reference
 
