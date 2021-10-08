@@ -1,18 +1,19 @@
 # Quick start
 
-* Please remember that all our APIs require the proper client certificates which are typically different for each environment.
+* Please remember that all our API products require the proper **client certificates** which are typically different for each environment.
+* Contact <a href="mailto:support@fortifid.zendesk.com">support</a> if you have any issues or questions.
 
-### Secure MFA
-* [https://developer.fortifid.com/product/mfa/reference](https://developer.fortifid.com/product/mfa/reference)
+## Secure MFA
+* [Reference](https://developer.fortifid.com/product/mfa/reference)
 
 OpenAPI 3.0 spec:
-* [https://portal-uat.fortifid.com/public/api/yaml/mfa](https://portal-uat.fortifid.com/public/api/yaml/mfa)
+* [Download YAML Specification](https://portal-uat.fortifid.com/public/api/yaml/mfa)
 
 Postman:
 * [Run in Postman](https://god.gw.postman.com/run-collection/dc0aae024b466c2b10a6)
-* [Download](https://www.getpostman.com/collections/dc0aae024b466c2b10a6)
+* [ Postman Configuration](https://www.getpostman.com/collections/dc0aae024b466c2b10a6)
 
-#### Examples:
+### Examples:
 
 **generate-url**
 ```bash
@@ -33,6 +34,7 @@ curl --location --request POST 'https://api-uat.fortifid.com/v1/mfa/generate-url
     "send": true
 }'
 ```
+
 **check-request**
 ```bash
 curl --location --request GET 'https://api-uat.fortifid.com/v1/mfa/check-request/{tranasaction_id}' \
@@ -47,17 +49,18 @@ curl --location --request GET 'https://api-uat.fortifid.com/v1/mfa/verify/{trana
 --cert ./uat-cert.pem
 ```
 
-### Document Verification
-* [https://developer.fortifid.com/product/doc-verify/reference](https://developer.fortifid.com/product/doc-verify/reference)
+<br/>
+## Document Verification
+* [Reference](https://developer.fortifid.com/product/doc-verify/reference)
 
 OpenAPI 3.0 spec:
-* [https://portal-uat.fortifid.com/public/api/yaml/doc-verify](https://portal-uat.fortifid.com/public/api/yaml/doc-verify)
+* [Download YAML Specification](https://portal-uat.fortifid.com/public/api/yaml/doc-verify)
 
 Postman:
 * [Run in Postman](https://god.gw.postman.com/run-collection/f31f0433c0b8a154a17a)
-* [Download](https://www.getpostman.com/collections/f31f0433c0b8a154a17a)
+* [Download Postman Configuration](https://www.getpostman.com/collections/f31f0433c0b8a154a17a)
 
-#### Examples:
+### Examples:
 
 **generate-url**
 ```bash
