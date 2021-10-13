@@ -18,7 +18,7 @@
     "atob": "^2.1.2",
     "awesome-phonenumber": "^2.54.0",
     "aws-sdk": "^2.985.0",
-    "axios": "^0.21.4",
+    "axios": "^0.23.0",
     "bcrypt": "^5.0.0",
     "big-integer": "^1.6.48",
     "bull": "^3.26.0",

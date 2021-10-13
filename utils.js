@@ -1046,27 +1046,6 @@ const loadFile = async (file) => {
     } catch (error) { }
 }
 
-async function fetchWithTimeout(resource, options) {
-    const {
-        timeout = 8000
-    } = options;
-
-    if (httpsAgent) {
-        config.agent = httpsAgent;
-    }
-
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
-
-    const response = await fetch(resource, {
-        ...options,
-        signal: controller.signal
-    });
-    clearTimeout(id);
-
-    return response;
-}
-
 const toUrlSafeBase64 = (text) => {
     let safe = Buffer.from(text).toString('base64')
         .replace(/\+/g, '-') // Convert '+' to '-'
@@ -1432,7 +1411,6 @@ module.exports = {
     getUUID,
     unescapeHTML,
     escapeHTML,
-    fetchWithTimeout,
     shortenUrl,
     setLogger,
     sameDate,
