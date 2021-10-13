@@ -45,6 +45,13 @@ const handler = require('./utils-handlers');
 // fastify.get('/', function (request, reply) {
 //     return reply.sendFile('index.html'); // serving path.join(__dirname, 'public', 'myHtml.html') directly
 // })
+fastify.get('/health', (request, reply) => {
+    return utils.getHealth(SCRIPT_INFO, false);
+})
+
+fastify.get('/info', (request, reply) => {
+    return utils.getHealth(SCRIPT_INFO, true);
+})
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
@@ -59,12 +66,12 @@ fastify.get('/check-request/:id', async (request, reply) => {
         let record = await cache.getP(TABLE, id);
 
         if (record) {
-            if(record.created) {
-                data.created = record.created; 
+            if (record.created) {
+                data.created = record.created;
             }
 
-            if(record.finished) {
-                data.completed = record.finished; 
+            if (record.finished) {
+                data.completed = record.finished;
             }
 
             data.status = record.status;
@@ -108,9 +115,9 @@ fastify.get('/verify/:id', async (request, reply) => {
         let record = await cache.getP(TABLE, id);
         if (record) {
             code = 200;
-            
-            if(record.created) {
-                data.created = record.created; 
+
+            if (record.created) {
+                data.created = record.created;
             }
 
             if (record.finished) {
@@ -168,12 +175,12 @@ fastify.post('/generate-url', async (request, reply) => {
         //let transaction_id = body.transaction_id || utils.getUUID();
         let transaction_id = utils.getUUID();
         data.transaction_id = transaction_id;
-        let doLookup = typeof (body.lookup) === 'boolean' ? body.lookup : true; 
-        let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false; 
+        let doLookup = typeof (body.lookup) === 'boolean' ? body.lookup : true;
+        let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false;
         let send = typeof (body.send) === 'boolean' ? body.send : true;
         let allow_voip = typeof (body.allow_voip) === 'boolean' ? body.allow_voip : true;
-        let url = typeof(body.link_url) === 'string'  && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
-        let text = typeof(body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
+        let url = typeof (body.link_url) === 'string' && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
+        let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
 
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
@@ -185,10 +192,10 @@ fastify.post('/generate-url', async (request, reply) => {
                     numbers: phone_number
                 };
 
-                let results = doLookup ?  await twilioUtils.lookup(lookup) : { carrier: { type: "mobile" }, countryCode: "US" };
-      
+                let results = doLookup ? await twilioUtils.lookup(lookup) : { carrier: { type: "mobile" }, countryCode: "US" };
+
                 if (results) {
-                    if(doLookup) {
+                    if (doLookup) {
                         logger.silly(results);
                     }
                     if (results instanceof Error) {
@@ -196,21 +203,21 @@ fastify.post('/generate-url', async (request, reply) => {
                         code = 404;
                     } else if (results.carrier !== null && typeof (results.carrier) === 'object') {
                         let carrier = results.carrier;
-                        if(doLookup) {
+                        if (doLookup) {
                             data.country_code = results.countryCode;
-                            
-                            if(carrier) {
-                                if(carrier.name) {
-                                    data.carrier = carrier.name; 
+
+                            if (carrier) {
+                                if (carrier.name) {
+                                    data.carrier = carrier.name;
                                 }
-    
+
                                 data.type = carrier.type;
-                                if(carrier.mobile_country_code) {
-                                    data.mobile_country_code = parseInt(carrier.mobile_country_code); 
+                                if (carrier.mobile_country_code) {
+                                    data.mobile_country_code = parseInt(carrier.mobile_country_code);
                                 }
-        
-                                if(carrier.mobile_network_code) {
-                                    data.mobile_network_code = parseInt(carrier.mobile_network_code); 
+
+                                if (carrier.mobile_network_code) {
+                                    data.mobile_network_code = parseInt(carrier.mobile_network_code);
                                 }
                             }
                         }
@@ -219,7 +226,7 @@ fastify.post('/generate-url', async (request, reply) => {
                             if (!lookup || results.countryCode === 'US') {
                                 if (send) {
                                     data.url = url.replace("%URL%", encodeURIComponent(transaction_id));
-                                    if(shorten) {
+                                    if (shorten) {
                                         let short = await utils.shortenUrl(data.url);
                                         data.url = short || data.url;
                                     }
@@ -251,7 +258,7 @@ fastify.post('/generate-url', async (request, reply) => {
                                     save.request_reference = request_reference;
                                 }
 
-                                if(send) {
+                                if (send) {
                                     await cache.setP(TABLE, transaction_id, save, '1w', true);
                                 }
                             } else {

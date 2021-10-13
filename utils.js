@@ -1205,6 +1205,28 @@ const shortenUrl = async (url, token, full = false,) => {
 
 }
 
+//TODO
+const getHealth = (info, full = false)=> {
+    const now = Date.now();
+    try {
+        const data = full ? { ...info} : {};
+        data.status =  "OK";
+        data.time = now;
+        data.uptime = now - info.start;
+        data.memory = process.memoryUsage();
+        data.cpu = process.cpuUsage();
+        data.loadavg = os.loadavg();
+        data.os_uptime = os.uptime();
+        data.freemem = os.freemem();
+        data.totalmem = os.totalmem();
+
+        return data; 
+    } catch (error) {
+        //console.log(error);
+        return { status: "error"};
+    }
+}
+
 const setLogger = (logger) => {
     _logger = logger;
 }
@@ -1431,5 +1453,6 @@ module.exports = {
     escapeJSON,
     hasGit,
     csvToArray,
-    arrayToCSV
+    arrayToCSV,
+    getHealth
 }

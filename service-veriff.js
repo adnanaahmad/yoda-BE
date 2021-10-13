@@ -55,6 +55,14 @@ const handler = require('./utils-handlers');
 
 const KEYS = {};
 
+fastify.get('/health', (request, reply) => {
+    return utils.getHealth(SCRIPT_INFO, false);
+})
+
+fastify.get('/info', (request, reply) => {
+    return utils.getHealth(SCRIPT_INFO, true);
+})
+
 const loadParams = async () => {
     params = await require('./params')(CONFIG_PATH, logger);
     KEYS[params.client_id] = params.client_secret;

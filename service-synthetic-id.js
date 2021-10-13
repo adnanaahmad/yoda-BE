@@ -45,6 +45,14 @@ fastify.register(require('fastify-static'), {
 
 const handler = require('./utils-handlers');
 
+fastify.get('/health', (request, reply) => {
+    return utils.getHealth(SCRIPT_INFO, false);
+})
+
+fastify.get('/info', (request, reply) => {
+    return utils.getHealth(SCRIPT_INFO, true);
+})
+
 const doOPAL = (data) => {
     // const SAMEPLE_INPUT = {
     //     flags: {
