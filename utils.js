@@ -1212,11 +1212,11 @@ const getHealth = (info, full = false)=> {
         const data = full ? { ...info} : {};
         data.status =  "OK";
         data.time = now;
-        data.uptime = now - info.start;
+        data.uptime = Math.round((now - info.start) /1000);
         data.memory = process.memoryUsage();
         data.cpu = process.cpuUsage();
         data.loadavg = os.loadavg();
-        data.os_uptime = os.uptime();
+        data.os_uptime = Math.round(os.uptime());
         data.freemem = os.freemem();
         data.totalmem = os.totalmem();
 
