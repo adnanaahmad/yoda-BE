@@ -179,6 +179,8 @@ fastify.post('/generate-url', async (request, reply) => {
         let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false;
         let send = typeof (body.send) === 'boolean' ? body.send : true;
         let allow_voip = typeof (body.allow_voip) === 'boolean' ? body.allow_voip : true;
+        let include_carrier = typeof (body.include_carrier) === 'boolean' ? body.include_carrier : false;
+
         let url = typeof (body.link_url) === 'string' && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
         let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
 
@@ -208,18 +210,19 @@ fastify.post('/generate-url', async (request, reply) => {
 
                             if (carrier) {
                                 data.type = carrier.type;
+                                if (include_carrier) {
+                                    if (carrier.name) {
+                                        data.carrier = carrier.name;
+                                    }
 
-                                // if (carrier.name) {
-                                //     data.carrier = carrier.name;
-                                // }
+                                    if (carrier.mobile_country_code) {
+                                        data.mobile_country_code = parseInt(carrier.mobile_country_code);
+                                    }
 
-                                // if (carrier.mobile_country_code) {
-                                //     data.mobile_country_code = parseInt(carrier.mobile_country_code);
-                                // }
-
-                                // if (carrier.mobile_network_code) {
-                                //     data.mobile_network_code = parseInt(carrier.mobile_network_code);
-                                // }
+                                    if (carrier.mobile_network_code) {
+                                        data.mobile_network_code = parseInt(carrier.mobile_network_code);
+                                    }
+                                }
                             }
                         }
                         if (!doLookup || carrier.type === 'mobile' || (allow_voip && carrier.type === 'voip')) {
