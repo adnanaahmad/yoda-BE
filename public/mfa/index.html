@@ -91,21 +91,29 @@
             <div class="form-group">
                 <label class="form-switch">
                     <input id="lookup" type="checkbox" checked>
-                    <i class="form-icon"></i> Do Phone Number Lookup 
-                </label>
-            </div>
-
-            <div class="form-group">
-                <label class="form-switch">
-                    <input id="shorten_url" type="checkbox">
-                    <i class="form-icon"></i> Shorten URL 
+                    <i class="form-icon"></i> Perform Phone Number Lookup 
                 </label>
             </div>
 
             <div class="form-group">
                 <label class="form-switch">
                     <input id="check-voip" type="checkbox" checked>
-                    <i class="form-icon"></i> Allow VOIP Numbers
+                    <i class="form-icon"></i> Allow VOIP Numbers (requires lookup)
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="form-switch">
+                    <input id="include_carrier" type="checkbox">
+                    <i class="form-icon"></i> Include Carrier Data (requires lookup)
+                </label>
+            </div>
+
+
+            <div class="form-group">
+                <label class="form-switch">
+                    <input id="shorten_url" type="checkbox">
+                    <i class="form-icon"></i> Shorten URL 
                 </label>
             </div>
 
@@ -361,6 +369,7 @@
                     allow_voip: $('#check-voip').is(':checked'),
                     shorten_url: $('#shorten_url').is(':checked'),
                     send: $('#check-send').is(':checked'),
+                    include_carrier: $('#include_carrier').is(':checked'),
                 };
 
                 if (data.phone_number.length < 9) {
