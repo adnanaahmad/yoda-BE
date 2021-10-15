@@ -98,7 +98,7 @@ const add = async (data) => {
             results = await sendSMSTwilio(data.numbers, data.text);
             if (results) {
                 const duration = utils.time() - start;
-                logger.info(`[${id}] SMS sent. ${results.sid} [${results.from}] ${utils.toFixedPlaces(duration, 2)}ms`);
+                logger.info(`[${id}] SMS sent. ${results.sid} ${utils.toFixedPlaces(duration, 2)}ms`);
             } else {
                 logger.warn('No data returned.');
             }
