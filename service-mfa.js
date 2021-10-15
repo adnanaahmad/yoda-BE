@@ -207,18 +207,19 @@ fastify.post('/generate-url', async (request, reply) => {
                             data.country_code = results.countryCode;
 
                             if (carrier) {
-                                if (carrier.name) {
-                                    data.carrier = carrier.name;
-                                }
-
                                 data.type = carrier.type;
-                                if (carrier.mobile_country_code) {
-                                    data.mobile_country_code = parseInt(carrier.mobile_country_code);
-                                }
 
-                                if (carrier.mobile_network_code) {
-                                    data.mobile_network_code = parseInt(carrier.mobile_network_code);
-                                }
+                                // if (carrier.name) {
+                                //     data.carrier = carrier.name;
+                                // }
+
+                                // if (carrier.mobile_country_code) {
+                                //     data.mobile_country_code = parseInt(carrier.mobile_country_code);
+                                // }
+
+                                // if (carrier.mobile_network_code) {
+                                //     data.mobile_network_code = parseInt(carrier.mobile_network_code);
+                                // }
                             }
                         }
                         if (!doLookup || carrier.type === 'mobile' || (allow_voip && carrier.type === 'voip')) {
