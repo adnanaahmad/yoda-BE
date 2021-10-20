@@ -161,14 +161,13 @@ fastify.post('/generate-url', async (request, reply) => {
         return;
     }
 
-    //const body = typeof(request.body) === 'string' ? JSON.parse(request.body) : request.body;
     let body = request.body;
     let code = 200;
     const data = {
         created: Date.now(),
         status: 'declined'
     };
-
+    
     if (body && body.phone_number) {
         //logger.silly(body);
         //TODO!
