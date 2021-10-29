@@ -1,0 +1,328 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>FortifID | Certificate Service</title>
+    <meta name="author" content="cisco@fortifid.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.9/spectre.min.css"
+        integrity="sha512-9RIcp1f4CE6dEuYX9085tXaEbYd1ap04d2Av1ub/dwuT33WbfbHStDdQ+shKrp5wzZzleh5DOg+7ABSnaQP/nQ=="
+        crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/styles/a11y-dark.min.css">
+    <style>
+        .center {
+            margin: 0 auto;
+        }
+
+
+        hr {
+            max-width: 200px;
+        }
+
+        #logo {
+            width: 300px;
+        }
+
+        .code {
+            color: black;
+        }
+
+        .w300 {
+            min-width: 300px;
+        }
+
+        .w220 {
+            min-width: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container grid-lg">
+        <br />
+        <div class="text-center">
+            <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo"
+                    src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/logo.png" alt="FortifID Logo"></a>
+            <br /><br />
+            <h5>Certificate Service</h5>
+            <hr />
+        </div>
+
+        <div id="form" class="w300">
+            <div class="form-group">
+                <label class="form-label" for="subject">Subject:</label>
+                <input id="subject" class="form-input" type="text" placeholder="Subject:" minlength="1"
+                    maxlength="64" value="/C=US/O=FortifID/CN=Cisco Caceres/OU=Engineering">
+            </div>
+           
+            <br /> <br />
+            <button id="btn-ok" class="btn btn-primary w220">Generate your keypair and CSR then Download</button>
+            <br /> <br />
+            <button id="btn-cert" class="btn btn-primary w220">Request and Download Certificate</button>
+            <br /><br />
+            <div id="output" class="text-center"></div>
+            <br /> <br />
+            <div class="form-group">
+                <label class="form-label" for="out_prv">PKCS#8 plain PRIVATE KEY</label>
+                <textarea id="out_prv" cols="82" rows="5" class="form-input" readonly></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="out_csr">Certificate Signing Request (CSR/PKCS#11)</label>
+                <textarea id="out_csr" cols="82" rows="5" class="form-input" readonly></textarea>
+            </div>
+
+            <div id="div-url">&nbsp;</div>
+        </div>
+
+    </div>
+    <br />
+    <br />
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.0.slim.min.js"
+        integrity="sha256-MlusDLJIP1GRgLrOflUQtshyP0TwT/RHXsI1wWGnQhs=" crossorigin="anonymous"></script>
+    <script>
+        (async () => {
+            "use strict";
+
+            let divOutput = $("#output");
+            const BASE_URL = `${window.location.protocol}//${window.location.hostname}/synthetic-id/v1`;
+
+            //let privateKeyButton =  $("#btn-prv");
+            let certButton =  $("#btn-cert");
+            //privateKeyButton.attr('download', "fortifid-api.key");
+            //privateKeyButton.hide();
+            certButton.hide();
+
+            const setOutput = (str, mode = 1, br = true) => {
+                if (br)
+                    str += '<br/>';
+
+                switch (mode) {
+                    case 0:
+                        divOutput.html(str);
+                        break;
+                    case -1:
+                        divOutput.prepend(str);
+                        break;
+                    default:
+                        divOutput.append(str);
+                }
+            }
+
+            const outputResults = (data, mode = 1, br = true) => {
+                let isJSON = false;
+                let content;
+                let dataType = typeof (data);
+
+                if (dataType === 'object') {
+                    content = JSON.stringify(data, null, 2);
+                    isJSON = true;
+                } else if (dataType === 'string' && data.length > 1) {
+                    let firstChar = data.substring(0, 1);
+                    content = data;
+                    isJSON = (firstChar === '[' || firstChar === '{');
+                }
+
+                const MAX = 64 * 1024;
+                let noFormat = content.length > MAX;
+                if (noFormat) {
+                    isJSON = false;
+                    setOutput(
+                        `Results too long (${formatBytes(content.length)}). Limiting to first. ${formatBytes(MAX)} characters.`
+                    );
+                    content = content.substring(0, MAX);
+                }
+
+                let str =
+                    `<pre><code class="text-left ${(isJSON ? 'json' : 'hljs')}">${content}</code></pre>`;
+
+                setOutput(str, mode, br);
+
+                if (isJSON) {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightBlock(block);
+                    });
+                }
+            }
+
+            function download(filename, data) {
+
+                let element = document.createElement('a');
+                //element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                element.setAttribute('href', window.URL.createObjectURL(new Blob([data], { type: "text/plain" })));
+                element.setAttribute('download', filename);
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+
+                document.body.removeChild(element);
+            }
+
+            const getAPIData = async (endpoint, params, method = 'get', responseType) => {
+                let headers = {};
+                let data;
+
+                if (!method) {
+                    method = 'get';
+                } else {
+                    method = method.toLowerCase();
+                }
+
+                let url = `${BASE_URL}${endpoint}`;
+                let options = {
+                    method: method,
+                    headers: headers,
+                };
+
+                if (params) {
+                    if (method === 'post' || method === 'put' || method === 'patch') {
+                        options.body = JSON.stringify(params);
+                        if (!headers['content-type']) {
+                            headers['content-type'] = 'application/json';
+                        }
+                    } else {
+                        url = `${url}?${new URLSearchParams(params)}`;
+                    }
+                }
+
+                let response;
+                try {
+                    response = await fetch(url, options);
+                    const getData = async () => {
+                        data = await response.text();
+                        if (data && data.length > 1) {
+                            try {
+                                let firstChar = data.substring(0, 1);
+
+                                if (firstChar === '[' || firstChar === '{') {
+                                    data = JSON.parse(data);
+                                }
+                            } catch (e) { }
+                        }
+                    }
+
+                    if (response) {
+                        if (response.ok) {
+                            if (responseType === 'blob') {
+                                data = await response.blob();
+                            } else {
+                                await getData();
+                            }
+                        } else {
+                            await getData();
+                        }
+                    }
+                } catch (error) {
+                    console.log(error.message);
+                }
+                return data;
+            }
+
+            // $('#btn-crt').on("click", async () => {
+            //     download("fortifid-api.key", $('#out_prv').val());
+            // });
+
+            $('#btn-ok').on("click", async () => {
+              /// C = US, ST = NV, L = Las Vegas, O = FortifID, OU = Engineering, CN = Cisco Caceres  
+                let line = '<img src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif"> Generating private key...';
+                setOutput(line, 0);
+
+                let subject = $('#subject').val();
+
+                // let sigalg = "SHA256withECDSA";
+                // let keyalg = "EC";
+                // let keylen = "secp256r1";
+
+                let sigalg = "SHA256withRSA";
+                let keyalg = "RSA";
+                let keylen = 2048;
+
+                let curve = "NIST P-256";
+
+                try {
+                    let kp = KEYUTIL.generateKeypair(keyalg, keylen);
+                    let line = '<img src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif"> Generating CSR...';
+                    setOutput(line, 0);
+
+                    let pem = KJUR.asn1.csr.CSRUtil.newCSRPEM({
+                        "subject": { "str": subject },
+                        "sbjpubkey": kp.pubKeyObj,
+                        "sigalg": sigalg,
+                        "sbjprvkey": kp.prvKeyObj
+                    });
+                    const pkey = (KEYUTIL.getPEM(kp.prvKeyObj, "PKCS8PRV")); 
+                    $('#out_csr').val(pem);
+                    $('#out_prv').val(pkey);
+
+                    //privateKeyButton.attr('href', window.URL.createObjectURL(new Blob([pkey], { type: "text/plain" })));
+                    certButton.show();
+                    download("fortifid-api.key", pkey);
+                    // try {
+                    //     $('#out_dump').val(ASN1HEX.dump(pemtohex(pem)));
+                    // } catch (ex) { }
+                    //alert("Keypair and CSR successfully generated");
+                } catch (ex) {
+                    alert("Failed: " + ex);
+                }
+
+                setOutput("Done.", 0);
+                // let data = {
+                //     first_name: $('#first_name').val(),
+                //     middle_name: $('#middle_name').val(),
+                //     last_name: $('#last_name').val(),
+                //     phone_number: $('#phone_number').val() || '',
+                //     email_address: $('#email_address').val() || '',
+                //     line1: $('#line1').val() || '',
+                //     line2: $('#line2').val() || '',
+                //     city: $('#city').val() || '',
+                //     state: $('#state').val() || '',
+                //     zip_code: $('#zip_code').val() || '',
+                //     birth_date: $('#birth_date').val() || '',
+                //     request_reference: $('#request_reference').val(),
+                //     redirect_url: $('#redirect_url').val(),
+                // };
+
+                // // if (data.phone_number.length < 9) {
+                // //     setOutput('<span style="color:red;">Phone number required</span>', 0);
+                // //     return;
+                // // }
+
+                // //$("#div-url").html('&nbsp;');
+
+                // setOutput('Requesting...', 0);
+                // let results = await getAPIData('/query', data, 'post');
+                // setOutput('Finished', 0);
+
+                // if (results) {
+                //     outputResults(results);
+                //     // if (results.url) {
+                //     //     $("#div-url").html(
+                //     //         `<a href="${results.url}" target="_blank">${results.url}</a>`
+                //     //     );
+                //     // }
+
+                //     // transaction_id = results.transaction_id;
+                //     // if (results.status === 'sent') {
+                //     //     setOutput('<img src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif"> SMS Sent. Waiting...', 0);
+                //     //     resultsTimer = setTimeout(() => {
+                //     //         getRequestStatus();
+                //     //     }, 3000);
+                //     // } else {
+                //     //     getRequestStatus(results);
+                //     // }
+                // } else {
+                //     setOutput('Nothing returned.', 0);
+                // }
+            })
+        })();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.4.1/jsrsasign-all-min.js" integrity="sha512-LO4ljvYu6tguzAcu2SxWEMPLN0CoG4s83cbdTSmUc6mV586Ze/BaehdiVbYqhSwFUv8iszi00VoPWhGy82YWtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</body>
+
+</html>

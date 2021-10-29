@@ -307,7 +307,6 @@
 
                 let response;
                 try {
-                    console.log(url);
                     response = await fetch(url, options);
                     const getData = async () => {
                         data = await response.text();
