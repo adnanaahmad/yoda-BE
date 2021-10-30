@@ -13,7 +13,6 @@ let params;
 const cache = require('./cache');
 
 const authMain = require('./auth-main');
-const oauth2 = require('./auth-oauth2');
 const awsClient = require('./aws-client');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
@@ -24,7 +23,7 @@ if (!SCRIPT_INFO.host) {
     process.exit(1);
 }
 
-let caCert; 
+let caCert;
 let caKey;
 
 const pem = require('pem-file');
@@ -56,6 +55,59 @@ fastify.get('/info', (request, reply) => {
     return utils.getHealth(SCRIPT_INFO, true);
 })
 
+const createCustomer = async (hash, subject, expiration, ip = "0.0.0.0/32") => {
+    const customer_id = utils.getUUID();
+
+    const data = {
+        "CertificateID": hash,
+        "UserID": 1234,
+        "CustomerAccountID": customer_id,
+        "Subject": subject,
+        "Expiration": expiration,
+        "AdminState": 1,
+        "Statistics": {
+            "requests_good": 0,
+            "responses_error": 0,
+            "responses_good": 0,
+            "requests_error": 0
+        },
+        "RateLimit": {
+            "credits_available": 10,
+            "credits_add_per_minute": 10,
+            "credits_max": 10
+        },
+        "IpPrefixPermitList": [
+            ip
+        ],
+        "OpalAlgorithmGUIDPermitTable": {
+            "BUSINESS-INSIGHTS": [
+                "urn:com:fortifid:algorithm:business_insights"
+            ],
+            "IDV": [
+                "urn:com:fortifid:algorithm:idfsonly",
+                "urn:com:fortifid:algorithm:idv"
+            ],
+            "CONSUMER-INSIGHTS": [
+                "urn:com:fortifid:algorithm:consumer_insights"
+            ],
+            "INCOME-INSIGHTS": [
+                "urn:com:fortifid:algorithm:income_insights",
+                "urn:com:fortifid:algorithm:directid"
+            ],
+            "IPADDR": [
+                "urn:com:fortifid:algorithm:geo"
+            ]
+        },
+        "Expiration": expiration,
+        "Subject": subject
+    };
+
+    //console.log(JSON.stringify(data));
+    let results = await awsClient.putDDBItem("USER_AUTHZ_TABLE", data);
+    //console.log(results);
+    return customer_id;
+}
+
 fastify.post('/generate-cert', async (request, reply) => {
     if (!await authMain.checkHeaders(request, reply)) {
         return;
@@ -77,19 +129,23 @@ fastify.post('/generate-cert', async (request, reply) => {
                 //console.log(csr.subject);
 
                 //console.log('Creating certificate...');
-                var cert = forge.pki.createCertificate();
+                const cert = forge.pki.createCertificate();
+                //TODO!
                 cert.serialNumber = '02';
                 //cert.setSubject(csr.subject);
-              
+
                 cert.setSubject(csr.subject.attributes);
                 cert.setIssuer(caCert.subject.attributes);
                 cert.publicKey = csr.publicKey;
                 cert.validity.notBefore = new Date();
-                let date = new Date();
-                date.setDate(date.getDate() + 375);
-                cert.validity.notAfter = date;
+                const expiration = new Date(cert.validity.notBefore);
+                expiration.setDate(expiration.getDate() + 375);
+                cert.validity.notAfter = expiration;
                 //cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
-                
+                const subject = csr.subject.attributes
+                    .map(attr => [attr.shortName, attr.value].join('='))
+                    .join(', ');
+
                 cert.setExtensions([{
                     name: 'basicConstraints',
                     endEntity: true,
@@ -112,29 +168,32 @@ fastify.post('/generate-cert', async (request, reply) => {
                 {
                     name: 'authorityKeyIdentifier',
 
-                }, 
+                },
                 {
                     name: 'extKeyUsage',
                     clientAuth: true
                 }
-                // {
-                //     name: 'subjectAltName',
-                //     altNames: [{
-                //         type: 6, // URI
-                //         value: 'http://example.org/webid#me'
-                //     }]
-                // }
+                    // {
+                    //     name: 'subjectAltName',
+                    //     altNames: [{
+                    //         type: 6, // URI
+                    //         value: 'http://example.org/webid#me'
+                    //     }]
+                    // }
                 ]);
 
                 cert.sign(caKey, forge.md.sha256.create());
                 //console.log('Certificate created.');
-                
+
                 //data.attributes = csr.subject.attributes;
                 data.cert = forge.pki.certificateToPem(cert);
                 //data.hash = cert.subject.hash;
-                let temp  = pem.decode(data.cert);
+                let temp = pem.decode(data.cert);
+                //Nov 8 21:13:26 2022 GMT
+                data.expiration = utils.formatDate(expiration.getTime(), "MMM D H:mm:ss YYYY") + " GMT";
                 if (temp) {
                     data.hash = utils.hash(temp, 'sha256', 'hex').toUpperCase();
+                    data.customer_id = await createCustomer(data.hash, subject, data.expiration, request.ip + "/32");
                 }
             } else {
                 code = 400;

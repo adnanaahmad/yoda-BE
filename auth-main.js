@@ -99,6 +99,8 @@ const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) 
             }
 
             if (passed) {
+                //TODO!
+                //user.IpPrefixPermitList
                 if (!user.IpPrefixPermitList || !utils.ipRangeCheck(request.ip, user.IpPrefixPermitList)) {
                     reason = `IP address not allowed. ${request.ip}`;
                     passed = false;
