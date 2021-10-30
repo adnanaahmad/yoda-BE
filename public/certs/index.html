@@ -53,20 +53,27 @@
 
         <div id="form" class="w300">
             <div class="form-group">
-                <label class="form-label" for="subject">Subject:</label>
-                <input id="subject" class="form-input" type="text" placeholder="Subject:" minlength="1"
-                    maxlength="64" value="/C=US/O=FortifID/CN=Cisco Caceres/OU=Engineering">
+                <label class="form-label" for="subject">Subject</label>
+                <input id="subject" class="form-input" type="text" placeholder="Subject:" minlength="1" maxlength="128"
+                value="/C=US/ST=NV/L=Las Vegas/O=FortifID/OU=Engineering/CN=Cisco Caceres">
             </div>
-           
+            <div class="form-group">
+                <label class="form-label" for="ip">Allowed IP Addresses</label>
+                <input id="ip" class="form-input" type="text" placeholder="0.0.0.0/32" minlength="1" maxlength="256">
+            </div>
             <br /> <br />
+            <img id="imgWait" src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif">
+            <br />
             <button id="btn-ok" class="btn btn-primary w220">Generate your keypair and CSR then Download</button>
             <br /> <br />
             <button id="btn-cert" class="btn btn-primary w220">Request and Download Certificate</button>
+           
             <br /><br />
+            
             <div id="output" class="text-center"></div>
             <br /> <br />
             <div class="form-group">
-                <label class="form-label" for="out_prv">PKCS#8 plain PRIVATE KEY</label>
+                <label class="form-label" for="out_prv">Private Key (PKCS#8) </label>
                 <textarea id="out_prv" cols="82" rows="5" class="form-input" readonly></textarea>
             </div>
 
@@ -89,14 +96,25 @@
             "use strict";
 
             let divOutput = $("#output");
-            const BASE_URL = `${window.location.protocol}//${window.location.hostname}/synthetic-id/v1`;
+            const BASE_URL = `${window.location.protocol}//${window.location.hostname}/v1/certs`;
 
             //let privateKeyButton =  $("#btn-prv");
-            let certButton =  $("#btn-cert");
+            let certButton = $("#btn-cert");
+            const imgWait = $("#imgWait");
             //privateKeyButton.attr('download', "fortifid-api.key");
             //privateKeyButton.hide();
             certButton.hide();
 
+            const timeout = (ms) => new Promise(res => setTimeout(res, ms));
+            const showWait = (wait )=> {
+                if(wait) {
+                    imgWait.show();
+                } else {
+                    imgWait.hide();
+                }
+            }
+
+            showWait(false);
             const setOutput = (str, mode = 1, br = true) => {
                 if (br)
                     str += '<br/>';
@@ -165,6 +183,7 @@
             const getAPIData = async (endpoint, params, method = 'get', responseType) => {
                 let headers = {};
                 let data;
+                showWait(true);
 
                 if (!method) {
                     method = 'get';
@@ -219,18 +238,34 @@
                 } catch (error) {
                     console.log(error.message);
                 }
+                showWait(false);
+
                 return data;
             }
 
-            // $('#btn-crt').on("click", async () => {
-            //     download("fortifid-api.key", $('#out_prv').val());
-            // });
+            $('#btn-cert').on("click", async () => {
+                //download("fortifid-api.key", $('#out_prv').val());
+                let data = {
+                    csr: $('#out_csr').val()
+                }
+                setOutput('Requesting...', 0);
+                let results = await getAPIData('/generate-cert', data, 'post');
+                setOutput('Finished', 0);
+                if(results) {
+                    outputResults(results);
+                    if(results.cert) {
+                        download("fortifid-api.pem", results.cert);
+                    }
+                }
+            });
 
             $('#btn-ok').on("click", async () => {
-              /// C = US, ST = NV, L = Las Vegas, O = FortifID, OU = Engineering, CN = Cisco Caceres  
-                let line = '<img src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif"> Generating private key...';
+                
+                showWait(true);
+                let line = 'Generating private key...';
                 setOutput(line, 0);
-
+                await timeout(10);
+                
                 let subject = $('#subject').val();
 
                 // let sigalg = "SHA256withECDSA";
@@ -254,7 +289,7 @@
                         "sigalg": sigalg,
                         "sbjprvkey": kp.prvKeyObj
                     });
-                    const pkey = (KEYUTIL.getPEM(kp.prvKeyObj, "PKCS8PRV")); 
+                    const pkey = (KEYUTIL.getPEM(kp.prvKeyObj, "PKCS8PRV"));
                     $('#out_csr').val(pem);
                     $('#out_prv').val(pkey);
 
@@ -268,23 +303,9 @@
                 } catch (ex) {
                     alert("Failed: " + ex);
                 }
+                showWait(false);
 
                 setOutput("Done.", 0);
-                // let data = {
-                //     first_name: $('#first_name').val(),
-                //     middle_name: $('#middle_name').val(),
-                //     last_name: $('#last_name').val(),
-                //     phone_number: $('#phone_number').val() || '',
-                //     email_address: $('#email_address').val() || '',
-                //     line1: $('#line1').val() || '',
-                //     line2: $('#line2').val() || '',
-                //     city: $('#city').val() || '',
-                //     state: $('#state').val() || '',
-                //     zip_code: $('#zip_code').val() || '',
-                //     birth_date: $('#birth_date').val() || '',
-                //     request_reference: $('#request_reference').val(),
-                //     redirect_url: $('#redirect_url').val(),
-                // };
 
                 // // if (data.phone_number.length < 9) {
                 // //     setOutput('<span style="color:red;">Phone number required</span>', 0);
@@ -322,7 +343,9 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/languages/json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.4.1/jsrsasign-all-min.js" integrity="sha512-LO4ljvYu6tguzAcu2SxWEMPLN0CoG4s83cbdTSmUc6mV586Ze/BaehdiVbYqhSwFUv8iszi00VoPWhGy82YWtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.4.1/jsrsasign-all-min.js"
+        integrity="sha512-LO4ljvYu6tguzAcu2SxWEMPLN0CoG4s83cbdTSmUc6mV586Ze/BaehdiVbYqhSwFUv8iszi00VoPWhGy82YWtg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </body>
 
 </html>

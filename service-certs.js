@@ -14,6 +14,7 @@ const cache = require('./cache');
 
 const authMain = require('./auth-main');
 const oauth2 = require('./auth-oauth2');
+const awsClient = require('./aws-client');
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
@@ -23,6 +24,10 @@ if (!SCRIPT_INFO.host) {
     process.exit(1);
 }
 
+let caCert; 
+let caKey;
+
+const pem = require('pem-file');
 const forge = require('node-forge');
 const {
     promises: fs
@@ -51,6 +56,104 @@ fastify.get('/info', (request, reply) => {
     return utils.getHealth(SCRIPT_INFO, true);
 })
 
+fastify.post('/generate-cert', async (request, reply) => {
+    if (!await authMain.checkHeaders(request, reply)) {
+        return;
+    }
+
+    let body = request.body;
+    let code = 200;
+    const data = {
+        created: Date.now(),
+        status: 'success'
+    };
+
+    if (body && body.csr) {
+        const csrPem = body.csr;
+        try {
+            const csr = forge.pki.certificationRequestFromPem(csrPem);
+            if (csr.verify()) {
+                //console.log('Certification request (CSR) verified.');
+                //console.log(csr.subject);
+
+                //console.log('Creating certificate...');
+                var cert = forge.pki.createCertificate();
+                cert.serialNumber = '02';
+                //cert.setSubject(csr.subject);
+              
+                cert.setSubject(csr.subject.attributes);
+                cert.setIssuer(caCert.subject.attributes);
+                cert.publicKey = csr.publicKey;
+                cert.validity.notBefore = new Date();
+                let date = new Date();
+                date.setDate(date.getDate() + 375);
+                cert.validity.notAfter = date;
+                //cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
+                
+                cert.setExtensions([{
+                    name: 'basicConstraints',
+                    endEntity: true,
+                }, {
+                    name: 'keyUsage',
+                    //keyCertSign: true,
+                    digitalSignature: true,
+                    //nonRepudiation: true,
+                    //keyEncipherment: true,
+                    //dataEncipherment: true
+                },
+                {
+                    name: 'nsCertType',
+                    client: true
+                },
+                {
+                    name: 'subjectKeyIdentifier',
+
+                },
+                {
+                    name: 'authorityKeyIdentifier',
+
+                }, 
+                {
+                    name: 'extKeyUsage',
+                    clientAuth: true
+                }
+                // {
+                //     name: 'subjectAltName',
+                //     altNames: [{
+                //         type: 6, // URI
+                //         value: 'http://example.org/webid#me'
+                //     }]
+                // }
+                ]);
+
+                cert.sign(caKey, forge.md.sha256.create());
+                //console.log('Certificate created.');
+                
+                //data.attributes = csr.subject.attributes;
+                data.cert = forge.pki.certificateToPem(cert);
+                //data.hash = cert.subject.hash;
+                let temp  = pem.decode(data.cert);
+                if (temp) {
+                    data.hash = utils.hash(temp, 'sha256', 'hex').toUpperCase();
+                }
+            } else {
+                code = 400;
+                data.error = "Signature not verified.";
+            }
+
+        } catch (error) {
+            code = 400;
+            data.error = error.message;
+        }
+    } else {
+        code = 422;
+        data.error = 'Missing parameter';
+    }
+
+    reply.type('application/json').code(code);
+    return data;
+})
+
 fastify.addHook("onRequest", async (request, reply) => {
     //authJWT.getAuth(request);
 })
@@ -76,42 +179,18 @@ const start = async () => {
 
 (async () => {
     await start();
-    //const csr = forge.pki.createCertificationRequest();
+    //console.log(__dirname + 'tmp/fortifid-ca.crt');
+    //TODO!
 
-    const csrPem = `-----BEGIN CERTIFICATE REQUEST-----
-    MIICkzCCAXsCAQAwTjELMAkGA1UEBhMCVVMxETAPBgNVBAoMCEZvcnRpZklEMRYw
-    FAYDVQQDDA1DaXNjbyBDYWNlcmVzMRQwEgYDVQQLDAtFbmdpbmVlcmluZzCCASIw
-    DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAI5mdyB6+IN+iJoUpGMPCvluDVof
-    aBqS/5h1VQAX/VfhZBFBriGGEADDh10XL3QPcSOLaB77+E1/Mx/dvMy8oq4A3+33
-    wzUFYxDJWe20eJODRjunW0OEXFycBo82FNiPfLns4jUFpDUNqKMuwQ3Xi1Z+eBcM
-    WOAArM0BX108j9Y2bkIn7Kw6+cRfmH46iw+bmAQ61stvThOFXu8+Pt7e5UW37xtu
-    cvz6fVWvHxFe2PzVJKLV/gEV/6skSTj35vBbdldJO9PEepSfvtaUS9lAK8CVgZsL
-    2hT/CqV6zsEGaHq8FxBfLkoMXNMoVwjxhKTNa2CPvB/KBcBcYGfFeR7K4FkCAwEA
-    AaAAMA0GCSqGSIb3DQEBCwUAA4IBAQAd50dkohubT6TE7nHFFFv7oy6GG8d28KgH
-    /3yOguSHwWzfLeUlnlwFhw+0zAh8d2nYtP/NUgr/aLAgKUkwzNkEa5SQaC+0JQln
-    6IvlysXIFxhy7t+IJSh5xEQUki2b6UH+XdjcP3OWlcUZBASRtpXUcvGQIMnqiRj/
-    jAzdt46uCeO4o9mH9cySBnAWDAavmwp7DOM78hkRMCGxPzsSxUZnyieePHEufVao
-    YAmNP74VcLnWAzCaT2SAtlgRM1fH/+qyFSB5WayHWb8IpRwksBthtsPFwvmMg9Bx
-    ATr3iD6ljcqXsrHeuU8MHf5Q4w0++8EMtytzzmlDAqNe2BfXB2TJ
-    -----END CERTIFICATE REQUEST-----`;
+    let ca = await awsClient.getSecret("ca");
+    //console.log(ca);
 
-    var csr = forge.pki.certificationRequestFromPem(csrPem);
-    if (!csr.verify()) {
-        throw new Error('Signature not verified.');
-        return;
-    }
-    console.log('Certification request (CSR) verified.');
-    console.log(csr.subject);
+    //const caCertPem = await fs.readFile("/etc/nginx/ssl/cert.pem", 'utf8');
+    //const caKeyPem = await fs.readFile("/etc/nginx/ssl/key.pem", 'utf8');
+    //caCert = forge.pki.certificateFromPem(caCertPem);
+    //caKey = forge.pki.privateKeyFromPem(caKeyPem);
+    caCert = forge.pki.certificateFromPem(ca.cert);
+    caKey = forge.pki.privateKeyFromPem(ca.key);
 
-    console.log('Creating certificate...');
-    var cert = forge.pki.createCertificate();
-    cert.serialNumber = '02';
-    cert.setSubject(csr.subject);
-    cert.validity.notBefore = new Date();
-    cert.validity.notAfter = new Date();
-    cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
-
-
-    //const csrBytes = forge.pki.pemToDer(csrPem).getBytes();
-    //const csr = forge.pki.certificationRequestFromPem(csrPem);
+    //console.log(caKey);
 })();

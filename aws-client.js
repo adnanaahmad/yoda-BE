@@ -9,6 +9,7 @@ AWS.config.update({
   region: process.env.AWS_REGION
 });
 
+const secrets = new AWS.SecretsManager();
 const ssm = new AWS.SSM();
 const ddb = new AWS.DynamoDB();
 const sns = new AWS.SNS();
@@ -159,12 +160,12 @@ const getParametersByPathSync = (path, filters, simple = false) => {
       let result;
       let error;
 
-      ssm.getParametersByPath(params, (err, data)=> {
+      ssm.getParametersByPath(params, (err, data) => {
         if (err) {
           error = err;
           return;
         }
-        result = data;          
+        result = data;
       });
 
       if (result) {
@@ -295,7 +296,7 @@ const parseS3 = path => {
 
 const getSignedUrl = async (path, expires = 60) => {
   const params = parseS3(path);
-  if(!params) {
+  if (!params) {
     return;
   }
 
@@ -318,6 +319,26 @@ const sendSNS = async (number, message) => {
 
   try {
     return await sns.publish(params).promise();
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+const getSecret = async (secretName) => {
+  try {
+    const results = await secrets.getSecretValue({ SecretId: secretName }).promise();
+    let data;
+    if ('SecretString' in results) {
+      data = results.SecretString;
+    } else {
+      let buff = Buffer.from(results.SecretBinary, 'base64');
+      data = buff.toString('ascii');
+    }
+
+    if(utils.isJSON(data)) {
+      data = JSON.parse(data);
+    }
+    return data;
   } catch (error) {
     logger.error(error);
   }
@@ -413,18 +434,18 @@ const describeTable = async (table) => {
 const createTable = async (params, ttlParams) => {
   try {
     const results = await ddb.createTable(params).promise();
-    if(typeof(ttlParams) !== 'undefined') {
+    if (typeof (ttlParams) !== 'undefined') {
       //TOOD!!!!
       let table;
       do {
         await utils.timeout(1000);
         table = await describeTable(params.TableName);
-        if(!table) {
+        if (!table) {
           break;
         }
-      }while(table.Table.TableStatus !== 'ACTIVE')
+      } while (table.Table.TableStatus !== 'ACTIVE')
 
-      if(table) {
+      if (table) {
         await ddb.updateTimeToLive(ttlParams).promise();
       }
     }
@@ -555,5 +576,6 @@ module.exports = {
   sendSNS,
   getSignedUrl,
   parseS3,
-  isS3
+  isS3,
+  getSecret
 };
