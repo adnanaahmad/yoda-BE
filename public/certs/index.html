@@ -58,8 +58,8 @@
                 value="/C=US/ST=NV/L=Las Vegas/O=FortifID/OU=Engineering/CN=Cisco Caceres">
             </div>
             <div class="form-group">
-                <label class="form-label" for="ip">Allowed IP Addresses</label>
-                <input id="ip" class="form-input" type="text" placeholder="0.0.0.0/32" minlength="1" maxlength="256">
+                <label class="form-label" for="ip_address">Allowed IP Addresses</label>
+                <input id="ip_address" class="form-input" type="text" placeholder="0.0.0.0/32" minlength="1" maxlength="256">
             </div>
             <br /> <br />
             <img id="imgWait" src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif">
@@ -246,7 +246,8 @@
             $('#btn-cert').on("click", async () => {
                 //download("fortifid-api.key", $('#out_prv').val());
                 let data = {
-                    csr: $('#out_csr').val()
+                    csr: $('#out_csr').val(),
+                    ip_address: $('#ip_address').val()
                 }
                 setOutput('Requesting...', 0);
                 let results = await getAPIData('/generate-cert', data, 'post');

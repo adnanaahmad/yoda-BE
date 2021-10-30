@@ -55,8 +55,13 @@ fastify.get('/info', (request, reply) => {
     return utils.getHealth(SCRIPT_INFO, true);
 })
 
-const createCustomer = async (hash, subject, expiration, ip = "0.0.0.0/32") => {
+const createCustomer = async (hash, subject, expiration, ip) => {
     const customer_id = utils.getUUID();
+    const ips = [];
+
+    if(ip && ip.length > 0 && !ip.startsWith("0.0.0.0")) {
+        ips.push(ip);
+    }
 
     const data = {
         "CertificateID": hash,
@@ -76,9 +81,7 @@ const createCustomer = async (hash, subject, expiration, ip = "0.0.0.0/32") => {
             "credits_add_per_minute": 10,
             "credits_max": 10
         },
-        "IpPrefixPermitList": [
-            ip
-        ],
+        "IpPrefixPermitList": ips,
         "OpalAlgorithmGUIDPermitTable": {
             "BUSINESS-INSIGHTS": [
                 "urn:com:fortifid:algorithm:business_insights"
@@ -121,6 +124,7 @@ fastify.post('/generate-cert', async (request, reply) => {
     };
 
     if (body && body.csr) {
+        let ip = body.ip_address;
         const csrPem = body.csr;
         try {
             const csr = forge.pki.certificationRequestFromPem(csrPem);
@@ -193,7 +197,7 @@ fastify.post('/generate-cert', async (request, reply) => {
                 data.expiration = utils.formatDate(expiration.getTime(), "MMM D H:mm:ss YYYY") + " GMT";
                 if (temp) {
                     data.hash = utils.hash(temp, 'sha256', 'hex').toUpperCase();
-                    data.customer_id = await createCustomer(data.hash, subject, data.expiration, request.ip + "/32");
+                    data.customer_id = await createCustomer(data.hash, subject, data.expiration, ip);
                 }
             } else {
                 code = 400;

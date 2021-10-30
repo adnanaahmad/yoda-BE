@@ -80,7 +80,7 @@ const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) 
                 if (cert) {
                     certId = utils.hash(cert, 'sha256', 'hex').toUpperCase();
                     user = await getAuthz(certId);
-                    if(user) {
+                    if (user) {
                         cache.setM("user-cert", fingerprint, user);
                     }
                 } else {
@@ -98,10 +98,8 @@ const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) 
                 reason = 'Expired account.';
             }
 
-            if (passed) {
-                //TODO!
-                //user.IpPrefixPermitList
-                if (!user.IpPrefixPermitList || !utils.ipRangeCheck(request.ip, user.IpPrefixPermitList)) {
+            if (passed && user.IpPrefixPermitList && user.IpPrefixPermitList.length > 0) {
+                if (!utils.ipRangeCheck(request.ip, user.IpPrefixPermitList)) {
                     reason = `IP address not allowed. ${request.ip}`;
                     passed = false;
                 }
