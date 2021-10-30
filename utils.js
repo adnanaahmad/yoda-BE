@@ -13,6 +13,9 @@ const BCRYPT_SALT_ROUNDS = 10;
 const fetch = require("node-fetch");
 const LZUTF8 = require('lzutf8');
 const dayjs = require('dayjs');
+// const utc = require('dayjs/plugin/utc')
+// dayjs.extend(utc)
+
 const url = require('url');
 const ipRangeCheck = require("ip-range-check");
 const path = require('path');
@@ -1314,10 +1317,12 @@ const numbersOnly = (data, asString = true) => {
     return asString ? results : parseInt(results);
 }
 
-const formatDate = (date, format) => {
+const formatDate = (date, format, utc = false) => {
     if (!date || !format) {
         return '';
     }
+    
+    //eturn utc ? dayjs.utc() dayjs(date).format(format);
     return dayjs(date).format(format);
 }
 

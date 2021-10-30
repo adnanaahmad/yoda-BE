@@ -105,9 +105,8 @@ const createCustomer = async (hash, subject, expiration, ip) => {
         "Subject": subject
     };
 
-    //console.log(JSON.stringify(data));
     let results = await awsClient.putDDBItem("USER_AUTHZ_TABLE", data);
-    //console.log(results);
+
     return customer_id;
 }
 
@@ -194,7 +193,10 @@ fastify.post('/generate-cert', async (request, reply) => {
                 //data.hash = cert.subject.hash;
                 let temp = pem.decode(data.cert);
                 //Nov 8 21:13:26 2022 GMT
-                data.expiration = utils.formatDate(expiration.getTime(), "MMM D H:mm:ss YYYY") + " GMT";
+                //data.start = utils.formatDate(cert.validity.notBefore.toISOString(), "MMM D H:mm:ss YYYY") + " GMT";
+                //data.x = expiration.toUTCString();
+                data.expiration = expiration.toISOString();
+                //data.expiration = utils.formatDate(expiration.toUTCString(), "MMM D H:mm:ss YYYY") + " GMT";
                 if (temp) {
                     data.hash = utils.hash(temp, 'sha256', 'hex').toUpperCase();
                     data.customer_id = await createCustomer(data.hash, subject, data.expiration, ip);
