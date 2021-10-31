@@ -56,15 +56,16 @@ fastify.get('/info', (request, reply) => {
 })
 
 const createCustomer = async (hash, subject, expiration, ip) => {
-
-    const ips = [];
-
+    const extras = {
+        ips: []
+    };
+    
     if (ip && ip.length > 0) {
         let parsedIPS = ip.split(/[ ,]+/).filter(Boolean);;
         parsedIPS.forEach((i) => {
             i = utils.isValidIP(i);
             if (i && !i.startsWith("0.0.0.0")) {
-                ips.push(i);
+                extras.ips.push(i);
             }
         })
 
@@ -73,11 +74,11 @@ const createCustomer = async (hash, subject, expiration, ip) => {
         // }
     }
 
-    const customer_id = utils.getUUID();
+    extras.customer_id = utils.getUUID();
     const data = {
         "CertificateID": hash,
         "UserID": 1234,
-        "CustomerAccountID": customer_id,
+        "CustomerAccountID": extras.customer_id,
         "Subject": subject,
         "Expiration": expiration,
         "AdminState": 1,
@@ -92,7 +93,7 @@ const createCustomer = async (hash, subject, expiration, ip) => {
             "credits_add_per_minute": 10,
             "credits_max": 10
         },
-        "IpPrefixPermitList": ips,
+        "IpPrefixPermitList": extras.ips,
         "OpalAlgorithmGUIDPermitTable": {
             "BUSINESS-INSIGHTS": [
                 "urn:com:fortifid:algorithm:business_insights"
@@ -116,9 +117,10 @@ const createCustomer = async (hash, subject, expiration, ip) => {
         "Subject": subject
     };
 
+    //TODO!
     let results = await awsClient.putDDBItem("USER_AUTHZ_TABLE", data);
 
-    return customer_id;
+    return extras;
 }
 
 fastify.post('/generate-cert', async (request, reply) => {
@@ -130,7 +132,7 @@ fastify.post('/generate-cert', async (request, reply) => {
     let code = 200;
     const data = {
         created: Date.now(),
-        status: 'success'
+        success: false
     };
 
     if (body && body.csr) {
@@ -210,7 +212,12 @@ fastify.post('/generate-cert', async (request, reply) => {
                 //data.expiration = utils.formatDate(expiration.toUTCString(), "MMM D H:mm:ss YYYY") + " GMT";
                 if (temp) {
                     data.hash = utils.hash(temp, 'sha256', 'hex').toUpperCase();
-                    data.customer_id = await createCustomer(data.hash, data.subject, data.expiration, ip);
+                    const extras = await createCustomer(data.hash, data.subject, data.expiration, ip);
+                    if(extras) {
+                        data.allowed_ips = extras.ips;
+                        data.customer_id = extras.customer_id;
+                        data.success = true;
+                    }
                 }
             } else {
                 code = 400;
