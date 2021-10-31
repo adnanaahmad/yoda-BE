@@ -55,30 +55,12 @@ fastify.get('/info', (request, reply) => {
     return utils.getHealth(SCRIPT_INFO, true);
 })
 
-const createCustomer = async (hash, subject, expiration, ip) => {
-    const extras = {
-        ips: []
-    };
-    
-    if (ip && ip.length > 0) {
-        let parsedIPS = ip.split(/[ ,]+/).filter(Boolean);;
-        parsedIPS.forEach((i) => {
-            i = utils.isValidIP(i);
-            if (i && !i.startsWith("0.0.0.0")) {
-                extras.ips.push(i);
-            }
-        })
-
-        // if(parsedIPS.length !== ips.length) {
-        //     return;
-        // }
-    }
-
-    extras.customer_id = utils.getUUID();
+const createCustomer = async (hash, subject, expiration, ips) => {
+    const customer_id = utils.getUUID();
     const data = {
         "CertificateID": hash,
         "UserID": 1234,
-        "CustomerAccountID": extras.customer_id,
+        "CustomerAccountID": customer_id,
         "Subject": subject,
         "Expiration": expiration,
         "AdminState": 1,
@@ -93,7 +75,7 @@ const createCustomer = async (hash, subject, expiration, ip) => {
             "credits_add_per_minute": 10,
             "credits_max": 10
         },
-        "IpPrefixPermitList": extras.ips,
+        "IpPrefixPermitList": ips,
         "OpalAlgorithmGUIDPermitTable": {
             "BUSINESS-INSIGHTS": [
                 "urn:com:fortifid:algorithm:business_insights"
@@ -137,19 +119,35 @@ fastify.post('/generate-cert', async (request, reply) => {
 
     if (body && body.csr) {
         let ip = body.ip_address;
+        const  ips =  [];
+        
+        if (ip && ip.length > 0) {
+            let parsedIPS = ip.split(/[ ,]+/).filter(Boolean);;
+            parsedIPS.forEach((i) => {
+                let tempIP = utils.isValidIP(i);
+                if(tempIP) {
+                    if (!tempIP.startsWith("0.0.0.0") && ips.indexOf(tempIP) === -1) {
+                        ips.push(tempIP);
+                    }
+                } else {
+                    data.error = `Invalid ip address: ${i}`;
+                    reply.type('application/json').code(422);
+                    return data;
+                }
+            })
+        }
+
         const csrPem = body.csr;
         try {
             const csr = forge.pki.certificationRequestFromPem(csrPem);
             if (csr.verify()) {
                 //console.log('Certification request (CSR) verified.');
                 //console.log(csr.subject);
-
                 //console.log('Creating certificate...');
                 const cert = forge.pki.createCertificate();
                 //TODO!
                 cert.serialNumber = '02';
                 //cert.setSubject(csr.subject);
-
                 cert.setSubject(csr.subject.attributes);
                 cert.setIssuer(caCert.subject.attributes);
                 cert.publicKey = csr.publicKey;
@@ -179,11 +177,10 @@ fastify.post('/generate-cert', async (request, reply) => {
                 },
                 {
                     name: 'subjectKeyIdentifier',
-
                 },
                 {
+                    //TODO: This needs work
                     name: 'authorityKeyIdentifier',
-
                 },
                 {
                     name: 'extKeyUsage',
@@ -200,22 +197,20 @@ fastify.post('/generate-cert', async (request, reply) => {
 
                 cert.sign(caKey, forge.md.sha256.create());
                 //console.log('Certificate created.');
-
                 //data.attributes = csr.subject.attributes;
                 data.cert = forge.pki.certificateToPem(cert);
                 //data.hash = cert.subject.hash;
-                let temp = pem.decode(data.cert);
+                let tempCert = pem.decode(data.cert);
                 //Nov 8 21:13:26 2022 GMT
                 //data.start = utils.formatDate(cert.validity.notBefore.toISOString(), "MMM D H:mm:ss YYYY") + " GMT";
                 //data.x = expiration.toUTCString();
                 data.expiration = expiration.toISOString();
+                data.allowed_ips = ips;
                 //data.expiration = utils.formatDate(expiration.toUTCString(), "MMM D H:mm:ss YYYY") + " GMT";
-                if (temp) {
-                    data.hash = utils.hash(temp, 'sha256', 'hex').toUpperCase();
-                    const extras = await createCustomer(data.hash, data.subject, data.expiration, ip);
+                if (tempCert) {
+                    data.hash = utils.hash(tempCert, 'sha256', 'hex').toUpperCase();
+                    data.customer_id = await createCustomer(data.hash, data.subject, data.expiration, ips);
                     if(extras) {
-                        data.allowed_ips = extras.ips;
-                        data.customer_id = extras.customer_id;
                         data.success = true;
                     }
                 }
