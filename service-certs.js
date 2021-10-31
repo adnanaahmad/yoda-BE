@@ -56,13 +56,24 @@ fastify.get('/info', (request, reply) => {
 })
 
 const createCustomer = async (hash, subject, expiration, ip) => {
-    const customer_id = utils.getUUID();
+
     const ips = [];
 
-    if(ip && ip.length > 0 && !ip.startsWith("0.0.0.0")) {
-        ips.push(ip);
+    if (ip && ip.length > 0) {
+        let parsedIPS = ip.split(/[ ,]+/).filter(Boolean);;
+        parsedIPS.forEach((i) => {
+            i = utils.isValidIP(i);
+            if (i && !i.startsWith("0.0.0.0")) {
+                ips.push(i);
+            }
+        })
+
+        // if(parsedIPS.length !== ips.length) {
+        //     return;
+        // }
     }
 
+    const customer_id = utils.getUUID();
     const data = {
         "CertificateID": hash,
         "UserID": 1234,
@@ -111,7 +122,7 @@ const createCustomer = async (hash, subject, expiration, ip) => {
 }
 
 fastify.post('/generate-cert', async (request, reply) => {
-    if (!await authMain.checkHeaders(request, reply)) {
+    if (!await authMain.checkHeaders(request, reply, 0, true)) {
         return;
     }
 
@@ -145,7 +156,7 @@ fastify.post('/generate-cert', async (request, reply) => {
                 expiration.setDate(expiration.getDate() + 375);
                 cert.validity.notAfter = expiration;
                 //cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
-                const subject = csr.subject.attributes
+                data.subject = csr.subject.attributes
                     .map(attr => [attr.shortName, attr.value].join('='))
                     .join(', ');
 
@@ -199,7 +210,7 @@ fastify.post('/generate-cert', async (request, reply) => {
                 //data.expiration = utils.formatDate(expiration.toUTCString(), "MMM D H:mm:ss YYYY") + " GMT";
                 if (temp) {
                     data.hash = utils.hash(temp, 'sha256', 'hex').toUpperCase();
-                    data.customer_id = await createCustomer(data.hash, subject, data.expiration, ip);
+                    data.customer_id = await createCustomer(data.hash, data.subject, data.expiration, ip);
                 }
             } else {
                 code = 400;
@@ -231,6 +242,12 @@ const start = async () => {
     try {
         params = await require('./params')(CONFIG_PATH, logger);
 
+        const ca = await awsClient.getSecret("ca");
+        if (typeof (ca) === 'object') {
+            caCert = forge.pki.certificateFromPem(ca.cert);
+            caKey = forge.pki.privateKeyFromPem(ca.key);
+        }
+
         fastify.listen(params.port, (err, address) => {
             if (err) throw err
             logger.info(`HTTP server is listening on ${address}`);
@@ -244,18 +261,4 @@ const start = async () => {
 
 (async () => {
     await start();
-    //console.log(__dirname + 'tmp/fortifid-ca.crt');
-    //TODO!
-
-    let ca = await awsClient.getSecret("ca");
-    //console.log(ca);
-
-    //const caCertPem = await fs.readFile("/etc/nginx/ssl/cert.pem", 'utf8');
-    //const caKeyPem = await fs.readFile("/etc/nginx/ssl/key.pem", 'utf8');
-    //caCert = forge.pki.certificateFromPem(caCertPem);
-    //caKey = forge.pki.privateKeyFromPem(caKeyPem);
-    caCert = forge.pki.certificateFromPem(ca.cert);
-    caKey = forge.pki.privateKeyFromPem(ca.key);
-
-    //console.log(caKey);
 })();

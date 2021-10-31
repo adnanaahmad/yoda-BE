@@ -20,6 +20,8 @@ const url = require('url');
 const ipRangeCheck = require("ip-range-check");
 const path = require('path');
 const PhoneNumber = require('awesome-phonenumber');
+const cidrRegex = require("cidr-regex");
+
 const {
     URL
 } = require('url');
@@ -442,6 +444,19 @@ const getValidSubdomain = (subdomain) => {
 
     result = result.toLowerCase();
     return result;
+}
+
+const isValidIP = (ip)=> {
+    if(!ip || ip.length < 1) {
+        return false;
+    }
+
+    if(ip.indexOf('/') === -1) {
+        ip = ip + "/32";
+    }
+    if(cidrRegex({exact: true}).test(ip)) {
+        return ip;
+    }
 }
 
 const getFilename = (path) => {
@@ -1398,6 +1413,7 @@ module.exports = {
     flatten,
     removeSameFromSource,
     isValidIpv4Address,
+    isValidIP,
     parseNumber,
     splitter,
     toArgs,
