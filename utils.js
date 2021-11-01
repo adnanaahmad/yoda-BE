@@ -21,6 +21,7 @@ const ipRangeCheck = require("ip-range-check");
 const path = require('path');
 const PhoneNumber = require('awesome-phonenumber');
 const cidrRegex = require("cidr-regex");
+const ipaddr = require('ipaddr.js');
 
 const {
     URL
@@ -210,7 +211,6 @@ const getFileInfo = (file, doHash, extras) => {
     if (doHash) {
         info.hash = hash(fs.readFileSync(file, 'utf8'));
     }
-
 
     if (extras) {
         const packageJSON = require(`${__dirname}/package.json`);
@@ -456,6 +456,19 @@ const isValidIP = (ip)=> {
     }
     if(cidrRegex({exact: true}).test(ip)) {
         return ip;
+    }
+}
+
+const getIPAddressType = (address)=> {
+    try {
+        if(address) {
+            let ip = ipaddr.parse(address.split('/')[0]);
+            if(ip) {
+                return ip.range();
+            }
+        }
+    } catch (error) {
+        
     }
 }
 
@@ -1414,6 +1427,7 @@ module.exports = {
     removeSameFromSource,
     isValidIpv4Address,
     isValidIP,
+    getIPAddressType,
     parseNumber,
     splitter,
     toArgs,

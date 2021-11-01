@@ -102,7 +102,7 @@ const createCustomer = async (hash, subject, expiration, ips) => {
     //TODO!
     let results = await awsClient.putDDBItem("USER_AUTHZ_TABLE", data);
 
-    return extras;
+    return customer_id;
 }
 
 fastify.post('/generate-cert', async (request, reply) => {
@@ -113,7 +113,6 @@ fastify.post('/generate-cert', async (request, reply) => {
     let body = request.body;
     let code = 200;
     const data = {
-        created: Date.now(),
         success: false
     };
 
@@ -123,10 +122,18 @@ fastify.post('/generate-cert', async (request, reply) => {
         
         if (ip && ip.length > 0) {
             let parsedIPS = ip.split(/[ ,]+/).filter(Boolean);;
-            parsedIPS.forEach((i) => {
+
+            for (let index = 0; index < parsedIPS.length; index++) {
+                const i = parsedIPS[index];
                 let tempIP = utils.isValidIP(i);
                 if(tempIP) {
-                    if (!tempIP.startsWith("0.0.0.0") && ips.indexOf(tempIP) === -1) {
+                    let ipType = utils.getIPAddressType(tempIP);
+                    if( ipType !== "unicast") {
+                        data.error = `Invalid ip address type: ${i} (${ipType})`;
+                        reply.type('application/json').code(422);
+                        return data;
+                    }
+                    if (ips.indexOf(tempIP) === -1) {
                         ips.push(tempIP);
                     }
                 } else {
@@ -134,7 +141,7 @@ fastify.post('/generate-cert', async (request, reply) => {
                     reply.type('application/json').code(422);
                     return data;
                 }
-            })
+            }
         }
 
         const csrPem = body.csr;
@@ -208,9 +215,10 @@ fastify.post('/generate-cert', async (request, reply) => {
                 data.allowed_ips = ips;
                 //data.expiration = utils.formatDate(expiration.toUTCString(), "MMM D H:mm:ss YYYY") + " GMT";
                 if (tempCert) {
+                    data.created = cert.validity.notBefore.toISOString();
                     data.hash = utils.hash(tempCert, 'sha256', 'hex').toUpperCase();
                     data.customer_id = await createCustomer(data.hash, data.subject, data.expiration, ips);
-                    if(extras) {
+                    if(data.customer_id ) {
                         data.success = true;
                     }
                 }
