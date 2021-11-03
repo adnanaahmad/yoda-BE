@@ -75,6 +75,9 @@ const createCustomer = async (hash, subject, expiration, ips) => {
             "credits_add_per_minute": 10,
             "credits_max": 10
         },
+        "Role": "",
+        "Level" : 0,
+        "Version" : 2,
         "IpPrefixPermitList": ips,
         "OpalAlgorithmGUIDPermitTable": {
             "BUSINESS-INSIGHTS": [
