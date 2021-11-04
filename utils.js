@@ -1357,7 +1357,7 @@ const formatDate = (date, format, utc = false) => {
 const redisOptsFromUrl = (urlString) => {
     const redisOpts = {};
     try {
-        const redisUrl = url.parse(urlString);
+        const redisUrl = new URL(urlString);
         redisOpts.port = Number(redisUrl.port) || 6379;
         redisOpts.host = redisUrl.hostname;
         redisOpts.db = redisUrl.pathname ? Number(redisUrl.pathname.split("/")[1]) : 0;
@@ -1365,8 +1365,12 @@ const redisOptsFromUrl = (urlString) => {
             redisOpts.password = redisUrl.auth.split(":")[1];
         }
         if (redisUrl.protocol === "rediss:") {
-            redisOpts.tls = {};
+            redisOpts.tls = {
+                //rejectUnauthorized: false
+            };
         }
+        redisOpts.enableReadyCheck =  false;
+        redisOpts.maxRetriesPerRequest = 10;
     } catch (e) {
         console.log(e);
     }
