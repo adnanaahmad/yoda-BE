@@ -98,11 +98,8 @@
             let divOutput = $("#output");
             const BASE_URL = `${window.location.protocol}//${window.location.hostname}/v1/certs`;
 
-            //let privateKeyButton =  $("#btn-prv");
             let certButton = $("#btn-cert");
             const imgWait = $("#imgWait");
-            //privateKeyButton.attr('download', "fortifid-api.key");
-            //privateKeyButton.hide();
             certButton.hide();
 
             const timeout = (ms) => new Promise(res => setTimeout(res, ms));
@@ -170,7 +167,6 @@
             function download(filename, data) {
 
                 let element = document.createElement('a');
-                //element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
                 element.setAttribute('href', window.URL.createObjectURL(new Blob([data], { type: "text/plain" })));
                 element.setAttribute('download', filename);
                 element.style.display = 'none';
@@ -244,7 +240,6 @@
             }
 
             $('#btn-cert').on("click", async () => {
-                //download("fortifid-api.key", $('#out_prv').val());
                 let data = {
                     csr: $('#out_csr').val(),
                     ip_address: $('#ip_address').val()
@@ -293,52 +288,13 @@
                     const pkey = (KEYUTIL.getPEM(kp.prvKeyObj, "PKCS8PRV"));
                     $('#out_csr').val(pem);
                     $('#out_prv').val(pkey);
-
-                    //privateKeyButton.attr('href', window.URL.createObjectURL(new Blob([pkey], { type: "text/plain" })));
                     certButton.show();
                     download("fortifid-api.key", pkey);
-                    // try {
-                    //     $('#out_dump').val(ASN1HEX.dump(pemtohex(pem)));
-                    // } catch (ex) { }
-                    //alert("Keypair and CSR successfully generated");
                 } catch (ex) {
                     alert("Failed: " + ex);
                 }
                 showWait(false);
-
                 setOutput("Done.", 0);
-
-                // // if (data.phone_number.length < 9) {
-                // //     setOutput('<span style="color:red;">Phone number required</span>', 0);
-                // //     return;
-                // // }
-
-                // //$("#div-url").html('&nbsp;');
-
-                // setOutput('Requesting...', 0);
-                // let results = await getAPIData('/query', data, 'post');
-                // setOutput('Finished', 0);
-
-                // if (results) {
-                //     outputResults(results);
-                //     // if (results.url) {
-                //     //     $("#div-url").html(
-                //     //         `<a href="${results.url}" target="_blank">${results.url}</a>`
-                //     //     );
-                //     // }
-
-                //     // transaction_id = results.transaction_id;
-                //     // if (results.status === 'sent') {
-                //     //     setOutput('<img src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif"> SMS Sent. Waiting...', 0);
-                //     //     resultsTimer = setTimeout(() => {
-                //     //         getRequestStatus();
-                //     //     }, 3000);
-                //     // } else {
-                //     //     getRequestStatus(results);
-                //     // }
-                // } else {
-                //     setOutput('Nothing returned.', 0);
-                // }
             })
         })();
     </script>
