@@ -276,7 +276,7 @@
 
                 try {
                     let kp = KEYUTIL.generateKeypair(keyalg, keylen);
-                    let line = '<img src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/loader.gif"> Generating CSR...';
+                    let line = 'Generating CSR...';
                     setOutput(line, 0);
 
                     let pem = KJUR.asn1.csr.CSRUtil.newCSRPEM({
@@ -285,7 +285,8 @@
                         "sigalg": sigalg,
                         "sbjprvkey": kp.prvKeyObj
                     });
-                    const pkey = (KEYUTIL.getPEM(kp.prvKeyObj, "PKCS8PRV"));
+                    
+                    const pkey = KEYUTIL.getPEM(kp.prvKeyObj, "PKCS8PRV");
                     $('#out_csr').val(pem);
                     $('#out_prv').val(pkey);
                     certButton.show();

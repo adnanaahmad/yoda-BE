@@ -42,6 +42,8 @@ const twilioUtils = require('./handler-twilio');
 
 const handler = require('./utils-handlers');
 
+const TEMPLATES = {};
+
 // fastify.get('/', function (request, reply) {
 //     return reply.sendFile('index.html'); // serving path.join(__dirname, 'public', 'myHtml.html') directly
 // })
@@ -63,15 +65,20 @@ fastify.get('/check-request/:id', async (request, reply) => {
     };
 
     if (id) {
+        if(params.demo) {
+            return utils.getTemplateResponse(reply, TEMPLATES, "check-request", id);
+        }
+
+        data.transaction_id = id;
         let record = await cache.getP(TABLE, id);
 
         if (record) {
             if (record.created) {
-                data.created = record.created;
+                data.created = new Date(record.created).toISOString();
             }
 
             if (record.finished) {
-                data.completed = record.finished;
+                data.completed = new Date(record.finished).toISOString();
             }
 
             data.status = record.status;
@@ -111,21 +118,25 @@ fastify.get('/verify/:id', async (request, reply) => {
     logger.info(request.ip, `verify ${id}`);
 
     if (id) {
+        if(params.demo) {
+            return utils.getTemplateResponse(reply, TEMPLATES, "verify", id);
+        }
 
+        data.transaction_id = id;
         let record = await cache.getP(TABLE, id);
         if (record) {
             code = 200;
 
             if (record.created) {
-                data.created = record.created;
+                data.created = new Date(record.created).toISOString();
             }
 
             if (record.finished) {
-                data.completed = record.finished;
+                data.completed = new Date(record.finished).toISOString();
             }
 
             if (record.status === 'sent') {
-                data.completed = now;
+                data.completed = new Date(now).toISOString();
                 data.status = 'verified';
 
                 if (record.request_reference) {
@@ -187,7 +198,12 @@ fastify.post('/generate-url', async (request, reply) => {
         if (phone_number && phone_number.length > 0) {
             const pn = utils.parsePhoneNumber(phone_number);
             if (pn.isValid()) {
+
                 phone_number = pn.getNumber();
+                if(params.demo) {
+                    return utils.getTemplateResponse(reply, TEMPLATES, "generate-url", phone_number);
+                }
+        
                 let lookup = {
                     transaction_id: transaction_id,
                     numbers: phone_number
@@ -246,6 +262,8 @@ fastify.post('/generate-url', async (request, reply) => {
                                     status: data.status,
                                     created: data.created,
                                 };
+
+                                data.created = new Date(data.created).toISOString();
 
                                 if (request.user) {
                                     save.customer_id = request.user.CustomerAccountID;
@@ -314,6 +332,10 @@ fastify.addHook('onResponse', async (request, reply) => {
 })
 const start = async () => {
     params = await require('./params')(CONFIG_PATH, logger);
+
+    if(params.demo) {
+        await utils.loadTemplates('./templates/mfa/', TEMPLATES, true);
+    }
 
     fastify.listen(params.port, (err, address) => {
         if (err) throw err

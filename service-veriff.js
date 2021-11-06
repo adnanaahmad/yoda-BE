@@ -67,6 +67,7 @@ const loadParams = async () => {
     params = await require('./params')(CONFIG_PATH, logger);
     KEYS[params.client_id] = params.client_secret;
     KEYS[params.client_id_test] = params.client_secret_test;
+
 }
 
 const verifySignature = (request, reply) => {
@@ -218,17 +219,23 @@ fastify.get('/check-request/:id', async (request, reply) => {
     //logger.info(request.ip, `check-request ${id}`);
 
     if (id) {
+        if(params.demo) {
+            return utils.getTemplateResponse(reply, TEMPLATES, "check-request", id);
+        }
+
+        data.transaction_id = id;
+        
         let record = await cache.getP(TABLE, id);
 
         if (record) {
             code = 200;
             data.status = record.status || record.action;
             if(record.created) {
-                data.created = record.created; 
+                data.created = new Date(record.created).toISOString(); 
             }
 
             if(record.finished) {
-                data.completed = record.finished; 
+                data.completed = new Date(record.finished).toISOString(); 
             }
 
             //if (record.status === 'sent') {
@@ -319,6 +326,11 @@ fastify.post('/generate-url', async (request, reply) => {
             const pn = utils.parsePhoneNumber(phone_number);
             if (pn.isValid()) {
                 phone_number = pn.getNumber();
+
+                if(params.demo) {
+                    return utils.getTemplateResponse(reply, TEMPLATES, "generate-url", phone_number);
+                }
+
                 let d = {
                     transaction_id: transaction_id,
                     numbers: phone_number,
@@ -334,6 +346,10 @@ fastify.post('/generate-url', async (request, reply) => {
                 code = 422;
                 data.error = 'Invalid phone number.';
             }
+        }
+
+        if(params.demo && code === 200) {
+            return utils.getTemplateResponse(reply, TEMPLATES, "generate-url");
         }
 
         let email_address = body.email_address;
@@ -370,6 +386,8 @@ fastify.post('/generate-url', async (request, reply) => {
                 status: data.status,
                 strict: strict
             };
+
+            data.created = new Date(data.created).toISOString();
 
             if(strict) {
                 save.pii = {};

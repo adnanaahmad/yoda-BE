@@ -1055,6 +1055,44 @@ const loadJSONAsync = async (file) => {
     }
 }
 
+const getTemplateResponse = (reply, TEMPLATES, endpoint, id)=> {
+    let code = 200;
+    let response = {};
+    try {
+        const responses = TEMPLATES[endpoint];
+        let temp;
+        if(!Array.isArray(responses)) {
+            temp = responses;
+        } 
+        else if(responses.length === 1) {
+            temp = responses[0]
+        } else if (typeof(id) === 'undefined') {
+            temp = responses[getRandomIntInclusive(0, responses.length - 1)]
+        } else {
+            for (let index = 0; index < response.length; index++) {
+                const r = responses[index];
+                if(r._id === id) {
+                    temp = r;
+                }
+            }
+            if(!temp) {
+                temp = responses[getRandomIntInclusive(0, responses.length - 1)]
+            }
+        }
+
+        if(temp) {
+            response = {...temp};
+            delete response._id;
+            if(response._code) {
+                code = response._code;
+                delete response._code;
+            }
+        }
+    } catch (error) {
+    }
+    reply.type('application/json').code(code);
+    return response;
+}
 
 const loadTemplates = async (templates_dir, templates, asObjects = false) => {
     templates = templates || {};
@@ -1453,6 +1491,7 @@ module.exports = {
     parseDotNotation,
     toUrlSafeBase64,
     fromUrlSafeBase64,
+    getTemplateResponse,
     loadTemplates,
     loadFile,
     getRandomIntInclusive,
