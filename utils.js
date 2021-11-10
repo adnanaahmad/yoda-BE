@@ -45,6 +45,8 @@ const ignoreSSLErrors = ()=> {
     return process.env.IGNORE_SSL_ERRORS === "1";
 }
 
+const DEMO = process.env.DEMO === "1"; 
+
 //TODO: THIS IS NOT SAFE! Only for emergencies.
 const httpsAgent = ignoreSSLErrors() ? new https.Agent({
     rejectUnauthorized: false,
@@ -1090,19 +1092,31 @@ const getTemplateResponse = (reply, TEMPLATES, endpoint, id)=> {
         }
     } catch (error) {
     }
-    reply.type('application/json').code(code);
+    
+    if(reply) {
+        if (reply.type) {
+            reply.type('application/json').code(code);
+        } else {
+            sendData(reply, response, code);
+            return;
+        }
+    }
     return response;
 }
 
 const loadTemplates = async (templates_dir, templates, asObjects = false) => {
     templates = templates || {};
-    let files = await dirRead(templates_dir);
-    for (let index = 0; index < files.length; index++) {
-        const file = files[index];
-        let key = getFilenameWithoutExtension(file);
-        let filename = templates_dir + file;
-        let data = await fileRead(filename, 'utf-8');
-        templates[key] = asObjects ? JSON.parse(data) : data;
+    try {
+        let files = await dirRead(templates_dir);
+        for (let index = 0; index < files.length; index++) {
+            const file = files[index];
+            let key = getFilenameWithoutExtension(file);
+            let filename = templates_dir + file;
+            let data = await fileRead(filename, 'utf-8');
+            templates[key] = asObjects ? JSON.parse(data) : data;
+        }
+    } catch (error) {
+        
     }
     return templates;
 }
@@ -1436,6 +1450,7 @@ module.exports = {
     setFileTime,
     getFileInfo,
     fileExists,
+    DEMO,
     fileExistsSync: fs.existsSync,
     fileRead,
     fileWrite,

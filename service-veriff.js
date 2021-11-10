@@ -219,7 +219,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
     //logger.info(request.ip, `check-request ${id}`);
 
     if (id) {
-        if(params.demo) {
+        if(utils.DEMO) {
             return utils.getTemplateResponse(reply, TEMPLATES, "check-request", id);
         }
 
@@ -327,7 +327,7 @@ fastify.post('/generate-url', async (request, reply) => {
             if (pn.isValid()) {
                 phone_number = pn.getNumber();
 
-                if(params.demo) {
+                if(utils.DEMO) {
                     return utils.getTemplateResponse(reply, TEMPLATES, "generate-url", phone_number);
                 }
 
@@ -348,7 +348,7 @@ fastify.post('/generate-url', async (request, reply) => {
             }
         }
 
-        if(params.demo && code === 200) {
+        if(utils.DEMO && code === 200) {
             return utils.getTemplateResponse(reply, TEMPLATES, "generate-url");
         }
 

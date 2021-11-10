@@ -65,7 +65,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
     };
 
     if (id) {
-        if(params.demo) {
+        if(utils.DEMO) {
             return utils.getTemplateResponse(reply, TEMPLATES, "check-request", id);
         }
 
@@ -118,7 +118,7 @@ fastify.get('/verify/:id', async (request, reply) => {
     logger.info(request.ip, `verify ${id}`);
 
     if (id) {
-        if(params.demo) {
+        if(utils.DEMO) {
             return utils.getTemplateResponse(reply, TEMPLATES, "verify", id);
         }
 
@@ -200,7 +200,7 @@ fastify.post('/generate-url', async (request, reply) => {
             if (pn.isValid()) {
 
                 phone_number = pn.getNumber();
-                if(params.demo) {
+                if(utils.DEMO) {
                     return utils.getTemplateResponse(reply, TEMPLATES, "generate-url", phone_number);
                 }
         
@@ -333,7 +333,7 @@ fastify.addHook('onResponse', async (request, reply) => {
 const start = async () => {
     params = await require('./params')(CONFIG_PATH, logger);
 
-    if(params.demo) {
+    if(utils.DEMO) {
         await utils.loadTemplates('./templates/mfa/', TEMPLATES, true);
     }
 

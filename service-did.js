@@ -49,6 +49,7 @@ const TOKEN_IDS = {
     consent: 'directid.consent',
     stored_data: 'directid.stored_data'
 }
+const TEMPLATES = {};
 
 Object.freeze(TOKEN_IDS);
 
@@ -689,6 +690,10 @@ const httpHandler = async (req, res) => {
             let transaction_id = parsed.query.transaction_id || param1;
 
             if (transaction_id) {
+                if (utils.DEMO) {
+                    return utils.getTemplateResponse(res, TEMPLATES, "check-request", transaction_id);
+                }
+
                 let found = DONE[transaction_id];
                 if (found) {
                     utils.sendData(res, found);
@@ -702,6 +707,8 @@ const httpHandler = async (req, res) => {
                         utils.sendData(res, 'Not found or not ready.', 404);
                     }
                 }
+            } else {
+                utils.sendData(res, 'Missing parameter', 422);
             }
         }
 
@@ -851,9 +858,30 @@ const httpHandler = async (req, res) => {
             }
 
             if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0) {
-
+                let phone_number = bodyData.phone_number;
 
                 try {
+                    if(phone_number && phone_number.length > 0) {
+                        const pn = utils.parsePhoneNumber(phone_number);
+                        if (pn.isValid()) {
+                            phone_number = pn.getNumber();
+                        } else {
+                            phone_number = undefined;
+                        }
+                    } else {
+                        phone_number = undefined;
+                    }
+
+
+                    if (utils.DEMO) {
+                        if(phone_number) {
+                            return utils.getTemplateResponse(res, TEMPLATES, "generate-url", phone_number);
+                        } else {
+                            utils.sendData(res, 'Missing parameter', 422);
+                            return;
+                        }
+                    }
+
                     if (account.length === 0 && PARAMS.url_prefix && PARAMS.url_prefix.length > 0) {
                         account = `${PARAMS.url_prefix}:`;
                     }
@@ -861,6 +889,8 @@ const httpHandler = async (req, res) => {
                     let url_ref = encodeURIComponent(`${account}${transaction_id}:${customer_id}`);
                     let url = `${PARAMS.connect_url}?client_id=${PARAMS.client_id}&customer_ref=${url_ref}`;
                     let short_url = true;
+                   
+
                     if (typeof (bodyData.shorten_url) !== 'undefined') {
                         short_url = bodyData.shorten_url;
                     }
@@ -876,25 +906,27 @@ const httpHandler = async (req, res) => {
                         request_id: bodyData.request_id,
                         email_address: bodyData.email_address,
                         full_name: bodyData.full_name,
-                        phone_number: bodyData.phone_number,
+                        phone_number: phone_number,
                         redirect_url: bodyData.redirect_url,
                         url: url,
                         request_timestamp: Date.now()
                     };
 
-                    if(returnData.redirect_url && returnData.redirect_url.length > 0) {
-                        if(returnData.redirect_url.indexOf("http") === -1) {
+                    if (returnData.redirect_url && returnData.redirect_url.length > 0) {
+                        if (returnData.redirect_url.indexOf("http") === -1) {
                             returnData.redirect_url = `https://${returnData.redirect_url}`;
                         }
                     }
-                    
-                    
-                    utils.sendData(res, returnData);
+
+                    let tData = { ...returnData };
+                    delete tData.email_address;
+                    delete tData.full_name;
+                    delete tData.phone_number;
+
+                    utils.sendData(res, tData);
 
                     //TODO! This SHOULD be temporarily saved somewhere.
                     META[transaction_id] = returnData;
-
-                    let phone_number = returnData.phone_number;
 
                     if (phone_number && phone_number.length > 0) {
                         let data = {
@@ -1136,10 +1168,15 @@ const loadParams = async () => {
 
     try {
         await loadParams();
+
+        if (utils.DEMO) {
+            await utils.loadTemplates('./templates/income/', TEMPLATES, true);
+        }
+
         await handler.init();
 
         funcs.push(initTokens());
-    
+
         Promise.all(funcs).then(async (values) => {
             await startServer();
             logger.info(`Initialized.`);
@@ -1150,6 +1187,6 @@ const loadParams = async () => {
             logger.error(error.message)
         });
     } catch (error) {
-        logger.error(error);        
+        logger.error(error);
     }
 })();

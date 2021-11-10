@@ -55,10 +55,10 @@ fastify.get('/info', (request, reply) => {
     return utils.getHealth(SCRIPT_INFO, true);
 })
 
-const createCustomer = async (hash, subject, expiration, ips) => {
+const createCustomer = async (certificate_id, subject, expiration, ips) => {
     const customer_id = utils.getUUID();
     const data = {
-        "CertificateID": hash,
+        "CertificateID": certificate_id,
         "UserID": 1234,
         "CustomerAccountID": customer_id,
         "Subject": subject,
@@ -76,8 +76,8 @@ const createCustomer = async (hash, subject, expiration, ips) => {
             "credits_max": 10
         },
         "Role": "",
-        "Level" : 0,
-        "Version" : 2,
+        "Level": 0,
+        "Version": 2,
         "IpPrefixPermitList": ips,
         "OpalAlgorithmGUIDPermitTable": {
             "BUSINESS-INSIGHTS": [
@@ -105,6 +105,14 @@ const createCustomer = async (hash, subject, expiration, ips) => {
     //TODO!
     let results = await awsClient.putDDBItem("USER_AUTHZ_TABLE", data);
 
+    const customer_data = {
+        "customer_account_id": customer_id,
+        "personas": {},
+        "webhooks": {}
+    }
+
+    results = await awsClient.putDDBItem("CUSTOMER_ACCOUNT", customer_data);
+
     return customer_id;
 }
 
@@ -121,17 +129,17 @@ fastify.post('/generate-cert', async (request, reply) => {
 
     if (body && body.csr) {
         let ip = body.ip_address;
-        const  ips =  [];
-        
+        const ips = [];
+
         if (ip && ip.length > 0) {
             let parsedIPS = ip.split(/[ ,]+/).filter(Boolean);;
 
             for (let index = 0; index < parsedIPS.length; index++) {
                 const i = parsedIPS[index];
                 let tempIP = utils.isValidIP(i);
-                if(tempIP) {
+                if (tempIP) {
                     let ipType = utils.getIPAddressType(tempIP);
-                    if( ipType !== "unicast") {
+                    if (ipType !== "unicast") {
                         data.error = `Invalid ip address type: ${i} (${ipType})`;
                         reply.type('application/json').code(422);
                         return data;
@@ -168,8 +176,9 @@ fastify.post('/generate-cert', async (request, reply) => {
                 //cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
                 data.subject = csr.subject.attributes
                     .map(attr => [attr.shortName, attr.value].join('='))
-                    .join(', ');
-
+                    .join('/');
+                data.subject = `/${data.subject}`;
+                
                 cert.setExtensions([{
                     name: 'basicConstraints',
                     endEntity: true,
@@ -219,9 +228,9 @@ fastify.post('/generate-cert', async (request, reply) => {
                 //data.expiration = utils.formatDate(expiration.toUTCString(), "MMM D H:mm:ss YYYY") + " GMT";
                 if (tempCert) {
                     data.created = cert.validity.notBefore.toISOString();
-                    data.hash = utils.hash(tempCert, 'sha256', 'hex').toUpperCase();
-                    data.customer_id = await createCustomer(data.hash, data.subject, data.expiration, ips);
-                    if(data.customer_id ) {
+                    data.certificate_id = utils.hash(tempCert, 'sha256', 'hex').toUpperCase();
+                    data.customer_id = await createCustomer(data.certificate_id, data.subject, data.expiration, ips);
+                    if (data.customer_id) {
                         data.success = true;
                     }
                 }

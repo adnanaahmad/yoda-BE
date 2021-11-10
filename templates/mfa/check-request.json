@@ -1,7 +1,8 @@
 {
     "status": "verified",
-    "created": 1636068807304,
-    "completed": 1636068841858,
+    "transaction_id": "523feee3-89fb-45f5-9587-956dd85c91ec",
+    "created": "2021-11-04T23:33:27.304Z",
+    "completed": "2021-11-04T23:34:01.858Z",
     "redirect_url": "https://fortifid.com/?abc",
     "request_reference": "abcdef12345"
   }

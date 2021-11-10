@@ -1,11 +1,6 @@
 {
-    "created": 1636068807304,
+    "created": "2021-11-06T17:37:25.863Z",
     "status": "sent",
-    "transaction_id": "523feee3-89fb-45f5-9587-956dd85c91ec",
-    "country_code": "US",
-    "type": "voip",
-    "carrier": "Google (Grand Central) BWI - Bandwidth.com - SVR",
-    "mobile_country_code": 311,
-    "mobile_network_code": 910,
-    "url": "https://api-uat.fortifid.com/s/JXAySI"
+    "transaction_id": "d5a0b0f5-a64f-40c8-980e-22e1a88a8a1c",
+    "url": "https://z.dev.fortifid.com/s/D8qOtC"
 }
