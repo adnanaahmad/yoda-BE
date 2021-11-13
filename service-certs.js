@@ -174,11 +174,21 @@ fastify.post('/generate-cert', async (request, reply) => {
                 expiration.setDate(expiration.getDate() + 375);
                 cert.validity.notAfter = expiration;
                 //cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
-                data.subject = csr.subject.attributes
-                    .map(attr => [attr.shortName, attr.value].join('='))
-                    .join('/');
-                data.subject = `/${data.subject}`;
-                
+                // data.subject = csr.subject.attributes
+                //     .map(attr => [attr.shortName, attr.value].join('='))
+                //     .join(', ');
+
+                // data.subject = csr.subject.attributes
+                //     .map(attr => [attr.shortName, attr.value].join('='))
+                //     .join('/');
+                // data.subject = `/${data.subject}`;
+
+
+                data.subject = {};
+                csr.subject.attributes.forEach(attr => {
+                    data.subject[attr.shortName] = attr.value;
+                });
+
                 cert.setExtensions([{
                     name: 'basicConstraints',
                     endEntity: true,
