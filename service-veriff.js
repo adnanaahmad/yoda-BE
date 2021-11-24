@@ -219,29 +219,33 @@ fastify.get('/check-request/:id', async (request, reply) => {
     //logger.info(request.ip, `check-request ${id}`);
 
     if (id) {
-        if(utils.DEMO) {
+        if (utils.DEMO) {
             return utils.getTemplateResponse(reply, TEMPLATES, "check-request", id);
         }
 
         data.transaction_id = id;
-        
+
         let record = await cache.getP(TABLE, id);
 
         if (record) {
             code = 200;
             data.status = record.status || record.action;
-            if(record.created) {
-                data.created = new Date(record.created).toISOString(); 
+            if (record.created) {
+                data.created = new Date(record.created).toISOString();
             }
 
-            if(record.finished) {
-                data.completed = new Date(record.finished).toISOString(); 
+            if (record.finished) {
+                data.completed = new Date(record.finished).toISOString();
+            }
+
+            if (record._expiresAt) {
+                data.expires_at = new Date(record._expiresAt * 1000).toISOString();
             }
 
             //if (record.status === 'sent') {
-                // await cache.updateP(TABLE, id, {
-                //     status: 'clicked'
-                // }, '1w', true); 
+            // await cache.updateP(TABLE, id, {
+            //     status: 'clicked'
+            // }, '1w', true); 
             //}
 
             if (record.reason !== null && typeof (record.reason) !== 'undefined') {
@@ -301,8 +305,8 @@ fastify.post('/generate-url', async (request, reply) => {
         let dob = body.birth_date;
         let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false;
         let send = typeof (body.send) === 'boolean' ? body.send : true;
-        let url = typeof(body.link_url) === 'string'  && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
-        let text = typeof(body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
+        let url = typeof (body.link_url) === 'string' && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
+        let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
 
         let strict = typeof (body.strict) === 'boolean' ? body.strict : false;
 
@@ -311,6 +315,15 @@ fastify.post('/generate-url', async (request, reply) => {
             if (!full_name || !dob || full_name.length < 1 || !dobData.isValid() || dobData.isBefore(MIN_DATE) || dobData.isAfter(MAX_DATE)) {
                 return reply.type('application/json').code(422).send({ status: "error", reason: "Valid full_name and birth_date required when strict is true." });
             }
+        }
+
+        let expire = "1w";
+        if(body.expire && body.expire.length > 0) {
+            let tmp = parseInt(body.expire);
+            if(tmp < 30 || tmp > 2592000){ //1 month!
+                return reply.type('application/json').code(422).send({status: "error", reason: "expire must be between 30 and 2592000"});
+            }
+            expire = tmp;
         }
 
         //TODO! Do this after validation
@@ -327,7 +340,7 @@ fastify.post('/generate-url', async (request, reply) => {
             if (pn.isValid()) {
                 phone_number = pn.getNumber();
 
-                if(utils.DEMO) {
+                if (utils.DEMO) {
                     return utils.getTemplateResponse(reply, TEMPLATES, "generate-url", phone_number);
                 }
 
@@ -348,7 +361,7 @@ fastify.post('/generate-url', async (request, reply) => {
             }
         }
 
-        if(utils.DEMO && code === 200) {
+        if (utils.DEMO && code === 200) {
             return utils.getTemplateResponse(reply, TEMPLATES, "generate-url");
         }
 
@@ -387,19 +400,17 @@ fastify.post('/generate-url', async (request, reply) => {
                 strict: strict
             };
 
-            data.created = new Date(data.created).toISOString();
-
-            if(strict) {
+            if (strict) {
                 save.pii = {};
 
                 if (typeof (dob) === 'string' && dob.length > 0) {
                     save.pii.dob = dob;
                 }
-    
+
                 if (typeof (full_name) === 'string' && full_name.length > 0) {
                     save.pii.full_name = full_name;
                 }
-            } 
+            }
 
             if (request.user) {
                 save.customer_id = request.user.CustomerAccountID;
@@ -416,7 +427,10 @@ fastify.post('/generate-url', async (request, reply) => {
             }
 
             if (send) {
-                await cache.setP(TABLE, transaction_id, save, '1w', true);
+                const saved = await cache.setP(TABLE, transaction_id, save, expire, true);
+                if (saved && saved._expiresAt) {
+                    data.expires_at = new Date(saved._expiresAt * 1000).toISOString();
+                }
             }
         } else {
             delete data.transaction_id;
@@ -431,7 +445,11 @@ fastify.post('/generate-url', async (request, reply) => {
     if (code !== 200) {
         data.status = 'error';
     }
-    
+
+    if(typeof(data.created) === "number") {
+        data.created = new Date(data.created).toISOString();
+    }
+
     reply.type('application/json').code(code);
     return data;
 })

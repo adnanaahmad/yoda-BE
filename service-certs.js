@@ -156,6 +156,7 @@ fastify.post('/generate-cert', async (request, reply) => {
         }
 
         const csrPem = body.csr;
+        const env = body.env;
         try {
             const csr = forge.pki.certificationRequestFromPem(csrPem);
             if (csr.verify()) {

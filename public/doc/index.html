@@ -90,13 +90,17 @@
 
         <div class="form-group">
           <label class="form-label" for="sms_text">Custom SMS Text</label>
-          <input id="sms_text" class="form-input" placeholder="Please follow link to verify your phone number: %URL%"
-            required>
+          <input id="sms_text" class="form-input" placeholder="Please follow link to verify your phone number: %URL%">
         </div>
 
         <div class="form-group">
           <label class="form-label" for="link_url">Custom Link URL</label>
-          <input id="link_url" class="form-input" placeholder="https://custom-verify.com/verify/%URL%" required>
+          <input id="link_url" class="form-input" placeholder="https://custom-verify.com/verify/%URL%">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="link_url">Expiration (seconds)</label>
+          <input id="expire" class="form-input" placeholder="604800 (1 week)">
         </div>
 
         <div class="form-group">
@@ -392,8 +396,9 @@
           redirect_url: $('#redirect_url').val(),
           sms_text: $('#sms_text').val(),
           link_url: $('#link_url').val(),
+          expire: $('#expire').val(),
           strict: $('#check-strict').is(':checked'),
-          shorten_url: $('#shorten_url').is(':checked'),          
+          shorten_url: $('#shorten_url').is(':checked'),
         };
 
         if (data.email_address.length < 3 && data.phone_number.length < 9) {

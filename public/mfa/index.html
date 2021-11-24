@@ -64,28 +64,33 @@
 
             <div class="form-group">
                 <label class="form-label" for="full_name">Full Name (optional)</label>
-                <input id="full_name" class="form-input" type="text" placeholder="Full Name (optional)" minlength="1"
+                <input id="full_name" class="form-input" type="text" placeholder="Full Name (optional)"
                     maxlength="64">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="request_reference">Request Reference</label>
-                <input id="request_reference" class="form-input" placeholder="Request Reference" required>
+                <input id="request_reference" class="form-input" placeholder="Request Reference">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="redirect_url">Redirect Url</label>
-                <input id="redirect_url" class="form-input" placeholder="Redirect Url" required>
+                <input id="redirect_url" class="form-input" placeholder="Redirect Url">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="sms_text">Custom SMS Text</label>
-                <input id="sms_text" class="form-input" placeholder="Please follow link to verify your phone number: %URL%" required>
+                <input id="sms_text" class="form-input" placeholder="Please follow link to verify your phone number: %URL%">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="link_url">Custom Link URL</label>
-                <input id="link_url" class="form-input" placeholder="https://custom-verify.com/verify/%URL%" required>
+                <input id="link_url" class="form-input" placeholder="https://custom-verify.com/verify/%URL%">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="link_url">Expiration (seconds)</label>
+                <input id="expire" class="form-input" placeholder="604800 (1 week)">
             </div>
 
             <div class="form-group">
@@ -364,6 +369,7 @@
                     redirect_url: $('#redirect_url').val(),
                     sms_text: $('#sms_text').val(),
                     link_url: $('#link_url').val(),
+                    expire: $('#expire').val(),
                     lookup: $('#lookup').is(':checked'),
                     allow_voip: $('#check-voip').is(':checked'),
                     shorten_url: $('#shorten_url').is(':checked'),

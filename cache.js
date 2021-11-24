@@ -87,7 +87,7 @@ const setP = async (type, key, value, expiration, flat) => {
         }
 
         await awsClient.putDDBItem('CACHE_01', data);
-
+        return data;
     } catch (error) {
         console.log(error);
     }
@@ -162,7 +162,7 @@ const updateP = async (type, key, value, expiration, flat) => {
         }
 
         await awsClient.updateDynamic('CACHE_01', key, data);
-
+        return data;
     } catch (error) {
         console.log(error);
     }

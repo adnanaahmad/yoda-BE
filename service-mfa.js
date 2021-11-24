@@ -65,7 +65,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
     };
 
     if (id) {
-        if(utils.DEMO) {
+        if (utils.DEMO) {
             return utils.getTemplateResponse(reply, TEMPLATES, "check-request", id);
         }
 
@@ -79,6 +79,10 @@ fastify.get('/check-request/:id', async (request, reply) => {
 
             if (record.finished) {
                 data.completed = new Date(record.finished).toISOString();
+            }
+
+            if (record._expiresAt) {
+                data.expires_at = new Date(record._expiresAt * 1000).toISOString();
             }
 
             data.status = record.status;
@@ -118,7 +122,7 @@ fastify.get('/verify/:id', async (request, reply) => {
     logger.info(request.ip, `verify ${id}`);
 
     if (id) {
-        if(utils.DEMO) {
+        if (utils.DEMO) {
             return utils.getTemplateResponse(reply, TEMPLATES, "verify", id);
         }
 
@@ -147,18 +151,24 @@ fastify.get('/verify/:id', async (request, reply) => {
                     data.redirect_url = record.redirect_url;
                 }
 
-                await cache.updateP(TABLE, id, {
+                const saved = await cache.updateP(TABLE, id, {
                     finished: now,
                     duration: now - record.created,
                     status: data.status
                 }, '10y', true);
 
+                if (saved && saved._expiresAt) {
+                    data.expires_at = new Date(saved._expiresAt * 1000).toISOString();
+                }
             } else if (record.status === 'verified') {
                 data.status = 'used';
             } else {
                 data.status = record.status;
             }
-            //TODO: Expiration!
+
+            if (!data.expires_at && record._expiresAt) {
+                data.expires_at = new Date(record._expiresAt * 1000).toISOString();
+            }
         }
     }
 
@@ -178,7 +188,7 @@ fastify.post('/generate-url', async (request, reply) => {
         created: Date.now(),
         status: 'declined'
     };
-    
+
     if (body && body.phone_number) {
         //logger.silly(body);
         //TODO!
@@ -194,16 +204,25 @@ fastify.post('/generate-url', async (request, reply) => {
         let url = typeof (body.link_url) === 'string' && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
         let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
 
+        let expire = "1w";
+        if(body.expire && body.expire.length > 0) {
+            let tmp = parseInt(body.expire);
+            if(tmp < 30 || tmp > 2592000){ //1 month!
+                return reply.type('application/json').code(422).send({status: "error", reason: "expire must be between 30 and 2592000"});
+            }
+            expire = tmp;
+        }
+
         let phone_number = body.phone_number;
         if (phone_number && phone_number.length > 0) {
             const pn = utils.parsePhoneNumber(phone_number);
             if (pn.isValid()) {
 
                 phone_number = pn.getNumber();
-                if(utils.DEMO) {
+                if (utils.DEMO) {
                     return utils.getTemplateResponse(reply, TEMPLATES, "generate-url", phone_number);
                 }
-        
+
                 let lookup = {
                     transaction_id: transaction_id,
                     numbers: phone_number
@@ -263,8 +282,6 @@ fastify.post('/generate-url', async (request, reply) => {
                                     created: data.created,
                                 };
 
-                                data.created = new Date(data.created).toISOString();
-
                                 if (request.user) {
                                     save.customer_id = request.user.CustomerAccountID;
                                 }
@@ -280,7 +297,10 @@ fastify.post('/generate-url', async (request, reply) => {
                                 }
 
                                 if (send) {
-                                    await cache.setP(TABLE, transaction_id, save, '1w', true);
+                                    const saved = await cache.setP(TABLE, transaction_id, save, expire, true);
+                                    if (saved && saved._expiresAt) {
+                                        data.expires_at = new Date(saved._expiresAt * 1000).toISOString();
+                                    }
                                 }
                             } else {
                                 data.reason = `Unsupported country: ${results.countryCode}`;
@@ -314,6 +334,10 @@ fastify.post('/generate-url', async (request, reply) => {
         data.error = 'Missing parameter';
     }
 
+    if(typeof(data.created) === "number") {
+        data.created = new Date(data.created).toISOString();
+    }
+
     reply.type('application/json').code(code);
     return data;
 })
@@ -330,10 +354,11 @@ fastify.addHook('onResponse', async (request, reply) => {
         // }
     }
 })
+
 const start = async () => {
     params = await require('./params')(CONFIG_PATH, logger);
 
-    if(utils.DEMO) {
+    if (utils.DEMO) {
         await utils.loadTemplates('./templates/mfa/', TEMPLATES, true);
     }
 
