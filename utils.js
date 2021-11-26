@@ -862,7 +862,7 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
         headers['content-type'] = 'application/json';
     }
 
-    headers['user-agent'] = `FID ${packageJSON.version}`;
+    headers['user-agent'] = `FortifID v${packageJSON.version}`;
 
     if (bodyType === 'object') {
         if (headers['content-type'] === 'application/json') {
