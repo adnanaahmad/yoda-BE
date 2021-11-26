@@ -31,14 +31,47 @@ const getAuthz = async (certId) => {
         return;
     }
 
-
-
     let result = await awsClient.getDDBItem('USER_AUTHZ_TABLE', {
         CertificateID: certId
     });
 
     if (result) {
         return result.Item;
+    }
+}
+
+const getCustomer = async (customer_id) => {
+    if (!customer_id) {
+        return;
+    }
+
+    let result = await awsClient.getDDBItem('CUSTOMER_ACCOUNT', {
+        customer_account_id: customer_id
+    });
+
+    if (result) {
+        return result.Item;
+    }
+}
+
+const sendWebhook = async (customer_id, data, table, handler) => {
+    try {
+        const customer = await getCustomer(customer_id);
+        if (customer) {
+            if (customer.webhooks) {
+                const webhook = customer.webhooks[table];
+                if (webhook && webhook.url && webhook.url.startsWith("https")) {
+                    const payload = { data: data, url: webhook.url };
+                    if (webhook.secret && webhook.secret.length > 0) {
+                        const sig = utils.hash(`${JSON.stringify(data)}${webhook.secret}`, 'sha256', 'hex');
+                        payload.headers = { "x-signature": sig ,  "x-api": table };
+                    }
+                    handler.webhook(payload);
+                }
+            }
+        }
+    } catch (error) {
+        console.log(error);        
     }
 }
 
@@ -174,5 +207,7 @@ const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) 
 
 module.exports = {
     checkHeaders,
-    getAuthz
+    getAuthz,
+    getCustomer,
+    sendWebhook
 }

@@ -24,7 +24,7 @@ const add = async(data)=> {
                 url += data.query;
             }
 
-            let response = await utils.fetchData(url, data.data);
+            let response = await utils.fetchData(url, data.data, data.headers);
             let duration = utils.time() - start;
             logger.info(`webhook finished. ${utils.toFixedPlaces(duration, 2)}ms. [${response}]`);            
         } catch (error) {
@@ -45,30 +45,33 @@ const add = async(data)=> {
     return results;
 }
 
-const startQueue = ()=> {
+const startQueue = async ()=> {
     logger.info('Webhook queue handler started.');
-
+    await Q.ready();
     Q.getQ(Q.names.handler_webhook).process(async (job, done) => {
         done(await add(job.data));
     });
 }
 
-
 const test = async ()=> {
-    console.log('TEST!');
-    let data = {
-        transaction_id: utils.getUUID(),
-        url: 'https://webhook.site/f7e207e6-15dc-4806-8cd2-b49ac78690d9',
-        data: { text: `HELLO! The time is ${new Date().toISOString()}`}
-    };
-
-    Q.getQ(Q.names.handler_webhook).add(data);
+    try {
+        console.log('TEST!');
+        let data = {
+            transaction_id: utils.getUUID(),
+            url: 'https://webhook.site/01275c23-33e5-420f-82a5-e09841edad29',
+            data: { text: `HELLO! The time is ${new Date().toISOString()}`}
+        };
+        //add(data);
+        Q.getQ(Q.names.handler_webhook).add(data);
+    } catch (error) {
+        console.log(error);        
+    }
 }
 
 
 (async () => {
     if(!SCRIPT_INFO.library_mode) {
-        startQueue();
+        await startQueue();       
         //test();
     } 
 })();

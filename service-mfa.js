@@ -113,7 +113,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
 fastify.get('/verify/:id', async (request, reply) => {
     const now = Date.now();
     let code = 404;
-
+    let customer_id;
     const id = request.params.id;
     const data = {
         status: 'not_found'
@@ -130,6 +130,7 @@ fastify.get('/verify/:id', async (request, reply) => {
         let record = await cache.getP(TABLE, id);
         if (record) {
             code = 200;
+            customer_id = record.customer_id;
 
             if (record.created) {
                 data.created = new Date(record.created).toISOString();
@@ -172,9 +173,14 @@ fastify.get('/verify/:id', async (request, reply) => {
         }
     }
 
-    reply.type('application/json').code(code);
+
+    reply.type('application/json').code(code).send(data);
     //logger.silly(data);
-    return data;
+    //return data;
+
+    if (code === 200) {
+        await authMain.sendWebhook(customer_id, data, TABLE, handler);
+    }
 })
 
 fastify.post('/generate-url', async (request, reply) => {
@@ -205,10 +211,10 @@ fastify.post('/generate-url', async (request, reply) => {
         let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
 
         let expire = "1w";
-        if(body.expire && body.expire.length > 0) {
+        if (body.expire && body.expire.length > 0) {
             let tmp = parseInt(body.expire);
-            if(tmp < 30 || tmp > 2592000){ //1 month!
-                return reply.type('application/json').code(422).send({status: "error", reason: "expire must be between 30 and 2592000"});
+            if (tmp < 30 || tmp > 2592000) { //1 month!
+                return reply.type('application/json').code(422).send({ status: "error", reason: "expire must be between 30 and 2592000" });
             }
             expire = tmp;
         }
@@ -334,7 +340,7 @@ fastify.post('/generate-url', async (request, reply) => {
         data.error = 'Missing parameter';
     }
 
-    if(typeof(data.created) === "number") {
+    if (typeof (data.created) === "number") {
         data.created = new Date(data.created).toISOString();
     }
 
@@ -370,5 +376,5 @@ const start = async () => {
 
 (async () => {
     await start();
-    await handler.init();
+    await handler.init(true, true, true);
 })();

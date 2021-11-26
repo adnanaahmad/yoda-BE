@@ -21,6 +21,7 @@ let postQ;
 let postQNames = [names.post_process, names.analytics];
 
 const getQ = (key, options) => {
+    key = `${process.env.INSTANCE_ID}-${key}`;
     let q = QUEUES[key];
     if (typeof (q) === 'undefined') {
         q = setQ(key, undefined, options);
@@ -28,9 +29,12 @@ const getQ = (key, options) => {
     return q;
 };
 
+
+
 const setQ = (key, url, options) => {
 
     url = url || redisUrl;
+
     if (typeof (url) === 'string') {
         options = {
             ...options || jobOptsRemove,
@@ -38,7 +42,6 @@ const setQ = (key, url, options) => {
             redis: utils.redisOptsFromUrl(url)
         };
     }
-
     //let q = new bull(key, url, options);
     let q = new bull(key, options);
     QUEUES[key] = q;
@@ -100,6 +103,14 @@ const addToPostQ = (data) => {
     });
 }
 
+const ready = async ()=> {
+    let loops = 0;
+    while(!redisUrl && ++loops < 100) {
+        await utils.timeout(300);
+    }
+    return redisUrl !== undefined;
+}
+
 (async () => {
     if(typeof(redisUrl) === 'undefined') {
         redisUrl = await awsClient.getParameter('/config/shared/redis/url');
@@ -107,6 +118,7 @@ const addToPostQ = (data) => {
 })();
 
 module.exports = {
+    ready,
     getQ,
     setQ,
     delQ,

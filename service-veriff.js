@@ -102,6 +102,45 @@ const verifySignature = (request, reply) => {
     return true;
 }
 
+const getData = (record, data)=> {
+    try {
+        data.status = record.status || record.action;
+        if (record.created) {
+            data.created = new Date(record.created).toISOString();
+        }
+    
+        if (record.finished) {
+            data.completed = new Date(record.finished).toISOString();
+        }
+    
+        if (record._expiresAt) {
+            data.expires_at = new Date(record._expiresAt * 1000).toISOString();
+        }
+    
+        if (record.reason !== null && typeof (record.reason) !== 'undefined') {
+            data.reason = record.reason;
+        }
+    
+        if (typeof (record.name_match_score) !== 'undefined') {
+            data.name_match_score = record.name_match_score;
+        }
+    
+        if (typeof (record.dob_match) !== 'undefined') {
+            data.dob_match = record.dob_match;
+        }
+    
+        if (record.redirect_url) {
+            data.redirect_url = record.redirect_url;
+        }
+    
+        if (record.request_reference) {
+            data.request_reference = record.request_reference;
+        }
+    } catch (error) {
+        
+    }
+}
+
 fastify.post('/webhook', {
     config: {
         rawBody: true
@@ -120,7 +159,7 @@ fastify.post('/webhook', {
         //logger.silly(body);
         try {
             let expiration = '1w';
-
+            let customer_id;
             const v = body.verification;
             const id = v ? v.vendorData : body.vendorData;
 
@@ -138,10 +177,12 @@ fastify.post('/webhook', {
                 data.code = v.code;
                 //TODO! They may retry.
                 data.finished = now;
-
+                
                 if (record && record.created) {
                     data.duration = now - record.created;
+                    customer_id = record.customer_id;
                 }
+
                 //TODO!
                 //technicalData : { ip: '71.64.122.30' }
                 if (v.reason !== null) {
@@ -185,7 +226,9 @@ fastify.post('/webhook', {
                         }
                     }
                 }
-            } else {
+
+
+        } else {
                 data.updated = now;
                 data.status = body.action;
                 data.id = body.id;
@@ -194,7 +237,13 @@ fastify.post('/webhook', {
             }
 
             //logger.silly(data);
-            await cache.updateP(TABLE, id, data, expiration, true);
+            const saved = await cache.updateP(TABLE, id, data, expiration, true);
+
+            if(saved && saved.finished) {
+                const payload = { transaction_id: saved.transaction_id};
+                getData(saved, payload);
+                await authMain.sendWebhook(customer_id, payload, TABLE, handler);
+            }
         } catch (error) {
             logger.error(error);
         }
@@ -206,6 +255,7 @@ fastify.post('/webhook', {
         service: TABLE
     }
 });
+
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
@@ -229,45 +279,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
 
         if (record) {
             code = 200;
-            data.status = record.status || record.action;
-            if (record.created) {
-                data.created = new Date(record.created).toISOString();
-            }
-
-            if (record.finished) {
-                data.completed = new Date(record.finished).toISOString();
-            }
-
-            if (record._expiresAt) {
-                data.expires_at = new Date(record._expiresAt * 1000).toISOString();
-            }
-
-            //if (record.status === 'sent') {
-            // await cache.updateP(TABLE, id, {
-            //     status: 'clicked'
-            // }, '1w', true); 
-            //}
-
-            if (record.reason !== null && typeof (record.reason) !== 'undefined') {
-                data.reason = record.reason;
-            }
-
-            if (typeof (record.name_match_score) !== 'undefined') {
-                data.name_match_score = record.name_match_score;
-            }
-
-            if (typeof (record.dob_match) !== 'undefined') {
-                data.dob_match = record.dob_match;
-            }
-
-            if (record.redirect_url) {
-                data.redirect_url = record.redirect_url;
-            }
-
-            if (record.request_reference) {
-                data.request_reference = record.request_reference;
-            }
-
+            getData(record, data);
         } else {
             data.reason = 'Request not found.'
         }
@@ -469,5 +481,5 @@ const start = () => {
 (async () => {
     await loadParams();
     start();
-    await handler.init();
+    await handler.init(true, true, true);
 })();

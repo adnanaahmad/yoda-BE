@@ -22,6 +22,7 @@ const path = require('path');
 const PhoneNumber = require('awesome-phonenumber');
 const cidrRegex = require("cidr-regex");
 const ipaddr = require('ipaddr.js');
+const packageJSON = require(`${__dirname}/package.json`);
 
 const {
     URL
@@ -41,11 +42,11 @@ require('dotenv').config();
 
 const https = require('https');
 
-const ignoreSSLErrors = ()=> {
+const ignoreSSLErrors = () => {
     return process.env.IGNORE_SSL_ERRORS === "1";
 }
 
-const DEMO = process.env.DEMO === "1"; 
+const DEMO = process.env.DEMO === "1";
 
 //TODO: THIS IS NOT SAFE! Only for emergencies.
 const httpsAgent = ignoreSSLErrors() ? new https.Agent({
@@ -215,8 +216,6 @@ const getFileInfo = (file, doHash, extras) => {
     }
 
     if (extras) {
-        const packageJSON = require(`${__dirname}/package.json`);
-
         info.version = packageJSON.version;
         if (process.env.CREATED) {
             info.installed = parseInt(process.env.CREATED);
@@ -229,7 +228,7 @@ const getFileInfo = (file, doHash, extras) => {
         info.hostname = process.env.HOSTNAME;
         info.host = HOST;
         info.node_version = process.version;
-        if(ignoreSSLErrors()) {
+        if (ignoreSSLErrors()) {
             info.ignore_ssl_errors = true;
         }
     }
@@ -448,29 +447,29 @@ const getValidSubdomain = (subdomain) => {
     return result;
 }
 
-const isValidIP = (ip)=> {
-    if(!ip || ip.length < 1) {
+const isValidIP = (ip) => {
+    if (!ip || ip.length < 1) {
         return false;
     }
 
-    if(ip.indexOf('/') === -1) {
+    if (ip.indexOf('/') === -1) {
         ip = ip + "/32";
     }
-    if(cidrRegex({exact: true}).test(ip)) {
+    if (cidrRegex({ exact: true }).test(ip)) {
         return ip;
     }
 }
 
-const getIPAddressType = (address)=> {
+const getIPAddressType = (address) => {
     try {
-        if(address) {
+        if (address) {
             let ip = ipaddr.parse(address.split('/')[0]);
-            if(ip) {
+            if (ip) {
                 return ip.range();
             }
         }
     } catch (error) {
-        
+
     }
 }
 
@@ -863,6 +862,8 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
         headers['content-type'] = 'application/json';
     }
 
+    headers['user-agent'] = `FID ${packageJSON.version}`;
+
     if (bodyType === 'object') {
         if (headers['content-type'] === 'application/json') {
             body = JSON.stringify(body);
@@ -893,31 +894,21 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
     let response;
     try {
         response = await fetch(url, config);
-        //response = await fetchWithTimeout(url, config);
         if (response) {
             if (returnHeaders) {
                 Object.assign(returnHeaders, response.headers);
             }
 
-            //if (response.ok) {
-                if (responseType === 'blob') {
-                    data = await response.blob();
-                } else {
-                    data = await response.text();
-                    if (isJSON(data)) {
-                        try {
-                            data = JSON.parse(data);
-                        } catch (e) { }
-                    }
+            if (responseType === 'blob') {
+                data = await response.blob();
+            } else {
+                data = await response.text();
+                if (isJSON(data)) {
+                    try {
+                        data = JSON.parse(data);
+                    } catch (e) { }
                 }
-            // } else {
-            //     data = await response.text();
-            //     if (isJSON(data)) {
-            //         try {
-            //             data = JSON.parse(data);
-            //         } catch (e) { }
-            //     }
-            // }
+            }
         }
     } catch (error) {
         if (throwError) {
@@ -1057,43 +1048,43 @@ const loadJSONAsync = async (file) => {
     }
 }
 
-const getTemplateResponse = (reply, TEMPLATES, endpoint, id)=> {
+const getTemplateResponse = (reply, TEMPLATES, endpoint, id) => {
     let code = 200;
     let response = {};
     try {
         const responses = TEMPLATES[endpoint];
         let temp;
-        if(!Array.isArray(responses)) {
+        if (!Array.isArray(responses)) {
             temp = responses;
-        } 
-        else if(responses.length === 1) {
+        }
+        else if (responses.length === 1) {
             temp = responses[0]
-        } else if (typeof(id) === 'undefined') {
+        } else if (typeof (id) === 'undefined') {
             temp = responses[getRandomIntInclusive(0, responses.length - 1)]
         } else {
             for (let index = 0; index < response.length; index++) {
                 const r = responses[index];
-                if(r._id === id) {
+                if (r._id === id) {
                     temp = r;
                 }
             }
-            if(!temp) {
+            if (!temp) {
                 temp = responses[getRandomIntInclusive(0, responses.length - 1)]
             }
         }
 
-        if(temp) {
-            response = {...temp};
+        if (temp) {
+            response = { ...temp };
             delete response._id;
-            if(response._code) {
+            if (response._code) {
                 code = response._code;
                 delete response._code;
             }
         }
     } catch (error) {
     }
-    
-    if(reply) {
+
+    if (reply) {
         if (reply.type) {
             reply.type('application/json').code(code);
         } else {
@@ -1116,7 +1107,7 @@ const loadTemplates = async (templates_dir, templates, asObjects = false) => {
             templates[key] = asObjects ? JSON.parse(data) : data;
         }
     } catch (error) {
-        
+
     }
     return templates;
 }
@@ -1268,7 +1259,7 @@ const shortenUrl = async (url, token, full = false,) => {
         //TODO
         const results = await fetchData(`https://${HOST}/s/`, data, headers);
         const duration = time() - start;
-        if(typeof results === 'object' && results.link) {
+        if (typeof results === 'object' && results.link) {
             if (_logger) {
                 _logger.info(`Url shortened to [${results.link}] in ${toFixedPlaces(duration, 2)}ms`);
             }
@@ -1289,13 +1280,13 @@ const shortenUrl = async (url, token, full = false,) => {
 }
 
 //TODO
-const getHealth = (info, full = false)=> {
+const getHealth = (info, full = false) => {
     const now = Date.now();
     try {
-        const data = full ? { ...info} : {};
-        data.status =  "OK";
+        const data = full ? { ...info } : {};
+        data.status = "OK";
         data.time = now;
-        data.uptime = Math.round((now - info.start) /1000);
+        data.uptime = Math.round((now - info.start) / 1000);
         data.memory = process.memoryUsage();
         data.cpu = process.cpuUsage();
         data.loadavg = os.loadavg();
@@ -1303,10 +1294,10 @@ const getHealth = (info, full = false)=> {
         data.freemem = os.freemem();
         data.totalmem = os.totalmem();
 
-        return data; 
+        return data;
     } catch (error) {
         //console.log(error);
-        return { status: "error"};
+        return { status: "error" };
     }
 }
 
@@ -1401,7 +1392,7 @@ const formatDate = (date, format, utc = false) => {
     if (!date || !format) {
         return '';
     }
-    
+
     //eturn utc ? dayjs.utc() dayjs(date).format(format);
     return dayjs(date).format(format);
 }
@@ -1421,7 +1412,7 @@ const redisOptsFromUrl = (urlString) => {
                 //rejectUnauthorized: false
             };
         }
-        redisOpts.enableReadyCheck =  false;
+        redisOpts.enableReadyCheck = false;
         redisOpts.maxRetriesPerRequest = 10;
     } catch (e) {
         console.log(e);
