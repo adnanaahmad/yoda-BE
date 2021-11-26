@@ -64,7 +64,6 @@ const sendWebhook = async (customer_id, data, table, handler) => {
                     const payload = { data: data, url: webhook.url };
                     if (webhook.secret && webhook.secret.length > 0) {
                         payload.data = JSON.stringify(data);
-                        payload.data = json;
                         const sig = utils.hash(`${payload.data}${webhook.secret}`, 'sha256', 'hex').toUpperCase();
                         payload.headers = { "x-signature": sig ,  "x-api": table };
                     }
