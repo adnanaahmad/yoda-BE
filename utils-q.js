@@ -5,6 +5,7 @@ const utils = require('./utils');
 const awsClient = require('./aws-client');
 
 //TODO!
+const PREFIX = process.env.INSTANCE_ID;
 
 let redisUrl;
 //nc -v url port
@@ -21,7 +22,6 @@ let postQ;
 let postQNames = [names.post_process, names.analytics];
 
 const getQ = (key, options) => {
-    key = `${process.env.INSTANCE_ID}-${key}`;
     let q = QUEUES[key];
     if (typeof (q) === 'undefined') {
         q = setQ(key, undefined, options);
@@ -29,20 +29,21 @@ const getQ = (key, options) => {
     return q;
 };
 
-
-
 const setQ = (key, url, options) => {
-
     url = url || redisUrl;
 
     if (typeof (url) === 'string') {
         options = {
             ...options || jobOptsRemove,
-            //prefix: '{FID}',
             redis: utils.redisOptsFromUrl(url)
         };
     }
-    //let q = new bull(key, url, options);
+
+    if (PREFIX) {
+        options = options || {};
+        options.prefix = PREFIX;
+    }
+
     let q = new bull(key, options);
     QUEUES[key] = q;
     return q;
@@ -60,8 +61,8 @@ const jobOptsRemove = {
     removeOnComplete: true
 };
 
-const setRedisUrl = (url)=> {
-    if(typeof(url) !== 'undefined') {
+const setRedisUrl = (url) => {
+    if (typeof (url) !== 'undefined') {
         redisUrl = url;
     }
 }
@@ -103,16 +104,16 @@ const addToPostQ = (data) => {
     });
 }
 
-const ready = async ()=> {
+const ready = async () => {
     let loops = 0;
-    while(!redisUrl && ++loops < 100) {
+    while (!redisUrl && ++loops < 100) {
         await utils.timeout(300);
     }
     return redisUrl !== undefined;
 }
 
 (async () => {
-    if(typeof(redisUrl) === 'undefined') {
+    if (typeof (redisUrl) === 'undefined') {
         redisUrl = await awsClient.getParameter('/config/shared/redis/url');
     }
 })();

@@ -24,6 +24,9 @@ const cidrRegex = require("cidr-regex");
 const ipaddr = require('ipaddr.js');
 const packageJSON = require(`${__dirname}/package.json`);
 
+//TODO!
+const USER_AGENT =  `FortifID v${packageJSON.version}`;
+
 const {
     URL
 } = require('url');
@@ -185,6 +188,28 @@ const hashPassword = async (password) => {
     } catch (error) {
 
     }
+}
+
+const createWebhookPayload = (data, url, api_name, secret) => {
+    const dType = typeof(data);
+    if(dType === 'undefined' || !url || !url.startsWith("http")) {
+        return;
+    }
+
+    const payload = { data: (dType === 'object' ? JSON.stringify(data) : data), url };
+    let headers;
+    if (secret && secret.length > 0) {
+        const sig = hash(`${payload.data}${secret}`, 'sha256', 'hex').toUpperCase();
+        headers = { "x-signature": sig };
+    }
+
+    if (api_name && api_name.length > 0) {
+        headers = headers || {};
+        headers["x-api"] = api_name;
+    }
+
+    payload.headers = headers;
+    return payload;
 }
 
 const comparePassword = async (password, hash) => {
@@ -862,7 +887,7 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
         headers['content-type'] = 'application/json';
     }
 
-    headers['user-agent'] = `FortifID v${packageJSON.version}`;
+    headers['user-agent'] = USER_AGENT;
 
     if (bodyType === 'object') {
         if (headers['content-type'] === 'application/json') {
@@ -1538,5 +1563,6 @@ module.exports = {
     hasGit,
     csvToArray,
     arrayToCSV,
-    getHealth
+    getHealth,
+    createWebhookPayload
 }

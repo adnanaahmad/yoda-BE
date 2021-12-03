@@ -60,13 +60,11 @@ const sendWebhook = async (customer_id, data, table, handler) => {
         if (customer) {
             if (customer.webhooks) {
                 const webhook = customer.webhooks[table];
-                if (webhook && webhook.url && webhook.url.startsWith("https")) {
-                    const payload = { data: JSON.stringify(data), url: webhook.url };
-                    if (webhook.secret && webhook.secret.length > 0) {
-                        const sig = utils.hash(`${payload.data}${webhook.secret}`, 'sha256', 'hex').toUpperCase();
-                        payload.headers = { "x-signature": sig ,  "x-api": table };
+                if (webhook) {
+                    const payload = utils.createWebhookPayload(data, webhook.url, table, webhook.secret);
+                    if(payload) {
+                        handler.webhook(payload);
                     }
-                    handler.webhook(payload);
                 }
             }
         }

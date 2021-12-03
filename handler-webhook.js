@@ -26,7 +26,7 @@ const add = async(data)=> {
 
             let response = await utils.fetchData(url, data.data, data.headers);
             let duration = utils.time() - start;
-            logger.info(`webhook finished. ${utils.toFixedPlaces(duration, 2)}ms. [${response}]`);            
+            logger.info(`webhook finished. ${data.url}. ${utils.toFixedPlaces(duration, 2)}ms. [${response}]`);            
         } catch (error) {
             logger.error(error);
             results = error;
