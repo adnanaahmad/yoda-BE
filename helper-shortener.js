@@ -45,17 +45,17 @@ fastify.post('/', async (request, reply) => {
         if(url.hostname.indexOf('fortifid.com') > -1) {
             const parts = url.pathname.split('/');
             if(parts.length > 1) {
-
-                switch(parts[1]) {
-                    case 'mfa': {
-                        expires = ms('4m');
-                        break;
-                    }
-                    case 'doc': {
-                        expires = ms('20m');
-                        break;
-                    }
-                }
+                //for now.
+                // switch(parts[1]) {
+                //     case 'mfa': {
+                //         expires = ms('4m');
+                //         break;
+                //     }
+                //     case 'doc': {
+                //         expires = ms('20m');
+                //         break;
+                //     }
+                // }
             } 
         } else {
 
