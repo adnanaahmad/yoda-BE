@@ -116,14 +116,16 @@ else
     log "Starting nginx..."
     sudo service nginx start
 fi
+
 #sudo -u ec2-user bash -c "$FORTIFID_DIR/scripts/get-certs.sh $HOST"
 
-acme.sh --issue -d "$HOST" -w /usr/share/nginx/portal
+#TODO
+# acme.sh --issue -d "$HOST" -w /usr/share/nginx/portal
 
-acme.sh --install-cert -d "$HOST" \
---key-file       /etc/nginx/ssl/key.pem \
---fullchain-file /etc/nginx/ssl/cert.pem \
---reloadcmd     "sudo service nginx force-reload"
+# acme.sh --install-cert -d "$HOST" \
+# --key-file       /etc/nginx/ssl/key.pem \
+# --fullchain-file /etc/nginx/ssl/cert.pem \
+# --reloadcmd     "sudo service nginx force-reload"
 
 if [ -f /etc/nginx/ssl/key.pem ]; then
     log "Enabling HTTPS..."
