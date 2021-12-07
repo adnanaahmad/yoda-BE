@@ -1,8 +1,8 @@
 'use strict';
 /*jshint esversion: 8 */
-
 const utils = require('./utils');
-const logger = require('./logger').logger;
+const logger = require('./logger').createLogger("handler-twilio");
+
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 SCRIPT_INFO.library_mode = require.main !== module;
 if (!SCRIPT_INFO.library_mode) {

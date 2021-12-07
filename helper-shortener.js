@@ -107,7 +107,7 @@ fastify.get('/:id', async (request, reply) => {
 
 fastify.listen(8996, (err, address) => {
     if (err) throw err
-    console.log(`HTTP server is listening on ${address}`);
+    logger.info(`HTTP server is listening on ${address}`);
 });
 
 (async () => {

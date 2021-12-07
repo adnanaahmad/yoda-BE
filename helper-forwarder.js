@@ -1,5 +1,6 @@
 'use strict';
 /*jshint esversion: 8 */
+const logger = require('./logger').createLogger("forwarder");
 
 const fastify = require('fastify')({
     logger: false,
@@ -104,7 +105,7 @@ const handleRequest = async (id, request, reply) => {
                 log.url_id = urlId;
             }
 
-            console.log(log);
+            logger.info(log);
         } else {
             let data = {
                 code: 422,
@@ -136,5 +137,5 @@ fastify.get('/:id', async (request, reply) => {
 
 fastify.listen(8997, (err, address) => {
     if (err) throw err
-    console.log(`HTTP server is listening on ${address}`);
+    logger.info(`HTTP server is listening on ${address}`);
 });

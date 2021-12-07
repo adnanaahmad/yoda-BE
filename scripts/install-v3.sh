@@ -119,6 +119,13 @@ fi
 
 #sudo -u ec2-user bash -c "$FORTIFID_DIR/scripts/get-certs.sh $HOST"
 
+curl https://get.acme.sh | sh
+source ~/.bashrc
+acme.sh --upgrade --auto-upgrade
+
+acme.sh --register-account -m itsec@fortifid.com
+
+
 #TODO
 # acme.sh --issue -d "$HOST" -w /usr/share/nginx/portal
 
