@@ -1,7 +1,7 @@
 'use strict';
 /*jshint esversion: 8 */
 const utils = require('./utils');
-const logger = require('./logger').createLogger("handlee-webhook");
+const logger = require('./logger').createLogger("handler-webhook");
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 SCRIPT_INFO.library_mode = require.main !== module;
