@@ -1,9 +1,10 @@
 'use strict';
 /*jshint esversion: 8 */
+const TABLE = 'shortener';
+
 const utils = require('./utils');
 const logger = require('./logger').createLogger('shortener');
 utils.setLogger(logger);
-const ms = require('ms');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
@@ -18,8 +19,7 @@ const fastify = require('fastify')({
     logger: false
 })
 
-//TODO!
-const storage = require('node-persist');
+const cache = require('./cache');
 
 fastify.post('/', async (request, reply) => {
     const body = request.body;
@@ -27,10 +27,10 @@ fastify.post('/', async (request, reply) => {
         const now = Date.now();
 
         let url = utils.parseURL(body.long_url);
+        //TODO
         if(url.hostname.indexOf('directid.co') == -1 && url.hostname.indexOf('fortifid.com') == -1 && url.hostname !== 'connect.direct.id') {
             let data = { code: 403, error: 'Domain not allowed.'};
-            reply.type('application/json').code(403).send(data);
-            return;
+            return reply.type('application/json').code(403).send(data);
         }
 
         const id = utils.randomString(6);
@@ -65,9 +65,8 @@ fastify.post('/', async (request, reply) => {
             data.expires = new Date(now + expires).toISOString(); 
         }
         reply.type('application/json').code(200).send(data);
-        //console.log(data);
-        //TODO: check if dupe
-        storage.setItem(id, data);
+
+        await cache.setP(TABLE, id, data, '1m', true);
     } else {
         let data = { code: 422, error: 'Missing parameter.'};
         reply.type('application/json').code(422).send(data);
@@ -79,29 +78,21 @@ fastify.get('/:id', async (request, reply) => {
     const now = new Date();
 
     if(!id) {
-        //let data = { code: 422, error: 'Missing parameter.'};
-        //reply.type('application/json').code(422).send(data);
-        reply.type('text/html').code(200).send('');
-        return;
+        let data = { code: 422, error: 'Missing parameter.'};
+        return reply.type('application/json').code(422).send(data);
     }
 
-    let data = await storage.getItem(id);
-    //console.log(data, id, );
+    let data = await cache.getP(TABLE, id);
     if (data) {
         let url = data.long_url;
-        //console.log(data, now, request.headers, request.method, request.body);
         if(data.expires && new Date() > new Date(data.expires)) {
-            //reply.type('text/html').code(200).send('Sorry, URL expired.');
-            //return;
-            url = 'https://api-uat.fortifid.com/misc/?expired'
+            return reply.type('text/html').code(404).send('Sorry, URL expired.');
         }    
 
-        reply.redirect(url);
-        return;
+        return reply.redirect(url);
     } else {
         let data = { code: 404, error: 'URL expired or not found.'};
-        //reply.type('application/json').code(404).send(data);
-        reply.redirect(`https://api-uat.fortifid.com/misc/?not_found`);
+        return reply.type('application/json').code(404).send(data);
     }
 });
 
@@ -111,16 +102,5 @@ fastify.listen(8996, (err, address) => {
 });
 
 (async () => {
-    //Just for development/testing
-    await storage.init(
-    {
-        dir: '.cache',
-        stringify: JSON.stringify,
-        parse: JSON.parse,
-        encoding: 'utf8',
-        logging: false, 
-        ttl: ms('1w'),
-        expiredInterval: 2 * 60 * 1000, // every 2 minutes the process will clean-up the expired cache
-        forgiveParseErrors: false
-    });
+
 })();
