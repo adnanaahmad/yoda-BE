@@ -1,8 +1,7 @@
 'use strict';
 /*jshint esversion: 8 */
-
 const utils = require('./utils');
-const logger = require('./logger').createLogger('scheduler-did');
+const logger = require('./logger').createLogger('helper-scheduler');
 
 const awsClient = require('./aws-client');
 const incomeDirectIDResponseStatus = require(`${__dirname}/data/response-status.json`);
