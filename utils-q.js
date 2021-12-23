@@ -9,6 +9,8 @@ const PREFIX = process.env.INSTANCE_ID;
 
 let redisUrl;
 //nc -v url port
+//nc -vz url port
+
 const QUEUES = {};
 
 const names = {
