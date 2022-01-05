@@ -58,7 +58,12 @@ const decrypt = (data, key) => {
 (async () => {
     try {
         params = await require('./params')('/config/shared/crypt');
-        DEFAULT_KEY =  Buffer.from(params.key_001, 'base64');
+        if(params && params.key_001) {
+            DEFAULT_KEY =  Buffer.from(params.key_001, 'base64');
+            if(DEFAULT_KEY) {
+                console.log("Crypt initialized.");
+            }
+        }
     } catch (error) {
         console.log(error);
     }
