@@ -129,7 +129,7 @@ fi
 if [ -n "$START" ]; then
     IFS=',' read -ra ID <<< "$START"
     for i in "${ID[@]}"; do
-        pm2 start "$i.js"
+        pm2 start "$i.js" --exp-backoff-restart-delay=100
     done
     pm2 save
 fi

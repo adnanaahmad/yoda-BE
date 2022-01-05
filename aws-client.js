@@ -2,12 +2,16 @@
 /*jshint esversion: 8 */
 
 const utils = require('./utils');
-const logger = require('./logger').logger;
+const logger = require('./logger').createLogger("aws-client");
 const AWS = require('aws-sdk');
 
 AWS.config.update({
   region: process.env.AWS_REGION
 });
+
+if(process.env.AWS_LOGGER === "1") {
+  AWS.config.logger = console;
+}
 
 const secrets = new AWS.SecretsManager();
 const ssm = new AWS.SSM();
@@ -136,7 +140,7 @@ const getParameter = async (name) => {
       return value;
     }
   } catch (error) {
-    logger.error('getParameter', name, error);
+    logger.error(error, name);
   }
 };
 
@@ -189,8 +193,7 @@ const getParametersByPathSync = (path, filters, simple = false) => {
 
     return values;
   } catch (error) {
-    logger.error('getParametersByPath', path, error);
-    console.log(error);
+    logger.error(error, path);
   }
 };
 
@@ -234,7 +237,7 @@ const getParametersByPath = async (path, filters, simple = false) => {
 
     return values;
   } catch (error) {
-    logger.error('getParametersByPath', path, error);
+    logger.error(error, path);
   }
 };
 
@@ -250,7 +253,7 @@ const putParameter = async (name, value, type = 'SecureString', dataType = 'text
   try {
     return await ssm.putParameter(params).promise();
   } catch (error) {
-    logger.error('putParameter', name, error);
+    logger.error(error, path);
   }
 };
 
