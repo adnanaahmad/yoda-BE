@@ -14,23 +14,25 @@ module.exports = async (path, logger) => {
         } else {
             Object.keys(PARAMS).forEach(key => {
                 if (key.startsWith('*')) {
-                    PARAMS[key.substr(1)] = PARAMS[key];
+                    PARAMS[key.substring(1)] = PARAMS[key];
                     delete PARAMS[key];
                 }
             });
         }
-    
+
         if (typeof (PARAMS) === 'undefined') {
             if (logger) {
                 logger.error(`No parameters defined in ${path}.`);
+            } else {
+                console.log(`No parameters defined in ${path}.`);
             }
-            process.exit(1);
         }
-    
         return PARAMS;
     } catch (error) {
-        if(logger) {
+        if (logger) {
             logger.error(error);
+        } else {
+            console.log(error);
         }
     }
 }
