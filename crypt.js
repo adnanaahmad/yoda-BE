@@ -56,8 +56,13 @@ const decrypt = (data, key) => {
 }
 
 (async () => {
-    params = await require('./params')('/config/shared/crypt');
-    DEFAULT_KEY =  Buffer.from(params.key_001, 'base64');
+    try {
+        params = await require('./params')('/config/shared/crypt');
+        console.log(params);
+        DEFAULT_KEY =  Buffer.from(params.key_001, 'base64');
+    } catch (error) {
+        console.log(error);
+    }
     //process.env.CRYPT_KEY ? Buffer.from(process.env.CRYPT_KEY, 'base64') : '';
     //let data = encrypt("This is a test");
     //console.log(decrypt(data));

@@ -1159,7 +1159,6 @@ const loadParams = async () => {
     } catch (error) {
         logger.error(error);
     }
-
 }
 
 (async () => {
