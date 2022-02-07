@@ -11,6 +11,7 @@ const parseArgs = require('minimist');
 const bcrypt = require('bcrypt');
 const BCRYPT_SALT_ROUNDS = 10;
 const fetch = require("node-fetch");
+const axios = require('axios');
 const LZUTF8 = require('lzutf8');
 const dayjs = require('dayjs');
 // const utc = require('dayjs/plugin/utc')
@@ -919,6 +920,83 @@ const fetchData = async (url, body, headers, method = 'post', responseType, thro
     let response;
     try {
         response = await fetch(url, config);
+        if (response) {
+            if (returnHeaders) {
+                Object.assign(returnHeaders, response.headers);
+            }
+
+            if (responseType === 'blob') {
+                data = await response.blob();
+            } else {
+                data = await response.text();
+                if (isJSON(data)) {
+                    try {
+                        data = JSON.parse(data);
+                    } catch (e) { }
+                }
+            }
+        }
+    } catch (error) {
+        if (throwError) {
+            throw error;
+        }
+    }
+    return data;
+}
+
+const fetchData2 = async (url, body, headers, method = 'post', responseType, throwError = true, returnHeaders) => {
+    headers = headers || {};
+
+    let data;
+
+    if (!method) {
+        method = 'get';
+    } else {
+        method = method.toLowerCase();
+    }
+
+    //TODO
+    const bodyType = typeof (body);
+
+    if (!headers['content-type'] && bodyType === 'object') {
+        headers['content-type'] = 'application/json';
+    }
+
+    headers['user-agent'] = USER_AGENT;
+
+    if (bodyType === 'object') {
+        if (headers['content-type'] === 'application/json') {
+            body = JSON.stringify(body);
+        } else {
+            body = new URLSearchParams(body);
+        }
+    }
+
+    let config = {
+        method,
+        headers,
+    };
+
+    if (httpsAgent) {
+        config.agent = httpsAgent;
+    }
+
+    //TODO!
+    if (body) {
+        if (method === 'post' || method === 'put' || method === 'patch') {
+            config.data = body;
+        } else {
+            //CLEAN
+            url = `${url}${url.indexOf('?') > -1 ? '&' : '?'}${body}`;
+        }
+    }
+    
+    config.url = url;
+
+    let response;
+    try {
+        
+        response = await axios(config);
         if (response) {
             if (returnHeaders) {
                 Object.assign(returnHeaders, response.headers);
