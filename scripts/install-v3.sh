@@ -127,6 +127,8 @@ acme.sh --register-account -m itsec@fortifid.com
 
 
 #TODO
+# acme.sh --set-default-ca  --server  letsencrypt
+
 # acme.sh --issue -d "$HOST" -w /usr/share/nginx/portal
 
 # acme.sh --install-cert -d "$HOST" \

@@ -64,7 +64,7 @@ const jobOptsRemove = {
 };
 
 const setRedisUrl = (url) => {
-    if (typeof (url) !== 'undefined') {
+    if (typeof (url) === 'string' && url.startsWith('redis')) {
         redisUrl = url;
     }
 }
