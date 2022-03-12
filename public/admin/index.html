@@ -40,7 +40,8 @@
     <div class="container grid-lg">
         <br />
         <div class="text-center">
-            <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo" src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/logo.png" alt="FortifID Logo"></a>
+            <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo"
+                    src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/logo.png" alt="FortifID Logo"></a>
             <br /><br />
             <h5>Admin</h5>
             <hr />
@@ -65,8 +66,7 @@
     </div>
     <br />
     <br />
-    <script src="https://code.jquery.com/jquery-3.5.0.slim.min.js"
-        integrity="sha256-MlusDLJIP1GRgLrOflUQtshyP0TwT/RHXsI1wWGnQhs=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js"></script>
     <script>
         (async () => {
             "use strict";
@@ -121,7 +121,7 @@
                 }
 
                 let str =
-                    `<pre><code class="text-left ${(isJSON ?'json' : 'hljs')}">${content}</code></pre>`;
+                    `<pre><code class="text-left ${(isJSON ? 'json' : 'hljs')}">${content}</code></pre>`;
 
                 setOutput(str, mode, br);
 
@@ -172,7 +172,7 @@
                                 if (firstChar === '[' || firstChar === '{') {
                                     data = JSON.parse(data);
                                 }
-                            } catch (e) {}
+                            } catch (e) { }
                         }
                     }
 
@@ -217,7 +217,7 @@
                         if (firstChar === '[' || firstChar === '{')
                             data = JSON.parse(data);
                     }
-                } catch (e) {}
+                } catch (e) { }
 
 
                 if (!command.startsWith('/')) {
@@ -225,8 +225,8 @@
                 }
 
                 setOutput('Requesting...', 0);
-                if(typeof(data) === 'string') {
-                    data = { _args: data};
+                if (typeof (data) === 'string') {
+                    data = { _args: data };
                 }
                 let results = await getAPIData(`${command}`, data, 'get');
                 setOutput('Finished', 0);
