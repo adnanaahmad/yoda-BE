@@ -170,7 +170,6 @@ const loadTemplates = async () => {
 
 const test = async ()=> {
     console.log('TEST!');
-    //utils.beep();
     let data = {
         transaction_id: utils.getUUID(),
         email: 'cisco801@gmail.com',
