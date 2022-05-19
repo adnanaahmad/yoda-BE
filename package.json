@@ -45,6 +45,7 @@
     "nodemailer": "^6.6.3",
     "object-mapper": "^6.2.0",
     "pem-file": "^1.0.1",
+    "plaid": "^9.10.1",
     "pm2": "^5.1.2",
     "pretty-data": "^0.40.0",
     "rate-limiter-flexible": "^2.2.3",
