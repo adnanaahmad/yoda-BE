@@ -310,11 +310,13 @@ fastify.post('/webhook', {
                             try {
                                 let results = await getVeriffData(verificationId, 'GET', `/sessions/${verificationId}/media`);
                                 if (results && results.status === 'success') {
-                                    if (Array.isArray(results.images) && results.images.length > 0) {
+                                    const images = results.images;
+                                    if (Array.isArray(images) && images.length > 0) {
                                         const media = [];
                                         data.raw_data = {};
                                         data.raw_hash = nanoid(32);
-                                        results.images.forEach(async (image) => {
+                                        //results.images.forEach(async (image) =>
+                                        for (let image in images) {
                                             try {
                                                 console.log(image.id, VALID_IMAGE_NAMES.indexOf(image.name));
                                                 if (VALID_IMAGE_NAMES.indexOf(image.name) > -1) {
@@ -328,9 +330,9 @@ fastify.post('/webhook', {
                                                     })
                                                 }
                                             } catch (error) {
-                                                console.log(error);                                                
+                                                console.log(error);
                                             }
-                                        })
+                                        }
                                         data.raw_data.media = media;
                                         console.log(media);
                                     }
