@@ -361,6 +361,20 @@ fastify.addHook('onResponse', async (request, reply) => {
     }
 })
 
+const test = async (phone_number)=> {
+    await utils.timeout(2000);
+    const pn = utils.parsePhoneNumber(phone_number);
+    phone_number = pn.getNumber();
+    let lookup = {
+        transaction_id: utils.getUUID(),
+        numbers: phone_number
+    };
+
+    let results = await twilioUtils.lookup(lookup);
+    console.log(results);
+
+}
+
 const start = async () => {
     params = await require('./params')(CONFIG_PATH, logger);
 

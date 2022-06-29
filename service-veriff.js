@@ -27,8 +27,16 @@ if (!SCRIPT_INFO.host) {
 
 const dayjs = require('dayjs');
 const MIN_DATE = dayjs("1/1/1900");
-const MAX_DATE = dayjs("1/1/2020");
+const MAX_DATE = dayjs("1/1/2022");
 
+const crypto = require('crypto');
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+const { nanoid } = require('nanoid');
+const VALID_IMAGE_NAMES = ['document-back', 'document-front', 'face'];
+
+//
 const DEFAULT_URL = `https://${SCRIPT_INFO.host}/v1/doc/?ref=%URL%`;
 
 const fastify = require('fastify')({
@@ -52,6 +60,7 @@ fastify.register(require('fastify-raw-body'), {
 })
 
 const handler = require('./utils-handlers');
+const { randomSrringCrypt } = require('./utils');
 
 const KEYS = {};
 
@@ -67,6 +76,77 @@ const loadParams = async () => {
     params = await require('./params')(CONFIG_PATH, logger);
     KEYS[params.client_id] = params.client_secret;
     KEYS[params.client_id_test] = params.client_secret_test;
+}
+
+
+const privateKey = '9a003a83-1c0c-4fa6-ad5f-6ff121a1feb7';
+const publicKey = 'defbb5fe-8c43-446f-847c-bf1e49dba3bf';
+
+const getVeriffData = async (payload, method = 'GET', endpoint, output) => {
+
+    let outtype = 0;
+    if (output) {
+        if (typeof output === 'string') {
+            output = path.resolve(__dirname, 'images', output);
+            outtype = 1;
+        } else if (typeof output === 'object') {
+            outtype = 2;
+        }
+    }
+
+    if (payload.constructor === Object) {
+        payload = JSON.stringify(payload);
+    }
+
+    if (payload.constructor !== Buffer) {
+        payload = new Buffer.from(payload, 'utf8');
+    }
+
+    //TODO
+    const signature = crypto
+        .createHmac('sha256', privateKey)
+        .update(Buffer.from(payload, 'utf8'))
+        .digest('hex')
+        .toLowerCase();
+
+    const options = {
+        method,
+        url: `https://stationapi.veriff.com/v1${endpoint}`,
+        headers:
+        {
+            'content-type': 'application/json',
+            'x-hmac-signature': signature,
+            'x-auth-client': publicKey
+        }
+    };
+
+    if (output) {
+        options.responseType = 'stream';
+    }
+
+
+    let response = await axios(options);
+    if (output) {
+        //const stream = fs.createReadStream(resolvePath('index.html'))
+        //res.type('text/html').send(stream)
+        if (outtype === 2) {
+            output.send(response.data);
+        } else {
+            response.data.pipe(fs.createWriteStream(output));
+        }
+
+        return new Promise((resolve, reject) => {
+            response.data.on('end', () => {
+                resolve(true);
+            })
+
+            response.data.on('error', () => {
+                reject()
+            })
+        })
+    } else {
+        return response.data;
+    }
 
 }
 
@@ -102,42 +182,46 @@ const verifySignature = (request, reply) => {
     return true;
 }
 
-const getData = (record, data)=> {
+const getData = (record, data) => {
     try {
         data.status = record.status || record.action;
         if (record.created) {
             data.created = new Date(record.created).toISOString();
         }
-    
+
         if (record.finished) {
             data.completed = new Date(record.finished).toISOString();
         }
-    
+
         if (record._expiresAt) {
             data.expires_at = new Date(record._expiresAt * 1000).toISOString();
         }
-    
+
         if (record.reason !== null && typeof (record.reason) !== 'undefined') {
             data.reason = record.reason;
         }
-    
+
         if (typeof (record.name_match_score) !== 'undefined') {
             data.name_match_score = record.name_match_score;
         }
-    
+
         if (typeof (record.dob_match) !== 'undefined') {
             data.dob_match = record.dob_match;
         }
-    
+
         if (record.redirect_url) {
             data.redirect_url = record.redirect_url;
         }
-    
+
         if (record.request_reference) {
             data.request_reference = record.request_reference;
         }
+
+        if (record.raw_data) {
+            data.raw_data = record.raw_data;
+        }
     } catch (error) {
-        
+
     }
 }
 
@@ -177,7 +261,7 @@ fastify.post('/webhook', {
                 data.code = v.code;
                 //TODO! They may retry.
                 data.finished = now;
-                
+
                 if (record && record.created) {
                     data.duration = now - record.created;
                     customer_id = record.customer_id;
@@ -219,16 +303,41 @@ fastify.post('/webhook', {
                                     }
                                 }
 
-                                data.pii = undefined;
+                                data.pii = null;
                                 //TODO!
-                                delete data.pii;
+                                //delete data.pii;
+                            }
+                        }
+
+                        if (record.raw) {
+                            let verificationId = v.id;
+                            try {
+                                let results = await getVeriffData(verificationId, 'GET', `/sessions/${verificationId}/media`);
+                                if (results && results.status === 'success') {
+                                    if (Array.isArray(results.images) && results.images.length > 0) {
+                                        const media = [];
+                                        data.raw_data = { media };
+                                        data.raw_hash = nanoid(32);
+                                        results.images.forEach(async (image) => {
+                                            if (VALID_IMAGE_NAMES.indexOf(image.name) > -1) {
+                                                const pid = encodeURIComponent((await utils.hashPassword(`${image.id}${customer_id}${data.raw_hash}`, 1)).substring(7));
+                                                media.push({
+                                                    id: image.id,
+                                                    name: image.name,
+                                                    type: image.mimetype,
+                                                    pid
+                                                })
+                                            }
+                                        })
+                                    }
+                                }
+                            } catch (error) {
+                                logger.error(error);
                             }
                         }
                     }
                 }
-
-
-        } else {
+            } else {
                 data.updated = now;
                 data.status = body.action;
                 data.id = body.id;
@@ -239,8 +348,8 @@ fastify.post('/webhook', {
             //logger.silly(data);
             const saved = await cache.updateP(TABLE, id, data, expiration, true);
 
-            if(saved && saved.finished) {
-                const payload = { transaction_id: saved.transaction_id};
+            if (saved && saved.finished) {
+                const payload = { transaction_id: saved.transaction_id };
                 getData(saved, payload);
                 await authMain.sendWebhook(customer_id, payload, TABLE, handler);
             }
@@ -256,6 +365,59 @@ fastify.post('/webhook', {
     }
 });
 
+//TODO
+const processRaw = async (request, reply, id, mediaId, pid) => {
+
+}
+
+fastify.post('/raw', async (request, reply) => {
+
+})
+
+fastify.get('/raw/:id/:media_id/:pid', async (request, reply) => {
+    if (!await authMain.checkHeaders(request, reply)) {
+        return;
+    }
+    const id = request.params.id
+
+    if (id && id.length > 0) {
+        const record = await cache.getP(TABLE, id);
+
+        const mediaId = request.params.media_id;;
+        if (record && mediaId && mediaId.length > 1) {
+            if (record.customer_id !== request.user.CustomerAccountID) {
+                reply.type('application/json').code(401);
+                return {
+                    message: 'unauthorized',
+                    status: 'error'
+                };
+            }
+
+            try {
+                reply.header('Content-Type', 'image/jpeg');
+                //reply.header('Content-Disposition', `attachment; filename=${mediaId}.jpg`);
+                await getVeriffData(mediaId, 'GET', `/media/${mediaId}`, reply);
+                // const stream = fs.createReadStream(filename);
+                // reply.send(stream)
+            } catch (error) {
+                logger.error(error);
+                reply.type('application/json').code(500);
+                return {
+                    message: error.message,
+                    status: 'error'
+                };
+            }
+            return;
+        }
+    }
+
+    let code = 404;
+    reply.type('application/json').code(code);
+    return {
+        status: 'not_found'
+    };
+
+})
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
@@ -321,6 +483,7 @@ fastify.post('/generate-url', async (request, reply) => {
         let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
 
         let strict = typeof (body.strict) === 'boolean' ? body.strict : false;
+        let raw = typeof (body.raw) === 'boolean' ? body.raw : false;
 
         let dobData = dayjs(dob);
         if (strict) {
@@ -330,10 +493,10 @@ fastify.post('/generate-url', async (request, reply) => {
         }
 
         let expire = "1w";
-        if(body.expire && body.expire.length > 0) {
+        if (body.expire && body.expire.length > 0) {
             let tmp = parseInt(body.expire);
-            if(tmp < 30 || tmp > 2592000){ //1 month!
-                return reply.type('application/json').code(422).send({status: "error", reason: "expire must be between 30 and 2592000"});
+            if (tmp < 30 || tmp > 2592000) { //1 month!
+                return reply.type('application/json').code(422).send({ status: "error", reason: "expire must be between 30 and 2592000" });
             }
             expire = tmp;
         }
@@ -409,7 +572,8 @@ fastify.post('/generate-url', async (request, reply) => {
             let save = {
                 created: data.created,
                 status: data.status,
-                strict: strict
+                strict,
+                raw
             };
 
             if (strict) {
@@ -458,7 +622,7 @@ fastify.post('/generate-url', async (request, reply) => {
         data.status = 'error';
     }
 
-    if(typeof(data.created) === "number") {
+    if (typeof (data.created) === "number") {
         data.created = new Date(data.created).toISOString();
     }
 
@@ -479,6 +643,7 @@ const start = () => {
 }
 
 (async () => {
+    console.log(nanoid(32));
     await loadParams();
     start();
     await handler.init(true, true, true);

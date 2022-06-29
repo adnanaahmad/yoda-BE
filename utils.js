@@ -26,7 +26,7 @@ const ipaddr = require('ipaddr.js');
 const packageJSON = require(`${__dirname}/package.json`);
 
 //TODO!
-const USER_AGENT =  `FortifID v${packageJSON.version}`;
+const USER_AGENT = `FortifID v${packageJSON.version}`;
 
 const {
     URL
@@ -182,9 +182,9 @@ const hashID = (id) => {
     return hash(id, undefined, 'hex');
 }
 
-const hashPassword = async (password) => {
+const hashPassword = async (password, rounds = BCRYPT_SALT_ROUNDS) => {
     try {
-        let hash = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+        let hash = await bcrypt.hash(password, rounds);
         return hash;
     } catch (error) {
 
@@ -192,8 +192,8 @@ const hashPassword = async (password) => {
 }
 
 const createWebhookPayload = (data, url, api_name, secret) => {
-    const dType = typeof(data);
-    if(dType === 'undefined' || !url || !url.startsWith("http")) {
+    const dType = typeof (data);
+    if (dType === 'undefined' || !url || !url.startsWith("http")) {
         return;
     }
 
@@ -422,6 +422,7 @@ const splitter = (text) => {
     return text.match(/("[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'|\/[^\/\\]*(?:\\[\S\s][^\/\\]*)*\/[gimy]*(?=\s|$)|(?:\\\s|\S)+)/g);
 }
 
+
 const randomString = (len) => {
     let s = '';
     const randomchar = () => {
@@ -435,9 +436,11 @@ const randomString = (len) => {
     return s;
 };
 
-const randomSrringCrypt = (length) => {
-    let initializationVector = crypto.randomBytes(length);
-    return initializationVector.toString('base64');
+const randomSrringCrypt = (len) => {
+    return crypto
+        .randomBytes(len)
+        .toString('base64')
+        .slice(0, len);
 };
 
 const setFileTime = (file, atime, mtime) => {
@@ -990,12 +993,12 @@ const fetchData2 = async (url, body, headers, method = 'post', responseType, thr
             url = `${url}${url.indexOf('?') > -1 ? '&' : '?'}${body}`;
         }
     }
-    
+
     config.url = url;
 
     let response;
     try {
-        
+
         response = await axios(config);
         if (response) {
             if (returnHeaders) {

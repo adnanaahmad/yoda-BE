@@ -112,6 +112,13 @@
 
         <div class="form-group">
           <label class="form-switch">
+            <input id="raw" type="checkbox">
+            <i class="form-icon"></i> Raw Data
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="form-switch">
             <input id="shorten_url" type="checkbox">
             <i class="form-icon"></i> Shorten URL
           </label>
@@ -398,6 +405,7 @@
           expire: $('#expire').val(),
           strict: $('#check-strict').is(':checked'),
           shorten_url: $('#shorten_url').is(':checked'),
+          raw: $('#raw').is(':checked'),
         };
 
         if (data.email_address.length < 3 && data.phone_number.length < 9) {
