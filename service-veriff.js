@@ -331,6 +331,7 @@ fastify.post('/webhook', {
                                             }
                                         })
                                         data.raw_data.media = media;
+                                        console.log(data);
                                     }
                                 }
                             } catch (error) {
