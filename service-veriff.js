@@ -378,13 +378,29 @@ fastify.get('/raw/:id/:media_id/:pid', async (request, reply) => {
         return;
     }
     const id = request.params.id
-
     if (id && id.length > 0) {
         const record = await cache.getP(TABLE, id);
 
         const mediaId = request.params.media_id;;
-        if (record && mediaId && mediaId.length > 1) {
-            if (record.customer_id !== request.user.CustomerAccountID) {
+        let pid = request.params.pid
+        if(pid && pid.length > 0) {
+            if(pid[0] !== '$') {
+                pid = `$2b$04$${pid}`;
+            }
+    
+            if(pid.length === 59) {
+                pid = `${pid}.`;
+            }
+        }
+
+        if (record && mediaId && mediaId.length > 1 && pid) {
+            let passed = record.customer_id === request.user.CustomerAccountID && pid.length === 60;
+
+            if(passed) {
+                passed = await utils.comparePassword(`${mediaId}${record.customer_id}${record.raw_hash}`, pid);
+            }
+
+            if (!passed) {
                 reply.type('application/json').code(401);
                 return {
                     message: 'unauthorized',
