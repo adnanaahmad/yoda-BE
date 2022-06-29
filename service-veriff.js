@@ -310,19 +310,24 @@ fastify.post('/webhook', {
                             try {
                                 let results = await getVeriffData(verificationId, 'GET', `/sessions/${verificationId}/media`);
                                 if (results && results.status === 'success') {
+                                    console.log(results);
                                     if (Array.isArray(results.images) && results.images.length > 0) {
                                         const media = [];
                                         data.raw_data = {};
                                         data.raw_hash = nanoid(32);
                                         results.images.forEach(async (image) => {
-                                            if (VALID_IMAGE_NAMES.indexOf(image.name) > -1) {
-                                                const pid = encodeURIComponent((await utils.hashPassword(`${image.id}${customer_id}${data.raw_hash}`, 1)).substring(7));
-                                                media.push({
-                                                    id: image.id,
-                                                    name: image.name,
-                                                    type: image.mimetype,
-                                                    pid
-                                                })
+                                            try {
+                                                if (VALID_IMAGE_NAMES.indexOf(image.name) > -1) {
+                                                    const pid = encodeURIComponent((await utils.hashPassword(`${image.id}${customer_id}${data.raw_hash}`, 1)).substring(7));
+                                                    media.push({
+                                                        id: image.id,
+                                                        name: image.name,
+                                                        type: image.mimetype,
+                                                        pid
+                                                    })
+                                                }
+                                            } catch (error) {
+                                                console.log(error);                                                
                                             }
                                         })
                                         data.raw_data.media = media;
