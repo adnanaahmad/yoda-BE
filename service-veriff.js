@@ -316,7 +316,9 @@ fastify.post('/webhook', {
                                         data.raw_data = {};
                                         data.raw_hash = nanoid(32);
                                         //results.images.forEach(async (image) =>
-                                        for (let image in images) {
+                                        //for (let image in images) {
+                                        for (let index = 0; index < images.length; index++) {
+                                            const image = images[index];
                                             try {
                                                 console.log(image.id, VALID_IMAGE_NAMES.indexOf(image.name));
                                                 if (VALID_IMAGE_NAMES.indexOf(image.name) > -1) {
