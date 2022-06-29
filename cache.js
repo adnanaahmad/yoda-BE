@@ -40,7 +40,7 @@ const sanitize = (data) => {
     if (typeof (data) === 'object') {
         Object.keys(data).forEach(key => {
             let item = data[key];
-            if (key.startsWith('_') || item === undefined || item === null) {
+            if (key.startsWith('_') || item === undefined) {
                 delete data[key];
             }
         })

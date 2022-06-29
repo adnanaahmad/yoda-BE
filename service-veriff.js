@@ -123,8 +123,6 @@ const getVeriffData = async (payload, method = 'GET', endpoint, output) => {
 
     let response = await axios(options);
     if (output) {
-        //const stream = fs.createReadStream(resolvePath('index.html'))
-        //res.type('text/html').send(stream)
         if (outtype === 2) {
             output.send(response.data);
         } else {
@@ -300,8 +298,6 @@ fastify.post('/webhook', {
                                 }
 
                                 data.pii = null;
-                                //TODO!
-                                //delete data.pii;
                             }
                         }
 
@@ -315,15 +311,11 @@ fastify.post('/webhook', {
                                         const media = [];
                                         data.raw_data = {};
                                         data.raw_hash = nanoid(32);
-                                        //results.images.forEach(async (image) =>
-                                        //for (let image in images) {
                                         for (let index = 0; index < images.length; index++) {
                                             const image = images[index];
                                             try {
-                                                console.log(image.id, VALID_IMAGE_NAMES.indexOf(image.name));
                                                 if (VALID_IMAGE_NAMES.indexOf(image.name) > -1) {
                                                     const pid = encodeURIComponent((await utils.hashPassword(`${image.id}${customer_id}${data.raw_hash}`, 1)).substring(7));
-                                                    console.log(pid);
                                                     media.push({
                                                         id: image.id,
                                                         name: image.name,
@@ -332,11 +324,10 @@ fastify.post('/webhook', {
                                                     })
                                                 }
                                             } catch (error) {
-                                                console.log(error);
+                                                logger.error(error);
                                             }
                                         }
                                         data.raw_data.media = media;
-                                        console.log(media);
                                     }
                                 }
                             } catch (error) {
@@ -405,8 +396,6 @@ fastify.get('/raw/:id/:media_id/:pid', async (request, reply) => {
                 reply.header('Content-Type', 'image/jpeg');
                 //reply.header('Content-Disposition', `attachment; filename=${mediaId}.jpg`);
                 await getVeriffData(mediaId, 'GET', `/media/${mediaId}`, reply);
-                // const stream = fs.createReadStream(filename);
-                // reply.send(stream)
             } catch (error) {
                 logger.error(error);
                 reply.type('application/json').code(500);
