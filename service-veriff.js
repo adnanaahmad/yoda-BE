@@ -78,10 +78,6 @@ const loadParams = async () => {
     KEYS[params.client_id_test] = params.client_secret_test;
 }
 
-
-const privateKey = '9a003a83-1c0c-4fa6-ad5f-6ff121a1feb7';
-const publicKey = 'defbb5fe-8c43-446f-847c-bf1e49dba3bf';
-
 const getVeriffData = async (payload, method = 'GET', endpoint, output) => {
 
     let outtype = 0;
@@ -104,19 +100,19 @@ const getVeriffData = async (payload, method = 'GET', endpoint, output) => {
 
     //TODO
     const signature = crypto
-        .createHmac('sha256', privateKey)
+        .createHmac('sha256', params.client_secret)
         .update(Buffer.from(payload, 'utf8'))
         .digest('hex')
         .toLowerCase();
 
     const options = {
         method,
-        url: `https://stationapi.veriff.com/v1${endpoint}`,
+        url: `https://stationapi.veriff.com/v1${endpoint}`, //TODO: add this to param store
         headers:
         {
             'content-type': 'application/json',
             'x-hmac-signature': signature,
-            'x-auth-client': publicKey
+            'x-auth-client': params.client_id
         }
     };
 
@@ -316,7 +312,7 @@ fastify.post('/webhook', {
                                 if (results && results.status === 'success') {
                                     if (Array.isArray(results.images) && results.images.length > 0) {
                                         const media = [];
-                                        data.raw_data = { media };
+                                        data.raw_data = {};
                                         data.raw_hash = nanoid(32);
                                         results.images.forEach(async (image) => {
                                             if (VALID_IMAGE_NAMES.indexOf(image.name) > -1) {
@@ -329,6 +325,7 @@ fastify.post('/webhook', {
                                                 })
                                             }
                                         })
+                                        data.raw_data.media = media;
                                     }
                                 }
                             } catch (error) {
@@ -643,7 +640,6 @@ const start = () => {
 }
 
 (async () => {
-    console.log(nanoid(32));
     await loadParams();
     start();
     await handler.init(true, true, true);
