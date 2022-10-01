@@ -27,7 +27,7 @@ const fastify = require('fastify')({
     ignoreTrailingSlash: true
 })
 
-fastify.register(require('fastify-static'), {
+fastify.register(require('@fastify/static'), {
     root: `${__dirname}/public/admin`,
     serve: true,
     prefix: '/',
