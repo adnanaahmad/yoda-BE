@@ -484,6 +484,7 @@ const isValidIP = (ip) => {
     if (ip.indexOf('/') === -1) {
         ip = ip + "/32";
     }
+    
     if (cidrRegex({ exact: true }).test(ip)) {
         return ip;
     }

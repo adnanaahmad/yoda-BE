@@ -1,0 +1,328 @@
+openapi: 3.0.9
+info:
+  title: FortifID Bank Account Verification
+  description: | 
+    #### Use the BAV (Bank Account Verification) API to ensure the person is in has access to the bank account they claim they do.
+    <br/>
+    <p>All our API products use mutual TLS and require the proper <b>client certificates</b> which are typically different for each environment.</p>    
+    <br/>
+  termsOfService: https://www.fortifid.com/terms-and-conditions
+  contact:
+    email: support@fortifid.zendesk.com
+  version: 1.0.2
+servers:
+- url: https://api-uat.fortifid.com/v1
+  description: Test server
+paths:
+  /mfa/generate-url:
+    post:
+      tags:
+      - /bav/generate-url
+      summary: Generate and send request to phone number.
+      operationId: generateUrl
+      requestBody:
+        description: The request to create.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request'
+        required: true
+      responses:
+        200:
+          description: Successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestResults'
+        400: 
+          description: Bad request
+          content: {}
+        401:
+          description: Client certificate is missing or invalid
+          content: {}
+        403:
+          description: Forbidden
+          content: {}
+        404:
+          description: Not found
+          content: {}          
+        405:
+          description: Method not Allowed
+          content: {}
+        408:
+          description: Request Timeout
+          content: {}
+        422:
+          description: Missing or invalid parameter(s)
+          content: {}
+        429:
+          description: Too Many Requests
+          content: {}
+        500:
+          description: Internal Server Error
+          content: {}
+        501:
+          description: Not Implemented
+          content: {}   
+     
+  /bav/check-request/{transaction_id}:
+    get:
+      tags:
+      - /bav/check-request
+      summary: Check request status.
+      operationId: checkRequest
+      parameters:
+      - name: transaction_id
+        in: path
+        description: Transaction ID of BAV to check.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResults'
+        400: 
+          description: Bad request
+          content: {}
+        401:
+          description: Client certificate is missing or invalid
+          content: {}
+        403:
+          description: Forbidden
+          content: {}
+        404:
+          description: Not found
+          content: {}          
+        405:
+          description: Method not Allowed
+          content: {}
+        408:
+          description: Request Timeout
+          content: {}
+        422:
+          description: Missing or invalid parameter(s)
+          content: {}
+        429:
+          description: Too Many Requests
+          content: {}
+        500:
+          description: Internal Server Error
+          content: {}
+        501:
+          description: Not Implemented
+          content: {}   
+  /bav/verify/{transaction_id}:
+    get:
+      tags:
+      - /bav/verify
+      summary: Verify MFA transaction ID. Used only for custom BAV handling.
+      operationId: verify
+      parameters:
+      - name: transaction_id
+        in: path
+        description: Transaction ID of BAV to verify.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResults'
+        400: 
+          description: Bad request
+          content: {}
+        401:
+          description: Client certificate is missing or invalid
+          content: {}
+        403:
+          description: Forbidden
+          content: {}
+        404:
+          description: Not found
+          content: {}          
+        405:
+          description: Method not Allowed
+          content: {}
+        408:
+          description: Request Timeout
+          content: {}
+        422:
+          description: Missing or invalid parameter(s)
+          content: {}
+        429:
+          description: Too Many Requests
+          content: {}
+        500:
+          description: Internal Server Error
+          content: {}
+        501:
+          description: Not Implemented
+          content: {}            
+components:
+  schemas:
+    Status:
+      type: string
+      description: Request Status
+      enum:  &STATUS [sent,not_found,verified,declined,used,lookup]  
+    Request:
+      required:
+      - phone_number
+      type: object
+      properties:
+        phone_number:
+          type: string
+          description: Phone number to verify. If country code is excluded it will default to +1 (US). Formatting is flexible.
+          example: +1 8015551213
+        full_name:
+          type: string
+          description: Full name of the user being verified. Can include the middle name.
+          example: JOSHUA RKHTGZWR
+        request_reference:
+          type: string
+          description: This is stored and returned with future requests. Please do not include any PII (Personal Identifiable Information).
+          example: abcd1234
+        redirect_url:
+          type: string
+          format: uri
+          description: This is stored and returned with future requests.
+          example: https://fortifid.com
+        sms_text:
+          type: string
+          description: Custom SMS text body to send to the user.
+          default: "Please follow this link to verify your bank       account: %URL%"
+          example: "Please follow link to verify your bank account: %URL%"
+        link_url:
+          type: string
+          format: uri
+          description: The link sent to the user. Can be customized for manual handling.
+          default: https://api-uat.fortifid.com/v1/bav/?ref=%URL%
+          example: https://custom-verify.com/verify/%URL%          
+        expire:
+          type: integer
+          description: Number of seconds until this transaction expires and will be deleted from the system. Default is 1 week.
+          default: 604800
+        lookup:
+          type: boolean
+          description: Do a phone number lookup, such as phone number type and carrier. Adds additional info but also adds >300ms to the request.
+          default: true
+        allow_voip:
+          type: boolean
+          description: Allow VOIP number. Ignored if lookup is false.
+          default: true
+        include_carrier:
+          type: boolean
+          description: Include carrier data in the response. Ignored if lookup is false.
+          default: false             
+        shorten_url:
+          type: boolean
+          description: Shortens the link_url sent to the user. Typically adds <30ms to the request.
+          default: false
+        send:
+          type: boolean
+          description: Sends the SMS message to the user.
+          default: true
+    RequestResults:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+          description: Unique transaction ID of this request.
+          format: uuid
+          example: e7e42ba2-1783-4406-b920-edc681608a2d      
+        created:
+          type: string
+          format: date-time
+          example: "2021-11-06T17:37:25.863Z"
+          description: ISO-8601 date of when the transaction was created.
+        expires_at:
+          type: string
+          format: date-time
+          example: "2021-11-06T17:37:25.863Z"
+          description: ISO-8601 date of when the transaction will be deleted from the system.          
+        url:
+          type: string
+          description: URL sent to the user.
+          example: https://api-uat.fortifid.com/s/H0X2fa
+        status:
+          type: string
+          enum: *STATUS        
+          example: sent
+          description: Current status of the transaction.
+        country_code:
+          type: string
+          description: The ISO country code for the phone number ( https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 ).
+          default: US
+        carrier:
+          type: string
+          description: The name of the phone's carrier. Note that carriers rebrand frequently. (requires lookup)
+          example: Google (Grand Central) BWI - Bandwidth.com - SVR
+        type:
+          type: string
+          description: Phone number type. (requires lookup)
+          enum: [voip, landline, mobile, unknown, null]
+          example: voip 
+        mobile_country_code:
+          type: integer
+          description: Used in order to identify the country which a mobile subscriber belongs to ( https://en.wikipedia.org/wiki/Mobile_country_code ). (requires lookup)
+          example: 311
+        mobile_network_code:
+          type: integer
+          description: A unique two or three-digit number used to identify a home Public Land Mobile Network ( https://en.wikipedia.org/wiki/Public_land_mobile_network ). (requires lookup)
+          example: 910
+    StatusResults:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+          description: Unique transaction ID of this request.
+          format: uuid
+          example: e7e42ba2-1783-4406-b920-edc681608a2d      
+        created:
+          type: string
+          format: date-time
+          example: "2021-11-06T17:37:25.863Z"
+          description: ISO-8601 date of when the transaction was created.
+        completed:
+          type: string
+          format: date-time
+          example: "2021-11-06T17:37:25.863Z" 
+          description: ISO-8601 date of when the transaction was completed.
+        expires_at:
+          type: string
+          format: date-time
+          example: "2021-11-06T17:37:25.863Z"
+          description: ISO-8601 date of when the transaction will be deleted from the system.          
+        status:
+          type: string
+          enum: *STATUS        
+          description: Current status of the transaction.
+          example: verified
+        redirect_url:
+          type: string
+          format: uri
+          description: Saved redirect_url supplied in the original request.
+          example: https://fortifid.com
+        request_reference:
+          type: string
+          description: Saved request_reference supplied in the original request.
+          example: abcd1234

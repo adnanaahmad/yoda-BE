@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
 
-    <title>FortifID | Plaid ACH</title>
+    <title>FortifID | Bank Account Verification</title>
     <meta name="author" content="cisco@fortifid.com">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.9/spectre.min.css"
@@ -40,7 +40,7 @@
             <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo"
                     src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/logo.png" alt="FortifID Logo"></a>
             <br /><br />
-            <h5>Plaid ACH</h5>
+            <h5>Bank Account Verification</h5>
             <hr />
         </div>
         <div id="form" class="w300">
@@ -54,16 +54,24 @@
                 <input id="email_address" class="form-input" type="email" placeholder="Email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,14}$" maxlength="64" required>
             </div>
             <div class="form-group">
-                <label class="form-label" for="link_url">Expiration (seconds)</label>
-                <input id="expire" class="form-input" placeholder="604800 (1 week)">
-            </div>
-            <div class="form-group">
                 <label class="form-label" for="account_number">Account Number</label>
                 <input id="account_number" class="form-input" placeholder="Account Number" minlength="10" maxlength="20" required>
             </div>
             <div class="form-group">
                 <label class="form-label" for="routing_number">Routing Number</label>
                 <input id="routing_number" class="form-input" placeholder="Routing Number" minlength="5" maxlength="15" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="sms_text">Custom SMS Text</label>
+                <input id="sms_text" class="form-input" placeholder="Please follow link to verify your phone number: %URL%">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="link_url">Custom Link URL</label>
+                <input id="link_url" class="form-input" placeholder="https://custom-verify.com/verify/%URL%">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="expire">Expiration (seconds)</label>
+                <input id="expire" class="form-input" placeholder="Default: 604800 (1 week)">
             </div>
             <br />
             <button id="btn-validate" class="btn btn-primary p-centered">Send Link</button>
@@ -223,7 +231,7 @@
                 const plaid = Plaid.create(config);
 
                 // Plaid Link
-                setOutput(`<button id="btn-link" class="btn btn-primary p-centered" style="width: 350px; display: block;">Link</button>`);
+                setOutput(`<button id="btn-link" class="btn btn-primary p-centered" style="width: 350px; display: block;">Verify Account</button>`);
                 document.getElementById('btn-link').addEventListener("click", async () => {
                     plaid.open();
                 });
@@ -235,6 +243,9 @@
                     email_address: $('#email_address').val() || '',
                     account: $('#account_number').val() || '',
                     routing: $('#routing_number').val() || '',
+                    sms_text: $('#sms_text').val(),
+                    link_url: $('#link_url').val(),
+                    expire: $('#expire').val(),
                 };
 
                 if (data.email_address.length < 3 && data.phone_number.length < 9) {
@@ -248,7 +259,7 @@
                 }
 
                 setOutput('Sending Link...', 0);
-                let results = await getAPIData('/send-notification', data, 'post');
+                let results = await getAPIData('/generate-url', data, 'post');
 
                 if (typeof (results) !== 'object' || results.status === 'error' || results.error) {
                     setOutput(`<span style="color:red;">ERROR: ${JSON.stringify(results)}</span>`);
@@ -259,7 +270,7 @@
 
             // Control Display
             let divOutput = $("#output");
-            const BASE_URL = `${window.location.protocol}//${window.location.hostname}/v1/plaid-ach`;
+            const BASE_URL = `${window.location.protocol}//${window.location.hostname}/v1/bav`;
             const params = new URLSearchParams(window.location.search);
             let transaction_id = params && params.has('ref') ? params.get('ref') : null;
 
