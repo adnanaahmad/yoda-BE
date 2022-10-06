@@ -17,7 +17,8 @@ if [ -n "$START" ]; then
     # for i in "${ID[@]}"; do
     #     pm2 start "$i.js"
     # done
-    pm2 start $START -i max --exp-backoff-restart-delay=100
+    pm2 start $START --exp-backoff-restart-delay=100
+    #pm2 start $START -i max --exp-backoff-restart-delay=100
     pm2 start helper-scheduler.js service-did.js --exp-backoff-restart-delay=100
     pm2 save
 fi
