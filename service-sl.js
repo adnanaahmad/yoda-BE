@@ -40,7 +40,7 @@ fastify.post('/user', async (request, reply) => {
     }
 });
 
-fastify.listen(8111, (err, address) => {
+fastify.listen({ port: 8111 }, (err, address) => {
     if (err) throw err
     logger.info(`HTTP server is listening on ${address}`);
 })

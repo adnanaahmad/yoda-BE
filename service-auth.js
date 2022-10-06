@@ -285,7 +285,7 @@ fastify.addHook("onRequest", async (request, reply) => {
     authJWT.getAuth(request);
 })
 
-fastify.listen(7999, (err, address) => {
+fastify.listen({ port: 7999 }, (err, address) => {
     if (err) throw err
     logger.info(`Auth server is listening on ${address}`);
 });

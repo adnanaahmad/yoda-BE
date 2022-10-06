@@ -112,7 +112,7 @@ const start = async ()=> {
 
     await oauth2.start();
 
-    fastify.listen(params.port, (err, address) => {
+    fastify.listen({ port: params.port }, (err, address) => {
         if (err) throw err
         logger.info(`HTTP server is listening on ${address}`);
     });

@@ -382,7 +382,7 @@ const start = async () => {
         await utils.loadTemplates('./templates/mfa/', TEMPLATES, true);
     }
 
-    fastify.listen(params.port, (err, address) => {
+    fastify.listen({ port: params.port }, (err, address) => {
         if (err) throw err
         logger.info(`HTTP server is listening on ${address}`);
     });

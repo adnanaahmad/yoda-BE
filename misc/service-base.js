@@ -79,7 +79,7 @@ fastify.post('/generate-url', async (request, reply) => {
 
     if (body && body.phone_number) {
         logger.silly(body);
-        
+
     } else {
         code = 422;
         data.error = 'Missing parameter';
@@ -104,7 +104,7 @@ const start = async () => {
     oauth2.addRequest(TABLE, params.token_url, params.client_id, params.client_secret, params.scopes);
     await oauth2.start();
 
-    fastify.listen(params.port, (err, address) => {
+    fastify.listen({ port: params.port }, (err, address) => {
         if (err) throw err
         logger.info(`HTTP server is listening on ${address}`);
     });

@@ -281,7 +281,7 @@ const start = async () => {
             caKey = forge.pki.privateKeyFromPem(ca.key);
         }
 
-        fastify.listen(params.port, (err, address) => {
+        fastify.listen({ port: params.port }, (err, address) => {
             if (err) throw err
             logger.info(`HTTP server is listening on ${address}`);
         });

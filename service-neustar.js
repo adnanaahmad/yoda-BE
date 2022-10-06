@@ -42,7 +42,7 @@ fastify.post('/meh', async (request, reply) => {
     const body = request.body;
 });
 
-fastify.listen(8990, (err, address) => {
+fastify.listen({ port: 8990 }, (err, address) => {
     if (err) throw err
     logger.info(`HTTP server is listening on ${address}`);
 });

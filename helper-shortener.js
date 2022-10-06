@@ -96,7 +96,7 @@ fastify.get('/:id', async (request, reply) => {
     }
 });
 
-fastify.listen(8996, (err, address) => {
+fastify.listen({ port: 8996 }, (err, address) => {
     if (err) throw err
     logger.info(`HTTP server is listening on ${address}`);
 });

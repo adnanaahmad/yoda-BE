@@ -493,7 +493,7 @@ const start = async () => {
     oauth2.addRequest(TABLE, params.token_url, params.client_id, params.client_secret, params.scope, params.grant_type);
     await oauth2.start();
 
-    fastify.listen(params.port, (err, address) => {
+    fastify.listen({ port: params.port }, (err, address) => {
         if (err) throw err
         logger.info(`HTTP server is listening on ${address}`);
     });

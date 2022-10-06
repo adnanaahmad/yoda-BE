@@ -62,7 +62,7 @@ fastify.post('/query', async (request, reply) => {
     }
 });
 
-fastify.listen(PORT, (err, address) => {
+fastify.listen({ port: PORT }, (err, address) => {
     if (err) throw err
     logger.info(`${NAME} server is listening on ${address}`);
 })

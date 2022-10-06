@@ -41,7 +41,7 @@ const loadParams = async () => {
 
 }
 
-fastify.listen(PORT, (err, address) => {
+fastify.listen({ port: PORT }, (err, address) => {
     if (err) throw err
     logger.info(`HTTP server is listening on ${address}`);
 });

@@ -623,7 +623,7 @@ const loadParams = async () => {
         })
     })
 
-    fastify.listen(9999, (err, address) => {
+    fastify.listen({ port: 9999 }, (err, address) => {
         if (err) {
             logger.error(err);
             return;
