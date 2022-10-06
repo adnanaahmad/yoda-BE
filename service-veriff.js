@@ -37,7 +37,7 @@ const { nanoid } = require('nanoid');
 const VALID_IMAGE_NAMES = ['document-back', 'document-front', 'face'];
 
 //
-const DEFAULT_URL = `https://${SCRIPT_INFO.host}/v1/doc/?ref=%URL%`;
+const DEFAULT_URL = `https://${SCRIPT_INFO.host}/v1/doc/?ref=%ID%`;
 
 const fastify = require('fastify')({
     logger: false,
@@ -515,7 +515,7 @@ fastify.post('/generate-url', async (request, reply) => {
         }
 
         //TODO! Do this after validation
-        data.url = url.replace("%URL%", encodeURIComponent(transaction_id));
+        data.url = url.replace("%ID%", encodeURIComponent(transaction_id));
         if (shorten) {
             let short = await utils.shortenUrl(data.url);
             data.url = short || data.url;

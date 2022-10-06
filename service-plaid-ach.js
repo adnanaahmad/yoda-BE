@@ -34,7 +34,7 @@ const authMain = require('./auth-main');
 const cache = require('./cache');
 const plaid = require('./plaid-api');
 
-const DEFAULT_URL = `https://${SCRIPT_INFO.host}/v1/bav?ref=%URL%`;
+const DEFAULT_URL = `https://${SCRIPT_INFO.host}/v1/bav?ref=%ID%`;
 
 fastify.post('/ach', async (request, reply) => {
     const body = utils.flattenObject2(request.body);
@@ -181,7 +181,7 @@ fastify.post('/generate-url', async (request, reply) => {
         let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false;
         let send = typeof (body.send) === 'boolean' ? body.send : true;
 
-        url = url.replace("%URL%", encodeURIComponent(transaction_id));
+        url = url.replace("%ID%", encodeURIComponent(transaction_id));
         if (shorten) {
             let short = await utils.shortenUrl(url);
             url = short || url;

@@ -209,14 +209,14 @@ components:
         sms_text:
           type: string
           description: Custom SMS text body to send to the user.
-          default: "Please follow this link to verify your bank       account: %URL%"
+          default: "Please follow this link to verify your bank account: %URL%"
           example: "Please follow link to verify your bank account: %URL%"
         link_url:
           type: string
           format: uri
           description: The link sent to the user. Can be customized for manual handling.
-          default: https://api-uat.fortifid.com/v1/bav/?ref=%URL%
-          example: https://custom-verify.com/verify/%URL%          
+          default: https://api-uat.fortifid.com/v1/bav/?ref=%ID%
+          example: https://custom-verify.com/verify/%ID%          
         expire:
           type: integer
           description: Number of seconds until this transaction expires and will be deleted from the system. Default is 1 week.
