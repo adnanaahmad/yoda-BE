@@ -42,7 +42,7 @@ fastify.post('/ach', async (request, reply) => {
     const data = {
         updated: new Date().toISOString(), // Date.now(),
         status: 'unverified',
-        code: code,
+        code,
     };
 
     if (body && body.public_token && body.transaction_id) {
@@ -82,7 +82,7 @@ fastify.post('/ach', async (request, reply) => {
                 } else {
                     code = (res.error && res.error.status_code) ? res.error.status_code : 422;
                     const error = (res.error && res.error.error_message) ? res.error.error_message : 'Access Failed';
-                    return reply.type('application/json').code(code).send({ status: "error", code: code, error: error });
+                    return reply.type('application/json').code(code).send({ status: "error", code, error });
                 }
             } catch (error) {
                 logger.error(error);
@@ -105,7 +105,7 @@ fastify.post('/generate-link', async (request, reply) => {
     const data = {
         created: new Date().toISOString(), // Date.now(),
         status: 'success',
-        code: code,
+        code,
     };
 
     if (body && body.transaction_id) {
@@ -118,7 +118,7 @@ fastify.post('/generate-link', async (request, reply) => {
         } else {
             code = (res.error && res.error.status_code) ? res.error.status_code : 422;
             const error = (res.error && res.error.error_message) ? res.error.error_message : 'Link Failed';
-            return reply.type('application/json').code(code).send({ status: "error", code: code, error: error });
+            return reply.type('application/json').code(code).send({ status: "error", code, error });
         }
     } else {
         return reply.type('application/json').code(422).send({ status: "error", code: 422, error: "Missing Parameter" });
@@ -139,7 +139,7 @@ fastify.post('/generate-url', async (request, reply) => {
     const data = {
         created: new Date().toISOString(), // Date.now(),
         status: 'sent',
-        code: code,
+        code,
     };
 
     if (body && (body.phone_number || body.email_address)) {
@@ -241,7 +241,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
     const data = {
         created: Date.now(),
         status: 'found',
-        code: code,
+        code,
     };
 
     if (transaction_id) {
