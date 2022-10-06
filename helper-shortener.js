@@ -66,7 +66,7 @@ fastify.post('/', async (request, reply) => {
         }
         reply.type('application/json').code(200).send(data);
 
-        await cache.setP(TABLE, id, data, '1m', true);
+        await cache.setP(TABLE, id, data, '1y', true);
     } else {
         let data = { code: 422, error: 'Missing parameter.'};
         reply.type('application/json').code(422).send(data);

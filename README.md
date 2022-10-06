@@ -83,3 +83,13 @@ nvm alias default 16.13.0
 #Ports List
 
 /C=US/ST=CA/L=Mountain View/O=FortifID/OU=Servers/CN=Development-01/E=itsec@fortifid.com
+
+
+Plaid ACH
+Parameter store
+/config/plaid/service-plaid-ach
+Demo data: 
+account_number: 1111222233331111
+routing_number: 011401533
+username: user_good
+password: pass_good

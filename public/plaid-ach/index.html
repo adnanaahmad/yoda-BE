@@ -73,6 +73,19 @@
                 <label class="form-label" for="expire">Expiration (seconds)</label>
                 <input id="expire" class="form-input" placeholder="Default: 604800 (1 week)">
             </div>
+            <div class="form-group">
+                <label class="form-switch">
+                    <input id="shorten_url" type="checkbox">
+                    <i class="form-icon"></i> Shorten URL 
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="form-switch">
+                    <input id="check-send" type="checkbox" checked>
+                    <i class="form-icon"></i> Send SMS
+                </label>
+            </div>            
             <br />
             <button id="btn-validate" class="btn btn-primary p-centered">Send Link</button>
         </div>
@@ -170,7 +183,6 @@
 
                 let response;
                 try {
-                    console.log(url);
                     response = await fetch(url, options);
                     const getData = async () => {
                         data = await response.text();
@@ -246,25 +258,27 @@
                     sms_text: $('#sms_text').val(),
                     link_url: $('#link_url').val(),
                     expire: $('#expire').val(),
+                    shorten_url: $('#shorten_url').is(':checked'),
+                    send: $('#check-send').is(':checked'),                    
                 };
 
-                if (data.email_address.length < 3 && data.phone_number.length < 9) {
-                    setOutput('<span style="color:red;">Email or Phone Number Required</span>')
+                if (data.email_address.length < 3 && data.phone_number.length < 9 && data.send) {
+                    setOutput('<span style="color:red;">Email or Phone Number Required</span>', 0);
                     return;
                 }
 
                 if (data.account.length < 1 || data.routing.length < 1) {
-                    setOutput('<span style="color:red;">Account Number and Routing Number Required</span>')
+                    setOutput('<span style="color:red;">Account Number and Routing Number Required</span>', 0)
                     return;
                 }
 
-                setOutput('Sending Link...', 0);
+                setOutput('Requesting...', 0);
                 let results = await getAPIData('/generate-url', data, 'post');
-
+                setOutput('Finished', 0);
                 if (typeof (results) !== 'object' || results.status === 'error' || results.error) {
                     setOutput(`<span style="color:red;">ERROR: ${JSON.stringify(results)}</span>`);
                 } else {
-                    setOutput(`<strong>Link Sent Successfully</strong>: <a href=${results.link}>LINK</a>`, 0);
+                    setOutput(`<strong>Link Sent Successfully</strong>: <a href=${results.url}>LINK</a>`, 0);
                 }
             })
 

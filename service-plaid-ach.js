@@ -2,7 +2,7 @@
 /*jshint esversion: 8 */
 
 const TABLE = 'plaid-ach';
-const CONFIG_PATH = '/config/plaid/service-plaid-ach-sandbox';
+const CONFIG_PATH = '/config/plaid/service-plaid-ach';
 
 const utils = require('./utils');
 const logger = require('./logger').createLogger(TABLE);
@@ -60,7 +60,6 @@ fastify.post('/ach', async (request, reply) => {
                     // Verify ACH
                     res = await plaid.getAch(res.access_token);
                     if (res.numbers.ach.length > 0) {
-                        console.log(res.numbers);
                         for (let obj of res.numbers.ach) {
                             if (obj.account === pii.account && obj.routing === pii.routing) data.status = 'verified';
                         }
@@ -170,13 +169,18 @@ fastify.post('/generate-url', async (request, reply) => {
 
         let url = typeof (body.link_url) === 'string' && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
         let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
+        let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false;
+        let send = typeof (body.send) === 'boolean' ? body.send : true;
 
         url = url.replace("%URL%", encodeURIComponent(transaction_id));
+        if (shorten) {
+            let short = await utils.shortenUrl(url);
+            url = short || url;
+        }
 
-        // DEBUG
-        data.link = url;
+        data.url = url;
 
-        if (body.phone_number) {
+        if (body.phone_number && send) {
             let phone_number = utils.parsePhoneNumber(body.phone_number);
 
             // Send SMS Notification
@@ -194,7 +198,7 @@ fastify.post('/generate-url', async (request, reply) => {
             }
         }
 
-        if (body.email_address) {
+        if (body.email_address && send) {
 
             // Send Email Notification
             if (utils.validateEmail(body.email_address)) {
