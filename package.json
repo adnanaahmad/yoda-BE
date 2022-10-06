@@ -1,6 +1,6 @@
 {
   "name": "yoda",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "FortifID micro services and utilities.",
   "main": "service-did.js",
   "scripts": {
