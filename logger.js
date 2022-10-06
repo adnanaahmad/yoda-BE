@@ -97,14 +97,14 @@ const silly = (message, extra) => logger.log('silly', message, extra);
 
 class Logger {
   constructor(...args) {
-    console.log(args, 'HA!');
+    //console.log(args, 'HA!');
     this.args = args;
   }
   info(msg) {
     console.log("info", msg);
   }
   error(msg) {
-    console.log("error", msg);
+    console.error("error", msg);
   }
   debug(msg) {
     console.log("debug", msg);
@@ -120,7 +120,6 @@ class Logger {
   }
 
   child() {
-    console.log('YO!');
     return new Logger();
   }
 }
