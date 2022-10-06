@@ -40,7 +40,7 @@ fastify.post('/ach', async (request, reply) => {
     const body = utils.flattenObject2(request.body);
     let code = 200;
     const data = {
-        updated: new Date().toISOString(), // Date.now(),
+        created: Date.now(),
         status: 'unverified',
         code,
     };
@@ -70,15 +70,24 @@ fastify.post('/ach', async (request, reply) => {
                         data.error = (res.error && res.error.error_message) ? res.error.error_message : 'Verification Failed';
                     }
 
-                    // Update Table
                     const save = { ...data, ...pii };
+                    save.updated = data.created;
+                    delete save.created;                
                     const saved = await cache.updateP(TABLE, body.transaction_id, save, expire, true);
 
                     if (saved && saved._expiresAt) {
                         data.transaction_id = body.transaction_id;
+                        data.updated =  new Date(data.created).toISOString();
                         data.expires_at = new Date(saved._expiresAt * 1000).toISOString();
                     }
 
+                    if (record.created) {
+                        data.created = new Date(record.created).toISOString();
+                    }
+
+                    if (record.request_reference) {
+                        data.request_reference = record.request_reference;
+                    }
                 } else {
                     code = (res.error && res.error.status_code) ? res.error.status_code : 422;
                     const error = (res.error && res.error.error_message) ? res.error.error_message : 'Access Failed';
@@ -137,7 +146,7 @@ fastify.post('/generate-url', async (request, reply) => {
     const body = request.body;
     let code = 200;
     const data = {
-        created: new Date().toISOString(), // Date.now(),
+        created: Date.now(),
         status: 'sent',
         code,
     };
@@ -218,8 +227,17 @@ fastify.post('/generate-url', async (request, reply) => {
             }
         }
 
-        // Insert into Table
         const save = { ...data, pii: { account: body.account, routing: body.routing } };
+
+        if (request.user) {
+            save.customer_id = request.user.CustomerAccountID;
+        }
+
+        let request_reference = body.request_reference;
+        if (typeof (request_reference) === 'string' && request_reference.length > 0) {
+            save.request_reference = request_reference;
+        }
+
         const saved = await cache.setP(TABLE, transaction_id, save, expire, true);
         if (saved && saved._expiresAt) {
             data.transaction_id = transaction_id;
@@ -247,11 +265,26 @@ fastify.get('/check-request/:id', async (request, reply) => {
     if (transaction_id) {
         const record = await cache.getP(TABLE, transaction_id);
         if (record) {
-            if (record.status || record.action) data.status = record.status || record.action;
-            if (record.created) data.created = new Date(record.created).toISOString();
-            if (record.updated) data.updated = new Date(record.updated).toISOString();
-            if (record._expiresAt) data.expires_at = new Date(record._expiresAt * 1000).toISOString();
+            data.transaction_id = transaction_id;
+            if (record.created) {
+                data.created = new Date(record.created).toISOString();
+            }
+            
+            if (record.status || record.action) {
+                data.status = record.status || record.action;
+            }
+            
+            if (record.updated) {
+                data.updated = new Date(record.updated).toISOString();
+            }
+            
+            if (record._expiresAt) {
+                data.expires_at = new Date(record._expiresAt * 1000).toISOString();
+            }
 
+            if (record.request_reference) {
+                data.request_reference = record.request_reference;
+            }
         } else {
             return reply.type('application/json').code(404).send({ status: "not_found", code: 404, error: "Data not Found" });
         }

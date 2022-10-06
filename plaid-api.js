@@ -39,7 +39,7 @@ const createLinkToken = async (transaction_id) => {
 
 // Get Access Token
 const getAccessToken = async (public_token) => {
-    const config = { public_token: public_token };
+    const config = { public_token };
     try {
         const response = await client.itemPublicTokenExchange(config);
         return response.data;
@@ -52,7 +52,7 @@ const getAccessToken = async (public_token) => {
 
 // Get ACH
 const getAch = async (access_token) => {
-    const config = { access_token: access_token };
+    const config = { access_token };
     try {
         const response = await client.authGet(config);
         return response.data;
@@ -96,7 +96,7 @@ const getAssetReportToken = async (access_token) => {
 // Get Assets - Not in use (yet)
 const getAssets = async (asset_report_token) => {
     const config = {
-        asset_report_token: asset_report_token,
+        asset_report_token,
         include_insights: true,
     };
     try {

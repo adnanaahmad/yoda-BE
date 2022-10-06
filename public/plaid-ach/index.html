@@ -62,6 +62,10 @@
                 <input id="routing_number" class="form-input" placeholder="Routing Number" minlength="5" maxlength="15" required>
             </div>
             <div class="form-group">
+                <label class="form-label" for="request_reference">Request Reference</label>
+                <input id="request_reference" class="form-input" placeholder="Request Reference">
+            </div>            
+            <div class="form-group">
                 <label class="form-label" for="sms_text">Custom SMS Text</label>
                 <input id="sms_text" class="form-input" placeholder="Please follow link to verify your phone number: %URL%">
             </div>
@@ -255,6 +259,7 @@
                     email_address: $('#email_address').val() || '',
                     account: $('#account_number').val() || '',
                     routing: $('#routing_number').val() || '',
+                    request_reference: $('#request_reference').val(),
                     sms_text: $('#sms_text').val(),
                     link_url: $('#link_url').val(),
                     expire: $('#expire').val(),
