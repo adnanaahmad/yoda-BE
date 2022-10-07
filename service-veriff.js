@@ -494,6 +494,11 @@ fastify.post('/generate-url', async (request, reply) => {
         let send = typeof (body.send) === 'boolean' ? body.send : true;
         let url = typeof (body.link_url) === 'string' && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
         let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
+        
+        //TODO!
+        if(url.indexOf('%URL%')  > -1) {
+            url = url.replace('%URL%', '%ID%');
+        }
 
         let strict = typeof (body.strict) === 'boolean' ? body.strict : false;
         let raw = typeof (body.raw) === 'boolean' ? body.raw : false;

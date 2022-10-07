@@ -181,6 +181,11 @@ fastify.post('/generate-url', async (request, reply) => {
         let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false;
         let send = typeof (body.send) === 'boolean' ? body.send : true;
 
+        //TODO!
+        if(url.indexOf('%URL%')  > -1) {
+            url = url.replace('%URL%', '%ID%');
+        }
+
         url = url.replace("%ID%", encodeURIComponent(transaction_id));
         if (shorten) {
             let short = await utils.shortenUrl(url);
