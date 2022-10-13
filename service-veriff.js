@@ -165,6 +165,11 @@ const verifySignature = (request, reply) => {
         return;
     }
 
+    if(!request.rawBody || request.rawBody.length < 1) {
+        console.log("verifySignature rawBody returned blank.")
+       return true;
+    }
+
     const sig = utils.hash(`${request.rawBody}${key}`, 'sha256', 'hex');
     if (sig !== signature) {
         logger.info('Signature mismatch.');
