@@ -2,10 +2,12 @@ openapi: 3.0.9
 info:
   title: FortifID Bank Account Verification
   description: | 
-    #### Use the BAV (Bank Account Verification) API to ensure the person is in has access to the bank account they claim they do.
+    #### Use the BAV (Bank Account Verification) API to ensure the person has access to the bank account they claim they do.
     <br/>
     <p>All our API products use mutual TLS and require the proper <b>client certificates</b> which are typically different for each environment.</p>    
     <br/>
+    <p>This service has a UI for testing here (requires the client certificates): <br/><a href="https://api-uat.fortifid.com/v1/bav/" target="_blank">https://api-uat.fortifid.com/v1/bav/</a>.
+    <br/>    
   termsOfService: https://www.fortifid.com/terms-and-conditions
   contact:
     email: support@fortifid.zendesk.com
@@ -192,11 +194,19 @@ components:
         phone_number:
           type: string
           description: Phone number to verify. If country code is excluded it will default to +1 (US). Formatting is flexible.
-          example: +1 8015551213
-        full_name:
+          example: "+18015551213"
+        email_address:
           type: string
-          description: Full name of the user being verified. Can include the middle name.
-          example: JOSHUA RKHTGZWR
+          example: user@email.com
+          description: ""          
+        account_number:
+          type: string
+          description: "User bank account number"
+          example: "1234567890"
+        routing_number:
+          type: string
+          description: "User bank account routing number"
+          example: "123456789"          
         request_reference:
           type: string
           description: This is stored and returned with future requests. Please do not include any PII (Personal Identifiable Information).
@@ -221,18 +231,6 @@ components:
           type: integer
           description: Number of seconds until this transaction expires and will be deleted from the system. Default is 1 week.
           default: 604800
-        lookup:
-          type: boolean
-          description: Do a phone number lookup, such as phone number type and carrier. Adds additional info but also adds >300ms to the request.
-          default: true
-        allow_voip:
-          type: boolean
-          description: Allow VOIP number. Ignored if lookup is false.
-          default: true
-        include_carrier:
-          type: boolean
-          description: Include carrier data in the response. Ignored if lookup is false.
-          default: false             
         shorten_url:
           type: boolean
           description: Shortens the link_url sent to the user. Typically adds <30ms to the request.
@@ -268,27 +266,6 @@ components:
           enum: *STATUS        
           example: sent
           description: Current status of the transaction.
-        country_code:
-          type: string
-          description: The ISO country code for the phone number ( https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 ).
-          default: US
-        carrier:
-          type: string
-          description: The name of the phone's carrier. Note that carriers rebrand frequently. (requires lookup)
-          example: Google (Grand Central) BWI - Bandwidth.com - SVR
-        type:
-          type: string
-          description: Phone number type. (requires lookup)
-          enum: [voip, landline, mobile, unknown, null]
-          example: voip 
-        mobile_country_code:
-          type: integer
-          description: Used in order to identify the country which a mobile subscriber belongs to ( https://en.wikipedia.org/wiki/Mobile_country_code ). (requires lookup)
-          example: 311
-        mobile_network_code:
-          type: integer
-          description: A unique two or three-digit number used to identify a home Public Land Mobile Network ( https://en.wikipedia.org/wiki/Public_land_mobile_network ). (requires lookup)
-          example: 910
     StatusResults:
       type: object
       properties:

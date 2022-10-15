@@ -64,7 +64,11 @@
             <div class="form-group">
                 <label class="form-label" for="request_reference">Request Reference</label>
                 <input id="request_reference" class="form-input" placeholder="Request Reference">
-            </div>            
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="redirect_url">Redirect Url</label>
+                <input id="redirect_url" class="form-input" placeholder="Redirect Url" required>
+            </div>                        
             <div class="form-group">
                 <label class="form-label" for="sms_text">Custom SMS Text</label>
                 <input id="sms_text" class="form-input" placeholder="Please follow link to verify your phone number: %URL%">
@@ -260,6 +264,7 @@
                     account: $('#account_number').val() || '',
                     routing: $('#routing_number').val() || '',
                     request_reference: $('#request_reference').val(),
+                    redirect_url: $('#redirect_url').val(),
                     sms_text: $('#sms_text').val(),
                     link_url: $('#link_url').val(),
                     expire: $('#expire').val(),

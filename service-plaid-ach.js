@@ -42,7 +42,6 @@ fastify.post('/ach', async (request, reply) => {
     const data = {
         created: Date.now(),
         status: 'unverified',
-        code,
     };
 
     if (body && body.public_token && body.transaction_id) {
@@ -66,7 +65,6 @@ fastify.post('/ach', async (request, reply) => {
                         expire = '7y';
                     } else {
                         code = (res.error && res.error.status_code) ? res.error.status_code : 422;
-                        data.code = code;
                         data.error = (res.error && res.error.error_message) ? res.error.error_message : 'Verification Failed';
                     }
 
@@ -85,6 +83,10 @@ fastify.post('/ach', async (request, reply) => {
                         data.created = new Date(record.created).toISOString();
                     }
 
+                    if (record.redirect_url) {
+                        data.redirect_url = record.redirect_url;
+                    }
+                    
                     if (record.request_reference) {
                         data.request_reference = record.request_reference;
                     }
@@ -114,7 +116,6 @@ fastify.post('/generate-link', async (request, reply) => {
     const data = {
         created: new Date().toISOString(), // Date.now(),
         status: 'success',
-        code,
     };
 
     if (body && body.transaction_id) {
@@ -148,7 +149,6 @@ fastify.post('/generate-url', async (request, reply) => {
     const data = {
         created: Date.now(),
         status: 'sent',
-        code,
     };
 
     if (body && (body.phone_number || body.email_address)) {
@@ -238,6 +238,11 @@ fastify.post('/generate-url', async (request, reply) => {
             save.customer_id = request.user.CustomerAccountID;
         }
 
+        let redirect_url = body.redirect_url;
+        if (typeof (redirect_url) === 'string' && redirect_url.length > 0) {
+            save.redirect_url = redirect_url;
+        }
+
         let request_reference = body.request_reference;
         if (typeof (request_reference) === 'string' && request_reference.length > 0) {
             save.request_reference = request_reference;
@@ -264,7 +269,6 @@ fastify.get('/check-request/:id', async (request, reply) => {
     const data = {
         created: Date.now(),
         status: 'found',
-        code,
     };
 
     if (transaction_id) {
@@ -285,6 +289,10 @@ fastify.get('/check-request/:id', async (request, reply) => {
             
             if (record._expiresAt) {
                 data.expires_at = new Date(record._expiresAt * 1000).toISOString();
+            }
+
+            if (record.redirect_url) {
+                data.redirect_url = record.redirect_url;
             }
 
             if (record.request_reference) {
