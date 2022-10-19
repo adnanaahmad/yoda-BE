@@ -60,7 +60,11 @@ fastify.post('/ach', async (request, reply) => {
                     res = await plaid.getAch(res.access_token);
                     if (res.numbers.ach.length > 0) {
                         for (let obj of res.numbers.ach) {
-                            if (obj.account === pii.account && obj.routing === pii.routing) data.status = 'verified';
+                            if (obj.account === pii.account && obj.routing === pii.routing) {
+                                data.status = 'verified';
+                                data.finished = data.created;
+                                break;
+                            }
                         }
                         expire = '7y';
                     } else {
@@ -75,6 +79,9 @@ fastify.post('/ach', async (request, reply) => {
 
                     if (saved && saved._expiresAt) {
                         data.transaction_id = body.transaction_id;
+                        if (record.finished) {
+                            data.completed = new Date(record.finished).toISOString();
+                        }
                         data.updated =  new Date(data.created).toISOString();
                         data.expires_at = new Date(saved._expiresAt * 1000).toISOString();
                     }
@@ -287,11 +294,11 @@ fastify.get('/check-request/:id', async (request, reply) => {
             if (record.status || record.action) {
                 data.status = record.status || record.action;
             }
-            
-            if (record.updated) {
-                data.updated = new Date(record.updated).toISOString();
+
+            if (record.finished) {
+                data.completed = new Date(record.finished).toISOString();
             }
-            
+    
             if (record._expiresAt) {
                 data.expires_at = new Date(record._expiresAt * 1000).toISOString();
             }
