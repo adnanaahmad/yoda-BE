@@ -79,10 +79,6 @@ fastify.post('/ach', async (request, reply) => {
 
                     if (saved && saved._expiresAt) {
                         data.transaction_id = body.transaction_id;
-                        if (record.finished) {
-                            data.completed = new Date(record.finished).toISOString();
-                        }
-                        data.updated =  new Date(data.created).toISOString();
                         data.expires_at = new Date(saved._expiresAt * 1000).toISOString();
                     }
 
@@ -110,6 +106,12 @@ fastify.post('/ach', async (request, reply) => {
         }
     } else {
         return reply.type('application/json').code(422).send({ status: "error", code: 422, error: 'Missing Parameter' });
+    }
+
+    delete data.updated;
+    if (data.finished) {
+        data.completed = new Date(data.finished).toISOString();
+        delete data.finished;
     }
 
     reply.type('application/json').code(code);
