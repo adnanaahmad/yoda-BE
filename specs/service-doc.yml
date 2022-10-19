@@ -1,20 +1,26 @@
-openapi: 3.0.1
+openapi: 3.0.9
 info:
   title: FortifID Document Verification
-  description: ""
+  description: | 
+    #### Use the Document Verification API to verify driver's license information and make sure the driver's license belongs to the person holding it, using face match and liveness checks. 
+    <br/>
+    <p>All our API products use mutual TLS and require the proper <b>client certificates</b> which are typically different for each environment.</p>    
+    <br/>
+    <p><a href="https://developer.fortifid.com/quickstart/#doc" target="_blank">View the Quick Start guide.</a></p>
+    <br/>
+    <a href="https://god.gw.postman.com/run-collection/f31f0433c0b8a154a17a" target="_blank"><img src="https://run.pstmn.io/button.svg" title="Run in Postman" alt="Run in Postman"/></a>
+  termsOfService: https://www.fortifid.com/terms-and-conditions
   contact:
-    email: api@fortifid.com
-  version: 1.0.0
-externalDocs:
-  description: FortifID website
-  url: https://fortifid.com
+    email: support@fortifid.zendesk.com
+  version: 1.0.2
 servers:
-- url: https://i.dev.fortifid.com/doc/v1
+- url: https://api-uat.fortifid.com/v1
+  description: Test server
 paths:
-  /generate-url:
+  /doc/generate-url:
     post:
       tags:
-      - generate-url
+      - /doc/generate-url
       summary: Generate and send request to phone number and/or email.
       operationId: generateUrl
       requestBody:
@@ -22,24 +28,61 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Request'
+              $ref: "#/components/schemas/Request"
         required: true
       responses:
-        '200':
-          $ref: '#/components/responses/Success'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/Forbidden'          
-        '405':
-          $ref: '#/components/responses/MethodNotAllowed'
-      security:
-      - Bearer: []
-      x-codegen-request-body-name: request
-  /check-request/{transaction_id}:
+        200:
+          description: Successful operation
+          headers:
+            X-Rate-Limit:
+              description: Calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: Date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                $ref:  "#/components/schemas/RequestResults"
+        400: 
+          description: Bad request
+          content: {}
+        401:
+          description: Client certificate is missing or invalid
+          content: {}
+        403:
+          description: Forbidden
+          content: {}
+        404:
+          description: Not found
+          content: {}          
+        405:
+          description: Method not Allowed
+          content: {}
+        408:
+          description: Request Timeout
+          content: {}
+        422:
+          description: Missing or invalid parameter(s)
+          content: {}
+        429:
+          description: Too Many Requests
+          content: {}
+        500:
+          description: Internal Server Error
+          content: {}
+        501:
+          description: Not Implemented
+          content: {}   
+     
+  /doc/check-request/{transaction_id}:
     get:
       tags:
-      - check-request
+      - /doc/check-request
       summary: Check request status.
       operationId: checkRequest
       parameters:
@@ -49,108 +92,191 @@ paths:
         required: true
         schema:
           type: string
-          #format: uuid
+          format: uuid
       responses:
-        '200':
-          $ref: '#/components/responses/SuccessStatus'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/Forbidden'          
-        '405':
-          $ref: '#/components/responses/MethodNotAllowed'
-components:
-  responses:
-    Success:
-      description: Successful operation
-      headers:
-        X-Rate-Limit:
-          description: calls per hour allowed by the user
-          schema:
-            type: integer
-            format: int32
-        X-Expires-After:
-          description: date in UTC when token expires
-          schema:
-            type: string
-            format: date-time
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/RequestResults'  
-    SuccessStatus:
-      description: Successful operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/StatusResults'               
-    UnauthorizedError:
-      description: Access token is missing or invalid
-    Forbidden:
-      description: Method Not Allowed      
-    MethodNotAllowed:
-      description: Method Not Allowed
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                 $ref: "#/components/schemas/StatusResults"
+        400: 
+          description: Bad request
+          content: {}
+        401:
+          description: Client certificate is missing or invalid
+          content: {}
+        403:
+          description: Forbidden
+          content: {}
+        404:
+          description: Not found
+          content: {}          
+        405:
+          description: Method not Allowed
+          content: {}
+        408:
+          description: Request Timeout
+          content: {}
+        422:
+          description: Missing or invalid parameter(s)
+          content: {}
+        429:
+          description: Too Many Requests
+          content: {}
+        500:
+          description: Internal Server Error
+          content: {}
+        501:
+          description: Not Implemented
+          content: {}                    
+components:  
   schemas:
+    Status:
+      type: string
+      description: Request Status
+      enum:  &STATUS [sent,not_found,approved,declined]    
     Request:
       required:
       - phone_number
       type: object
       properties:
-        full_name:
-          type: string
-          example: Cisco Caceres
         phone_number:
           type: string
-          example: +1206 659 7857
-          description: ""
+          description: Phone number of the user to send the link_url to. If country code is excluded it will default to +1 (US).
+          example: +1 8015551213
         email_address:
           type: string
-          example: cisco801@gmail.com
-          description: ""
+          format: email
+          description: User email address to send the link_url to.
+          example: mckinley@yzggfp.com
+        full_name:
+          type: string
+          description: "Full name of the user being verified. Can include the middle name."
+          example: JOSHUA RKHTGZWR
         birth_date:
           type: string
-          example: "1980-01-01"
-          description: ""
-    Status:
-      type: string
-      description: Request Status
-      enum: [not_found, invalid, sent, waiting, approved, declined, expired, used]
-    StatusResults:
-      type: object
-      properties:
-        status:
-          $ref: '#/components/schemas/Status'          
+          format: date
+          description: "User's birth date. Format doesn't matter too much as long as it's a valid date format (e.g 8/1/1980, 1980-8-1, August 1, 1980)"
+          example: 08/01/1980
+        request_reference:
+          type: string
+          description: This is stored and returned with future requests. Please do not include any PII (Personal Identifiable Information).
+          example: abcd1234
+        redirect_url:
+          type: string
+          format: uri
+          description: This is stored and returned with future requests.
+          example: https://fortifid.com
+        sms_text:
+          type: string
+          description: Custom SMS text body to send to the user.
+          default: "From FortifID: please use the following link to complete the Document Verification steps: %URL%"
+          example: "Please follow link to verify your identity: %URL%"
+        link_url:
+          type: string
+          format: uri
+          description: The link sent to the user. Can be customized for manual handling.
+          default: https://api-uat.fortifid.com/v1/doc/?ref=%URL%
+          example: https://custom-verify.com/verify/%URL%
+        expire:
+          type: integer
+          description: Number of seconds until this transaction expires and will be deleted from the system. Default is 1 week.
+          default: 604800          
+        strict:
+          type: boolean
+          description: full_name and birth_date must match the document. Adds name_match_score and dob_match to the results.
+          default: true
+        shorten_url:
+          type: boolean
+          description: Shortens the link_url sent to the user. Typically adds <30ms to the request.
+          default: false
     RequestResults:
       type: object
       properties:
-        created:
-          type: integer
-          format: int64
-          example: 1617659912179
         transaction_id:
           type: string
-          description: ""
-          #format: uuid
-          example: e7e42ba2-1783-4406-b920-edc681608a2d
-        reason:
+          format: uuid
+          description: Unique transaction ID of this request.
+          example: e7e42ba2-1783-4406-b920-edc681608a2d      
+        created:
           type: string
-          example: Transaction ID not found.
+          format: date-time
+          example: "2021-11-06T17:37:25.863Z"
+          description: ISO-8601 date of when the transaction was created.
+        expires_at:
+          type: string
+          format: date-time
+          example: "2021-11-06T17:37:25.863Z"
+          description: ISO-8601 date of when the transaction will be deleted from the system.            
         status:
-          $ref: '#/components/schemas/Status'
-      xml:
-        name: RequestResults
-  securitySchemes:
-    request_auth:
-      type: oauth2
-      description: "Use the access_token from the results as a Bearer token."
-      flows:
-        clientCredentials:
-          tokenUrl: https://i.dev.fortifid.com/auth/v1/token
-          scopes:
-            write:request: create requests
-            read:request: read your request
-    Bearer:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      
+          type: string
+          enum: *STATUS        
+          example: sent
+          description: Current status of the transaction.    
+        url:
+          type: string
+          format: uri
+          description: URL sent to the user.
+          example: https://api-uat.fortifid.com/s/IWg5LD
+    StatusResults:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+          format: uuid
+          description: Unique transaction ID of this request.
+          example: e7e42ba2-1783-4406-b920-edc681608a2d      
+        created:
+          type: string
+          format: date-time
+          example: "2021-11-06T17:37:25.863Z"
+          description: ISO-8601 date of when the transaction was created.
+        completed:
+          type: string
+          format: date-time
+          example: "2021-11-06T17:37:25.863Z" 
+          description: ISO-8601 date of when the transaction was completed.       
+        expires_at:
+          type: string
+          format: date-time
+          example: "2021-11-06T17:37:25.863Z"
+          description: ISO-8601 date of when the transaction will be deleted from the system.            
+        name_match_score:
+          type: integer
+          example: 1
+          description: |
+            * Only returned when strict mode is on.
+            * How closely does the name in the document match the supplied full_name.
+            * Since the fuzzy matching goes up to 1.0 we had to use numbers above 1.0 to indicate non-fuzzy matching.
+            * Since the fuzzy matching goes up to 1.0 we had to use numbers above 1.0 to indicate non-fuzzy matching.
+            * result_name is what is returned from the document verification process, arranged in the proper order: first name [possible middle name(s)] last name(s).
+               * 0    : If either full_name or result_name is blank.
+               * 1.3  : Both names are exactly the same. 
+            * Now both are "cleaned" by removing all common prefixes (Mr, Ms, etc) and suffixes (M.B.A., Ph.d, etc.), removing all non-alpha characters, removing whitespace, and ignoring case.
+               * 1.2    : First, middle and last match
+               * 1.1    : First and last name match 
+            * Now fuzzy matching is needed and the Sørensen–Dice Coefficient algorithm is used:
+               * Returns a fraction between 0 and 1, which indicates the degree of similarity between the two names.
+               * 0 indicates completely different names, 1 indicates identical names. The comparison is case-insensitive.
+               * https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient
+            * Mostly better than Levenshtein distance:
+               * https://en.wikipedia.org/wiki/Levenshtein_distance
+        dob_match:
+          type: boolean
+          example: true
+          description: When in strict mode, indicates if the document and the supplied birth_date matched.                    
+        status:
+          type: string
+          enum: *STATUS
+          description: Current status of the transaction.        
+          example: approved
+        redirect_url:
+          type: string
+          format: uri
+          description: Saved redirect_url supplied in the original request.
+          example: https://fortifid.com
+        request_reference:
+          type: string
+          description: Saved request_reference supplied in the original request.
+          example: abcd1234
