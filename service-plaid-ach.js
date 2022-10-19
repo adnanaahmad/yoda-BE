@@ -258,6 +258,11 @@ fastify.post('/generate-url', async (request, reply) => {
         return reply.type('application/json').code(422).send({ status: "error", code: 422, error: "Missing Parameter" });
     }
 
+
+    if (typeof (data.created) === "number") {
+        data.created = new Date(data.created).toISOString();
+    }
+
     reply.type('application/json').code(code);
     return data;
 })
