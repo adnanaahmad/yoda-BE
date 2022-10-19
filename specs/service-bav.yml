@@ -6,12 +6,30 @@ info:
     <br/>
     <p>All our API products use mutual TLS and require the proper <b>client certificates</b> which are typically different for each environment.</p>    
     <br/>
-    <p>This service has a UI for testing here (requires the client certificates): <br/><a href="https://api-uat.fortifid.com/v1/bav/" target="_blank">https://api-uat.fortifid.com/v1/bav/</a>.
-    <br/>    
+    <p>
+    For sample queries to quickly learn this API:<br/>
+    <a href="https://developer.fortifid.com/quickstart/#fid-bav" target="_blank"><img src="https://developer.fortifid.com/images/button-quick-start-guide.png" title="Open Quick Start Guide" alt="Open Quick Start Guide"/></a>
+    </p>
+    <br/>
+    <p>
+    This service has a web UI for testing (requires the client certificates to be <a href="https://www.ssl.com/how-to/configuring-client-authentication-certificates-in-web-browsers/" target="_blank">installed</a>):<br/>
+    <a href="https://api-uat.fortifid.com/v1/bav/" target="_blank"><img src="https://developer.fortifid.com/images/button-try-it-out.png" title="Try out this API" alt="Try out this API"/></a>
+    </p>
+    <br/>
+    <p>
+    Please note that these web UIs are meant only for development and testing.
+    </p>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <h1>Endpoints:</h1>
+    <br/>
+    <br/>
   termsOfService: https://www.fortifid.com/terms-and-conditions
   contact:
     email: support@fortifid.zendesk.com
-  version: 1.0.2
+  version: 1.0.3
 servers:
 - url: https://api-uat.fortifid.com/v1
   description: Test server
@@ -20,7 +38,7 @@ paths:
     post:
       tags:
       - /bav/generate-url
-      summary: Generate and send request to phone number.
+      summary: Generate a request and optionally send request to phone number.
       operationId: generateUrl
       requestBody:
         description: The request to create.
@@ -118,66 +136,16 @@ paths:
         501:
           description: Not Implemented
           content: {}   
-  /bav/verify/{transaction_id}:
-    get:
-      tags:
-      - /bav/verify
-      summary: Verify MFA transaction ID. Used only for custom BAV handling.
-      operationId: verify
-      parameters:
-      - name: transaction_id
-        in: path
-        description: Transaction ID of BAV to verify.
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResults'
-        400: 
-          description: Bad request
-          content: {}
-        401:
-          description: Client certificate is missing or invalid
-          content: {}
-        403:
-          description: Forbidden
-          content: {}
-        404:
-          description: Not found
-          content: {}          
-        405:
-          description: Method not Allowed
-          content: {}
-        408:
-          description: Request Timeout
-          content: {}
-        422:
-          description: Missing or invalid parameter(s)
-          content: {}
-        429:
-          description: Too Many Requests
-          content: {}
-        500:
-          description: Internal Server Error
-          content: {}
-        501:
-          description: Not Implemented
-          content: {}            
 components:
   schemas:
     Status:
       type: string
       description: Request Status
-      enum:  &STATUS [sent,not_found,verified,declined,used,lookup]  
+      enum:  &STATUS [success,sent,not_found,verified,unverified,error]  
     Request:
       required:
-      - phone_number
+      - account_number
+      - routing_number
       type: object
       properties:
         phone_number:
@@ -191,11 +159,11 @@ components:
         account_number:
           type: string
           description: "User bank account number"
-          example: "1234567890"
+          example: "1111222233331111"
         routing_number:
           type: string
           description: "User bank account routing number"
-          example: "123456789"          
+          example: "011401533"          
         request_reference:
           type: string
           description: This is stored and returned with future requests. Please do not include any PII (Personal Identifiable Information).
@@ -231,43 +199,48 @@ components:
     RequestResults:
       type: object
       properties:
-        transaction_id:
-          type: string
-          description: Unique transaction ID of this request.
-          format: uuid
-          example: e7e42ba2-1783-4406-b920-edc681608a2d      
         created:
           type: string
           format: date-time
           example: "2021-11-06T17:37:25.863Z"
-          description: ISO-8601 date of when the transaction was created.
-        expires_at:
-          type: string
-          format: date-time
-          example: "2021-11-06T17:37:25.863Z"
-          description: ISO-8601 date of when the transaction will be deleted from the system.          
-        url:
-          type: string
-          description: URL sent to the user.
-          example: https://api-uat.fortifid.com/s/H0X2fa
+          description: ISO-8601 date of when the transaction was created.      
         status:
           type: string
           enum: *STATUS        
           example: sent
           description: Current status of the transaction.
-    StatusResults:
-      type: object
-      properties:
+        url:
+          type: string
+          description: URL sent to the user (if send is true).
+          example: https://api-uat.fortifid.com/s/H0X2fa          
         transaction_id:
           type: string
           description: Unique transaction ID of this request.
           format: uuid
           example: e7e42ba2-1783-4406-b920-edc681608a2d      
+        expires_at:
+          type: string
+          format: date-time
+          example: "2021-11-06T17:37:25.863Z"
+          description: ISO-8601 date of when the transaction will be deleted from the system.          
+    StatusResults:
+      type: object
+      properties:
         created:
           type: string
           format: date-time
           example: "2021-11-06T17:37:25.863Z"
           description: ISO-8601 date of when the transaction was created.
+        status:
+          type: string
+          enum: *STATUS        
+          description: Current status of the transaction.
+          example: verified
+        transaction_id:
+          type: string
+          description: Unique transaction ID of this request.
+          format: uuid
+          example: e7e42ba2-1783-4406-b920-edc681608a2d      
         completed:
           type: string
           format: date-time
@@ -278,11 +251,6 @@ components:
           format: date-time
           example: "2021-11-06T17:37:25.863Z"
           description: ISO-8601 date of when the transaction will be deleted from the system.          
-        status:
-          type: string
-          enum: *STATUS        
-          description: Current status of the transaction.
-          example: verified
         redirect_url:
           type: string
           format: uri

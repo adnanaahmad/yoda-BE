@@ -4,11 +4,23 @@ info:
   description: | 
     #### Use the MFA (multi-factor authentication) API to ensure the person is in possession of a valid mobile phone number.
     <br/>
-    <p>All our API products use mutual TLS and require the proper <b>client certificates</b> which are typically different for each environment.</p>    
+    <p>All our API products use mutual TLS (mTLS) and require the proper <b>client certificates</b> which are typically different for each environment.</p>    
     <br/>
-    <p><a href="https://developer.fortifid.com/quickstart/#mfa" target="_blank">View the Quick Start guide.</a></p>
+    <p>
+    For sample queries to quickly learn this API:<br/>
+    <a href="https://developer.fortifid.com/quickstart/#fid-mfa" target="_blank"><img src="https://developer.fortifid.com/images/button-quick-start-guide.png" title="Open Quick Start Guide" alt="Open Quick Start Guide"/></a>
+    </p>
     <br/>
-    <a href="https://god.gw.postman.com/run-collection/dc0aae024b466c2b10a6" target="_blank"><img src="https://run.pstmn.io/button.svg" title="Run in Postman" alt="Run in Postman"/></a>
+    <p>
+    This service has a web UI for testing (requires the client certificates to be <a href="https://www.ssl.com/how-to/configuring-client-authentication-certificates-in-web-browsers/" target="_blank">installed</a>):<br/>
+    <a href="https://api-uat.fortifid.com/v1/mfa/" target="_blank"><img src="https://developer.fortifid.com/images/button-try-it-out.png" title="Try out this API" alt="Try out this API"/></a>
+    </p>
+    <br/>
+    <br/>
+    <br/>
+    <h1>Endpoints:</h1>
+    <br/>
+    <br/>
   termsOfService: https://www.fortifid.com/terms-and-conditions
   contact:
     email: support@fortifid.zendesk.com
