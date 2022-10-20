@@ -2,7 +2,7 @@
 /*jshint esversion: 8 */
 const NAME = 'Railz';
 const TABLE = 'railz';
-const CONFIG_PATH = `/config/${TABLE}/sandbox`;
+const CONFIG_PATH = `/config/${TABLE}/settings`;
 
 const utils = require('./utils');
 const logger = require('./logger').createLogger(TABLE);
