@@ -46,80 +46,11 @@
             <h5>Railz</h5>
             <hr />
         </div>
-        <!-- Insert this div where you want Railz Connect to be initialized -->
-<div id='railz-connect' class="p-centered w300"></div>
-
-<!-- Start of Railz Connect script -->
-<script src="https://connect.railz.ai/v1/railz-connect.js"></script>
-<script>
-  var widget = new RailzConnect();
-  widget.mount({
-    parentElement: document.getElementById('railz-connect'),
-    widgetId: 'sb_prod_78aefd96-7ad0-4ea4-b7ef-542a50491232',
-    //closeEnabled: true,
-    headerEnabled: false,
-    removeRailzWatermark: false
-  });
-</script>
-<!-- End of Railz Connect script -->
-        <div id="form" class="w300">
+        <div id='railz-connect' class="p-centered w300"></div>
+        <script src="https://connect.railz.ai/v1/railz-connect.js"></script>
+        <br />
+        <div id="form" class="w300 d-none">
             <br />
-            <div class="form-group">
-                <label class="form-label" for="first_name">First Name</label>
-                <input id="first_name" class="form-input" type="text" placeholder="First Name" minlength="1"
-                    maxlength="64">
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="middle_name">Middle Name</label>
-                <input id="middle_name" class="form-input" type="text" placeholder="Middle Name" minlength="1"
-                    maxlength="64">
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="last_name">Last Name</label>
-                <input id="last_name" class="form-input" type="text" placeholder="Last Name" minlength="1"
-                    maxlength="64" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="social_security_number">Social Security Number</label>
-                <input id="social_security_number" type="text" class="form-input" minlength="9" maxlength="11"
-                pattern="^(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}$"    
-                placeholder="123-45-6789" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="birth_date">Birth Date</label>
-                <input id="birth_date" type="date" min="1900-01-01" max="2022-12-31" class="form-input"
-                    placeholder="Birth Date" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="line1">Address Line 1</label>
-                <input id="line1" class="form-input" type="text" placeholder="Address Line 1" minlength="1"
-                    maxlength="128" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="line2">Address Line 2 (optional)</label>
-                <input id="line2" class="form-input" type="text" placeholder="Address Line 2 (optional)" minlength="1"
-                    maxlength="64">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="city">City</label>
-                <input id="city" class="form-input" type="text" placeholder="City" minlength="1"
-                    maxlength="128" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="state">State</label>
-                <input id="state" class="form-input" type="text" placeholder="State" minlength="1"
-                    maxlength="2" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="zip_code">Zip/Postal Code</label>
-                <input id="zip_code" class="form-input" type="text" placeholder="Zip/Postal Code" minlength="1"
-                    maxlength="10" required>
-            </div>
-
             <div class="form-group">
                 <label class="form-label" for="phone_number">Phone Number</label>
                 <input id="phone_number" class="form-input" type="tel" placeholder="Phone Number" minlength="10"
@@ -127,26 +58,65 @@
             </div>
             <div class="form-group">
                 <label class="form-label" for="email_address">Email</label>
-                <input id="email_address" class="form-input" type="email" placeholder="user@email.com"
+                <input id="email_address" class="form-input" type="email" placeholder="Email"
                     pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,14}$" maxlength="64" required>
             </div>
             <div class="form-group">
+                <label class="form-label" for="full_name">Full Name</label>
+                <input id="full_name" class="form-input" type="text" placeholder="Full Name" minlength="1"
+                    maxlength="64">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="transaction_id">Transaction Id</label>
+                <input id="transaction_id" class="form-input" type="text" placeholder="Transaction ID" maxlength="64">
+            </div>
+
+            <div class="form-group">
                 <label class="form-label" for="request_reference">Request Reference</label>
-                <input id="request_reference" class="form-input" placeholder="Request Reference" required>
+                <input id="request_reference" class="form-input" placeholder="Request Reference">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="redirect_url">Redirect Url</label>
-                <input id="redirect_url" class="form-input" placeholder="Redirect Url" required>
+                <input id="redirect_url" class="form-input" placeholder="Redirect Url">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sms_text">Custom SMS Text</label>
+                <input id="sms_text" class="form-input"
+                    placeholder="Please follow link to verify your phone number: %URL%">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="link_url">Custom Link URL</label>
+                <input id="link_url" class="form-input" placeholder="https://custom-verify.com/verify/%ID%">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="expire">Expiration (seconds)</label>
+                <input id="expire" class="form-input" placeholder="604800 (1 week)">
+            </div>
+
+            <div class="form-group">
+                <label class="form-switch">
+                    <input id="shorten_url" type="checkbox">
+                    <i class="form-icon"></i> Shorten URL
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="form-switch">
+                    <input id="check-send" type="checkbox" checked>
+                    <i class="form-icon"></i> Send
+                </label>
             </div>
 
             <div id="div-url">&nbsp;</div>
 
             <br />
-            <button id="btn-validate" class="btn btn-primary">Validate</button>
+            <button id="btn-url" class="btn btn-primary">Generate URL</button>
             <br /><br />
         </div>
-        <br />
         <div id="output" class="text-center"></div>
     </div>
     <br />
@@ -158,7 +128,13 @@
             "use strict";
 
             let divOutput = $("#output");
-            const BASE_URL = `${window.location.protocol}//${window.location.hostname}/synthetic-id/v1`;
+            const BASE_URL = `${window.location.protocol}//${window.location.hostname}/v1/railz`;
+            const params = new URLSearchParams(window.location.search);
+            let hasRef = params && params.has('ref');
+            let transaction_id = hasRef ? params.get('ref') : undefined;
+            if (!transaction_id || transaction_id.length < 1) {
+                hasRef = false;
+            }
 
             const setOutput = (str, mode = 1, br = true) => {
                 if (br)
@@ -174,6 +150,26 @@
                     default:
                         divOutput.append(str);
                 }
+            }
+
+            if (hasRef) {
+                const widget = new RailzConnect();
+                widget.mount({
+                    parentElement: document.getElementById('railz-connect'),
+                    widgetId: 'sb_prod_e02ab103-ff2d-4d63-885b-31bd93031b88',
+                    businessName: transaction_id,
+                    onExit: (event, data) => {
+                        console.log("onExit", event, data);
+                    },
+                    onSuccess: (event, data) => {
+                        console.log("onSuccess", event, data);
+                    },
+                    onError: (event, data) => {
+                        console.log("onError", event, data);
+                    }
+                });
+            } else {
+                document.getElementById('form').classList.remove('d-none');
             }
 
             const outputResults = (data, mode = 1, br = true) => {
@@ -201,7 +197,7 @@
                 }
 
                 let str =
-                    `<pre><code class="text-left ${(isJSON ?'json' : 'hljs')}">${content}</code></pre>`;
+                    `<pre><code class="text-left ${(isJSON ? 'json' : 'hljs')}">${content}</code></pre>`;
 
                 setOutput(str, mode, br);
 
@@ -241,7 +237,6 @@
 
                 let response;
                 try {
-                    console.log(url);
                     response = await fetch(url, options);
                     const getData = async () => {
                         data = await response.text();
@@ -252,7 +247,7 @@
                                 if (firstChar === '[' || firstChar === '{') {
                                     data = JSON.parse(data);
                                 }
-                            } catch (e) {}
+                            } catch (e) { }
                         }
                     }
 
@@ -273,52 +268,24 @@
                 return data;
             }
 
-            $('#social_security_number').keyup(function () {
-                let val = this.value.replace(/\D/g, '');
-                console.log(val);
-                let newVal = '';
-                if (val.length > 4) {
-                    this.value = val;
-                }
-                if ((val.length > 3) && (val.length < 6)) {
-                    newVal += val.substr(0, 3) + '-';
-                    val = val.substr(3);
-                }
-                if (val.length > 5) {
-                    newVal += val.substr(0, 3) + '-';
-                    newVal += val.substr(3, 2) + '-';
-                    val = val.substr(5);
-                }
-                newVal += val;
-                this.value = newVal.substring(0, 11);
-            });
-            
-            $('#btn-validate').on("click", async () => {
+            $('#btn-url').on("click", async () => {
+
                 let data = {
-                    first_name: $('#first_name').val(),
-                    middle_name: $('#middle_name').val(),
-                    last_name: $('#last_name').val(),
                     phone_number: $('#phone_number').val() || '',
                     email_address: $('#email_address').val() || '',
-                    line1: $('#line1').val() || '',
-                    line2: $('#line2').val() || '',
-                    city: $('#city').val() || '',
-                    state: $('#state').val() || '',
-                    zip_code: $('#zip_code').val() || '',
-                    birth_date: $('#birth_date').val() || '',
+                    full_name: $('#full_name').val(),
+                    transaction_id: $('#transaction_id').val(),
                     request_reference: $('#request_reference').val(),
                     redirect_url: $('#redirect_url').val(),
+                    sms_text: $('#sms_text').val(),
+                    link_url: $('#link_url').val(),
+                    expire: $('#expire').val(),
+                    shorten_url: $('#shorten_url').is(':checked'),
+                    send: $('#check-send').is(':checked'),
                 };
 
-                // if (data.phone_number.length < 9) {
-                //     setOutput('<span style="color:red;">Phone number required</span>', 0);
-                //     return;
-                // }
-
-                //$("#div-url").html('&nbsp;');
-
                 setOutput('Requesting...', 0);
-                let results = await getAPIData('/query', data, 'post');
+                let results = await getAPIData('/generate-url', data, 'post');
                 setOutput('Finished', 0);
 
                 if (results) {
