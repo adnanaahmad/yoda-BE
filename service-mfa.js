@@ -47,13 +47,7 @@ const TEMPLATES = {};
 // fastify.get('/', function (request, reply) {
 //     return reply.sendFile('index.html'); // serving path.join(__dirname, 'public', 'myHtml.html') directly
 // })
-fastify.get('/health', (request, reply) => {
-    return utils.getHealth(SCRIPT_INFO, false);
-})
 
-fastify.get('/info', (request, reply) => {
-    return utils.getHealth(SCRIPT_INFO, true);
-})
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
@@ -358,12 +352,7 @@ fastify.addHook("onRequest", async (request, reply) => {
 })
 
 fastify.addHook('onResponse', async (request, reply) => {
-    if (request.user) {
 
-        // let log = {
-        //     customer_id: user.
-        // }
-    }
 })
 
 const test = async (phone_number)=> {
@@ -386,6 +375,8 @@ const start = async () => {
     if (utils.DEMO) {
         await utils.loadTemplates('./templates/mfa/', TEMPLATES, true);
     }
+
+    utils.addFastifyConfig(fastify, SCRIPT_INFO);
 
     fastify.listen({ port: params.port }, (err, address) => {
         if (err) throw err

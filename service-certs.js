@@ -47,13 +47,6 @@ fastify.register(require('@fastify/static'), {
 
 const handler = require('./utils-handlers');
 
-fastify.get('/health', (request, reply) => {
-    return utils.getHealth(SCRIPT_INFO, false);
-})
-
-fastify.get('/info', (request, reply) => {
-    return utils.getHealth(SCRIPT_INFO, true);
-})
 
 const createCustomer = async (certificate_id, subject, expiration, ips) => {
     const customer_id = utils.getUUID();
@@ -280,7 +273,8 @@ const start = async () => {
             caCert = forge.pki.certificateFromPem(ca.cert);
             caKey = forge.pki.privateKeyFromPem(ca.key);
         }
-
+        
+        utils.addFastifyConfig(fastify, SCRIPT_INFO);
         fastify.listen({ port: params.port }, (err, address) => {
             if (err) throw err
             logger.info(`HTTP server is listening on ${address}`);

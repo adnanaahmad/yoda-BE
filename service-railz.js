@@ -366,6 +366,8 @@ const start = async () => {
 
         oauth2.addRequest(TABLE, params.token_url, params.client_id, params.client_secret, undefined, "basic_auth");
         await oauth2.start();
+        
+        utils.addFastifyConfig(fastify, SCRIPT_INFO);
 
         fastify.listen({ port: params.port }, (err, address) => {
             if (err) throw err

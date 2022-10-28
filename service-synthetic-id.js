@@ -45,14 +45,6 @@ fastify.register(require('@fastify/static'), {
 
 const handler = require('./utils-handlers');
 
-fastify.get('/health', (request, reply) => {
-    return utils.getHealth(SCRIPT_INFO, false);
-})
-
-fastify.get('/info', (request, reply) => {
-    return utils.getHealth(SCRIPT_INFO, true);
-})
-
 const doOPAL = (data) => {
     // const SAMEPLE_INPUT = {
     //     flags: {
@@ -282,6 +274,8 @@ const start = async () => {
 
     oauth2.addRequest(TABLE, params.token_url, params.client_id, params.client_secret, params.scopes);
     await oauth2.start();
+
+    utils.addFastifyConfig(fastify, SCRIPT_INFO);
 
     fastify.listen({ port: params.port }, (err, address) => {
         if (err) throw err

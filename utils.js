@@ -484,7 +484,7 @@ const isValidIP = (ip) => {
     if (ip.indexOf('/') === -1) {
         ip = ip + "/32";
     }
-    
+
     if (cidrRegex({ exact: true }).test(ip)) {
         return ip;
     }
@@ -1391,6 +1391,8 @@ const getHealth = (info, full = false) => {
     const now = Date.now();
     try {
         const data = full ? { ...info } : {};
+
+
         data.status = "OK";
         data.time = now;
         data.uptime = Math.round((now - info.start) / 1000);
@@ -1401,6 +1403,9 @@ const getHealth = (info, full = false) => {
         data.freemem = os.freemem();
         data.totalmem = os.totalmem();
 
+        if (!full && info.request_stats) {
+            data.request_stats = info.request_stats;
+        }
         return data;
     } catch (error) {
         //console.log(error);
@@ -1503,6 +1508,52 @@ const formatDate = (date, format, utc = false) => {
     //eturn utc ? dayjs.utc() dayjs(date).format(format);
     return dayjs(date).format(format);
 }
+
+//TODO!
+const addFastifyConfig = (fastify, script_info) => {
+    if (!fastify) {
+        return;
+    }
+
+    const SCRIPT_INFO = script_info;
+    SCRIPT_INFO.request_stats = {};
+    fastify.get('/health', (request, reply) => {
+        return getHealth(SCRIPT_INFO, false);
+    })
+
+    fastify.get('/info', (request, reply) => {
+        return getHealth(SCRIPT_INFO, true);
+    })
+
+    fastify.addHook("onRequest", async (request, reply) => {
+        request.timeStart = time();
+    })
+
+    fastify.addHook('onResponse', async (request, reply) => {
+        const duration = time() - request.timeStart;
+        const path = `${request.method} ${request.routerPath || '404'}`;
+        let data = SCRIPT_INFO.request_stats[path];
+        if (!data) {
+            data = {
+                count: 0,
+                avg: 0
+            }
+            SCRIPT_INFO.request_stats[path] = data;
+        }
+
+        data.count++;
+        
+        //https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
+        data.avg = (data.avg * (data.count-1) + duration) / data.count;
+        if (request.user) {
+
+            // let log = {
+            //     customer_id: user.
+            // }
+        }
+    })
+}
+
 
 const redisOptsFromUrl = (urlString) => {
     const redisOpts = {};
@@ -1646,5 +1697,6 @@ module.exports = {
     csvToArray,
     arrayToCSV,
     getHealth,
-    createWebhookPayload
+    createWebhookPayload,
+    addFastifyConfig
 }

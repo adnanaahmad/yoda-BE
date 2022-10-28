@@ -64,14 +64,6 @@ const { randomSrringCrypt } = require('./utils');
 
 const KEYS = {};
 
-fastify.get('/health', (request, reply) => {
-    return utils.getHealth(SCRIPT_INFO, false);
-})
-
-fastify.get('/info', (request, reply) => {
-    return utils.getHealth(SCRIPT_INFO, true);
-})
-
 const loadParams = async () => {
     params = await require('./params')(CONFIG_PATH, logger);
     KEYS[params.client_id] = params.client_secret;
@@ -659,6 +651,8 @@ fastify.addHook("onRequest", async (request, reply) => {
 })
 
 const start = () => {
+    utils.addFastifyConfig(fastify, SCRIPT_INFO);
+    
     fastify.listen({ port: params.port }, (err, address) => {
         if (err) throw err
         logger.info(`HTTP server is listening on ${address}`);
