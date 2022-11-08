@@ -64,8 +64,8 @@ fastify.register(require('@fastify/static'), {
 })
 
 const handler = require('./utils-handlers');
-const cleanRecord = (record)=> {
-    if(!record) {
+const cleanRecord = (record) => {
+    if (!record) {
         return;
     }
 
@@ -79,10 +79,11 @@ const cleanRecord = (record)=> {
 
 }
 
-fastify.get('/check-request/:id', async (request, reply) => {
-    if (!await authMain.checkHeaders(request, reply)) {
-        return;
-    }
+//TODO: Just a workaround
+const checkRequest = async (request, reply) => {
+    // if (!await authMain.checkHeaders(request, reply)) {
+    //     return;
+    // }
 
     let code = 404;
     const id = request.params.id;
@@ -101,6 +102,15 @@ fastify.get('/check-request/:id', async (request, reply) => {
 
     reply.type('application/json').code(code);
     return data;
+}
+
+fastify.get('/check-request/:id', async (request, reply) => {
+    return await checkRequest(request, reply);
+})
+
+
+fastify.post('/check-request/:id', async (request, reply) => {
+    return await checkRequest(request, reply);
 })
 
 const getRailzData = async (endpoint, data) => {
@@ -208,9 +218,9 @@ fastify.post('/webhook', {
 })
 
 fastify.post('/generate-url', async (request, reply) => {
-    if (!await authMain.checkHeaders(request, reply)) {
-        return;
-    }
+    // if (!await authMain.checkHeaders(request, reply)) {
+    //     return;
+    // }
 
     //const body = typeof(request.body) === 'string' ? JSON.parse(request.body) : request.body;
     let body = request.body;
@@ -366,7 +376,7 @@ const start = async () => {
 
         oauth2.addRequest(TABLE, params.token_url, params.client_id, params.client_secret, undefined, "basic_auth");
         await oauth2.start();
-        
+
         utils.addFastifyConfig(fastify, SCRIPT_INFO);
 
         fastify.listen({ port: params.port }, (err, address) => {

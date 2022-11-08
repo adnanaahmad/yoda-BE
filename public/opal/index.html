@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/a11y-dark.min.css">
 
     <link rel="stylesheet" data-name="vs/editor/editor.main"
-        href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.23.0/min/vs/editor/editor.main.min.css">
+        href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/editor/editor.main.min.css">
 
     <style>
         .center {
@@ -31,15 +31,6 @@
             width: 300px;
         }
 
-        .code {
-            color: black;
-        }
-
-        #code-editor {
-            height: 400px;
-            border: 1px solid black;
-        }
-
         .w300 {
             min-width: 300px;
         }
@@ -50,15 +41,39 @@
     <div class="container grid-lg">
         <br />
         <div class="text-center">
-            <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo" src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/logo.png" alt="FortifID Logo"></a>
+            <a href="https://www.fortifid.com/" title="Visit FortifID"><img id="logo"
+                    src="https://fid-v2.s3-us-west-1.amazonaws.com/assets/logo.png" alt="FortifID Logo"></a>
             <br /><br />
             <h5>OPAL</h5>
             <hr />
         </div>
         <div id="form" class="w300">
             <br />
-            <div id="code-editor" class="form-group"></div>
-            <button id="btn-run" class="btn btn-primary">Run &nbsp;▶</button>
+            <div class="form-group">
+                <label class="form-label" for="id">ID</label>
+                <input id="id" class="form-input" pattern="[a-z0-9_-]+" placeholder="ID" minlength="4" maxlength="32"
+                    required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="description">Description</label>
+                <input id="description" class="form-input" placeholder="Description" maxlength="255">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="data">Sample Data</label>
+                <textarea class="form-input" id="data" placeholder="Sample Data" minlength="1" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="code">Code</label>
+                <textarea class="form-input" id="code" placeholder="Code" rows="4" minlength="1"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-switch">
+                    <input id="check-send" type="checkbox">
+                    <i class="form-icon"></i> Async Main Function
+                </label>
+            </div>
+            <br />
+            <button id="btn-run" class="btn btn-primary">Submit &nbsp;▶</button>
             <br /><br />
         </div>
         <br />
@@ -66,76 +81,12 @@
     </div>
     <br />
     <br />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.23.0/min/vs/loader.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js"></script>
     <script>
         (async () => {
             "use strict";
             const divOutput = $("#output");
-
-            let editor;
-            const CODE_START = '// Your code starts below this line ** Only modify below this line ** ';
-            const CODE_END = '// Your code ends above this line ** Only modify above this line **';
-            const CODE_SAMPLE = `const data = {
-    "auv": "Y",
-    "idcb": "Y",
-    "inquiry": "Y",
-    "final_assessment": "Y",
-    "assessment_level": "1",
-    "id_discrepancy": "Y",
-    "active_auth_users": "1",
-    "terminated_users": "2",
-    "shared_ssn": "Y",
-    "verified_ssn": "Y",
-    "invalid_ssn": "Y",
-    "shared_address": "Y",
-    "identity_confirmation1": "Y",
-    "identity_confirmation2": "Y",
-    "death_master_hit": "Y"
-};`;
-            let codeStart = `// This is the sample data for this data provider
-${CODE_SAMPLE}
-
-const STATUS = {
-    sucess: 'success',
-    fail: 'fail',
-    error: 'error'
-}
-
-let results = { 
-    status: STATUS.success
-};
-
-${CODE_START}
-
-${CODE_END}
-return results;`;
-
-            require.config({
-                paths: {
-                    'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.23.0/min/vs'
-                }
-            });
-            window.MonacoEnvironment = {
-                getWorkerUrl: () => proxy
-            };
-            let proxy = URL.createObjectURL(new Blob([`
-    self.MonacoEnvironment = {
-        baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.23.0/min'
-    };
-    importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.23.0/min/vs/base/worker/workerMain.min.js');
-`], {
-                type: 'text/javascript'
-            }));
-
-            require(["vs/editor/editor.main"], function () {
-                editor = monaco.editor.create(document.getElementById('code-editor'), {
-                    value: codeStart,
-                    language: 'javascript',
-                    theme: 'vs-dark',
-                    automaticLayout: true
-                });
-            });
+            const BASE_URL = `${window.location.protocol}//${window.location.hostname}/v1/opal/`;
 
             const setOutput = (str, mode = 1, br = true) => {
                 if (br)
@@ -153,34 +104,159 @@ return results;`;
                 }
             }
 
-            $('#btn-run').on("click", async () => {
-                let code = editor.getValue();
-                const index = code.indexOf(CODE_START);
-                const index_end = code.indexOf(CODE_END);
+            const getAPIData = async (endpoint, params, method = 'get', responseType) => {
+                let headers = {};
+                let data;
 
-                if (index > -1 && index_end > index) {
-                    code = code.substr(index + CODE_START.length + 1, index_end - index - CODE_START
-                        .length - 1).trim();
-                    let str =
-                        `<pre><code class="text-left javascript">${code}</code></pre>`;
-                    setOutput(str, 0);
-
-                    document.querySelectorAll('pre code').forEach((block) => {
-                        hljs.highlightElement(block);
-                    });
-
+                if (!method) {
+                    method = 'get';
                 } else {
-                    code = undefined;
+                    method = method.toLowerCase();
+                }
+
+                let url = `${BASE_URL}${endpoint}`;
+                let options = {
+                    method: method,
+                    headers: headers,
+                };
+
+                if (params) {
+                    if (method === 'post' || method === 'put' || method === 'patch') {
+                        options.body = JSON.stringify(params);
+                        if (!headers['content-type']) {
+                            headers['content-type'] = 'application/json';
+                        }
+                    } else {
+                        url = `${url}?${new URLSearchParams(params)}`;
+                    }
+                }
+
+                let response;
+                try {
+                    response = await fetch(url, options);
+                    const getData = async () => {
+                        data = await response.text();
+                        if (data && data.length > 1) {
+                            try {
+                                let firstChar = data.substring(0, 1);
+
+                                if (firstChar === '[' || firstChar === '{') {
+                                    data = JSON.parse(data);
+                                }
+                            } catch (e) {}
+                        }
+                    }
+
+                    if (response) {
+                        if (response.ok) {
+                            if (responseType === 'blob') {
+                                data = await response.blob();
+                            } else {
+                                await getData();
+                            }
+                        } else {
+                            await getData();
+                        }
+                    }
+                } catch (error) {
+                    console.log(error.message);
+                }
+                return data;
+            }
+
+            const outputResults = (data, mode = 1, br = true) => {
+                let isJSON = false;
+                let content;
+                let dataType = typeof (data);
+
+                if (dataType === 'object') {
+                    content = JSON.stringify(data, null, 2);
+                    isJSON = true;
+                } else if (dataType === 'string' && data.length > 1) {
+                    let firstChar = data.substring(0, 1);
+                    content = data;
+                    isJSON = (firstChar === '[' || firstChar === '{');
+                }
+
+                const MAX = 64 * 1024;
+                let noFormat = content.length > MAX;
+                if (noFormat) {
+                    isJSON = false;
+                    setOutput(
+                        `Results too long (${formatBytes(content.length)}). Limiting to first. ${formatBytes(MAX)} characters.`
+                    );
+                    content = content.substring(0, MAX);
+                }
+
+                let str =
+                    `<pre><code class="text-left ${(isJSON ?'json' : 'hljs')}">${content}</code></pre>`;
+
+                setOutput(str, mode, br);
+
+                if (isJSON) {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightBlock(block);
+                    });
+                }
+            }
+
+
+            $('#btn-run').on("click", async () => {
+                let data = {
+                    id: $('#id').val(),
+                    description: $('#description').val(),
+                    data: $('#data').val(),
+                    code: $('#code').val(),
+                    async: $('#async').is(':checked'),
+                };
+
+                const errors = [];
+                if (!data.id || data.id.length < 4) {
+                    errors.push("ID requires to be at least 4 characters.");
+                }
+
+                if (!data.data || data.data.length < 4) {
+                    errors.push("Sample Data required.");
+                } else {
+                    try {
+                        let test = JSON.parse(data.data);
+                        //if(Object.keys())
+                    } catch (error) {
+                        console.log(error.message);
+                        errors.push("Valid JSON in Sample Data required.");
+                    }
+                }
+
+                if (!data.code || data.code.length < 4) {
+                    errors.push("Code requies valid Javascript.");
+                }
+
+                if (errors.length > 0) {
+                    let line = "";
+                    errors.forEach(error => {
+                        line += `<span style="color:red;">${error}</span><br/>`;
+                    })
+
+                    setOutput(line, 0);
+                    return;
+                }
+
+                setOutput('Requesting...', 0);
+                let results = await getAPIData('/submit', data, 'post');
+                setOutput('Finished', 0);
+
+                if (results) {
+                    outputResults(results);
                 }
 
             })
+
 
         })();
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/languages/json.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/languages/javascript.min.js"></script>
-
 </body>
 
 </html>

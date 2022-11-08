@@ -1531,12 +1531,13 @@ const addFastifyConfig = (fastify, script_info) => {
 
     fastify.addHook('onResponse', async (request, reply) => {
         const duration = time() - request.timeStart;
-        const path = `${request.method} ${request.routerPath || '404'}`;
+        const path = `${request.method}:${request.routerPath || '404'}`;
         let data = SCRIPT_INFO.request_stats[path];
         if (!data) {
             data = {
                 count: 0,
-                avg: 0
+                avg: 0,
+                total: 0
             }
             SCRIPT_INFO.request_stats[path] = data;
         }
@@ -1544,7 +1545,10 @@ const addFastifyConfig = (fastify, script_info) => {
         data.count++;
         
         //https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
-        data.avg = (data.avg * (data.count-1) + duration) / data.count;
+        //data.avg = (data.avg * (data.count-1) + duration) / data.count;
+            //TODO: Overflow, anyone?
+        data.total += duration;
+        data.avg = data.total / data.count;
         if (request.user) {
 
             // let log = {
