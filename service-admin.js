@@ -58,7 +58,7 @@ const SUB_COMMANDS = ['info', 'update', 'version'];
 let haveLocalCerts = false;
 
 //TODO! Do not allow certain commands for local
-const COMMANDS = ['versions', 'help', 'commands', 'health', 'host', 'hosts', 'version', 'online', 'errored', 'stopped',
+const COMMANDS = ['versions', 'help', 'commands', 'host', 'hosts', 'version', 'online', 'errored', 'stopped',
     'restart', 'stop', 'start', 'reload', 'list', 'cmd', 'info', 'update', 'revert', 'trim', 'backups'
 ];
 
