@@ -205,7 +205,7 @@ fastify.post('/generate-url', async (request, reply) => {
 
         if (body.phone_number && send) {
             let phone_number = utils.parsePhoneNumber(body.phone_number);
-
+            //TODO!
             // Send SMS Notification
             if (phone_number.isValid()) {
                 phone_number = (((phone_number.getNumber('national')).replace(/[()]/g, '')).replace(/ /g, '-')).replace(/\s/g, '');

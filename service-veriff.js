@@ -477,10 +477,37 @@ fastify.post('/generate-url', async (request, reply) => {
         status: 'declined'
     };
 
-    if (body && (body.phone_number || body.email_address)) {
+    if (body) {
         //logger.silly(body);
         //TODO: Sanitize body
         //let transaction_id = body.transaction_id || `:${utils.getUUID()}`;
+        let send = typeof (body.send) === 'boolean' ? body.send : true;
+        let phone_number;
+        let email_address;
+        //TODO: Cleanup.
+
+        if(send) {
+            if (body.phone_number) {
+                phone_number = utils.getPhoneNumber(body.phone_number);
+                if(!phone_number) {
+                    return reply.type('application/json').code(422).send({ code: 422, error: 'Invalid parameter (phone_number)'});
+                }
+                
+                if(!phone_number.startsWith("+1")) {
+                    return reply.type('application/json').code(422).send({ code: 422, error: 'Only US numbers (+1) are currently supported'});
+                }
+            } 
+
+            email_address = body.email_address;
+            if(email_address &&  !utils.validateEmail(email_address)) {
+                return reply.type('application/json').code(422).send({ code: 422, error: 'Invalid parameter (email_address)'});
+            }
+
+            if(!email_address && !phone_number) {
+                return reply.type('application/json').code(422).send({ code: 422, error: 'phone_number or email_address required'});
+            }
+        }
+ 
         let transaction_id = utils.getUUID();
 
         data.transaction_id = transaction_id;
@@ -488,7 +515,6 @@ fastify.post('/generate-url', async (request, reply) => {
         let full_name = body.full_name;
         let dob = body.birth_date;
         let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false;
-        let send = typeof (body.send) === 'boolean' ? body.send : true;
         let url = typeof (body.link_url) === 'string' && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
         let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
         
@@ -523,41 +549,27 @@ fastify.post('/generate-url', async (request, reply) => {
             data.url = short || data.url;
         }
 
-        let phone_number = body.phone_number;
-        if (phone_number && phone_number.length > 0) {
-
-            const pn = utils.parsePhoneNumber(phone_number);
-            if (pn.isValid()) {
-                phone_number = pn.getNumber();
-
-                if (utils.DEMO) {
-                    return utils.getTemplateResponse(reply, TEMPLATES, "generate-url", phone_number);
-                }
-
-                let d = {
-                    transaction_id: transaction_id,
-                    numbers: phone_number,
-                    text: utils.parseTemplate(text, {
-                        '%URL%': data.url
-                    })
-                };
-
-                if (send) {
-                    handler.twilio(d);
-                }
-            } else {
-                code = 422;
-                data.error = 'Invalid phone number.';
+        if (phone_number) {
+            if (utils.DEMO) {
+                return utils.getTemplateResponse(reply, TEMPLATES, "generate-url", phone_number);
             }
+
+            let d = {
+                transaction_id: transaction_id,
+                numbers: phone_number,
+                text: utils.parseTemplate(text, {
+                    '%URL%': data.url
+                })
+            };
+
+            handler.twilio(d);
         }
 
         if (utils.DEMO && code === 200) {
             return utils.getTemplateResponse(reply, TEMPLATES, "generate-url");
         }
 
-        let email_address = body.email_address;
-
-        if (utils.validateEmail(email_address) && code === 200) {
+        if (email_address && code === 200) {
             let subject = params.email_subject;
 
             let replacements = {
@@ -577,13 +589,11 @@ fastify.post('/generate-url', async (request, reply) => {
                 d.name = full_name;
             }
 
-            if (send) {
-                handler.email(d);
-            }
+            handler.email(d);
         }
 
         if (code === 200) {
-            data.status = 'sent';
+            data.status = send? 'sent': 'created';
             let save = {
                 created: data.created,
                 status: data.status,
@@ -630,7 +640,7 @@ fastify.post('/generate-url', async (request, reply) => {
 
     } else {
         code = 422;
-        data.error = 'Missing parameter.';
+        data.error = 'Missing or invalid parameter.';
     }
 
     if (code !== 200) {

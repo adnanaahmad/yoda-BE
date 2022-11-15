@@ -149,13 +149,11 @@ components:
       description: Request Status
       enum:  &STATUS [sent,not_found,approved,declined]    
     Request:
-      required:
-      - phone_number
       type: object
       properties:
         phone_number:
           type: string
-          description: Phone number of the user to send the link_url to. If country code is excluded it will default to +1 (US).
+          description: Phone number of the user to send the link_url to. If country code is excluded it will default to +1 (US). Currently only the US is supported.
           example: +1 8015551213
         email_address:
           type: string
@@ -203,6 +201,10 @@ components:
           type: boolean
           description: Shortens the link_url sent to the user. Typically adds <30ms to the request.
           default: false
+        send:
+          type: boolean
+          description: Sends the message to the user.
+          default: true 
     RequestResults:
       type: object
       properties:

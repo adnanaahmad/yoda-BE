@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.9/spectre.min.css"
     integrity="sha512-9RIcp1f4CE6dEuYX9085tXaEbYd1ap04d2Av1ub/dwuT33WbfbHStDdQ+shKrp5wzZzleh5DOg+7ABSnaQP/nQ=="
     crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/styles/a11y-dark.min.css">
   <style>
     .center {
       margin: 0 auto;
@@ -124,17 +125,23 @@
           </label>
         </div>
 
+        <div class="form-group">
+          <label class="form-switch">
+            <input id="check-send" type="checkbox" checked>
+            <i class="form-icon"></i> Send
+          </label>
+        </div>
+
         <br />
         <div class="center">
-          <button id="btn-url" class="p-centered veriff-submit" style="width: 350px; display: block;">Send
+          <button id="btn-url" class="btn btn-primary">Send
             Verification</button>
         </div>
 
       </div>
       <div>
-        <div id="status" class="text-center">&nbsp;</div>
+        <div id="output" class="text-center"></div>
         <br />
-        <div id="statu2" class="text-center">&nbsp;</div>
       </div>
       <br />
       <div id="or" class="text-center d-none">
@@ -192,7 +199,7 @@
 
       }
 
-      const divStatus = $('#status');
+      let divOutput = $("#output");
       const divStatus2 = $('#status2');
 
       if (!hasRef) {
@@ -209,9 +216,59 @@
         }
       }
 
-      const setOutput = (html) => {
-        divStatus.html(html);
+      const setOutput = (str, mode = 1, br = true) => {
+        if (br)
+          str += '<br/>';
+
+        switch (mode) {
+          case 0:
+            divOutput.html(str);
+            break;
+          case -1:
+            divOutput.prepend(str);
+            break;
+          default:
+            divOutput.append(str);
+        }
       }
+
+
+      const outputResults = (data, mode = 1, br = true) => {
+        let isJSON = false;
+        let content;
+        let dataType = typeof (data);
+
+        if (dataType === 'object') {
+          content = JSON.stringify(data, null, 2);
+          isJSON = true;
+        } else if (dataType === 'string' && data.length > 1) {
+          let firstChar = data.substring(0, 1);
+          content = data;
+          isJSON = (firstChar === '[' || firstChar === '{');
+        }
+
+        const MAX = 64 * 1024;
+        let noFormat = content.length > MAX;
+        if (noFormat) {
+          isJSON = false;
+          setOutput(
+            `Results too long (${formatBytes(content.length)}). Limiting to first. ${formatBytes(MAX)} characters.`
+          );
+          content = content.substring(0, MAX);
+        }
+
+        let str =
+          `<pre><code class="text-left ${(isJSON ? 'json' : 'hljs')}">${content}</code></pre>`;
+
+        setOutput(str, mode, br);
+
+        if (isJSON) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightBlock(block);
+          });
+        }
+      }
+
 
       const getAPIData = async (endpoint, params, method = 'get', responseType) => {
         let headers = {};
@@ -385,8 +442,18 @@
         }
       });
 
+
+
       $(document).on('click', '#btn-redirect', (event) => {
         window.location = $('#btn-redirect').data('url');
+      });
+
+      const checkButton = () => {
+        $('#btn-url').text($('#check-send').is(':checked') ? 'Send Verification Message' : 'Create Verification');
+      }
+
+      $('#check-send').change(function () {
+        checkButton();
       });
 
       btnUrl.addEventListener("click", async () => {
@@ -406,9 +473,10 @@
           strict: $('#check-strict').is(':checked'),
           shorten_url: $('#shorten_url').is(':checked'),
           raw: $('#raw').is(':checked'),
+          send: $('#check-send').is(':checked'),
         };
 
-        if (data.email_address.length < 3 && data.phone_number.length < 9) {
+        if (data.send && data.email_address.length < 3 && data.phone_number.length < 9) {
           setOutput('<span style="color:red;">Email or phone number required</span>')
           return;
         }
@@ -422,11 +490,13 @@
         //divOr.classList.add("d-none");
         divVeriff.classList.add("d-none");
 
+        setOutput('Requesting...', 0);
         let results = await getAPIData('/generate-url', data, 'post');
-        //console.log(results);
+        setOutput('Finished', 0);
+
         if (typeof (results) !== 'object' || results.status === 'error') {
           setOutput(`<span style="color:red;">ERROR: ${JSON.stringify(results)}</span>`);
-        } else {
+        } else if (results.status === 'sent') {
           divSendVerification.classList.add("d-none");
 
           transaction_id = results.transaction_id;
@@ -436,6 +506,8 @@
             checkRequest = true;
             getRequestStatus();
           }, 15000);
+        } else {
+          outputResults(results);
         }
       });
 
@@ -461,9 +533,13 @@
             divSendVerification.classList.add("d-none");
           })
         }
+      } else {
+        checkButton();
       }
     })();
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/languages/json.min.js"></script>
 
 </body>
 

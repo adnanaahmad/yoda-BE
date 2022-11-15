@@ -268,14 +268,10 @@ fastify.post('/generate-url', async (request, reply) => {
             let short = await utils.shortenUrl(data.url);
             data.url = short || data.url;
         }
-
-        let phone_number = body.phone_number;
-        if (phone_number && phone_number.length > 0) {
-
-            const pn = utils.parsePhoneNumber(phone_number);
-            if (pn.isValid()) {
-                phone_number = pn.getNumber();
-
+       
+        if (body.phone_number) {
+            let phone_number = utils.getPhoneNumber(body.phone_number);
+            if (phone_number) {
                 let d = {
                     transaction_id,
                     numbers: phone_number,

@@ -1052,6 +1052,18 @@ const parsePhoneNumber = (phoneNumber, countryCode = 'US') => {
     return new PhoneNumber(phoneNumber, countryCode);
 }
 
+const getPhoneNumber  = (phoneNumber, countryCode = 'US') => {
+    try {
+        if(phoneNumber && phoneNumber.length > 0) {
+            const pn = parsePhoneNumber(phoneNumber, countryCode);
+            if (pn.isValid()) {
+                return pn.getNumber();
+            }
+        }
+    } catch (ignore) {
+        
+    }
+}
 
 const parseURL = (url) => {
     return new URL(url);
@@ -1695,6 +1707,7 @@ module.exports = {
     shuffleArray,
     splitItems,
     parsePhoneNumber,
+    getPhoneNumber,
     parseURL,
     escapeJSON,
     hasGit,

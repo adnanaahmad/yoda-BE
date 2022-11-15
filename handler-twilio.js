@@ -175,12 +175,12 @@ const loadParams = async () => {
 
                 if (Array.isArray(TWILIO_NUMBERS)) {
                     numberCount = TWILIO_NUMBERS.length;
-                    TWILIO_NUMBERS = TWILIO_NUMBERS.map(num => utils.parsePhoneNumber(num).getNumber());
+                    TWILIO_NUMBERS = TWILIO_NUMBERS.map(num => utils.getPhoneNumber(num));
                     if (numberCount > 1) {
                         utils.shuffleArray(TWILIO_NUMBERS);
                     }
                 } else {
-                    TWILIO_NUMBERS = utils.parsePhoneNumber(TWILIO_NUMBERS).getNumber();
+                    TWILIO_NUMBERS = utils.getPhoneNumber(TWILIO_NUMBERS);
                 }
                 logger.info(`[${SCRIPT_INFO.name}] Loaded ${results.length} parameters in ${utils.toFixedPlaces(duration, 2)}ms. Numbers: ${ numberCount > 0 ? numberCount : 1}.`);
                 logger.info(`[${SCRIPT_INFO.name}] Numbers: ${TWILIO_NUMBERS} (${ numberCount > 0 ? numberCount : 1}).`);

@@ -205,7 +205,7 @@ fastify.post('/generate-url', async (request, reply) => {
         let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
 
         //TODO!
-        if(url.indexOf('%URL%')  > -1) {
+        if (url.indexOf('%URL%') > -1) {
             url = url.replace('%URL%', '%ID%');
         }
 
@@ -218,125 +218,117 @@ fastify.post('/generate-url', async (request, reply) => {
             expire = tmp;
         }
 
-        let phone_number = body.phone_number;
-        if (phone_number && phone_number.length > 0) {
-            const pn = utils.parsePhoneNumber(phone_number);
-            if (pn.isValid()) {
+        let phone_number = utils.getPhoneNumber(body.phone_number);
+        if (phone_number) {
+            if (utils.DEMO) {
+                return utils.getTemplateResponse(reply, TEMPLATES, "generate-url", phone_number);
+            }
 
-                phone_number = pn.getNumber();
-                if (utils.DEMO) {
-                    return utils.getTemplateResponse(reply, TEMPLATES, "generate-url", phone_number);
+            let lookup = {
+                transaction_id: transaction_id,
+                numbers: phone_number
+            };
+
+            let results = doLookup ? await twilioUtils.lookup(lookup) : { carrier: { type: "mobile" }, countryCode: "US" };
+
+            if (results) {
+                if (doLookup) {
+                    logger.silly(results);
                 }
-
-                let lookup = {
-                    transaction_id: transaction_id,
-                    numbers: phone_number
-                };
-
-                let results = doLookup ? await twilioUtils.lookup(lookup) : { carrier: { type: "mobile" }, countryCode: "US" };
-
-                if (results) {
+                if (results instanceof Error) {
+                    data.reason = results.status === 404 ? 'Invalid phone number or number not found.' : results.message;
+                    code = 404;
+                } else if (results.carrier !== null && typeof (results.carrier) === 'object') {
+                    let carrier = results.carrier;
                     if (doLookup) {
-                        logger.silly(results);
-                    }
-                    if (results instanceof Error) {
-                        data.reason = results.status === 404 ? 'Invalid phone number or number not found.' : results.message;
-                        code = 404;
-                    } else if (results.carrier !== null && typeof (results.carrier) === 'object') {
-                        let carrier = results.carrier;
-                        if (doLookup) {
-                            data.country_code = results.countryCode;
+                        data.country_code = results.countryCode;
 
-                            if (carrier) {
-                                data.type = carrier.type;
-                                if (include_carrier) {
-                                    if (carrier.name) {
-                                        data.carrier = carrier.name;
-                                    }
+                        if (carrier) {
+                            data.type = carrier.type;
+                            if (include_carrier) {
+                                if (carrier.name) {
+                                    data.carrier = carrier.name;
+                                }
 
-                                    if (carrier.mobile_country_code) {
-                                        data.mobile_country_code = parseInt(carrier.mobile_country_code);
-                                    }
+                                if (carrier.mobile_country_code) {
+                                    data.mobile_country_code = parseInt(carrier.mobile_country_code);
+                                }
 
-                                    if (carrier.mobile_network_code) {
-                                        data.mobile_network_code = parseInt(carrier.mobile_network_code);
-                                    }
+                                if (carrier.mobile_network_code) {
+                                    data.mobile_network_code = parseInt(carrier.mobile_network_code);
                                 }
                             }
                         }
-                        if (!doLookup || carrier.type === 'mobile' || (allow_voip && carrier.type === 'voip')) {
-                            //TODO!
-                            if (!lookup || results.countryCode === 'US') {
-                                if (send) {
-                                    data.url = url.replace("%ID%", encodeURIComponent(transaction_id));
-                                    if (shorten) {
-                                        let short = await utils.shortenUrl(data.url);
-                                        data.url = short || data.url;
-                                    }
-
-                                    lookup.text = utils.parseTemplate(text, {
-                                        '%URL%': data.url
-                                    });
-                                    handler.twilio(lookup);
+                    }
+                    if (!doLookup || carrier.type === 'mobile' || (allow_voip && carrier.type === 'voip')) {
+                        //TODO!
+                        if (!lookup || results.countryCode === 'US') {
+                            if (send) {
+                                data.url = url.replace("%ID%", encodeURIComponent(transaction_id));
+                                if (shorten) {
+                                    let short = await utils.shortenUrl(data.url);
+                                    data.url = short || data.url;
                                 }
 
-                                data.status = send ? 'sent' : 'lookup';
+                                lookup.text = utils.parseTemplate(text, {
+                                    '%URL%': data.url
+                                });
+                                handler.twilio(lookup);
+                            }
 
-                                let save = {
-                                    status: data.status,
-                                    created: data.created,
-                                };
+                            data.status = send ? 'sent' : 'lookup';
 
-                                if (request.user) {
-                                    save.customer_id = request.user.CustomerAccountID;
+                            let save = {
+                                status: data.status,
+                                created: data.created,
+                            };
+
+                            if (request.user) {
+                                save.customer_id = request.user.CustomerAccountID;
+                            }
+
+                            let redirect_url = body.redirect_url;
+                            if (typeof (redirect_url) === 'string' && redirect_url.length > 0) {
+                                save.redirect_url = redirect_url;
+                            }
+
+                            let request_reference = body.request_reference;
+                            if (typeof (request_reference) === 'string' && request_reference.length > 0) {
+                                save.request_reference = request_reference;
+                            }
+
+                            if (send) {
+                                const saved = await cache.setP(TABLE, transaction_id, save, expire, true);
+                                if (saved && saved._expiresAt) {
+                                    data.expires_at = new Date(saved._expiresAt * 1000).toISOString();
                                 }
-
-                                let redirect_url = body.redirect_url;
-                                if (typeof (redirect_url) === 'string' && redirect_url.length > 0) {
-                                    save.redirect_url = redirect_url;
-                                }
-
-                                let request_reference = body.request_reference;
-                                if (typeof (request_reference) === 'string' && request_reference.length > 0) {
-                                    save.request_reference = request_reference;
-                                }
-
-                                if (send) {
-                                    const saved = await cache.setP(TABLE, transaction_id, save, expire, true);
-                                    if (saved && saved._expiresAt) {
-                                        data.expires_at = new Date(saved._expiresAt * 1000).toISOString();
-                                    }
-                                }
-                            } else {
-                                data.reason = `Unsupported country: ${results.countryCode}`;
                             }
                         } else {
-                            data.reason = 'Must use a valid mobile phone number (no VOIP or landlines accepted)';
-                            code = 404;
+                            data.reason = `Unsupported country: ${results.countryCode}`;
                         }
                     } else {
-                        data.reason = 'Invalid or unknown carrier data.';
+                        data.reason = 'Must use a valid mobile phone number (no VOIP or landlines accepted)';
+                        code = 404;
                     }
+                } else {
+                    data.reason = 'Invalid or unknown carrier data.';
                 }
-
-                if (results.moreInfo) {
-                    delete results.moreInfo;
-                }
-
-                if (results.url) {
-                    delete results.url;
-                }
-
-                delete results.addOns;
-                delete results.level;
-            } else {
-                data.reason = 'Invalid phone number.';
-                code = 404;
             }
+
+            if (results.moreInfo) {
+                delete results.moreInfo;
+            }
+
+            if (results.url) {
+                delete results.url;
+            }
+
+            delete results.addOns;
+            delete results.level;
         }
     } else {
         code = 422;
-        data.error = 'Missing parameter';
+        data.error = 'Missing or missing phone number';
     }
 
     if (typeof (data.created) === "number") {
@@ -355,10 +347,9 @@ fastify.addHook('onResponse', async (request, reply) => {
 
 })
 
-const test = async (phone_number)=> {
+const test = async (phone_number) => {
     await utils.timeout(2000);
-    const pn = utils.parsePhoneNumber(phone_number);
-    phone_number = pn.getNumber();
+    phone_number = utils.getPhoneNumber(phone_number);
     let lookup = {
         transaction_id: utils.getUUID(),
         numbers: phone_number

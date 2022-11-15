@@ -23,8 +23,7 @@ const add = async (data) => {
     let results;
     if (data) {
         try {
-            let pn = utils.parsePhoneNumber(data.numbers);
-            data.numbers = pn.getNumber();
+            data.numbers = utils.getPhoneNumber(data.numbers);
             const id = data.transaction_id || data.numbers;
             logger.info(`[${id}] SMS process started.`);
             const start = utils.time();

@@ -858,21 +858,9 @@ const httpHandler = async (req, res) => {
             }
 
             if (request_id && request_id.length > 0 && customer_id && customer_id.length > 0) {
-                let phone_number = bodyData.phone_number;
+                let phone_number = utils.getPhoneNumber(bodyData.phone_number);
 
                 try {
-                    if(phone_number && phone_number.length > 0) {
-                        const pn = utils.parsePhoneNumber(phone_number);
-                        if (pn.isValid()) {
-                            phone_number = pn.getNumber();
-                        } else {
-                            phone_number = undefined;
-                        }
-                    } else {
-                        phone_number = undefined;
-                    }
-
-
                     if (utils.DEMO) {
                         if(phone_number) {
                             return utils.getTemplateResponse(res, TEMPLATES, "generate-url", phone_number);
@@ -901,14 +889,14 @@ const httpHandler = async (req, res) => {
                     }
 
                     let returnData = {
-                        transaction_id: transaction_id,
-                        customer_id: customer_id,
+                        transaction_id,
+                        customer_id,
                         request_id: bodyData.request_id,
                         email_address: bodyData.email_address,
                         full_name: bodyData.full_name,
-                        phone_number: phone_number,
+                        phone_number,
                         redirect_url: bodyData.redirect_url,
-                        url: url,
+                        url,
                         request_timestamp: Date.now()
                     };
 
@@ -928,7 +916,7 @@ const httpHandler = async (req, res) => {
                     //TODO! This SHOULD be temporarily saved somewhere.
                     META[transaction_id] = returnData;
 
-                    if (phone_number && phone_number.length > 0) {
+                    if (phone_number) {
                         let data = {
                             transaction_id: transaction_id,
                             numbers: phone_number,
