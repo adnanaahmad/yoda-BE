@@ -147,7 +147,7 @@ do
         sleep 10
 done
 
-acme.sh --install-cert -d "apims-west-2.dev.fortifid.com" \
+acme.sh --install-cert -d "$HOST" \
  --key-file       /etc/nginx/ssl/key.pem \
  --fullchain-file /etc/nginx/ssl/cert.pem \
  --reloadcmd     "sudo service nginx force-reload"
