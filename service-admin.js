@@ -59,7 +59,7 @@ let haveLocalCerts = false;
 
 //TODO! Do not allow certain commands for local
 const COMMANDS = ['versions', 'help', 'commands', 'host', 'hosts', 'version', 'online', 'errored', 'stopped',
-    'restart', 'stop', 'start', 'reload', 'list', 'cmd', 'info', 'update', 'revert', 'trim', 'backups'
+    'restart', 'stop', 'start', 'reload', 'list', 'cmd', 'update', 'revert', 'trim', 'backups'
 ];
 
 const pm2 = require('pm2');
