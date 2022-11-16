@@ -4,7 +4,7 @@
 const utils = require('./utils');
 const awsClient = require('./aws-client');
 
-module.exports = async (path, logger) => {
+module.exports = async (path, logger, required) => {
     try {
 
         let file = `${__dirname}${path}.json`;
@@ -29,6 +29,16 @@ module.exports = async (path, logger) => {
             } else {
                 console.log(`No parameters defined in ${path}.`);
             }
+        }
+        if(!PARAMS && required) {
+            let message = `${path}} is required. exiting.`;
+            //TODO! 
+            if(logger) {
+                logger.error(message);
+            } else {
+                console.log(message);
+            }
+            process.exit(1);
         }
         return PARAMS;
     } catch (error) {

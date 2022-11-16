@@ -487,7 +487,7 @@ const check_required = (prop, reply, name) => {
 }
 
 const start = async () => {
-    params = await require('./params')(CONFIG_PATH, logger);
+    params = await require('./params')(CONFIG_PATH, logger, true);
     params.service_codes = String(params.service_codes).split(',');
 
     oauth2.addRequest(TABLE, params.token_url, params.client_id, params.client_secret, params.scope, params.grant_type);

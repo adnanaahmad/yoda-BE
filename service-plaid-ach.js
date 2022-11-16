@@ -324,7 +324,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
 })
 
 const start = async () => {
-    params = await require('./params')(CONFIG_PATH, logger);
+    params = await require('./params')(CONFIG_PATH, logger, true);
     
     utils.addFastifyConfig(fastify, SCRIPT_INFO);
 

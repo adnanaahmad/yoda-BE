@@ -361,7 +361,7 @@ const test = async (phone_number) => {
 }
 
 const start = async () => {
-    params = await require('./params')(CONFIG_PATH, logger);
+    params = await require('./params')(CONFIG_PATH, logger, true);
 
     if (utils.DEMO) {
         await utils.loadTemplates('./templates/mfa/', TEMPLATES, true);

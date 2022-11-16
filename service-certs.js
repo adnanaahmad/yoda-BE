@@ -266,7 +266,7 @@ fastify.addHook('onResponse', async (request, reply) => {
 
 const start = async () => {
     try {
-        params = await require('./params')(CONFIG_PATH, logger);
+        params = await require('./params')(CONFIG_PATH, logger, true);
 
         const ca = await awsClient.getSecret("ca");
         if (typeof (ca) === 'object') {

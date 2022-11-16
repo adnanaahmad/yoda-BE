@@ -368,7 +368,7 @@ fastify.addHook('onResponse', async (request, reply) => {
 
 const start = async () => {
     try {
-        params = await require('./params')(CONFIG_PATH, logger);
+        params = await require('./params')(CONFIG_PATH, logger, true);
 
         oauth2.addRequest(TABLE, params.token_url, params.client_id, params.client_secret, undefined, "basic_auth");
         await oauth2.start();

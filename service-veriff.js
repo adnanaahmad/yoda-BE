@@ -65,7 +65,7 @@ const { randomSrringCrypt } = require('./utils');
 const KEYS = {};
 
 const loadParams = async () => {
-    params = await require('./params')(CONFIG_PATH, logger);
+    params = await require('./params')(CONFIG_PATH, logger, true);
     KEYS[params.client_id] = params.client_secret;
     KEYS[params.client_id_test] = params.client_secret_test;
 }
