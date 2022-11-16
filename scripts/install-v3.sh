@@ -147,6 +147,11 @@ do
         sleep 10
 done
 
+acme.sh --install-cert -d "apims-west-2.dev.fortifid.com" \
+ --key-file       /etc/nginx/ssl/key.pem \
+ --fullchain-file /etc/nginx/ssl/cert.pem \
+ --reloadcmd     "sudo service nginx force-reload"
+
 
 if [ -f /etc/nginx/ssl/key.pem ]; then
     log "Enabling HTTPS..."
