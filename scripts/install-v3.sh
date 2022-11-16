@@ -6,6 +6,9 @@ FORTIFID_DIR=/home/ec2-user/fortifid
 CFG_FILE=/home/ec2-user/.cfg
 ARCHIVE="didservice.tar.gz"
 
+# needed so that the acme.sh script will work from a non-interactive session from clodformation init
+shopt -s expand_aliases
+
 if [ -f "$CFG_FILE" ]; then
     . $CFG_FILE
 fi
@@ -117,24 +120,33 @@ else
     sudo service nginx start
 fi
 
+# we need to wait until the LB health check to succed before trying to issue a cert
+sleep 90
+
+
 #sudo -u ec2-user bash -c "$FORTIFID_DIR/scripts/get-certs.sh $HOST"
 
 curl https://get.acme.sh | sh
 source ~/.bashrc
+#just in case
+alias acme.sh='/home/ec2-user/.acme.sh/acme.sh'
+
 acme.sh --upgrade --auto-upgrade
 
 acme.sh --register-account -m itsec@fortifid.com
 
+acme.sh --set-default-ca  --server  letsencrypt
 
-#TODO
-# acme.sh --set-default-ca  --server  letsencrypt
+#retry validation 5 times, for some reason it often does not work first time
+n=0
+while :
+do
+        acme.sh --issue -d "$HOST" -w /usr/share/nginx/portal
+        [[ $? = 0 ]] && break || ((n++))
+        (( n >= 5 )) && break
+        sleep 10
+done
 
-# acme.sh --issue -d "$HOST" -w /usr/share/nginx/portal
-
-# acme.sh --install-cert -d "$HOST" \
-# --key-file       /etc/nginx/ssl/key.pem \
-# --fullchain-file /etc/nginx/ssl/cert.pem \
-# --reloadcmd     "sudo service nginx force-reload"
 
 if [ -f /etc/nginx/ssl/key.pem ]; then
     log "Enabling HTTPS..."
