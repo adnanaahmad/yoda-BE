@@ -24,22 +24,13 @@ module.exports = async (path, logger, required) => {
         }
 
         if (typeof (PARAMS) === 'undefined') {
-            if (logger) {
-                logger.error(`No parameters defined in ${path}.`);
-            } else {
-                console.error(`No parameters defined in ${path}.`);
-            }
-
+            console.error(`No parameters defined in ${path}.`);
             if(required) {
-                process.exit(0);
+                process.exit(111);
             }
         }
         return PARAMS;
     } catch (error) {
-        if (logger) {
-            logger.error(error);
-        } else {
-            console.log(error);
-        }
+        console.error(error.message);
     }
 }
