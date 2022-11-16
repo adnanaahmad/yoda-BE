@@ -140,7 +140,7 @@ const getParameter = async (name) => {
       return value;
     }
   } catch (error) {
-    logger.error(error, name);
+    logger.error(error.message, name);
   }
 };
 
@@ -237,7 +237,7 @@ const getParametersByPath = async (path, filters, simple = false) => {
 
     return values;
   } catch (error) {
-    logger.error(error, path);
+    logger.error(error.message, path);
   }
 };
 

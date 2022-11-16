@@ -27,18 +27,12 @@ module.exports = async (path, logger, required) => {
             if (logger) {
                 logger.error(`No parameters defined in ${path}.`);
             } else {
-                console.log(`No parameters defined in ${path}.`);
+                console.error(`No parameters defined in ${path}.`);
             }
-        }
-        if(!PARAMS && required) {
-            let message = `${path}} is required. exiting.`;
-            //TODO! 
-            if(logger) {
-                logger.error(message);
-            } else {
-                console.log(message);
+
+            if(required) {
+                process.exit(0);
             }
-            process.exit(1);
         }
         return PARAMS;
     } catch (error) {
