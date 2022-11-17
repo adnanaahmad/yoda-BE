@@ -7,7 +7,7 @@
             "sandbox": "https://api.sandbox.fortifid.com:8999/directid/webhook",
             "staging": "https://api.staging.fortifid.com:8999/directid/webhook",
             "dev": "https://api.dev.fortifid.com:8999/directid/webhook",
-            "apims-west-2": "https://apims-west-2.fortifid.com/income/v1/webhook",
+            "apims-west-2": "https://apims-west-2.dev.fortifid.com/income/v1/webhook",
             "i.dev": "https://api-uat.fortifid.com/income/v1/webhook",
             "api-uat": "https://api-uat.fortifid.com/income/v1/webhook",
             "z.dev": "https://z.dev.fortifid.com/income/v1/webhook",
@@ -19,7 +19,8 @@
             "sandbox": "https://api.sandbox.fortifid.com:8999/directid/redirect",
             "dev": "https://api.dev.fortifid.com:8999/directid/redirect",
             "i.dev": "https://api-uat.fortifid.com/income/v1/redirect",
-            "z.dev": "https://z.dev.fortifid.com/income/v1/redirect"
+            "z.dev": "https://z.dev.fortifid.com/income/v1/redirect",
+            "apims-west-2": "https://apims-west-2.dev.fortifid.com/income/v1/redirect"
         }
     }
 }
