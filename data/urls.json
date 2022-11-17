@@ -6,14 +6,13 @@
             "production": "https://api.prod.fortifid.com:8999/directid/webhook",
             "sandbox": "https://api.sandbox.fortifid.com:8999/directid/webhook",
             "staging": "https://api.staging.fortifid.com:8999/directid/webhook",
-            "testing": "https://webhook.site/b9550492-0c96-4b91-a495-43e93af1069c",
             "dev": "https://api.dev.fortifid.com:8999/directid/webhook",
+            "apims-west-2": "https://apims-west-2.fortifid.com/income/v1/webhook",
             "i.dev": "https://api-uat.fortifid.com/income/v1/webhook",
             "api-uat": "https://api-uat.fortifid.com/income/v1/webhook",
             "z.dev": "https://z.dev.fortifid.com/income/v1/webhook",
             "i.prod": "https://i.prod.fortifid.com/income/v1/webhook",
-            "z.prod": "https://z.prod.fortifid.com/income/v1/webhook",                
-            "barb": "https://dev.barbarians.com:8999/directid/webhook"
+            "z.prod": "https://z.prod.fortifid.com/income/v1/webhook"                
         },
         "redirect": {
             "production": "https://api.prod.fortifid.com:8999/directid/redirect",
