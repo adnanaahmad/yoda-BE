@@ -11,7 +11,7 @@ if [ -d /home/ec2-user/fortifid -a ! -h /home/ec2-user/fortifid ]; then
      echo "Already installed."
 else 
     export HOST=i.prod.fortifid.com
-    export START=service-admin,service-mfa,service-veriff,service-did,helper-shortener,helper-uploader,helper-scheduler,handler-twilio,handler-email
+    export START="service-admin.js service-mfa.js service-plaid-ach.js service-railz.js service-synthetic-id.js service-veriff.js handler-email.js handler-twilio.js handler-webhook.js helper-forwarder.js helper-shortener.js helper-uploader.js"
     sudo -u ec2-user bash -c "(echo HOST=$HOST >/home/ec2-user/.cfg && echo START=$START >>/home/ec2-user/.cfg && curl https://api-uat.fortifid.com/data/od7kTXfGxDax/install-v2.sh | sh) >/home/ec2-user/install.txt 2>&1" 
 fi
 ```

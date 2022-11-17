@@ -24,7 +24,7 @@ if [ ! -f "$FORTIFID_DIR/package.json" ]; then
 fi
 
 if [ -z "$START" ]; then
-    START=service-did,helper-scheduler,handler-twilio,handler-email
+    START=service-did.js helper-scheduler.js handler-twilio.js handler-email.js
 fi
 
 if [ -d ~/.nvm -a ! -h ~/.nvm ]; then
@@ -127,10 +127,13 @@ else
 fi
 
 if [ -n "$START" ]; then
-    IFS=',' read -ra ID <<< "$START"
-    for i in "${ID[@]}"; do
-        pm2 start "$i.js" --exp-backoff-restart-delay=100
-    done
+    # IFS=',' read -ra ID <<< "$START"
+    # for i in "${ID[@]}"; do
+    #     pm2 start "$i.js" --exp-backoff-restart-delay=100
+    # done
+    pm2 start $START --exp-backoff-restart-delay=100 #--stop-exit-codes 111
+    #pm2 start $START -i max --exp-backoff-restart-delay=100
+    pm2 start helper-scheduler.js service-did.js --exp-backoff-restart-delay=100 #--stop-exit-codes 111
     pm2 save
 fi
 
