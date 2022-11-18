@@ -326,7 +326,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
 const start = async () => {
     params = await require('./params')(CONFIG_PATH, logger, true);
     
-    utils.addFastifyConfig(fastify, SCRIPT_INFO);
+    await utils.addFastifyConfig(fastify, SCRIPT_INFO);
 
     fastify.listen({ port: params.port }, (err, address) => {
         if (err) throw err

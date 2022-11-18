@@ -1052,16 +1052,16 @@ const parsePhoneNumber = (phoneNumber, countryCode = 'US') => {
     return new PhoneNumber(phoneNumber, countryCode);
 }
 
-const getPhoneNumber  = (phoneNumber, countryCode = 'US') => {
+const getPhoneNumber = (phoneNumber, countryCode = 'US') => {
     try {
-        if(phoneNumber && phoneNumber.length > 0) {
+        if (phoneNumber && phoneNumber.length > 0) {
             const pn = parsePhoneNumber(phoneNumber, countryCode);
             if (pn.isValid()) {
                 return pn.getNumber();
             }
         }
     } catch (ignore) {
-        
+
     }
 }
 
@@ -1522,18 +1522,31 @@ const formatDate = (date, format, utc = false) => {
 }
 
 //TODO!
-const addFastifyConfig = (fastify, script_info) => {
+const addFastifyConfig = async (fastify, script_info) => {
     if (!fastify) {
         return;
     }
 
+    const params = await require('./params')('/config/shared/utils', undefined, true);
+    if (!params.key) {
+        console.error("utils.key is required.")
+        process.exit(111);
+    }
+
     const SCRIPT_INFO = script_info;
     SCRIPT_INFO.request_stats = {};
+    
     fastify.get('/health', (request, reply) => {
+        if (request.query.key !== params.key) {
+            return reply.type('text/plain').code(404).send("Not found");
+        }
         return getHealth(SCRIPT_INFO, false);
     })
 
     fastify.get('/info', (request, reply) => {
+        if (request.query.key !== params.key) {
+            return reply.type('text/plain').code(404).send("Not found");
+        }
         return getHealth(SCRIPT_INFO, true);
     })
 
@@ -1555,10 +1568,10 @@ const addFastifyConfig = (fastify, script_info) => {
         }
 
         data.count++;
-        
+
         //https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
         //data.avg = (data.avg * (data.count-1) + duration) / data.count;
-            //TODO: Overflow, anyone?
+        //TODO: Overflow, anyone?
         data.total += duration;
         data.avg = data.total / data.count;
         if (request.user) {

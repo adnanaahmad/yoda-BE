@@ -623,7 +623,7 @@ const loadParams = async () => {
         })
     })
 
-    utils.addFastifyConfig(fastify, SCRIPT_INFO);
+    await utils.addFastifyConfig(fastify, SCRIPT_INFO);
 
     fastify.listen({ port: 9999 }, (err, address) => {
         if (err) {
