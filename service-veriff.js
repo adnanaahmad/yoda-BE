@@ -660,7 +660,7 @@ fastify.addHook("onRequest", async (request, reply) => {
     //authJWT.getAuth(request);
 })
 
-const start = () => {
+const start = async () => {
     await utils.addFastifyConfig(fastify, SCRIPT_INFO);
     
     fastify.listen({ port: params.port }, (err, address) => {
