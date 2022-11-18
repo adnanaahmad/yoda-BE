@@ -367,7 +367,7 @@ const test = async () => {
     try {
         logger.info('Loading and preparing test data...');
 
-        let data = utils.csvToArray(await utils.fileRead('./data/test-synthetic-id.csv', 'utf-8'));
+        let data = utils.csvToArray(await utils.fileRead('./tmp/test-synthetic-id.csv', 'utf-8'));
 
         const columns = data[0].length;
         const groupLine = data[0];
