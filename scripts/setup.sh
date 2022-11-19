@@ -132,6 +132,8 @@ if [ -n "$START" ]; then
         if [[ -f "$i" ]]; then
             pm2 start "$i" -i max --exp-backoff-restart-delay=100
             sleep 0.3
+        else 
+            echo "$i not found."
         fi
     done
     #pm2 start $START --exp-backoff-restart-delay=100 #--stop-exit-codes 111
