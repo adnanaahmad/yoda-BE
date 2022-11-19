@@ -127,11 +127,14 @@ else
 fi
 
 if [ -n "$START" ]; then
-    # IFS=',' read -ra ID <<< "$START"
-    # for i in "${ID[@]}"; do
-    #     pm2 start "$i.js" --exp-backoff-restart-delay=100
-    # done
-    pm2 start $START --exp-backoff-restart-delay=100 #--stop-exit-codes 111
+    IFS=' ' read -ra ID <<< "$START"
+    for i in "${ID[@]}"; do
+        if [[ -f "$i" ]]; then
+            pm2 start "$i" -i max --exp-backoff-restart-delay=100
+            sleep 0.3
+        fi
+    done
+    #pm2 start $START --exp-backoff-restart-delay=100 #--stop-exit-codes 111
     #pm2 start $START -i max --exp-backoff-restart-delay=100
     pm2 start helper-scheduler.js service-did.js --exp-backoff-restart-delay=100 #--stop-exit-codes 111
     pm2 save
