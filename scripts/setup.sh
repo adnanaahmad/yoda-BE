@@ -24,7 +24,7 @@ if [ ! -f "$FORTIFID_DIR/package.json" ]; then
 fi
 
 if [ -z "$START" ]; then
-    START=service-did.js helper-scheduler.js handler-twilio.js handler-email.js
+    START="service-did.js helper-scheduler.js handler-twilio.js handler-email.js"
 fi
 
 if [ -d ~/.nvm -a ! -h ~/.nvm ]; then
