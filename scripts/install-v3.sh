@@ -1,5 +1,7 @@
 #!/bin/bash
 
+exec &>> /home/ec2-user/setup.txt
+
 START_TIME=$(date +%s%3N)
 # This will set up a brand new instance with the micro-services.
 FORTIFID_DIR=/home/ec2-user/fortifid

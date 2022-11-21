@@ -130,7 +130,7 @@ if [ -n "$START" ]; then
     IFS=' ' read -ra ID <<< "$START"
     for i in "${ID[@]}"; do
         if [[ -f "$i" ]]; then
-            pm2 start "$i" -i max --exp-backoff-restart-delay=100
+            pm2 start "$i" --exp-backoff-restart-delay=100 #-i max
             sleep 0.3
         else 
             echo "$i not found."

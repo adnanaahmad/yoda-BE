@@ -1,5 +1,7 @@
 #!/bin/bash
 
+exec &>> /home/ec2-user/setup.txt
+
 START_TIME=$(date +%s%3N)
 
 # This is for setting up the did service.
