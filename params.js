@@ -4,15 +4,18 @@
 const utils = require('./utils');
 const awsClient = require('./aws-client');
 
-module.exports = async (path, logger, required) => {
+module.exports = async (path, logger, required, byPath = false) => {
     try {
 
         let file = `${__dirname}${path}.json`;
         let PARAMS = await utils.loadJSONAsync(file);
         if (!PARAMS) {
-            PARAMS = await awsClient.getParametersByPath(path, undefined, true);
-            if(!PARAMS) {
+            if(!byPath) {
                 PARAMS = await awsClient.getParameter(path);
+            }
+            
+            if(!PARAMS) {
+                PARAMS = await awsClient.getParametersByPath(path, undefined, true);
             }
         } else {
             Object.keys(PARAMS).forEach(key => {
