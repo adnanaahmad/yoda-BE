@@ -56,7 +56,8 @@ fastify.register(require('fastify-raw-body'), {
     field: 'rawBody',
     global: false,
     encoding: 'utf8',
-    runFirst: true
+    runFirst: true,
+    routes: ['/webhook'] 
 })
 
 const handler = require('./utils-handlers');
@@ -216,12 +217,13 @@ const getData = (record, data) => {
     }
 }
 
-fastify.post('/webhook', {
-    config: {
-        rawBody: true
-    }
-}, async (request, reply) => {
-
+// fastify.post('/webhook', {
+//     config: {
+//         rawBody: true
+//     }
+// }, async (request, reply) => {
+fastify.post('/webhook', async (request, reply) => {
+    
     const now = Date.now();
 
     if (!verifySignature(request, reply)) {
