@@ -1,6 +1,11 @@
 'use strict';
 /*jshint esversion: 8 */
+
+const utils = require('./utils');
 const logger = require('./logger').createLogger("forwarder");
+utils.setLogger(logger);
+
+const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 const fastify = require('fastify')({
     logger: false,
@@ -26,7 +31,7 @@ const handleRequest = async (id, request, reply) => {
     try {
         let body = request.body;
         const query = request.query;
-        const method = request.method.toUpperCase(); 
+        const method = request.method.toUpperCase();
         const search = objectToQueryString(query);
         let code = (request.method === 'GET' || request.method === 'HEAD') ? 302 : 307;
         let url;
@@ -57,29 +62,29 @@ const handleRequest = async (id, request, reply) => {
                             const parts = customerReference.split(':');
                             if (parts.length === 3) {
                                 sub = 'webhook';
-                                urlId= parts[0];
+                                urlId = parts[0];
                             }
-                        } else if(method === 'GET' && query && query.customer_ref) {
+                        } else if (method === 'GET' && query && query.customer_ref) {
                             const customerReference = query.customer_ref;
                             const parts = customerReference.split(':');
                             if (parts.length === 3) {
                                 sub = 'redirect';
-                                urlId= parts[0];
+                                urlId = parts[0];
                             }
                         }
                         break;
                     }
                 }
 
-                if(sub && urlId) {
+                if (sub && urlId) {
                     const urls = subs[sub];
-                    if(urls) {
-                        if(urls[urlId]) {
+                    if (urls) {
+                        if (urls[urlId]) {
                             url = urls[urlId];
                         } else {
-                            if(urls[DEFAULT]) {
+                            if (urls[DEFAULT]) {
                                 url = urls[DEFAULT];
-                            } 
+                            }
                         }
                     }
                 }
@@ -135,7 +140,11 @@ fastify.get('/:id', async (request, reply) => {
     handleRequest(request.params.id, request, reply);
 });
 
-fastify.listen({ port: 8997 }, (err, address) => {
-    if (err) throw err
-    logger.info(`HTTP server is listening on ${address}`);
-});
+
+(async () => {
+    await utils.addFastifyConfig(fastify, SCRIPT_INFO);
+    fastify.listen({ port: 8997 }, (err, address) => {
+        if (err) throw err
+        logger.info(`HTTP server is listening on ${address}`);
+    });
+})();

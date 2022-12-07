@@ -52,16 +52,7 @@ fastify.register(require('@fastify/static'), {
     prefix: '/',
 })
 
-fastify.register(require('fastify-raw-body'), {
-    field: 'rawBody',
-    global: false,
-    encoding: 'utf8',
-    runFirst: true,
-    routes: ['/webhook'] 
-})
-
 const handler = require('./utils-handlers');
-const { randomSrringCrypt } = require('./utils');
 
 const KEYS = {};
 
@@ -217,151 +208,150 @@ const getData = (record, data) => {
     }
 }
 
-// fastify.post('/webhook', {
-//     config: {
-//         rawBody: true
-//     }
-// }, async (request, reply) => {
-fastify.post('/webhook', async (request, reply) => {
+
+const registerRoutes =()=> {
+
+    fastify.post('/webhook', async (request, reply) => {
     
-    const now = Date.now();
+        const now = Date.now();
 
-    if (!verifySignature(request, reply)) {
-        return;
-    }
-
-    const body = request.body;
-    if (body && (body.verification || body.id)) {
-
-        //logger.silly(body);
-        try {
-            let expiration = '1w';
-            let customer_id;
-            const v = body.verification;
-            const id = v ? v.vendorData : body.vendorData;
-
-            let record = await cache.getP(TABLE, id);
-
-            const data = {};
-
-            if (v) {
-
-                //This means they're finished.
-                expiration = '10y';
-                data.status = v.status;
-                const person = v.person;
-                data.id = v.id;
-                data.code = v.code;
-                //TODO! They may retry.
-                data.finished = now;
-
-                if (record && record.created) {
-                    data.duration = now - record.created;
-                    customer_id = record.customer_id;
-                }
-
-                //TODO!
-                //technicalData : { ip: '71.64.122.30' }
-                if (v.reason !== null) {
-                    data.reason = v.reason;
-                }
-
-                if (v.reasonCode !== null) {
-                    data.reasonCode = v.reasonCode;
-                }
-
-                if (v.status === 'approved' && person) {
-                    if (record) {
-                        let pii = record.pii;
-                        if (pii) {
-                            pii = cache.crypt.decrypt(pii);
+        if (!verifySignature(request, reply)) {
+            return;
+        }
+    
+        const body = request.body;
+        if (body && (body.verification || body.id)) {
+    
+            //logger.silly(body);
+            try {
+                let expiration = '1w';
+                let customer_id;
+                const v = body.verification;
+                const id = v ? v.vendorData : body.vendorData;
+    
+                let record = await cache.getP(TABLE, id);
+    
+                const data = {};
+    
+                if (v) {
+    
+                    //This means they're finished.
+                    expiration = '10y';
+                    data.status = v.status;
+                    const person = v.person;
+                    data.id = v.id;
+                    data.code = v.code;
+                    //TODO! They may retry.
+                    data.finished = now;
+    
+                    if (record && record.created) {
+                        data.duration = now - record.created;
+                        customer_id = record.customer_id;
+                    }
+    
+                    //TODO!
+                    //technicalData : { ip: '71.64.122.30' }
+                    if (v.reason !== null) {
+                        data.reason = v.reason;
+                    }
+    
+                    if (v.reasonCode !== null) {
+                        data.reasonCode = v.reasonCode;
+                    }
+    
+                    if (v.status === 'approved' && person) {
+                        if (record) {
+                            let pii = record.pii;
                             if (pii) {
-
-                                if (pii.full_name) {
-                                    data.name_match_score = nameMatch.compare(`${person.firstName} ${person.lastName}`, pii.full_name, true);
-                                } else {
-                                    data.name_match_score = -1;
-                                }
-
-                                if (pii.dob) {
-                                    data.dob_match = utils.sameDate(pii.dob, person.dateOfBirth)
-                                } else {
-                                    data.dob_match = false;
-                                }
-
-                                if (record.strict) {
-                                    if (!data.dob_match || data.name_match_score < 1) {
-                                        data.status = 'declined';
-                                        data.reason = 'Personal information mismatch.';
+                                pii = cache.crypt.decrypt(pii);
+                                if (pii) {
+    
+                                    if (pii.full_name) {
+                                        data.name_match_score = nameMatch.compare(`${person.firstName} ${person.lastName}`, pii.full_name, true);
+                                    } else {
+                                        data.name_match_score = -1;
                                     }
-                                }
-
-                                data.pii = null;
-                            }
-                        }
-
-                        if (record.raw) {
-                            let verificationId = v.id;
-                            try {
-                                let results = await getVeriffData(verificationId, 'GET', `/sessions/${verificationId}/media`);
-                                if (results && results.status === 'success') {
-                                    const images = results.images;
-                                    if (Array.isArray(images) && images.length > 0) {
-                                        const media = [];
-                                        data.raw_data = {};
-                                        data.raw_hash = nanoid(32);
-                                        for (let index = 0; index < images.length; index++) {
-                                            const image = images[index];
-                                            try {
-                                                if (VALID_IMAGE_NAMES.indexOf(image.name) > -1) {
-                                                    const pid = encodeURIComponent((await utils.hashPassword(`${image.id}${customer_id}${data.raw_hash}`, 1)).substring(7));
-                                                    media.push({
-                                                        id: image.id,
-                                                        name: image.name,
-                                                        type: image.mimetype,
-                                                        pid
-                                                    })
-                                                }
-                                            } catch (error) {
-                                                logger.error(error);
-                                            }
+    
+                                    if (pii.dob) {
+                                        data.dob_match = utils.sameDate(pii.dob, person.dateOfBirth)
+                                    } else {
+                                        data.dob_match = false;
+                                    }
+    
+                                    if (record.strict) {
+                                        if (!data.dob_match || data.name_match_score < 1) {
+                                            data.status = 'declined';
+                                            data.reason = 'Personal information mismatch.';
                                         }
-                                        data.raw_data.media = media;
                                     }
+    
+                                    data.pii = null;
                                 }
-                            } catch (error) {
-                                logger.error(error);
+                            }
+    
+                            if (record.raw) {
+                                let verificationId = v.id;
+                                try {
+                                    let results = await getVeriffData(verificationId, 'GET', `/sessions/${verificationId}/media`);
+                                    if (results && results.status === 'success') {
+                                        const images = results.images;
+                                        if (Array.isArray(images) && images.length > 0) {
+                                            const media = [];
+                                            data.raw_data = {};
+                                            data.raw_hash = nanoid(32);
+                                            for (let index = 0; index < images.length; index++) {
+                                                const image = images[index];
+                                                try {
+                                                    if (VALID_IMAGE_NAMES.indexOf(image.name) > -1) {
+                                                        const pid = encodeURIComponent((await utils.hashPassword(`${image.id}${customer_id}${data.raw_hash}`, 1)).substring(7));
+                                                        media.push({
+                                                            id: image.id,
+                                                            name: image.name,
+                                                            type: image.mimetype,
+                                                            pid
+                                                        })
+                                                    }
+                                                } catch (error) {
+                                                    logger.error(error);
+                                                }
+                                            }
+                                            data.raw_data.media = media;
+                                        }
+                                    }
+                                } catch (error) {
+                                    logger.error(error);
+                                }
                             }
                         }
                     }
+                } else {
+                    data.updated = now;
+                    data.status = body.action;
+                    data.id = body.id;
+                    data.code = body.code;
+                    data.feature = body.feature;
                 }
-            } else {
-                data.updated = now;
-                data.status = body.action;
-                data.id = body.id;
-                data.code = body.code;
-                data.feature = body.feature;
+    
+                //logger.silly(data);
+                const saved = await cache.updateP(TABLE, id, data, expiration, true);
+    
+                if (saved && saved.finished) {
+                    const payload = { transaction_id: saved.transaction_id };
+                    getData(saved, payload);
+                    await authMain.sendWebhook(customer_id, payload, TABLE, handler);
+                }
+            } catch (error) {
+                logger.error(error);
             }
-
-            //logger.silly(data);
-            const saved = await cache.updateP(TABLE, id, data, expiration, true);
-
-            if (saved && saved.finished) {
-                const payload = { transaction_id: saved.transaction_id };
-                getData(saved, payload);
-                await authMain.sendWebhook(customer_id, payload, TABLE, handler);
-            }
-        } catch (error) {
-            logger.error(error);
         }
-    }
-
-    reply.type('application/json').code(200);
-
-    return {
-        service: TABLE
-    }
-});
+    
+        reply.type('application/json').code(200);
+    
+        return {
+            service: TABLE
+        }
+    });    
+}
 
 //TODO
 const processRaw = async (request, reply, id, mediaId, pid) => {
@@ -663,6 +653,16 @@ fastify.addHook("onRequest", async (request, reply) => {
 })
 
 const start = async () => {
+    await fastify.register(require('fastify-raw-body'), {
+        field: 'rawBody',
+        global: false,
+        encoding: 'utf8',
+        runFirst: true,
+        routes: ['/webhook'] 
+    });
+
+    registerRoutes();
+
     await utils.addFastifyConfig(fastify, SCRIPT_INFO);
     
     fastify.listen({ port: params.port }, (err, address) => {

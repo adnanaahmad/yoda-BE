@@ -621,7 +621,7 @@ const httpHandler = async (req, res) => {
             return;
         }
 
-        if (await utils.hasGit()) {
+        if (action !== 'health' && action !== 'info' && await utils.hasGit()  ) {
             utils.sendText(res, 'System command not allowed on dev system.', 403);
             logger.warn(`System command not allowed on dev system. [${action}]`);
             return;
@@ -635,12 +635,12 @@ const httpHandler = async (req, res) => {
                 await utils.execCommand(`${__dirname}/scripts/update.sh`, ['reload']);
                 break;
             }
+            case 'health': {
+                utils.sendData(res, utils.getHealth(SCRIPT_INFO, false));
+                break;
+            }
             case 'info': {
-                utils.sendData(res, {
-                    ...SCRIPT_INFO,
-                    time: now,
-                    uptime: now - SCRIPT_INFO.start,
-                });
+                utils.sendData(res, utils.getHealth(SCRIPT_INFO, true));
                 break;
             }
             case 'version': {
@@ -1143,6 +1143,14 @@ const loadParams = async () => {
                 }
             }
         }
+
+        //TODO!
+        const params = await require('./params')('/config/shared/utils', undefined, true);
+        if (!params.key) {
+            console.error("utils.key is required.")
+            process.exit(111);
+        }
+        PARAMS.system_secret = params.key;
 
     } catch (error) {
         logger.error(error);

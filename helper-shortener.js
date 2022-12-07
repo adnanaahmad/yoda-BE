@@ -10,7 +10,7 @@ const SCRIPT_INFO = utils.getFileInfo(__filename, true, true);
 
 logger.info(SCRIPT_INFO);
 
-if(!SCRIPT_INFO.host) {
+if (!SCRIPT_INFO.host) {
     logger.error('HOST must be defined.');
     process.exit(1);
 }
@@ -28,8 +28,8 @@ fastify.post('/', async (request, reply) => {
 
         let url = utils.parseURL(body.long_url);
         //TODO
-        if(url.hostname.indexOf('directid.co') == -1 && url.hostname.indexOf('fortifid.com') == -1 && url.hostname !== 'connect.direct.id') {
-            let data = { code: 403, error: 'Domain not allowed.'};
+        if (url.hostname.indexOf('directid.co') == -1 && url.hostname.indexOf('fortifid.com') == -1 && url.hostname !== 'connect.direct.id') {
+            let data = { code: 403, error: 'Domain not allowed.' };
             return reply.type('application/json').code(403).send(data);
         }
 
@@ -42,9 +42,9 @@ fastify.post('/', async (request, reply) => {
         };
 
         let expires = 0;
-        if(url.hostname.indexOf('fortifid.com') > -1) {
+        if (url.hostname.indexOf('fortifid.com') > -1) {
             const parts = url.pathname.split('/');
-            if(parts.length > 1) {
+            if (parts.length > 1) {
                 //for now.
                 // switch(parts[1]) {
                 //     case 'mfa': {
@@ -56,19 +56,19 @@ fastify.post('/', async (request, reply) => {
                 //         break;
                 //     }
                 // }
-            } 
+            }
         } else {
 
         }
 
-        if(expires > 0) {
-            data.expires = new Date(now + expires).toISOString(); 
+        if (expires > 0) {
+            data.expires = new Date(now + expires).toISOString();
         }
         reply.type('application/json').code(200).send(data);
 
         await cache.setP(TABLE, id, data, '1y', true);
     } else {
-        let data = { code: 422, error: 'Missing parameter.'};
+        let data = { code: 422, error: 'Missing parameter.' };
         reply.type('application/json').code(422).send(data);
     }
 });
@@ -77,30 +77,29 @@ fastify.get('/:id', async (request, reply) => {
     const id = request?.params?.id;
     const now = new Date();
 
-    if(!id) {
-        let data = { code: 422, error: 'Missing parameter.'};
+    if (!id) {
+        let data = { code: 422, error: 'Missing parameter.' };
         return reply.type('application/json').code(422).send(data);
     }
 
     let data = await cache.getP(TABLE, id);
     if (data) {
         let url = data.long_url;
-        if(data.expires && new Date() > new Date(data.expires)) {
+        if (data.expires && new Date() > new Date(data.expires)) {
             return reply.type('text/html').code(404).send('Sorry, URL expired.');
-        }    
+        }
 
         return reply.redirect(url);
     } else {
-        let data = { code: 404, error: 'URL expired or not found.'};
+        let data = { code: 404, error: 'URL expired or not found.' };
         return reply.type('application/json').code(404).send(data);
     }
 });
 
-fastify.listen({ port: 8996 }, (err, address) => {
-    if (err) throw err
-    logger.info(`HTTP server is listening on ${address}`);
-});
-
 (async () => {
-
+    await utils.addFastifyConfig(fastify, SCRIPT_INFO);
+    fastify.listen({ port: 8996 }, (err, address) => {
+        if (err) throw err
+        logger.info(`HTTP server is listening on ${address}`);
+    });
 })();
