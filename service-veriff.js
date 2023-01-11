@@ -62,6 +62,73 @@ const loadParams = async () => {
     KEYS[params.client_id_test] = params.client_secret_test;
 }
 
+//TODO!
+const REASON_MAP = {
+    102: "FID-VERIFF-DECLINE-102",
+    103: "FID-VERIFF-DECLINE-103",
+    105: "FID-VERIFF-DECLINE-105",
+    106: "FID-VERIFF-DECLINE-106",
+    108: "FID-VERIFF-DECLINE-108",
+    109: "FID-VERIFF-DECLINE-109",
+    110: "FID-VERIFF-DECLINE-110",
+    112: "FID-VERIFF-DECLINE-112",
+    113: "FID-VERIFF-DECLINE-113",
+    201: "FID-VERIFF-RESUBMIT-201",
+    204: "FID-VERIFF-RESUBMIT-204",
+    205: "FID-VERIFF-RESUBMIT-205",
+    206: "FID-VERIFF-RESUBMIT-206",
+    207: "FID-VERIFF-RESUBMIT-207",
+    9001: "FID-VERIFF-DECISION-9001",
+    9102: "FID-VERIFF-DECISION-9102",
+    9103: "FID-VERIFF-DECISION-9103",
+    9104: "FID-VERIFF-DECISION-9104",
+    9121: "FID-VERIFF-DECISION-9121",
+    106: "FID-VERIFF-GRANULAR-DECLINE-106",
+    108: "FID-VERIFF-GRANULAR-DECLINE-108",
+    109: "FID-VERIFF-GRANULAR-DECLINE-109",
+    110: "FID-VERIFF-GRANULAR-DECLINE-110",
+    112: "FID-VERIFF-GRANULAR-DECLINE-112",
+    113: "FID-VERIFF-GRANULAR-DECLINE-113",
+    502: "FID-VERIFF-GRANULAR-DECLINE-502",
+    503: "FID-VERIFF-GRANULAR-DECLINE-503",
+    504: "FID-VERIFF-GRANULAR-DECLINE-504",
+    505: "FID-VERIFF-GRANULAR-DECLINE-505",
+    507: "FID-VERIFF-GRANULAR-DECLINE-507",
+    508: "FID-VERIFF-GRANULAR-DECLINE-508",
+    509: "FID-VERIFF-GRANULAR-DECLINE-509",
+    515: "FID-VERIFF-GRANULAR-DECLINE-515",
+    526: "FID-VERIFF-GRANULAR-DECLINE-526",
+    527: "FID-VERIFF-GRANULAR-DECLINE-527",
+    528: "FID-VERIFF-GRANULAR-DECLINE-528",
+    602: "FID-VERIFF-GRANULAR-RESUBMIT-602",
+    603: "FID-VERIFF-GRANULAR-RESUBMIT-603",
+    605: "FID-VERIFF-GRANULAR-RESUBMIT-605",
+    606: "FID-VERIFF-GRANULAR-RESUBMIT-606",
+    608: "FID-VERIFF-GRANULAR-RESUBMIT-608",
+    609: "FID-VERIFF-GRANULAR-RESUBMIT-609",
+    614: "FID-VERIFF-GRANULAR-RESUBMIT-614",
+    615: "FID-VERIFF-GRANULAR-RESUBMIT-615",
+    619: "FID-VERIFF-GRANULAR-RESUBMIT-619",
+    620: "FID-VERIFF-GRANULAR-RESUBMIT-620",
+    621: "FID-VERIFF-GRANULAR-RESUBMIT-621",
+    625: "FID-VERIFF-GRANULAR-RESUBMIT-625",
+    626: "FID-VERIFF-GRANULAR-RESUBMIT-626",
+    627: "FID-VERIFF-GRANULAR-RESUBMIT-627",
+    628: "FID-VERIFF-GRANULAR-RESUBMIT-628",
+    629: "FID-VERIFF-GRANULAR-RESUBMIT-629",
+    630: "FID-VERIFF-GRANULAR-RESUBMIT-630",
+    631: "FID-VERIFF-GRANULAR-RESUBMIT-631",
+    632: "FID-VERIFF-GRANULAR-RESUBMIT-632",
+    633: "FID-VERIFF-GRANULAR-RESUBMIT-633",
+    634: "FID-VERIFF-GRANULAR-RESUBMIT-634",
+    635: "FID-VERIFF-GRANULAR-RESUBMIT-635",
+    641: "FID-VERIFF-GRANULAR-RESUBMIT-641",
+    642: "FID-VERIFF-GRANULAR-RESUBMIT-642"
+}
+
+
+
+
 const getVeriffData = async (payload, method = 'GET', endpoint, output) => {
 
     let outtype = 0;
@@ -149,9 +216,9 @@ const verifySignature = (request, reply) => {
         return;
     }
 
-    if(!request.rawBody || request.rawBody.length < 1) {
+    if (!request.rawBody || request.rawBody.length < 1) {
         console.log("verifySignature rawBody returned blank.")
-       return true;
+        return true;
     }
 
     const sig = utils.hash(`${request.rawBody}${key}`, 'sha256', 'hex');
@@ -184,6 +251,14 @@ const getData = (record, data) => {
             data.reason = record.reason;
         }
 
+        if (record.reason_code !== null && typeof (record.reason_code) !== 'undefined') {
+            data.reason_code = record.reason_code;
+            let reason = REASON_MAP[data.reason_code];
+            if(reason) {
+                data.reason_code = reason;
+            }
+        }
+
         if (typeof (record.name_match_score) !== 'undefined') {
             data.name_match_score = record.name_match_score;
         }
@@ -209,32 +284,31 @@ const getData = (record, data) => {
 }
 
 
-const registerRoutes =()=> {
+const registerRoutes = () => {
 
     fastify.post('/webhook', async (request, reply) => {
-    
+
         const now = Date.now();
 
         if (!verifySignature(request, reply)) {
             return;
         }
-    
+
         const body = request.body;
         if (body && (body.verification || body.id)) {
-    
             //logger.silly(body);
             try {
                 let expiration = '1w';
                 let customer_id;
                 const v = body.verification;
                 const id = v ? v.vendorData : body.vendorData;
-    
+
                 let record = await cache.getP(TABLE, id);
-    
+
                 const data = {};
-    
+
                 if (v) {
-    
+
                     //This means they're finished.
                     expiration = '10y';
                     data.status = v.status;
@@ -243,52 +317,52 @@ const registerRoutes =()=> {
                     data.code = v.code;
                     //TODO! They may retry.
                     data.finished = now;
-    
+
                     if (record && record.created) {
                         data.duration = now - record.created;
                         customer_id = record.customer_id;
                     }
-    
+
                     //TODO!
                     //technicalData : { ip: '71.64.122.30' }
                     if (v.reason !== null) {
                         data.reason = v.reason;
                     }
-    
+
                     if (v.reasonCode !== null) {
-                        data.reasonCode = v.reasonCode;
+                        data.reason_code = v.reasonCode;
                     }
-    
+
                     if (v.status === 'approved' && person) {
                         if (record) {
                             let pii = record.pii;
                             if (pii) {
                                 pii = cache.crypt.decrypt(pii);
                                 if (pii) {
-    
+
                                     if (pii.full_name) {
                                         data.name_match_score = nameMatch.compare(`${person.firstName} ${person.lastName}`, pii.full_name, true);
                                     } else {
                                         data.name_match_score = -1;
                                     }
-    
+
                                     if (pii.dob) {
                                         data.dob_match = utils.sameDate(pii.dob, person.dateOfBirth)
                                     } else {
                                         data.dob_match = false;
                                     }
-    
+
                                     if (record.strict) {
                                         if (!data.dob_match || data.name_match_score < 1) {
                                             data.status = 'declined';
                                             data.reason = 'Personal information mismatch.';
                                         }
                                     }
-    
+
                                     data.pii = null;
                                 }
                             }
-    
+
                             if (record.raw) {
                                 let verificationId = v.id;
                                 try {
@@ -331,10 +405,10 @@ const registerRoutes =()=> {
                     data.code = body.code;
                     data.feature = body.feature;
                 }
-    
+
                 //logger.silly(data);
                 const saved = await cache.updateP(TABLE, id, data, expiration, true);
-    
+
                 if (saved && saved.finished) {
                     const payload = { transaction_id: saved.transaction_id };
                     getData(saved, payload);
@@ -344,13 +418,13 @@ const registerRoutes =()=> {
                 logger.error(error);
             }
         }
-    
+
         reply.type('application/json').code(200);
-    
+
         return {
             service: TABLE
         }
-    });    
+    });
 }
 
 //TODO
@@ -372,12 +446,12 @@ fastify.get('/raw/:id/:media_id/:pid', async (request, reply) => {
 
         const mediaId = request.params.media_id;;
         let pid = request.params.pid
-        if(pid && pid.length > 0) {
-            if(pid[0] !== '$') {
+        if (pid && pid.length > 0) {
+            if (pid[0] !== '$') {
                 pid = `$2b$04$${pid}`;
             }
-    
-            if(pid.length === 59) {
+
+            if (pid.length === 59) {
                 pid = `${pid}.`;
             }
         }
@@ -385,7 +459,7 @@ fastify.get('/raw/:id/:media_id/:pid', async (request, reply) => {
         if (record && mediaId && mediaId.length > 1 && pid) {
             let passed = record.customer_id === request.user.CustomerAccountID && pid.length === 60;
 
-            if(passed) {
+            if (passed) {
                 passed = await utils.comparePassword(`${mediaId}${record.customer_id}${record.raw_hash}`, pid);
             }
 
@@ -478,28 +552,28 @@ fastify.post('/generate-url', async (request, reply) => {
         let email_address;
         //TODO: Cleanup.
 
-        if(send) {
+        if (send) {
             if (body.phone_number) {
                 phone_number = utils.getPhoneNumber(body.phone_number);
-                if(!phone_number) {
-                    return reply.type('application/json').code(422).send({ code: 422, error: 'Invalid parameter (phone_number)'});
+                if (!phone_number) {
+                    return reply.type('application/json').code(422).send({ code: 422, error: 'Invalid parameter (phone_number)' });
                 }
-                
-                if(!phone_number.startsWith("+1")) {
-                    return reply.type('application/json').code(422).send({ code: 422, error: 'Only US numbers (+1) are currently supported'});
+
+                if (!phone_number.startsWith("+1")) {
+                    return reply.type('application/json').code(422).send({ code: 422, error: 'Only US numbers (+1) are currently supported' });
                 }
-            } 
+            }
 
             email_address = body.email_address;
-            if(email_address &&  !utils.validateEmail(email_address)) {
-                return reply.type('application/json').code(422).send({ code: 422, error: 'Invalid parameter (email_address)'});
+            if (email_address && !utils.validateEmail(email_address)) {
+                return reply.type('application/json').code(422).send({ code: 422, error: 'Invalid parameter (email_address)' });
             }
 
-            if(!email_address && !phone_number) {
-                return reply.type('application/json').code(422).send({ code: 422, error: 'phone_number or email_address required'});
+            if (!email_address && !phone_number) {
+                return reply.type('application/json').code(422).send({ code: 422, error: 'phone_number or email_address required' });
             }
         }
- 
+
         let transaction_id = utils.getUUID();
 
         data.transaction_id = transaction_id;
@@ -509,9 +583,9 @@ fastify.post('/generate-url', async (request, reply) => {
         let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false;
         let url = typeof (body.link_url) === 'string' && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
         let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
-        
+
         //TODO!
-        if(url.indexOf('%URL%')  > -1) {
+        if (url.indexOf('%URL%') > -1) {
             url = url.replace('%URL%', '%ID%');
         }
 
@@ -585,7 +659,7 @@ fastify.post('/generate-url', async (request, reply) => {
         }
 
         if (code === 200) {
-            data.status = send? 'sent': 'created';
+            data.status = send ? 'sent' : 'created';
             let save = {
                 created: data.created,
                 status: data.status,
@@ -658,13 +732,13 @@ const start = async () => {
         global: false,
         encoding: 'utf8',
         runFirst: true,
-        routes: ['/webhook'] 
+        routes: ['/webhook']
     });
 
     registerRoutes();
 
     await utils.addFastifyConfig(fastify, SCRIPT_INFO);
-    
+
     fastify.listen({ port: params.port }, (err, address) => {
         if (err) throw err
         logger.info(`HTTP server is listening on ${address}`);
