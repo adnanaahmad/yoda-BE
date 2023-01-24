@@ -53,6 +53,7 @@ fastify.register(require('@fastify/static'), {
 })
 
 const handler = require('./utils-handlers');
+const { add } = require('winston');
 
 const KEYS = {};
 
@@ -64,69 +65,408 @@ const loadParams = async () => {
 
 //TODO!
 const REASON_MAP = {
-    102: "FID-VERIFF-DECLINE-102",
-    103: "FID-VERIFF-DECLINE-103",
-    105: "FID-VERIFF-DECLINE-105",
-    106: "FID-VERIFF-DECLINE-106",
-    108: "FID-VERIFF-DECLINE-108",
-    109: "FID-VERIFF-DECLINE-109",
-    110: "FID-VERIFF-DECLINE-110",
-    112: "FID-VERIFF-DECLINE-112",
-    113: "FID-VERIFF-DECLINE-113",
-    201: "FID-VERIFF-RESUBMIT-201",
-    204: "FID-VERIFF-RESUBMIT-204",
-    205: "FID-VERIFF-RESUBMIT-205",
-    206: "FID-VERIFF-RESUBMIT-206",
-    207: "FID-VERIFF-RESUBMIT-207",
-    9001: "FID-VERIFF-DECISION-9001",
-    9102: "FID-VERIFF-DECISION-9102",
-    9103: "FID-VERIFF-DECISION-9103",
-    9104: "FID-VERIFF-DECISION-9104",
-    9121: "FID-VERIFF-DECISION-9121",
-    106: "FID-VERIFF-GRANULAR-DECLINE-106",
-    108: "FID-VERIFF-GRANULAR-DECLINE-108",
-    109: "FID-VERIFF-GRANULAR-DECLINE-109",
-    110: "FID-VERIFF-GRANULAR-DECLINE-110",
-    112: "FID-VERIFF-GRANULAR-DECLINE-112",
-    113: "FID-VERIFF-GRANULAR-DECLINE-113",
-    502: "FID-VERIFF-GRANULAR-DECLINE-502",
-    503: "FID-VERIFF-GRANULAR-DECLINE-503",
-    504: "FID-VERIFF-GRANULAR-DECLINE-504",
-    505: "FID-VERIFF-GRANULAR-DECLINE-505",
-    507: "FID-VERIFF-GRANULAR-DECLINE-507",
-    508: "FID-VERIFF-GRANULAR-DECLINE-508",
-    509: "FID-VERIFF-GRANULAR-DECLINE-509",
-    515: "FID-VERIFF-GRANULAR-DECLINE-515",
-    526: "FID-VERIFF-GRANULAR-DECLINE-526",
-    527: "FID-VERIFF-GRANULAR-DECLINE-527",
-    528: "FID-VERIFF-GRANULAR-DECLINE-528",
-    602: "FID-VERIFF-GRANULAR-RESUBMIT-602",
-    603: "FID-VERIFF-GRANULAR-RESUBMIT-603",
-    605: "FID-VERIFF-GRANULAR-RESUBMIT-605",
-    606: "FID-VERIFF-GRANULAR-RESUBMIT-606",
-    608: "FID-VERIFF-GRANULAR-RESUBMIT-608",
-    609: "FID-VERIFF-GRANULAR-RESUBMIT-609",
-    614: "FID-VERIFF-GRANULAR-RESUBMIT-614",
-    615: "FID-VERIFF-GRANULAR-RESUBMIT-615",
-    619: "FID-VERIFF-GRANULAR-RESUBMIT-619",
-    620: "FID-VERIFF-GRANULAR-RESUBMIT-620",
-    621: "FID-VERIFF-GRANULAR-RESUBMIT-621",
-    625: "FID-VERIFF-GRANULAR-RESUBMIT-625",
-    626: "FID-VERIFF-GRANULAR-RESUBMIT-626",
-    627: "FID-VERIFF-GRANULAR-RESUBMIT-627",
-    628: "FID-VERIFF-GRANULAR-RESUBMIT-628",
-    629: "FID-VERIFF-GRANULAR-RESUBMIT-629",
-    630: "FID-VERIFF-GRANULAR-RESUBMIT-630",
-    631: "FID-VERIFF-GRANULAR-RESUBMIT-631",
-    632: "FID-VERIFF-GRANULAR-RESUBMIT-632",
-    633: "FID-VERIFF-GRANULAR-RESUBMIT-633",
-    634: "FID-VERIFF-GRANULAR-RESUBMIT-634",
-    635: "FID-VERIFF-GRANULAR-RESUBMIT-635",
-    641: "FID-VERIFF-GRANULAR-RESUBMIT-641",
-    642: "FID-VERIFF-GRANULAR-RESUBMIT-642"
+    "102": {
+        "code": "FID-VERIFF-DECLINE-102",
+        "message": "Suspected document tampering."
+    },
+    "103": {
+        "code": "FID-VERIFF-DECLINE-103",
+        "message": "Person showing the document does not appear to match document photo."
+    },
+    "105": {
+        "code": "FID-VERIFF-DECLINE-105",
+        "message": "Suspicious behaviour."
+    },
+    "106": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-106",
+        "message": "Known fraud"
+    },
+    "108": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-108",
+        "message": "Velocity/abuse duplicated user"
+    },
+    "109": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-109",
+        "message": "Velocity/abuse duplicated device"
+    },
+    "110": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-110",
+        "message": "Velocity/abuse duplicated ID"
+    },
+    "112": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-112",
+        "message": "Restricted IP location"
+    },
+    "113": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-113",
+        "message": "Suspicious behaviour - Identity Farming"
+    },
+    "200": {
+        "code": "FID-VERIFF-RESPONSE-200",
+        "message": "Successful response."
+    },
+    "201": {
+        "code": "FID-VERIFF-RESUBMIT-201",
+        "message": "Video and/or photos missing."
+    },
+    "204": {
+        "code": "FID-VERIFF-RESUBMIT-204",
+        "message": "Poor image quality."
+    },
+    "205": {
+        "code": "FID-VERIFF-RESUBMIT-205",
+        "message": "Document damaged."
+    },
+    "206": {
+        "code": "FID-VERIFF-RESUBMIT-206",
+        "message": "Document type not supported."
+    },
+    "207": {
+        "code": "FID-VERIFF-RESUBMIT-207",
+        "message": "Document expired."
+    },
+    "400": {
+        "code": "FID-VERIFF-RESPONSE-400",
+        "message": "Failed Response: Mandatory parameters are missing from the request."
+    },
+    "401": {
+        "code": "FID-VERIFF-RESPONSE-401",
+        "message": "Failed Response: Not Authorized."
+    },
+    "404": {
+        "code": "FID-VERIFF-RESPONSE-404",
+        "message": "Failed Response: Entry not found."
+    },
+    "500": {
+        "code": "FID-VERIFF-RESPONSE-500",
+        "message": "Failed Response: Something went wrong."
+    },
+    "502": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-502",
+        "message": "Multiple parties present in session"
+    },
+    "503": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-503",
+        "message": "Attempted deceit"
+    },
+    "504": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-504",
+        "message": "Attempted deceit, device screen used"
+    },
+    "505": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-505",
+        "message": "Attempted deceit, printout used"
+    },
+    "507": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-507",
+        "message": "Presented document tampered, data cross reference"
+    },
+    "508": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-508",
+        "message": "Presented document tampered, document similarity to specimen"
+    },
+    "509": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-509",
+        "message": "Person showing the document does not match document photo"
+    },
+    "515": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-515",
+        "message": "Attempted deceit, device screen used for face image"
+    },
+    "526": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-526",
+        "message": "Attempted deceit, photos streamed"
+    },
+    "527": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-527",
+        "message": "Unable to collect proof of address data"
+    },
+    "528": {
+        "code": "FID-VERIFF-GRANULAR-DECLINE-528",
+        "message": "Proof of address issue date too old"
+    },
+    "602": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-602",
+        "message": "Presented document type not supported"
+    },
+    "603": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-603",
+        "message": "Video missing"
+    },
+    "605": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-605",
+        "message": "Face image missing"
+    },
+    "606": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-606",
+        "message": "Face is not clearly visible"
+    },
+    "608": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-608",
+        "message": "Document front missing"
+    },
+    "609": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-609",
+        "message": "Document back missing"
+    },
+    "614": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-614",
+        "message": "Document front not fully in frame"
+    },
+    "615": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-615",
+        "message": "Document back not fully in frame"
+    },
+    "619": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-619",
+        "message": "Document data not visible"
+    },
+    "620": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-620",
+        "message": "Presented document expired"
+    },
+    "621": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-621",
+        "message": "Document annulled or damaged"
+    },
+    "625": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-625",
+        "message": "Unable to collect surname"
+    },
+    "626": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-626",
+        "message": "Unable to collect first names"
+    },
+    "627": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-627",
+        "message": "Unable to collect date of birth"
+    },
+    "628": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-628",
+        "message": "Unable to collect issue date"
+    },
+    "629": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-629",
+        "message": "Unable to collect expiry date"
+    },
+    "630": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-630",
+        "message": "Unable to collect gender"
+    },
+    "631": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-631",
+        "message": "Unable to collect document number"
+    },
+    "632": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-632",
+        "message": "Unable to collect personal number"
+    },
+    "633": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-633",
+        "message": "Unable to collect nationality"
+    },
+    "634": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-634",
+        "message": "Unable to collect home address"
+    },
+    "635": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-635",
+        "message": "Document and face image missing"
+    },
+    "641": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-641",
+        "message": "Multiple Faces Detected"
+    },
+    "642": {
+        "code": "FID-VERIFF-GRANULAR-RESUBMIT-642",
+        "message": "Multiple Documents Uploaded"
+    },
+    "1001": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1001",
+        "message": "Query ID must be between 20 and 40 symbols."
+    },
+    "1002": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1002",
+        "message": "Query ID must be a valid UUID V4"
+    },
+    "1003": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1003",
+        "message": "Query ID must be unique, it has already been used."
+    },
+    "1102": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1102",
+        "message": "Mandatory parameters are missing from the request."
+    },
+    "1104": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1104",
+        "message": "Request includes invalid parameters."
+    },
+    "1201": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1201",
+        "message": "Invalid timestamp. Timestamp must not be older than one hour."
+    },
+    "1202": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1202",
+        "message": "Timestamp format is incorrect. YYYY-MM-DDTHH:MM:S+Timezone Offset|Z or UTC."
+    },
+    "1203": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1203",
+        "message": "Invalid ISO 8601 date. Date needs to be in format YYYY-MM-DD."
+    },
+    "1301": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1301",
+        "message": "Requested features are not supported."
+    },
+    "1302": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1302",
+        "message": "Only HTTPS return URLs are allowed."
+    },
+    "1303": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1303",
+        "message": "Invalid status."
+    },
+    "1304": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1304",
+        "message": "Cannot transition to \"$STATUS\" status."
+    },
+    "1400": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1400",
+        "message": "Image data not found."
+    },
+    "1401": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1401",
+        "message": "Image is not in valid base64."
+    },
+    "1402": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1402",
+        "message": "Image context is not supported."
+    },
+    "1403": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1403",
+        "message": "Image property is missing."
+    },
+    "1500": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1500",
+        "message": "Vendor data cannot be more than 1000 symbols. We require only non-semantic data to be submitted (e.g. UUID-s, etc that can not be resolved or used outside of the vendor environment."
+    },
+    "1501": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-1501",
+        "message": "Vendor data must be a string. We require only non-semantic data to be submitted (UUID-s etc that can not be resolved or used outside of the vendor environment)."
+    },
+    "1801": {
+        "code": "FID-VERIFF-AUTH-1801",
+        "message": "`Mandatory X-AUTH-CLIENT header containing the API key is missing from the request.`"
+    },
+    "1802": {
+        "code": "FID-VERIFF-AUTH-1802",
+        "message": "`API key is not a valid UUID.`"
+    },
+    "1803": {
+        "code": "FID-VERIFF-AUTH-1803",
+        "message": "`Integration with the API key was not found.`"
+    },
+    "1804": {
+        "code": "FID-VERIFF-AUTH-1804",
+        "message": "`Integration with the API key is not active.`"
+    },
+    "1812": {
+        "code": "FID-VERIFF-AUTH-1812",
+        "message": "`Signature is not a valid SHA256 hash.`"
+    },
+    "1813": {
+        "code": "FID-VERIFF-AUTH-1813",
+        "message": "`Signature does not match the SHA256 hash of query ID and integration API secret.`"
+    },
+    "1814": {
+        "code": "FID-VERIFF-AUTH-1814",
+        "message": "`Signature does not match the SHA256 hash of request body and integration API secret.`"
+    },
+    "1818": {
+        "code": "FID-VERIFF-AUTH-1818",
+        "message": "`Signature does not match the HMAC-SHA256 of query ID and integration API secret.`"
+    },
+    "1819": {
+        "code": "FID-VERIFF-AUTH-1819",
+        "message": "`Signature does not match the HMAC-SHA256 of request body and integration API secret.`"
+    },
+    "2003": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-2003",
+        "message": "Date of birth is not a valid date."
+    },
+    "2101": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-2101",
+        "message": "Document number has to be between 6 and 9 characters."
+    },
+    "2102": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-2102",
+        "message": "Document number may contain only characters and numbers A-Z, 0-9."
+    },
+    "2103": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-2103",
+        "message": "Document type is not supported."
+    },
+    "2104": {
+        "code": "FID-VERIFF-TROUBLESHOOTING-2104",
+        "message": "Document from provided country is not supported."
+    },
+    "9001": {
+        "code": "FID-VERIFF-DECISION-9001",
+        "message": "Positive: Person was verified. The verification process is complete. Accessing the sessionURL again will show the client that nothing is to be done here."
+    },
+    "9102": {
+        "code": "FID-VERIFF-DECISION-9102",
+        "message": "Negative: Person has not been verified. The verification process is complete. Either it was a fraud case or some other severe reason that the person can not be verified. You should investigate the session further and read the \"reason\". If you decide to give the client another try you need to create a new session."
+    },
+    "9103": {
+        "code": "FID-VERIFF-DECISION-9103",
+        "message": "Resubmitted: Resubmission has been requested. The verification process is not completed. Something was missing from the client and she or he needs to go through the flow once more. The same sessionURL can and should be used for this purpose."
+    },
+    "9104": {
+        "code": "FID-VERIFF-DECISION-9104",
+        "message": "Negative: Verification has been expired. The verification process is complete. After 7 days the session gets expired. If the client started the verification process we reply \"abandoned\" here, otherwise if the client never arrived in our environment the status will be \"expired\""
+    },
+    "9121": {
+        "code": "FID-VERIFF-DECISION-9121",
+        "message": "Review: Review status is issued whenever automation engine could not issue a conclusive decision and the verification session needs to be reviewed by a human. This status will be sent depending on service agreement."
+    },
+    "10001": {
+        "code": "FID-VERIFF-SCANNED-NAME-PROVIDED-NAME-MATCH",
+        "message": "Name comparison matched."
+    },
+    "10002": {
+        "code": "FID-VERIFF-SCANNED-NAME-PROVIDED-NAME-MISMATCH",
+        "message": "Negative: Name comparison mismatch."
+    },
+    "10003": {
+        "code": "FID-VERIFF-SCANNED-STATE-PROVIDED-STATE-MATCH",
+        "message": "State comparison matched."
+    },
+    "10004": {
+        "code": "FID-VERIFF-SCANNED-STATE-PROVIDED-STATE-MISMATCH",
+        "message": "Negative: State comparison mismatch."
+    },
+    "10005": {
+        "code": "FID-VERIFF-SCANNED-DOB-PROVIDED-DOB-MATCH",
+        "message": "DOB comparison matched."
+    },
+    "10006": {
+        "code": "FID-VERIFF-SCANNED-DOB-PROVIDED-DOB-MISMATCH",
+        "message": "Negative: DOB comparison mismatch."
+    },
 }
 
+const getReason = (id) => {
+    if (typeof (id) === 'number') {
+        id = id.toString();
+    }
 
+    let reason = REASON_MAP[id];
+    if (reason) {
+        return reason;
+    }
+
+    return { code: id, message: '' };
+}
 
 
 const getVeriffData = async (payload, method = 'GET', endpoint, output) => {
@@ -247,25 +587,61 @@ const getData = (record, data) => {
             data.expires_at = new Date(record._expiresAt * 1000).toISOString();
         }
 
+        const details = [];
+        data.data_provider_details = [{ "name": "Veriff", details }];
+
+        let passed = true;
+        if (record.strict) {
+            if (typeof (record.name_match_score) !== 'undefined') {
+                data.name_match_score = record.name_match_score;
+                if (data.name_match_score < 0.9) {
+                    passed = false;
+                }
+            } else {
+                data.name_match_score = 0;
+            }
+
+            details.push(getReason(data.name_match_score > 0.9 ? 10001 : 10002));
+
+            if (typeof (record.dob_match) !== 'undefined') {
+                data.dob_match = record.dob_match;
+            } else {
+                data.dob_match = false;
+            }
+
+            details.push(getReason(data.dob_match ? 10003 : 10004));
+
+            if (typeof (record.state_match) !== 'undefined') {
+                data.state_match = record.state_match;
+            } else {
+                data.state_match = false;
+            }
+
+            details.push(getReason(data.dob_match ? 10005 : 10006));
+
+            //TODO
+            passed = data.name_match_score > 0.9 && data.state_match && data.dob_match;
+            if (!passed) {
+                data.status = "declined";
+            }
+        }
+
         if (record.reason !== null && typeof (record.reason) !== 'undefined') {
             data.reason = record.reason;
         }
 
+        //if (passed) {
+        //TODO!
+        record.reason_code = record.reason_code || record.reasonCode;
         if (record.reason_code !== null && typeof (record.reason_code) !== 'undefined') {
             data.reason_code = record.reason_code;
-            let reason = REASON_MAP[data.reason_code];
-            if(reason) {
-                data.reason_code = reason;
-            }
+            details.push(getReason(record.reason_code));
         }
 
-        if (typeof (record.name_match_score) !== 'undefined') {
-            data.name_match_score = record.name_match_score;
+        if (record.code !== null && typeof (record.code) !== 'undefined') {
+            details.push(getReason(record.code));
         }
-
-        if (typeof (record.dob_match) !== 'undefined') {
-            data.dob_match = record.dob_match;
-        }
+        //}
 
         if (record.redirect_url) {
             data.redirect_url = record.redirect_url;
@@ -333,7 +709,8 @@ const registerRoutes = () => {
                         data.reason_code = v.reasonCode;
                     }
 
-                    if (v.status === 'approved' && person) {
+                    //if (v.status === 'approved' && person) {
+                    if (person) {                        
                         if (record) {
                             let pii = record.pii;
                             if (pii) {
@@ -352,8 +729,22 @@ const registerRoutes = () => {
                                         data.dob_match = false;
                                     }
 
+                                    data.state_match = false;
+                                    if (pii.state) {
+                                        try {
+                                            if (person.addresses && Array.isArray(person.addresses) && person.addresses.length > 0) {
+                                                let address = person.addresses[0];
+                                                if (address && address.parsedAddress && address.parsedAddress.state !== null) {
+                                                    data.state_match = address.parsedAddress.state.toLowerCase() === pii.state.toLowerCase();
+                                                }
+                                            }
+                                        } catch (error) {
+
+                                        }
+                                    }
+
                                     if (record.strict) {
-                                        if (!data.dob_match || data.name_match_score < 1) {
+                                        if (!data.dob_match || data.name_match_score < 1 || !data.state_match) {
                                             data.status = 'declined';
                                             data.reason = 'Personal information mismatch.';
                                         }
@@ -580,6 +971,8 @@ fastify.post('/generate-url', async (request, reply) => {
 
         let full_name = body.full_name;
         let dob = body.birth_date;
+        let state = body.state || '';
+
         let shorten = typeof (body.shorten_url) === 'boolean' ? body.shorten_url : false;
         let url = typeof (body.link_url) === 'string' && body.link_url.length > 0 ? body.link_url : DEFAULT_URL;
         let text = typeof (body.sms_text) === 'string' && body.sms_text.length > 0 ? body.sms_text : params.sms_text;
@@ -676,6 +1069,10 @@ fastify.post('/generate-url', async (request, reply) => {
 
                 if (typeof (full_name) === 'string' && full_name.length > 0) {
                     save.pii.full_name = full_name;
+                }
+
+                if (typeof (state) === 'string' && state.length === 2) {
+                    save.pii.state = state.toLowerCase();
                 }
             }
 

@@ -80,6 +80,11 @@
             placeholder="Birth Date">
         </div>
         <div class="form-group">
+          <label class="form-label" for="state">State</label>
+          <input id="state" class="form-input" type="text" minlength="2" maxlength="2"
+            placeholder="Two letter state (e.g. WA)">
+        </div>        
+        <div class="form-group">
           <label class="form-label" for="request_reference">Request Reference</label>
           <input id="request_reference" class="form-input" placeholder="Request Reference" required>
         </div>
@@ -350,6 +355,7 @@
           checking = true;
           let results = await getAPIData(`/check-request/${transaction_id}`);
           if (results) {
+            setOutput('&nbsp;', 0);
             let status = results.status;
             if (status) {
               if (status === 'submitted' && MODE === 'DEV') {
@@ -369,7 +375,7 @@
                 status =
                   `<h3><span style="color:white;background-color: red;padding:10px 20px">DECLINED</span></h3>`;
               } else {
-
+                //TODO!
               }
 
               if (results.reason) {
@@ -465,6 +471,7 @@
           email_address: $('#email_address').val() || '',
           full_name: $('#full_name').val(),
           birth_date: $('#birth_date').val() || '',
+          state:  $('#state').val() || '',
           request_reference: $('#request_reference').val(),
           redirect_url: $('#redirect_url').val(),
           sms_text: $('#sms_text').val(),

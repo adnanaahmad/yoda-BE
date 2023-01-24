@@ -4,7 +4,13 @@ const utils = require('./utils');
 const cache = require('./cache');
 const awsClient = require('./aws-client');
 const redis = require("redis");
-const fs = require('fs');
+const fsS = require('fs');
+const fs = require('fs/promises');
+
+const csvToJson = require('convert-csv-to-json');
+const { lookup } = require('dns');
+
+
 
 const createParams = () => {
     let orig = require(`${__dirname}/data/param-list.json`);
@@ -31,8 +37,8 @@ const createLocalParameters = async (path)=> {
         
         const parts = path.split('/').filter(Boolean);
         const prefix = `${__dirname}/${parts[0]}/${parts[1]}/`;
-        if(!fs.existsSync(prefix)) {
-            fs.mkdirSync(prefix);
+        if(!fsS.existsSync(prefix)) {
+            fsS.mkdirSync(prefix);
         }
 
         const top = fields[parts[0]][parts[1]];
@@ -118,6 +124,26 @@ const addCustomer = async (id) => {
     await cache.setP('rate_limit', id, rate_limit, '5y');
 }
 
+const csvToJSON = async (file, service, delimiter = "\t")=> {
+    if(!file || !service) {
+        return;
+    }
+    try {
+
+        let LOOKUP = {};
+        let json = csvToJson.fieldDelimiter(delimiter).getJsonFromCsv(`${__dirname}/tmp/${file}`);
+        for (let index = 0; index < json.length; index++) {
+            const item = json[index];
+            if(item.FortifIDCoTMember === service) {
+                LOOKUP[item.DataProviderReasonCode] = { code: item.FortifIDDetailCode, message: item.DefintionofFortifIDDetailCode || item.DefinitionofProviderReasonCode }
+            }
+        }
+        await fs.writeFile(`${__dirname}/tmp/${service}.json`, JSON.stringify(LOOKUP));
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 (async () => {
     //console.log(ms('1y'));
 
@@ -130,8 +156,8 @@ const addCustomer = async (id) => {
     //await createLocalParameters('/config/sambasafety/');
     //await createLocalParameters('/config/equifax/');
     //await createParamsScript('/config/sambasafety/sambasafety')
-
-    await createParamsScript('/config/equifax/synthetic-id-prod');
+    await csvToJSON("ci.tsv", "Veriff");
+    // /await createParamsScript('/config/equifax/synthetic-id-prod');
     console.log('Done');
     
 })();
