@@ -156,7 +156,7 @@ const csvToJSON = async (file, service, delimiter = "\t")=> {
     //await createLocalParameters('/config/sambasafety/');
     //await createLocalParameters('/config/equifax/');
     //await createParamsScript('/config/sambasafety/sambasafety')
-    await csvToJSON("ci.tsv", "Veriff");
+    await csvToJSON("ci.tsv", "Plaid");
     // /await createParamsScript('/config/equifax/synthetic-id-prod');
     console.log('Done');
     

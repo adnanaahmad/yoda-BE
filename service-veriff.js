@@ -453,6 +453,11 @@ const REASON_MAP = {
         "code": "FID-VERIFF-SCANNED-DOB-PROVIDED-DOB-MISMATCH",
         "message": "Negative: DOB comparison mismatch."
     },
+    "10010": {
+        "code": "FID-VERIFF-VERIFICATION-LINK-EXPIRED",
+        "message": "Verification link expired."
+    },
+
 }
 
 const getReason = (id) => {
@@ -583,15 +588,22 @@ const getData = (record, data) => {
             data.completed = new Date(record.finished).toISOString();
         }
 
+        let expired = false;
+
         if (record._expiresAt) {
             data.expires_at = new Date(record._expiresAt * 1000).toISOString();
+            expired = record._expiresAt < Date.now() / 1000;
         }
 
         const details = [];
         data.data_provider_details = [{ "name": "Veriff", details }];
 
         let passed = true;
-        if (record.strict) {
+        record.reason_code = record.reason_code || record.reasonCode;
+        if(expired) {
+            details.push(getReason(10010));
+            data.status = 'expired';
+        }else if (record.strict && record.reason_code) {
             if (typeof (record.name_match_score) !== 'undefined') {
                 data.name_match_score = record.name_match_score;
                 if (data.name_match_score < 0.9) {
@@ -632,7 +644,6 @@ const getData = (record, data) => {
 
         //if (passed) {
         //TODO!
-        record.reason_code = record.reason_code || record.reasonCode;
         if (record.reason_code !== null && typeof (record.reason_code) !== 'undefined') {
             data.reason_code = record.reason_code;
             details.push(getReason(record.reason_code));
@@ -654,8 +665,10 @@ const getData = (record, data) => {
         if (record.raw_data) {
             data.raw_data = record.raw_data;
         }
-    } catch (error) {
 
+        //console.log(data);
+    } catch (error) {
+        console.error(error.message);
     }
 }
 
@@ -710,7 +723,7 @@ const registerRoutes = () => {
                     }
 
                     //if (v.status === 'approved' && person) {
-                    if (person) {                        
+                    if (person) {
                         if (record) {
                             let pii = record.pii;
                             if (pii) {

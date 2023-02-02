@@ -83,7 +83,7 @@
           <label class="form-label" for="state">State</label>
           <input id="state" class="form-input" type="text" minlength="2" maxlength="2"
             placeholder="Two letter state (e.g. WA)">
-        </div>        
+        </div>
         <div class="form-group">
           <label class="form-label" for="request_reference">Request Reference</label>
           <input id="request_reference" class="form-input" placeholder="Request Reference" required>
@@ -358,6 +358,7 @@
             setOutput('&nbsp;', 0);
             let status = results.status;
             if (status) {
+
               if (status === 'submitted' && MODE === 'DEV') {
                 transaction_id = undefined;
                 status = "Done. In development mode.";
@@ -374,6 +375,10 @@
                 transaction_id = undefined;
                 status =
                   `<h3><span style="color:white;background-color: red;padding:10px 20px">DECLINED</span></h3>`;
+              } else if (status === 'expired' || status === 'not_found') {
+                transaction_id = undefined;
+                status =
+                  `<h3><span style="color:white;background-color: red;padding:10px 20px">Link expired or invalid transaction id</span></h3>`;
               } else {
                 //TODO!
               }
@@ -471,7 +476,7 @@
           email_address: $('#email_address').val() || '',
           full_name: $('#full_name').val(),
           birth_date: $('#birth_date').val() || '',
-          state:  $('#state').val() || '',
+          state: $('#state').val() || '',
           request_reference: $('#request_reference').val(),
           redirect_url: $('#redirect_url').val(),
           sms_text: $('#sms_text').val(),
