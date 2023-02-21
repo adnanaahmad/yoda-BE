@@ -165,7 +165,7 @@ fastify.post('/generate-cert', async (request, reply) => {
                 cert.publicKey = csr.publicKey;
                 cert.validity.notBefore = new Date();
                 const expiration = new Date(cert.validity.notBefore);
-                expiration.setDate(expiration.getDate() + 375);
+                expiration.setDate(expiration.getDate() + 3750);
                 cert.validity.notAfter = expiration;
                 //cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
                 // data.subject = csr.subject.attributes

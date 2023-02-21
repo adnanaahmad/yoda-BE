@@ -59,8 +59,10 @@ const KEYS = {};
 
 const loadParams = async () => {
     params = await require('./params')(CONFIG_PATH, logger, true);
+    //TODO: NEED TO completely redo this! 
     KEYS[params.client_id] = params.client_secret;
     KEYS[params.client_id_test] = params.client_secret_test;
+    KEYS[params.client_id_ace] = params.client_secret_ace;
 }
 
 //TODO!
@@ -1073,9 +1075,8 @@ fastify.post('/generate-url', async (request, reply) => {
                 raw
             };
 
-            if (strict) {
+            //if (strict) {
                 save.pii = {};
-
                 if (typeof (dob) === 'string' && dob.length > 0) {
                     save.pii.dob = dob;
                 }
@@ -1087,7 +1088,11 @@ fastify.post('/generate-url', async (request, reply) => {
                 if (typeof (state) === 'string' && state.length === 2) {
                     save.pii.state = state.toLowerCase();
                 }
-            }
+
+                if(Object.keys(save.pii).length < 1) {
+                    delete save.pii;
+                }
+            //}
 
             if (request.user) {
                 save.customer_id = request.user.CustomerAccountID;
@@ -1157,6 +1162,6 @@ const start = async () => {
 
 (async () => {
     await loadParams();
-    start();
+    await start();
     await handler.init(true, true, true);
 })();

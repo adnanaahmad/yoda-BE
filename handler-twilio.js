@@ -1,7 +1,12 @@
 'use strict';
 /*jshint esversion: 8 */
+
+const TABLE = 'twilio';
+
 const utils = require('./utils');
 const logger = require('./logger').createLogger("handler-twilio");
+
+const cache = require('./cache');
 
 const SCRIPT_INFO = utils.getFileInfo(__filename, true);
 SCRIPT_INFO.library_mode = require.main !== module;
@@ -14,6 +19,19 @@ const awsClient = require('./aws-client');
 let ready = false;
 let twilio;
 const Q = require('./utils-q');
+
+const fastify = require('fastify')({
+    logger: false,
+    //http2: true,
+    trustProxy: true,
+    ignoreTrailingSlash: true
+})
+
+fastify.register(require('@fastify/static'), {
+    root: `${__dirname}/public/twilio`,
+    serve: true,
+    prefix: '/',
+})
 
 let TWILIO_NUMBERS;
 let numberCount = 0;
@@ -196,8 +214,37 @@ const loadParams = async () => {
     ready = typeof (twilio) !== 'undefined';
 }
 
+const registerRoutes = () => {
+    fastify.post('/webhook', async (request, reply) => {
+
+    })
+
+}
+
+const start = async () => {
+    await fastify.register(require('fastify-raw-body'), {
+        field: 'rawBody',
+        global: false,
+        encoding: 'utf8',
+        runFirst: true,
+        routes: ['/webhook']
+    });
+
+    registerRoutes();
+
+    await utils.addFastifyConfig(fastify, SCRIPT_INFO);
+
+    //TODO! port
+    fastify.listen({ port: 8901 }, (err, address) => {
+        if (err) throw err
+        logger.info(`HTTP server is listening on ${address}`);
+    });
+}
+
 (async () => {
     await loadParams();
+    await start();
+
     if (ready) {
         if (!SCRIPT_INFO.library_mode) {
             startQueue();
