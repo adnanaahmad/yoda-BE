@@ -903,7 +903,7 @@ fastify.get('/raw/:id/:media_id/:pid', async (request, reply) => {
 
 fastify.get('/check-request/:id', async (request, reply) => {
     const now = Date.now();
-    let code = 404;
+    let code = 200;
 
     const id = request.params.id;
     const data = {
@@ -930,7 +930,7 @@ fastify.get('/check-request/:id', async (request, reply) => {
     } else {
         data.status = 'invalid';
         data.reason = 'Invalid or missing transaction ID.';
-        code = 422;
+        //code = 422;
     }
 
     reply.type('application/json').code(code);
