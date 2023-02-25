@@ -243,7 +243,7 @@ const start = async () => {
 
 (async () => {
     await loadParams();
-    await start();
+    //await start();
 
     if (ready) {
         if (!SCRIPT_INFO.library_mode) {
