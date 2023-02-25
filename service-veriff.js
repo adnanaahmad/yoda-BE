@@ -53,7 +53,6 @@ fastify.register(require('@fastify/static'), {
 })
 
 const handler = require('./utils-handlers');
-const { add } = require('winston');
 
 const KEYS = {};
 
@@ -63,6 +62,7 @@ const loadParams = async () => {
     KEYS[params.client_id] = params.client_secret;
     KEYS[params.client_id_test] = params.client_secret_test;
     KEYS[params.client_id_ace] = params.client_secret_ace;
+    KEYS[params.client_id_ace_test] = params.client_secret_ace_test;
 }
 
 //TODO!
