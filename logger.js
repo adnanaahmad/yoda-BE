@@ -11,6 +11,7 @@ AWS.config.update({
 const winston = require('winston');
 const WinstonCloudWatch = require('winston-cloudwatch');
 
+// This function formats and enhances error messages in Winston logger.
 const enumerateErrorFormat = winston.format(info => {
   if (info.message instanceof Error) {
     info.message = Object.assign({
@@ -29,11 +30,13 @@ const enumerateErrorFormat = winston.format(info => {
   return info;
 });
 
+// This function formats log messages to include the message and any additional data as a JSON string.
 const format = (message, ...rest) => {
   message = typeof (message) === 'object' ? JSON.stringify(message) : message;
   return `${message} ${typeof(rest) !=='undefined' ? rest.map(r => `${JSON.stringify(r)}`).join('\n') : ''}`
 }
 
+// This function formats log messages to include the log level and any additional data.
 const formatter = ({
   level,
   message,
@@ -43,6 +46,7 @@ const formatter = ({
   return `${level}/${format(message, ...args)}`;
 }
 
+//This function is formatting logs to include the current date and time, log level, and log message.
 const formatterDate = ({
   level,
   message,
@@ -52,6 +56,7 @@ const formatterDate = ({
   return `${new Date().toISOString()} ${level}/${format(message, ...args)}`;
 }
 
+//This function creates a logger object that can log errors and messages to the console or to Amazon CloudWatch based on the logGroupName and logStreamName parameters, and sets the log level and format.
 const createLogger = (logGroupName, logStreamName) => {
 
   let cloud = process.env.RUN_MODE !== 'DEV' && typeof (logGroupName) !== 'undefined';
@@ -85,6 +90,7 @@ const createLogger = (logGroupName, logStreamName) => {
 const logger = createLogger('service-did');
 
 //TODO
+// These functions are wrappers around the logger.log() method, which is used to log messages at different levels (error, warn, info, http, verbose, debug, silly). They take a message parameter that contains the message to be logged and an optional extra parameter that can contain additional information to be logged. The type parameter in the doLog() function is not used in the code you provided.
 const doLog = (type, message, extra) => {}
 
 const error = (message, extra) => logger.log('error', message, extra);
@@ -95,6 +101,7 @@ const verbose = (message, extra) => logger.log('verbose', message, extra);
 const debug = (message, extra) => logger.log('debug', message, extra);
 const silly = (message, extra) => logger.log('silly', message, extra);
 
+// This is a class representing a logger with methods for logging messages at different levels, and a child method to create a new logger instance with the same configuration.
 class Logger {
   constructor(...args) {
     //console.log(args, 'HA!');
