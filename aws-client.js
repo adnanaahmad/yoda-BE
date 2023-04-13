@@ -113,10 +113,11 @@ let hasDax = false;
 //   }
 // }
 
+//This line of code creates an instance of the AWS DynamoDB Document Client, which is a high-level library for interacting with DynamoDB.
 const ddbClient = new AWS.DynamoDB.DocumentClient();
-
+// This line of code conditionally creates an instance of AWS DynamoDB Document Client for connecting to Amazon DAX based on the boolean hasDax value, or sets it to undefined if hasDax is false.
 const daxClient = hasDax ? new AWS.DynamoDB.DocumentClient(ddbOptions) : undefined;
-
+// This function asynchronously retrieves a parameter with a given name from AWS SSM Parameter Store, and optionally transforms and returns its value based on certain conditions.
 const getParameter = async (name) => {
   const params = {
     Name: name,
@@ -143,7 +144,7 @@ const getParameter = async (name) => {
     logger.error(error.message, name);
   }
 };
-
+// This function synchronously retrieves all the parameters under the specified path in AWS SSM Parameter Store, optionally filters them, and returns an array of parameter objects or a simplified object.
 const getParametersByPathSync = (path, filters, simple = false) => {
   const params = {
     Path: path,
@@ -196,7 +197,7 @@ const getParametersByPathSync = (path, filters, simple = false) => {
     logger.error(error, path);
   }
 };
-
+// This function asynchronously retrieves all the parameters under the specified path in AWS SSM Parameter Store, optionally filters them, and returns an array of parameter objects or a simplified object.
 const getParametersByPath = async (path, filters, simple = false) => {
   const params = {
     Path: path,
@@ -240,7 +241,7 @@ const getParametersByPath = async (path, filters, simple = false) => {
     logger.error(error.message, path);
   }
 };
-
+//This function asynchronously stores a parameter with a given name, value, and type in AWS SSM Parameter Store, and returns the result of the operation.
 const putParameter = async (name, value, type = 'SecureString', dataType = 'text', overwrite = false) => {
   const params = {
     Name: name,
@@ -256,7 +257,7 @@ const putParameter = async (name, value, type = 'SecureString', dataType = 'text
     logger.error(error, path);
   }
 };
-
+// This function asynchronously stores an item with given data in the specified DynamoDB table, using either DAX or DocumentClient, and returns the result of the operation.
 const putDDBItem = async (table, data, dax = true) => {
   const params = {
     TableName: table,
@@ -271,9 +272,9 @@ const putDDBItem = async (table, data, dax = true) => {
     logger.error(error);
   }
 }
-
+// This function checks whether a given path is an S3 URL (Uniform Resource Locator) by testing if it matches the regular expression ^s3:\/\/.+\/.+, and returns a boolean value indicating the result.
 const isS3 = path => /^s3:\/\/.+\/.+/i.test(path)
-
+// This function parses an S3 path string and extracts the bucket name and object key.
 const parseS3 = path => {
   if (!isS3(path)) {
     logger.error(`Invalid S3 path: ${path}`);
@@ -297,6 +298,7 @@ const parseS3 = path => {
 //   s3.putObject().promise()
 // }
 
+// The function returns a signed URL that allows access to an S3 object with the specified path for a limited time, defaulting to 60 seconds.
 const getSignedUrl = async (path, expires = 60) => {
   const params = parseS3(path);
   if (!params) {
@@ -313,7 +315,7 @@ const getSignedUrl = async (path, expires = 60) => {
   }
   return url;
 }
-
+// This function sends an SMS message to a phone number using the Amazon SNS service
 const sendSNS = async (number, message) => {
   const params = {
     Message: message,
@@ -326,7 +328,7 @@ const sendSNS = async (number, message) => {
     logger.error(error);
   }
 }
-
+// This function retrieves a secret value from AWS Secrets Manager service and parses it if it is in JSON format.
 const getSecret = async (secretName) => {
   try {
     const results = await secrets.getSecretValue({ SecretId: secretName }).promise();
@@ -346,7 +348,7 @@ const getSecret = async (secretName) => {
     logger.error(error);
   }
 }
-
+// This function decrements a specified field value in a DynamoDB table for a given key.
 const decrementDDBItem = async (table, key, field, value = 1, dax = true) => {
 
   // const names = {};
@@ -376,7 +378,7 @@ const decrementDDBItem = async (table, key, field, value = 1, dax = true) => {
     console.log(error);
   }
 }
-
+// This function updates a DynamoDB table by incrementing the value of a specific field in a specific item by a given value.
 const incrementDDBItem = async (table, key, field, value = 1, dax = true) => {
   const params = {
     TableName: table,
@@ -396,7 +398,7 @@ const incrementDDBItem = async (table, key, field, value = 1, dax = true) => {
     logger.error(error);
   }
 }
-
+// This function retrieves an item from a DynamoDB table by its key
 const getDDBItem = async (table, key, dax = true) => {
 
   const params = {
@@ -412,7 +414,7 @@ const getDDBItem = async (table, key, dax = true) => {
     logger.error(error);
   }
 }
-
+// The function updates an item in DynamoDB based on the parameters passed in and the DAX (DynamoDB Accelerator) configuration
 const updateDDBItem = async (params, dax = true) => {
   try {
     const client = hasDax && dax ? daxClient : ddbClient;
@@ -421,7 +423,7 @@ const updateDDBItem = async (params, dax = true) => {
     logger.error(error);
   }
 }
-
+// The function retrieves the description of an Amazon DynamoDB table
 const describeTable = async (table) => {
   let params = {
     TableName: table
@@ -433,7 +435,7 @@ const describeTable = async (table) => {
     logger.error(error);
   }
 }
-
+// This function creates an AWS DynamoDB table based on the provided parameters and enables Time-to-Live (TTL) if specified
 const createTable = async (params, ttlParams) => {
   try {
     const results = await ddb.createTable(params).promise();
@@ -457,7 +459,7 @@ const createTable = async (params, ttlParams) => {
     logger.error(error);
   }
 }
-
+// The function performs a query on a DynamoDB table using the provided parameters and DAX if available.
 const docQuery = async (params, dax = true) => {
   try {
     const client = hasDax && dax ? daxClient : ddbClient;
@@ -466,7 +468,7 @@ const docQuery = async (params, dax = true) => {
     logger.error(error);
   }
 }
-
+// This function performs a scan operation on a DynamoDB table using the specified parameters and DAX client if available, and returns the result.
 const docScan = async (params, dax = true) => {
   try {
     const client = hasDax && dax ? daxClient : ddbClient;
@@ -475,7 +477,7 @@ const docScan = async (params, dax = true) => {
     logger.error(error);
   }
 }
-
+// This function is deleting an item from DynamoDB based on the provided parameters, using either the DAX or regular DDB client depending on the value of the dax parameter.
 const docDelete = async (params, dax = true) => {
   try {
     const client = hasDax && dax ? daxClient : ddbClient;
@@ -484,7 +486,7 @@ const docDelete = async (params, dax = true) => {
     logger.error(error);
   }
 }
-
+// This function updates a DynamoDB table with new data for the given keys, with support for dynamic attribute names and values.
 const updateDynamic = async (table, keys, data) => {
 
   //logger.info('updateDynamic', data);
@@ -537,7 +539,7 @@ const updateDynamic = async (table, keys, data) => {
   }
 }
 
-
+// This function performs a query operation on a DynamoDB table with the provided parameters.
 const query = async (params) => {
   try {
     return await ddb.query(params).promise();
@@ -545,7 +547,7 @@ const query = async (params) => {
     logger.error(error);
   }
 }
-
+// This function is performing a scan operation on an Amazon DynamoDB table using the parameters passed to it and returning the result.
 const scan = async (params) => {
   try {
     return await ddb.scan(params).promise();
