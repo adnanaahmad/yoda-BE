@@ -26,6 +26,7 @@ const rateLimiterRedis = new RateLimiterRedis({
     duration: 0
 });
 */
+// This function retrieves an item from a DynamoDB table using certId as the unique identifier to obtain authorization information.
 const getAuthz = async (certId) => {
     if (!certId) {
         return;
@@ -39,7 +40,7 @@ const getAuthz = async (certId) => {
         return result.Item;
     }
 }
-
+// This function fetches a customer account matching the provided customer_id from a DynamoDB table named 'CUSTOMER_ACCOUNT'.
 const getCustomer = async (customer_id) => {
     if (!customer_id) {
         return;
@@ -53,7 +54,7 @@ const getCustomer = async (customer_id) => {
         return result.Item;
     }
 }
-
+// This function sends a webhook notification based on table event data to a specific customer through handler function if the customer has an active webhook for the specific table.
 const sendWebhook = async (customer_id, data, table, handler) => {
     try {
         const customer = await getCustomer(customer_id);
@@ -72,7 +73,7 @@ const sendWebhook = async (customer_id, data, table, handler) => {
         console.log(error);        
     }
 }
-
+// This asynchronous function checks the API rate limit of a customer by consuming one point from the Redis rateLimiterRedis, and returns the rate limiter response object with the number of remaining points.
 const checkRateLimit = async (request, reply) => {
     if (!request.user || !request.user.CustomerAccountID) {
         return;
@@ -87,7 +88,7 @@ const checkRateLimit = async (request, reply) => {
     }
     return rateLimiterRes;
 }
-
+// The function checkHeaders takes in request, reply, minLevel (default value: 0), and requireAdmin (default value: false) as parameters, performs user authentication and authorization based on HTTP headers, and returns a boolean (true if authentication is successful).
 const checkHeaders = async (request, reply, minLevel = 0, requireAdmin = false) => {
     //return true;
     let reason = 'Unauthorized';

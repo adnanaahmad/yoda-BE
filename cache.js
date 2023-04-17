@@ -32,10 +32,11 @@ const MEMORY_CACHE = new NodeCache({
 //TODO
 //const CACHE = {};
 
+//This function concatenates the type and id inputs into a single string separated by a colon.
 const getKey = (type, id) => {
     return `${type}:${id}`;
 }
-
+// This function removes any keys that start with an underscore or have an undefined value from the input object.
 const sanitize = (data) => {
     if (typeof (data) === 'object') {
         Object.keys(data).forEach(key => {
@@ -50,6 +51,7 @@ const sanitize = (data) => {
 //DAX
 //ttl
 //TODO! Must be careful with the extra names!!!!
+// This function stores data in an AWS DynamoDB table after performing various checks and transformations on the input data.
 const setP = async (type, key, value, expiration, flat) => {
     // if(!_type || !key || !value) {
     //     return;
@@ -92,7 +94,7 @@ const setP = async (type, key, value, expiration, flat) => {
         console.log(error);
     }
 }
-
+// This function retrieves data from an AWS DynamoDB table based on the input type and key, and returns the retrieved data, or a default value if no data is found.
 const getP = async (type, key, defaultValue) => {
     let value;
 
@@ -124,7 +126,7 @@ const getP = async (type, key, defaultValue) => {
 
     return value;
 }
-
+// This function updates an existing record in an AWS DynamoDB table based on the input type and key, and modifies the record's _modified and _expiresAt fields, as well as its value or properties, depending on the input data.
 const updateP = async (type, key, value, expiration, flat) => {
     // if(!_type || !key || !value) {
     //     return;
@@ -167,7 +169,7 @@ const updateP = async (type, key, value, expiration, flat) => {
         console.log(error);
     }
 }
-
+// This function decrements the numeric value of a field in an AWS DynamoDB table based on the input type, key, and field, and returns the updated value.
 const decrementP = async (type, key, field) => {
     // if(!_type || !key || !value) {
     //     return;
@@ -189,7 +191,7 @@ const decrementP = async (type, key, field) => {
     }
 }
 
-
+// This function stores a value in a Redis database based on the input type, key, and value, and sets an expiration time for the stored value if an expiration parameter is provided.
 const set = async (type, key, value, expiration) => {
     try {
         type = type || '_shared_';
@@ -215,7 +217,7 @@ const set = async (type, key, value, expiration) => {
         console.log(error);
     }
 }
-
+// This function is getting the value of a key from Redis cache based on a type and key, and returning a default value if the key does not exist.
 const get = async (type, key, defaultValue) => {
     let value;
     try {
@@ -235,7 +237,7 @@ const get = async (type, key, defaultValue) => {
 
     return value;
 }
-
+// This function is setting a value in a memory cache with a specified expiration time.
 const setM = (type, key, value, expiration) => {
     try {
         type = type || '_shared_';
@@ -254,7 +256,7 @@ const setM = (type, key, value, expiration) => {
         console.log(error);
     }
 }
-
+// This function retrieves a value from an in-memory cache and returns it, or returns a default value if the key is not found in the cache.
 const getM = (type, key, defaultValue) => {
     let value;
     try {
@@ -271,7 +273,7 @@ const getM = (type, key, defaultValue) => {
 
     return value;
 }
-
+// This function initializes a Redis client by getting the Redis URL from an AWS parameter store, setting up the client, and binding the set and get methods to setAsync and getAsync, respectively.
 const initRedis = async()=> {
     redisUrl = await awsClient.getParameter('/config/shared/redis/url');
 
@@ -285,7 +287,7 @@ const initRedis = async()=> {
         getAsync = promisify(redisClient.get).bind(redisClient);
     }
 }
-
+// The test function sets up a sample data object, and then performs some Redis and DAX operations on it, including setting, getting, and updating data, as well as logging the duration of each operation
 const test = async () => {
     const data = {
         name: 'Cisco',
@@ -336,7 +338,7 @@ const test = async () => {
     await dax();
     //await redis()
 }
-
+//This function initializes a Redis client and calls the test() function to test Redis and DAX caching.
 (async () => {
     await initRedis();
 
