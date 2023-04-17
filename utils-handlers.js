@@ -9,6 +9,7 @@ let _twilioQ;
 let _webhookQ;
 let _snsQ;
 
+// The function init initializes necessary queues for handling communication methods (email, twilio, webhook, and SNS) if available, uses Redis if available, and sets the different queues to undefined if not available.
 const init = async (email = true, twilio = true, webhook = false, sns = false) => {
     //TODO!
     let redisUrl = await awsClient.getParameter('/config/shared/redis/url');
@@ -27,7 +28,7 @@ const init = async (email = true, twilio = true, webhook = false, sns = false) =
         _snsQ = sns ? require('./handler-sns') : undefined;
     }
 }
-
+// These four functions (email, twilio, webhook, and sns) are custom queue interfaces that add payloads data and optional options objects to corresponding queues (_emailQ, _twilioQ, _webhookQ, and _snsQ) for processing later.
 const email = (data, options) => _emailQ.add(data, options);
 const twilio = (data, options) => _twilioQ.add(data, options);
 const webhook = (data, options) => _webhookQ.add(data, options);
