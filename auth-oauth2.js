@@ -15,6 +15,7 @@ const KEYS = [];
 const GRACE_PERIOD = 2 * 60 * 1000;
 
 //TODO!
+// This function saves data as a JSON file in the directory named type with id as the filename, using utils.fileWrite() function and logs an error if any occurs.
 const saveFile = async (type, id, data) => {
     if (!data) {
         return;
@@ -28,6 +29,7 @@ const saveFile = async (type, id, data) => {
 }
 
 //TODO!
+// This function loads data from directory named type, with id as filename, using utils.loadFile() and returns data object after parsing JSON, otherwise logs error if any occurs.
 const loadFile = async (type, id) => {
     try {
         let data = await utils.loadFile(`./${type}/${id}.json`);
@@ -38,7 +40,7 @@ const loadFile = async (type, id) => {
         logger.error(error);
     }
 }
-
+// this function adds a request object into a REQUESTS object with given properties to be processed later, and also pushes given id into an array named KEYS.
 const addRequest = (id, token_url, client_id, client_secret, scope, grant_type = 'client_credentials', extraData, extraHeaders) => {
     KEYS.push(id);
     REQUESTS[id] = {
@@ -53,11 +55,11 @@ const addRequest = (id, token_url, client_id, client_secret, scope, grant_type =
         extraHeaders
     };
 }
-
+// This function receives an id and returns the request object from the REQUESTS.
 const getRequest = (id) => {
     return REQUESTS[id];
 }
-
+// This function checks if a token with given id has expired, if not returns true, if enabled cache it from disk, and if not in both cases returns nothing.
 const checkToken = async (id) => {
     let token = TOKENS[id];
     if (!token && cacheTokens) {
@@ -76,7 +78,7 @@ const checkToken = async (id) => {
         }
     }
 }
-
+// This function requests a new token and handles basic auth with given request id by fetching data from token_url using client_id, client_secret, and scope, then stores the token into TOKENS object with an expiration time, if available.
 const requestToken = async (req) => {
     let method = "post";
 
@@ -165,7 +167,7 @@ const requestToken = async (req) => {
         logger.error(`requestToken - [${id}] error`, error);
     }
 }
-
+// This function clears a timer, generates an array of functions to request tokens from REQUESTS keys, then waits 30 seconds if there functions in the array and less than 10 seconds if there's an error and run the checkTokens function again after waiting.
 const checkTokens = async () => {
     clearTimeout(renewTimer);
 
@@ -189,18 +191,18 @@ const checkTokens = async () => {
         checkTokens();
     }, wait);
 }
-
+// This function checks if there's a token stored in TOKENS object with the same id, and returns its access_token, otherwise it returns nothing.
 const getToken = (id) => {
     const auth = TOKENS[id];
     if (auth) {
         return auth.access_token;
     }
 }
-
+//  This function runs checkTokens() function that will call requestToken() whenever necessary to store an access_token if not yet stored or has expired.
 const start = async () => {
     await checkTokens();
 }
-
+// This function clears the timer renewTimer in order to stop token fetching.
 const stop = () => {
     clearTimeout(renewTimer);
 }
