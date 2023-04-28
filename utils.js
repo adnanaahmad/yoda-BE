@@ -161,7 +161,7 @@ const mongoObjectId = () => {
 };
 // The function calculates the SHA-384 hash value of the input data using the crypto module's hash() function.
 const sha384 = (data) => hash(data, 'sha384');
-
+//This function generates and returns a hash of the given data string, using the specified hash algo, encoding and outputLength parameters (if provided).
 const hash = (data, algo, encoding, outputLength) => {
     algo = algo || 'sha1';
     encoding = encoding || 'base64'; //"latin1" | "hex" | "base64"
